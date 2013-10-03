@@ -187,12 +187,12 @@ class Formbuilder
 
         @render()
         @collection.reset(@options.bootstrapData)
-        @initAutosave()
+        @saveFormButton = @$el.find(".js-save-form")
+        @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
+        @initAutosave() if @options.autoSave
 
       initAutosave: ->
         @formSaved = true
-        @saveFormButton = @$el.find(".js-save-form")
-        @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
 
         setInterval =>
           @saveForm.call(@)
