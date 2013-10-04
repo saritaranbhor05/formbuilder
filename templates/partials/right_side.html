@@ -1,4 +1,22 @@
+<% if(opts && opts.live) { %>
+<form id='formbuilder_form'
+  class='fb-right-live' 
+  action="newsubmission"
+  method="post">
+<% } else { %>
 <div class='fb-right'>
+<% } %>
   <div class='fb-no-response-fields'>No response fields</div>
   <div class='fb-response-fields'></div>
+  <% if(opts && opts.submitUrl) { %>
+  <input type="submit" value="Submit">
+  <% } %>
+
+  <% for (l in (opts.hidden || {})) { %>
+  <input type="hidden" name=<%= l%> value=<%= opts.hidden[l]%>>
+  <% } %>
+<% if(opts && opts.live) { %>
+</form>
+<% } else { %>
 </div>
+<% } %>

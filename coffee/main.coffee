@@ -51,6 +51,8 @@ class Formbuilder
       $(".fb-field-wrapper").index $wrapper
     is_input: ->
       Formbuilder.inputFields[@get(Formbuilder.options.mappings.FIELD_TYPE)]?
+    getCid: ->
+      @get('cid') || @cid
 
   @collection: Backbone.Collection.extend
     initialize: ->
@@ -90,14 +92,19 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       render: ->
-        @$el.addClass('response-field-'+@model.get(Formbuilder.options.mappings.FIELD_TYPE))
-            .data('cid', @model.cid)
-            .html(Formbuilder.templates["view/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model}))
+        do (cid = @model.getCid(), that = @) ->
+          that.$el.addClass('response-field-'+that.model.get(Formbuilder.options.mappings.FIELD_TYPE))
+            .data('cid', cid)
+            .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
+          do (x = null, count = 0) ->
+            for x in that.$("input")
+              count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
+              $(x).attr("name", cid.toString() + "_" + count.toString())
 
         return @
 
       focusEditView: ->
-        @parentView.createAndShowEditView(@model)
+        @parentView.createAndShowEditView(@model) if !@options.live
 
       clear: ->
         @parentView.handleFormUpdate()
@@ -206,7 +213,7 @@ class Formbuilder
         @addAll()
 
       render: ->
-        @$el.html Formbuilder.templates['page']()
+        @$el.html Formbuilder.templates['page']({opts: @options})
 
         # Save jQuery objects for easy use
         @$fbLeft = @$el.find('.fb-left')
@@ -244,6 +251,7 @@ class Formbuilder
         view = new Formbuilder.views.view_field
           model: responseField
           parentView: @
+          live: @options.live
 
         #####
         # Calculates where to place this new field.
@@ -301,7 +309,7 @@ class Formbuilder
 
       addAll: ->
         @collection.each @addOne, @
-        @setSortable()
+        @setSortable() if !@options.live
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
@@ -368,6 +376,9 @@ class Formbuilder
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
 
+      formData: ->
+        @$('#formbuilder_form').serializeArray()
+
       doAjaxSave: (payload) ->
         $.ajax
           url: Formbuilder.options.HTTP_ENDPOINT
@@ -387,6 +398,9 @@ class Formbuilder
   constructor: (selector, opts = {}) ->
     _.extend @, Backbone.Events
     @mainView = new Formbuilder.views.main _.extend({ selector: selector }, opts, { formBuilder: @ })
+
+  formData: ->
+    @mainView.formData()
 
 window.Formbuilder = Formbuilder
 

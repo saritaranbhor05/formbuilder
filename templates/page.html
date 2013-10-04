@@ -1,4 +1,8 @@
+<% if (!opts.live) { %>
 <%= Formbuilder.templates['partials/save_button']() %>
 <%= Formbuilder.templates['partials/left_side']() %>
-<%= Formbuilder.templates['partials/right_side']() %>
+<% } %>
+<%= Formbuilder.templates['partials/right_side']({opts: opts}) %>
+<% if (!opts.live) { %>
 <div class='fb-clear'></div>
+<% } %>
