@@ -107,6 +107,9 @@
       },
       is_input: function() {
         return Formbuilder.inputFields[this.get(Formbuilder.options.mappings.FIELD_TYPE)] != null;
+      },
+      getCid: function() {
+        return this.get('cid') || this.cid;
       }
     });
 
@@ -152,13 +155,33 @@
           return this.listenTo(this.model, "destroy", this.remove);
         },
         render: function() {
-          this.$el.addClass('response-field-' + this.model.get(Formbuilder.options.mappings.FIELD_TYPE)).data('cid', this.model.cid).html(Formbuilder.templates["view/base" + (!this.model.is_input() ? '_non_input' : '')]({
-            rf: this.model
-          }));
+          (function(cid, that) {
+            that.$el.addClass('response-field-' + that.model.get(Formbuilder.options.mappings.FIELD_TYPE)).data('cid', cid).html(Formbuilder.templates["view/base" + (!that.model.is_input() ? '_non_input' : '')]({
+              rf: that.model,
+              opts: that.options
+            }));
+            return (function(x, count) {
+              var _i, _len, _ref, _results;
+              _ref = that.$("input");
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                x = _ref[_i];
+                if ((function(attr) {
+                  return attr !== 'radio' && attr !== 'checkbox';
+                })($(x).attr('type'))) {
+                  count = count + 1;
+                }
+                _results.push($(x).attr("name", cid.toString() + "_" + count.toString()));
+              }
+              return _results;
+            })(null, 0);
+          })(this.model.getCid(), this);
           return this;
         },
         focusEditView: function() {
-          return this.parentView.createAndShowEditView(this.model);
+          if (!this.options.live) {
+            return this.parentView.createAndShowEditView(this.model);
+          }
         },
         clear: function() {
           this.parentView.handleFormUpdate();
@@ -257,13 +280,15 @@
           this.collection.bind('destroy', this.ensureEditViewScrolled, this);
           this.render();
           this.collection.reset(this.options.bootstrapData);
-          return this.initAutosave();
+          this.saveFormButton = this.$el.find(".js-save-form");
+          this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
+          if (this.options.autoSave) {
+            return this.initAutosave();
+          }
         },
         initAutosave: function() {
           var _this = this;
           this.formSaved = true;
-          this.saveFormButton = this.$el.find(".js-save-form");
-          this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           setInterval(function() {
             return _this.saveForm.call(_this);
           }, 5000);
@@ -281,7 +306,9 @@
         },
         render: function() {
           var subview, _i, _len, _ref;
-          this.$el.html(Formbuilder.templates['page']());
+          this.$el.html(Formbuilder.templates['page']({
+            opts: this.options
+          }));
           this.$fbLeft = this.$el.find('.fb-left');
           this.$responseFields = this.$el.find('.fb-response-fields');
           this.bindWindowScrollEvent();
@@ -326,7 +353,8 @@
           var $replacePosition, view;
           view = new Formbuilder.views.view_field({
             model: responseField,
-            parentView: this
+            parentView: this,
+            live: this.options.live
           });
           if (options.$replaceEl != null) {
             return options.$replaceEl.replaceWith(view.render().el);
@@ -386,7 +414,9 @@
         },
         addAll: function() {
           this.collection.each(this.addOne, this);
-          return this.setSortable();
+          if (!this.options.live) {
+            return this.setSortable();
+          }
         },
         hideShowNoResponseFields: function() {
           return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 ? 'hide' : 'show']();
@@ -469,6 +499,9 @@
           }
           return this.formBuilder.trigger('save', payload);
         },
+        formData: function() {
+          return this.$('#formbuilder_form').serializeArray();
+        },
         doAjaxSave: function(payload) {
           var _this = this;
           return $.ajax({
@@ -507,6 +540,10 @@
       }));
     }
 
+    Formbuilder.prototype.formData = function() {
+      return this.mainView.formData();
+    };
+
     return Formbuilder;
 
   })();
@@ -532,7 +569,7 @@
 
 (function() {
   Formbuilder.registerField('checkboxes', {
-    view: "<% for (i in (rf.get(Formbuilder.options.mappings.OPTIONS) || [])) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='checkbox' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %> onclick=\"javascript: return false;\" />\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input type='checkbox' />\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
+    view: "<% for (i in (rf.get(Formbuilder.options.mappings.OPTIONS) || [])) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='checkbox' value=<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label%> <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %> />\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='checkbox' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-check-empty\"></span></span> Checkboxes",
     defaultAttributes: function(attrs) {
@@ -633,7 +670,7 @@
 
 (function() {
   Formbuilder.registerField('radio', {
-    view: "<% for (i in (rf.get(Formbuilder.options.mappings.OPTIONS) || [])) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='radio' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %> onclick=\"javascript: return false;\" />\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input type='radio' />\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
+    view: "<% for (i in (rf.get(Formbuilder.options.mappings.OPTIONS) || [])) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='radio' value=<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label%> <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input type='radio' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Multiple Choice",
     defaultAttributes: function(attrs) {
@@ -881,15 +918,24 @@ return __p
 
 this["Formbuilder"]["templates"]["page"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p +=
+
+ if (!opts.live) { ;
+__p += '\n' +
 ((__t = ( Formbuilder.templates['partials/save_button']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.templates['partials/left_side']() )) == null ? '' : __t) +
-'\n' +
-((__t = ( Formbuilder.templates['partials/right_side']() )) == null ? '' : __t) +
-'\n<div class=\'fb-clear\'></div>';
+'\n';
+ } ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['partials/right_side']({opts: opts}) )) == null ? '' : __t) +
+'\n';
+ if (!opts.live) { ;
+__p += '\n<div class=\'fb-clear\'></div>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -952,9 +998,34 @@ return __p
 
 this["Formbuilder"]["templates"]["partials/right_side"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-right\'>\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n</div>\n';
+
+ if(opts && opts.live) { ;
+__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  action="newsubmission"\n  method="post">\n';
+ } else { ;
+__p += '\n<div class=\'fb-right\'>\n';
+ } ;
+__p += '\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n  ';
+ if(opts && opts.submitUrl) { ;
+__p += '\n  <input type="submit" value="Submit">\n  ';
+ } ;
+__p += '\n\n  ';
+ for (l in (opts.hidden || {})) { ;
+__p += '\n  <input type="hidden" name=' +
+((__t = ( l)) == null ? '' : __t) +
+' value=' +
+((__t = ( opts.hidden[l])) == null ? '' : __t) +
+'>\n  ';
+ } ;
+__p += '\n';
+ if(opts && opts.live) { ;
+__p += '\n</form>\n';
+ } else { ;
+__p += '\n</div>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -974,17 +1045,26 @@ return __p
 
 this["Formbuilder"]["templates"]["view/base"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'subtemplate-wrapper\'>\n  <div class=\'cover\'></div>\n  ' +
+__p += '<div class=\'subtemplate-wrapper\'>\n  ';
+ if(!opts.live){ ;
+__p += '\n  <div class=\'cover\'></div>\n  ';
+ } ;
+__p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
 '\n\n  ' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) )) == null ? '' : __t) +
 '\n\n  ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
-'\n  ' +
+'\n  ';
+ if(!opts.live){ ;
+__p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
-'\n</div>\n';
+'\n  ';
+ } ;
+__p += '\n</div>\n';
 
 }
 return __p

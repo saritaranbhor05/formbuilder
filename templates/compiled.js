@@ -186,15 +186,24 @@ return __p
 
 this["Formbuilder"]["templates"]["page"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p +=
+
+ if (!opts.live) { ;
+__p += '\n' +
 ((__t = ( Formbuilder.templates['partials/save_button']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.templates['partials/left_side']() )) == null ? '' : __t) +
-'\n' +
-((__t = ( Formbuilder.templates['partials/right_side']() )) == null ? '' : __t) +
-'\n<div class=\'fb-clear\'></div>';
+'\n';
+ } ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['partials/right_side']({opts: opts}) )) == null ? '' : __t) +
+'\n';
+ if (!opts.live) { ;
+__p += '\n<div class=\'fb-clear\'></div>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -257,9 +266,34 @@ return __p
 
 this["Formbuilder"]["templates"]["partials/right_side"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-right\'>\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n</div>\n';
+
+ if(opts && opts.live) { ;
+__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  action="newsubmission"\n  method="post">\n';
+ } else { ;
+__p += '\n<div class=\'fb-right\'>\n';
+ } ;
+__p += '\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n  ';
+ if(opts && opts.submitUrl) { ;
+__p += '\n  <input type="submit" value="Submit">\n  ';
+ } ;
+__p += '\n\n  ';
+ for (l in (opts.hidden || {})) { ;
+__p += '\n  <input type="hidden" name=' +
+((__t = ( l)) == null ? '' : __t) +
+' value=' +
+((__t = ( opts.hidden[l])) == null ? '' : __t) +
+'>\n  ';
+ } ;
+__p += '\n';
+ if(opts && opts.live) { ;
+__p += '\n</form>\n';
+ } else { ;
+__p += '\n</div>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -279,17 +313,26 @@ return __p
 
 this["Formbuilder"]["templates"]["view/base"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'subtemplate-wrapper\'>\n  <div class=\'cover\'></div>\n  ' +
+__p += '<div class=\'subtemplate-wrapper\'>\n  ';
+ if(!opts.live){ ;
+__p += '\n  <div class=\'cover\'></div>\n  ';
+ } ;
+__p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
 '\n\n  ' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) )) == null ? '' : __t) +
 '\n\n  ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
-'\n  ' +
+'\n  ';
+ if(!opts.live){ ;
+__p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
-'\n</div>\n';
+'\n  ';
+ } ;
+__p += '\n</div>\n';
 
 }
 return __p
