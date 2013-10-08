@@ -1,7 +1,9 @@
 <% if(opts && opts.live) { %>
 <form id='formbuilder_form'
   class='fb-right-live' 
-  action="newsubmission"
+  <% if(opts.submitUrl) { %>
+  action="<%= opts.submitUrl %>"
+  <% } %>
   method="post">
 <% } else { %>
 <div class='fb-right'>

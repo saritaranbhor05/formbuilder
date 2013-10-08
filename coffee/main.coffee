@@ -92,17 +92,44 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       render: ->
-        do (cid = @model.getCid(), that = @) ->
-          that.$el.addClass('response-field-'+that.model.get(Formbuilder.options.mappings.FIELD_TYPE))
+        do (
+          cid = @model.getCid(),
+          field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE),
+          base_templ_suff = if @model.is_input() then '' else '_non_input'
+        ) =>
+          @$el.addClass('response-field-'+ field_type)
             .data('cid', cid)
-            .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
-          do (x = null, count = 0) ->
-            for x in that.$("input")
-              count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
-              $(x).attr("name", cid.toString() + "_" + count.toString())
-
+            .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
+              rf: @model,
+              opts: @options}))
+          do ( # compute and add names and values to fields
+            x = null,
+            count = 0,
+            should_incr = (attr) -> attr != 'radio'
+          ) =>
+            for x in @$("input")
+              count = do( # set element name and value
+                x,
+                index = count + (if should_incr($(x).attr('type')) then 1 else 0),
+                name = null,
+                val = null
+              ) =>
+                name = cid.toString() + "_" + index.toString()
+                val = @model.get('field_values')[name] if @model.get('field_values')
+                $(x).attr("name", name)
+                @setFieldVal($(x), val) if val
+                index
         return @
 
+      setFieldVal: (elem, val) ->
+        do(setters = null, type = $(elem).attr('type')) =>
+          setters = 
+            checkbox: ->
+              $(elem).attr("checked", true) if val 
+            default: ->
+              $(elem).val(val) if val 
+          (setters[type] || setters['default'])(elem, val)
+          
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
 
@@ -213,11 +240,19 @@ class Formbuilder
         @addAll()
 
       render: ->
-        @$el.html Formbuilder.templates['page']({opts: @options})
-
+        if !@options.alt_parents
+          @$el.html Formbuilder.templates['page']({opts: @options})
+          @$fbLeft = @$el.find('.fb-left')
+          @$responseFields = @$el.find('.fb-response-fields')
+        else
+          if !@options.live
+            $(@options.alt_parents['fb_save']).html Formbuilder.templates['partials/save_button']()
+            $(@options.alt_parents['fb_left']).html Formbuilder.templates['partials/left_side']()
+            @$fbLeft = @options.alt_parents['fb_left'].find('.fb-left')
+          $(@options.alt_parents['fb_right']).html Formbuilder.templates['partials/right_side']({opts: @options})
+          @$responseFields = @options.alt_parents['fb_right'].find('.fb-response-fields')
+          
         # Save jQuery objects for easy use
-        @$fbLeft = @$el.find('.fb-left')
-        @$responseFields = @$el.find('.fb-response-fields')
 
         @bindWindowScrollEvent()
         @hideShowNoResponseFields()
@@ -252,6 +287,7 @@ class Formbuilder
           model: responseField
           parentView: @
           live: @options.live
+          seedData: responseField.seedData
 
         #####
         # Calculates where to place this new field.

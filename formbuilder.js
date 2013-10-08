@@ -155,28 +155,54 @@
           return this.listenTo(this.model, "destroy", this.remove);
         },
         render: function() {
-          (function(cid, that) {
-            that.$el.addClass('response-field-' + that.model.get(Formbuilder.options.mappings.FIELD_TYPE)).data('cid', cid).html(Formbuilder.templates["view/base" + (!that.model.is_input() ? '_non_input' : '')]({
-              rf: that.model,
-              opts: that.options
+          var _this = this;
+          (function(cid, field_type, base_templ_suff) {
+            _this.$el.addClass('response-field-' + field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+              rf: _this.model,
+              opts: _this.options
             }));
-            return (function(x, count) {
+            return (function(x, count, should_incr) {
               var _i, _len, _ref, _results;
-              _ref = that.$("input");
+              _ref = _this.$("input");
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 x = _ref[_i];
-                if ((function(attr) {
-                  return attr !== 'radio' && attr !== 'checkbox';
-                })($(x).attr('type'))) {
-                  count = count + 1;
-                }
-                _results.push($(x).attr("name", cid.toString() + "_" + count.toString()));
+                _results.push(count = (function(x, index, name, val) {
+                  name = cid.toString() + "_" + index.toString();
+                  if (_this.model.get('field_values')) {
+                    val = _this.model.get('field_values')[name];
+                  }
+                  $(x).attr("name", name);
+                  if (val) {
+                    _this.setFieldVal($(x), val);
+                  }
+                  return index;
+                })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
               }
               return _results;
-            })(null, 0);
-          })(this.model.getCid(), this);
+            })(null, 0, function(attr) {
+              return attr !== 'radio';
+            });
+          })(this.model.getCid(), this.model.get(Formbuilder.options.mappings.FIELD_TYPE), this.model.is_input() ? '' : '_non_input');
           return this;
+        },
+        setFieldVal: function(elem, val) {
+          var _this = this;
+          return (function(setters, type) {
+            setters = {
+              checkbox: function() {
+                if (val) {
+                  return $(elem).attr("checked", true);
+                }
+              },
+              "default": function() {
+                if (val) {
+                  return $(elem).val(val);
+                }
+              }
+            };
+            return (setters[type] || setters['default'])(elem, val);
+          })(null, $(elem).attr('type'));
         },
         focusEditView: function() {
           if (!this.options.live) {
@@ -306,11 +332,23 @@
         },
         render: function() {
           var subview, _i, _len, _ref;
-          this.$el.html(Formbuilder.templates['page']({
-            opts: this.options
-          }));
-          this.$fbLeft = this.$el.find('.fb-left');
-          this.$responseFields = this.$el.find('.fb-response-fields');
+          if (!this.options.alt_parents) {
+            this.$el.html(Formbuilder.templates['page']({
+              opts: this.options
+            }));
+            this.$fbLeft = this.$el.find('.fb-left');
+            this.$responseFields = this.$el.find('.fb-response-fields');
+          } else {
+            if (!this.options.live) {
+              $(this.options.alt_parents['fb_save']).html(Formbuilder.templates['partials/save_button']());
+              $(this.options.alt_parents['fb_left']).html(Formbuilder.templates['partials/left_side']());
+              this.$fbLeft = this.options.alt_parents['fb_left'].find('.fb-left');
+            }
+            $(this.options.alt_parents['fb_right']).html(Formbuilder.templates['partials/right_side']({
+              opts: this.options
+            }));
+            this.$responseFields = this.options.alt_parents['fb_right'].find('.fb-response-fields');
+          }
           this.bindWindowScrollEvent();
           this.hideShowNoResponseFields();
           _ref = this.SUBVIEWS;
@@ -354,7 +392,8 @@
           view = new Formbuilder.views.view_field({
             model: responseField,
             parentView: this,
-            live: this.options.live
+            live: this.options.live,
+            seedData: responseField.seedData
           });
           if (options.$replaceEl != null) {
             return options.$replaceEl.replaceWith(view.render().el);
@@ -1003,7 +1042,13 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 
  if(opts && opts.live) { ;
-__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  action="newsubmission"\n  method="post">\n';
+__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  ';
+ if(opts.submitUrl) { ;
+__p += '\n  action="' +
+((__t = ( opts.submitUrl )) == null ? '' : __t) +
+'"\n  ';
+ } ;
+__p += '\n  method="post">\n';
  } else { ;
 __p += '\n<div class=\'fb-right\'>\n';
  } ;
