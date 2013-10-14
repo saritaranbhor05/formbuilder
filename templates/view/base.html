@@ -1,5 +1,5 @@
 <div class='subtemplate-wrapper'>
-  <% if(!opts.live){ %>
+  <% if(opts.readonly){ %>
   <div class='cover'></div>
   <% } %>
   <%= Formbuilder.templates['view/label']({rf: rf}) %>

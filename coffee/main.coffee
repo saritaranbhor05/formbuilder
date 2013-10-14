@@ -219,6 +219,7 @@ class Formbuilder
         @collection.bind 'destroy add reset', @hideShowNoResponseFields, @
         @collection.bind 'destroy', @ensureEditViewScrolled, @
 
+        @options.readonly = true if !@options.live
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -287,6 +288,7 @@ class Formbuilder
           model: responseField
           parentView: @
           live: @options.live
+          readonly: @options.readonly
           seedData: responseField.seedData
 
         #####
