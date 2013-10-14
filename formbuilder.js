@@ -304,6 +304,9 @@
           this.collection.bind('change', this.handleFormUpdate, this);
           this.collection.bind('destroy add reset', this.hideShowNoResponseFields, this);
           this.collection.bind('destroy', this.ensureEditViewScrolled, this);
+          if (!this.options.live) {
+            this.options.readonly = true;
+          }
           this.render();
           this.collection.reset(this.options.bootstrapData);
           this.saveFormButton = this.$el.find(".js-save-form");
@@ -393,6 +396,7 @@
             model: responseField,
             parentView: this,
             live: this.options.live,
+            readonly: this.options.readonly,
             seedData: responseField.seedData
           });
           if (options.$replaceEl != null) {
@@ -1094,7 +1098,7 @@ var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'subtemplate-wrapper\'>\n  ';
- if(!opts.live){ ;
+ if(opts.readonly){ ;
 __p += '\n  <div class=\'cover\'></div>\n  ';
  } ;
 __p += '\n  ' +
