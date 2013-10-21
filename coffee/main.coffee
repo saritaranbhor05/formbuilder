@@ -95,8 +95,10 @@ class Formbuilder
         do (
           cid = @model.getCid(),
           field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE),
+          field = null,
           base_templ_suff = if @model.is_input() then '' else '_non_input'
         ) =>
+          field = Formbuilder.fields[field_type]
           @$el.addClass('response-field-'+ field_type)
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
@@ -108,7 +110,7 @@ class Formbuilder
             should_incr = (attr) -> attr != 'radio'
           ) =>
             for x in @$("input")
-              count = do( # set element name and value
+              count = do( # set element name, value and call setup
                 x,
                 index = count + (if should_incr($(x).attr('type')) then 1 else 0),
                 name = null,
@@ -118,6 +120,9 @@ class Formbuilder
                 val = @model.get('field_values')[name] if @model.get('field_values')
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
+                field.setup($(x), @model, index)
+                if @model.get(Formbuilder.options.mappings.REQUIRED)
+                  $(x).attr("required", true)
                 index
         return @
 
@@ -417,6 +422,10 @@ class Formbuilder
       formData: ->
         @$('#formbuilder_form').serializeArray()
 
+      formValid: ->
+        do(el = @$('#formbuilder_form')[0]) ->
+          !el.checkValidity || el.checkValidity()
+
       doAjaxSave: (payload) ->
         $.ajax
           url: Formbuilder.options.HTTP_ENDPOINT
@@ -439,6 +448,9 @@ class Formbuilder
 
   formData: ->
     @mainView.formData()
+
+  formValid: ->
+    @mainView.formValid()
 
 window.Formbuilder = Formbuilder
 

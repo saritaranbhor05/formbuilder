@@ -156,7 +156,8 @@
         },
         render: function() {
           var _this = this;
-          (function(cid, field_type, base_templ_suff) {
+          (function(cid, field_type, field, base_templ_suff) {
+            field = Formbuilder.fields[field_type];
             _this.$el.addClass('response-field-' + field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
               rf: _this.model,
               opts: _this.options
@@ -176,6 +177,10 @@
                   if (val) {
                     _this.setFieldVal($(x), val);
                   }
+                  field.setup($(x), _this.model, index);
+                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED)) {
+                    $(x).attr("required", true);
+                  }
                   return index;
                 })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
               }
@@ -183,7 +188,7 @@
             })(null, 0, function(attr) {
               return attr !== 'radio';
             });
-          })(this.model.getCid(), this.model.get(Formbuilder.options.mappings.FIELD_TYPE), this.model.is_input() ? '' : '_non_input');
+          })(this.model.getCid(), this.model.get(Formbuilder.options.mappings.FIELD_TYPE), null, this.model.is_input() ? '' : '_non_input');
           return this;
         },
         setFieldVal: function(elem, val) {
@@ -545,6 +550,11 @@
         formData: function() {
           return this.$('#formbuilder_form').serializeArray();
         },
+        formValid: function() {
+          return (function(el) {
+            return !el.checkValidity || el.checkValidity();
+          })(this.$('#formbuilder_form')[0]);
+        },
         doAjaxSave: function(payload) {
           var _this = this;
           return $.ajax({
@@ -585,6 +595,10 @@
 
     Formbuilder.prototype.formData = function() {
       return this.mainView.formData();
+    };
+
+    Formbuilder.prototype.formValid = function() {
+      return this.mainView.formValid();
     };
 
     return Formbuilder;
@@ -682,9 +696,17 @@
 
 (function() {
   Formbuilder.registerField('number', {
-    view: "<input type='text' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
+    view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number"
+    addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MIN)) {
+        el.attr("min", model.get(Formbuilder.options.mappings.MIN));
+      }
+      if (model.get(Formbuilder.options.mappings.MAX)) {
+        return el.attr("max", model.get(Formbuilder.options.mappings.MAX));
+      }
+    }
   });
 
 }).call(this);
