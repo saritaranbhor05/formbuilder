@@ -31,6 +31,7 @@ class Formbuilder
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
+      STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
       LENGTH_UNITS: 'field_options.min_max_length_units'
@@ -120,7 +121,8 @@ class Formbuilder
                 val = @model.get('field_values')[name] if @model.get('field_values')
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
-                field.setup($(x), @model, index)
+                if field.setup
+                  field.setup($(x), @model, index)
                 if @model.get(Formbuilder.options.mappings.REQUIRED)
                   $(x).attr("required", true)
                 index
