@@ -177,7 +177,9 @@
                   if (val) {
                     _this.setFieldVal($(x), val);
                   }
-                  field.setup($(x), _this.model, index);
+                  if (field.setup) {
+                    field.setup($(x), _this.model, index);
+                  }
                   if (_this.model.get(Formbuilder.options.mappings.REQUIRED)) {
                     $(x).attr("required", true);
                   }
@@ -695,6 +697,16 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('fullname', {
+    perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input type='text' />\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' />\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input type='text' />\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text' />\n    <label>Suffix</label>\n  </span>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name"
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('number', {
     view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
@@ -891,6 +903,23 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 '\' />\n<textarea data-rv-input=\'model.' +
 ((__t = ( Formbuilder.options.mappings.DESCRIPTION )) == null ? '' : __t) +
 '\'\n  placeholder=\'Add a longer description to this field\'></textarea>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
+ if (typeof includeOther !== 'undefined'){ ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
+'\' />\n    Include "Middle Name"\n  </label>\n';
+ } ;
+
 
 }
 return __p
