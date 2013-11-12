@@ -29,7 +29,7 @@ Formbuilder.registerField 'fullname',
       </span>
 
       <span>
-        <input type='text' pattern="[a-zA-Z]+"/>
+        <input type='text'/>
         <label>Suffix</label>
       </span>
     </div>
@@ -47,5 +47,6 @@ Formbuilder.registerField 'fullname',
     do(valid = false) =>
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
         return true if !required_attr
-        return $el.find("#first_name").val() != '' && $el.find("#last_name").val() != ''
+        return ($el.find("#first_name").val() != '' &&
+          $el.find("#last_name").val() != '')
       return valid
