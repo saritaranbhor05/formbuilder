@@ -64,6 +64,7 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname'],
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -151,14 +152,21 @@
         },
         initialize: function() {
           this.parentView = this.options.parentView;
+          this.field_type = this.model.get(Formbuilder.options.mappings.FIELD_TYPE);
+          this.field = Formbuilder.fields[this.field_type];
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
         },
+        isValid: function() {
+          if (!this.field.isValid) {
+            return true;
+          }
+          return this.field.isValid(this.$el, this.model);
+        },
         render: function() {
           var _this = this;
-          (function(cid, field_type, field, base_templ_suff) {
-            field = Formbuilder.fields[field_type];
-            _this.$el.addClass('response-field-' + field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+          (function(cid, base_templ_suff) {
+            _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
               rf: _this.model,
               opts: _this.options
             }));
@@ -177,10 +185,10 @@
                   if (val) {
                     _this.setFieldVal($(x), val);
                   }
-                  if (field.setup) {
-                    field.setup($(x), _this.model, index);
+                  if (_this.field.setup) {
+                    _this.field.setup($(x), _this.model, index);
                   }
-                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED)) {
+                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
                     $(x).attr("required", true);
                   }
                   return index;
@@ -190,7 +198,7 @@
             })(null, 0, function(attr) {
               return attr !== 'radio';
             });
-          })(this.model.getCid(), this.model.get(Formbuilder.options.mappings.FIELD_TYPE), null, this.model.is_input() ? '' : '_non_input');
+          })(this.model.getCid(), this.model.is_input() ? '' : '_non_input');
           return this;
         },
         setFieldVal: function(elem, val) {
@@ -305,6 +313,7 @@
         initialize: function() {
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
+          this.fieldViews = [];
           this.collection = new Formbuilder.collection;
           this.collection.bind('add', this.addOne, this);
           this.collection.bind('reset', this.reset, this);
@@ -406,6 +415,7 @@
             readonly: this.options.readonly,
             seedData: responseField.seedData
           });
+          this.fieldViews.push(view);
           if (options.$replaceEl != null) {
             return options.$replaceEl.replaceWith(view.render().el);
           } else if ((options.position == null) || options.position === -1) {
@@ -553,9 +563,26 @@
           return this.$('#formbuilder_form').serializeArray();
         },
         formValid: function() {
-          return (function(el) {
-            return !el.checkValidity || el.checkValidity();
-          })(this.$('#formbuilder_form')[0]);
+          var _this = this;
+          return (function(valid) {
+            valid = (function(el) {
+              return !el.checkValidity || el.checkValidity();
+            })(_this.$('#formbuilder_form')[0]);
+            if (!valid) {
+              return false;
+            }
+            return (function(field) {
+              var _i, _len, _ref;
+              _ref = _this.fieldViews;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                field = _ref[_i];
+                if (field.isValid && !field.isValid()) {
+                  return false;
+                }
+              }
+              return true;
+            })(null);
+          })(false);
         },
         doAjaxSave: function(payload) {
           var _this = this;
@@ -642,6 +669,19 @@
         }
       ];
       return attrs;
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          checked_chk_cnt = $el.find('input:checked').length;
+          return checked_chk_cnt > 0;
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
     }
   });
 
@@ -699,9 +739,21 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input type='text' />\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' />\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input type='text' />\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text' />\n    <label>Suffix</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Suffix</label>\n  </span>\n</div>",
     edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name"
+    addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    }
   });
 
 }).call(this);
