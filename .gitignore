@@ -3,4 +3,3 @@ node_modules
 bower_components
 js/compiled.js
 templates/compiled.js
-Gruntfile.coffee
