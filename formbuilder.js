@@ -177,7 +177,9 @@
                   if (val) {
                     _this.setFieldVal($(x), val);
                   }
-                  field.setup($(x), _this.model, index);
+                  if (field.setup) {
+                    field.setup($(x), _this.model, index);
+                  }
                   if (_this.model.get(Formbuilder.options.mappings.REQUIRED)) {
                     $(x).attr("required", true);
                   }
@@ -690,6 +692,20 @@
     view: "<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('heading', {
+    type: 'non_input',
+    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'><%= rf.get(Formbuilder.options.mappings.LABEL) %></label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'><%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %></p>",
+    edit: "<div class=''>Heading Title</div>\n<input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'></textarea>\n<%= Formbuilder.templates['edit/size']() %>",
+    addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
+    }
   });
 
 }).call(this);

@@ -120,7 +120,7 @@ class Formbuilder
                 val = @model.get('field_values')[name] if @model.get('field_values')
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
-                field.setup($(x), @model, index)
+                field.setup($(x), @model, index) if field.setup
                 if @model.get(Formbuilder.options.mappings.REQUIRED)
                   $(x).attr("required", true)
                 index
@@ -128,13 +128,13 @@ class Formbuilder
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
-          setters = 
+          setters =
             checkbox: ->
-              $(elem).attr("checked", true) if val 
+              $(elem).attr("checked", true) if val
             default: ->
-              $(elem).val(val) if val 
+              $(elem).val(val) if val
           (setters[type] || setters['default'])(elem, val)
-          
+
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
 
@@ -257,7 +257,7 @@ class Formbuilder
             @$fbLeft = @options.alt_parents['fb_left'].find('.fb-left')
           $(@options.alt_parents['fb_right']).html Formbuilder.templates['partials/right_side']({opts: @options})
           @$responseFields = @options.alt_parents['fb_right'].find('.fb-response-fields')
-          
+
         # Save jQuery objects for easy use
 
         @bindWindowScrollEvent()
