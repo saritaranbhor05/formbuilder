@@ -47,4 +47,4 @@ Formbuilder.registerField 'checkboxes',
         return true if !required_attr
         checked_chk_cnt = $el.find('input:checked').length
         return checked_chk_cnt > 0
-      return valid
+      valid

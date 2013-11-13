@@ -32,6 +32,7 @@ class Formbuilder
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
+      STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
       LENGTH_UNITS: 'field_options.min_max_length_units'
@@ -96,7 +97,7 @@ class Formbuilder
 
       isValid: ->
         return true if !@field.isValid
-        return @field.isValid(@$el, @model)
+        @field.isValid(@$el, @model)
 
       render: ->
         do (
@@ -124,8 +125,7 @@ class Formbuilder
                 val = @model.get('field_values')[name] if @model.get('field_values')
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
-                if @field.setup
-                  @field.setup($(x), @model, index)
+                @field.setup($(x), @model, index) if @field.setup
                 if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
                   $(x).attr("required", true)
                 index
@@ -442,7 +442,6 @@ class Formbuilder
             for field in @fieldViews
               return false if field.isValid && !field.isValid()
             return true
-
 
       doAjaxSave: (payload) ->
         $.ajax

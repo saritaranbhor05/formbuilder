@@ -49,4 +49,4 @@ Formbuilder.registerField 'fullname',
         return true if !required_attr
         return ($el.find("#first_name").val() != '' &&
           $el.find("#last_name").val() != '')
-      return valid
+      valid
