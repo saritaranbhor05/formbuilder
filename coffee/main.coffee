@@ -89,18 +89,21 @@ class Formbuilder
 
       initialize: ->
         @parentView = @options.parentView
+        @field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        @field = Formbuilder.fields[@field_type]
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
+
+      isValid: ->
+        return true if !@field.isValid
+        @field.isValid(@$el, @model)
 
       render: ->
         do (
           cid = @model.getCid(),
-          field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE),
-          field = null,
           base_templ_suff = if @model.is_input() then '' else '_non_input'
         ) =>
-          field = Formbuilder.fields[field_type]
-          @$el.addClass('response-field-'+ field_type)
+          @$el.addClass('response-field-'+ @field_type)
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
               rf: @model,
@@ -121,20 +124,20 @@ class Formbuilder
                 val = @model.get('field_values')[name] if @model.get('field_values')
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
-                if field.setup
-                  field.setup($(x), @model, index)
-                if @model.get(Formbuilder.options.mappings.REQUIRED)
+                @field.setup($(x), @model, index) if @field.setup
+                if (@model.get(Formbuilder.options.mappings.REQUIRED) &&
+                    @model.get('field_type') != 'checkboxes')
                   $(x).attr("required", true)
                 index
         return @
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
-          setters = 
+          setters =
             checkbox: ->
-              $(elem).attr("checked", true) if val 
+              $(elem).attr("checked", true) if val
             default: ->
-              $(elem).val(val) if val 
+              $(elem).val(val) if val
           (setters[type] || setters['default'])(elem, val)
           
       focusEditView: ->
@@ -149,6 +152,7 @@ class Formbuilder
         delete attrs['id']
         attrs['label'] += ' Copy'
         @parentView.createField attrs, { position: @model.indexInDOM() + 1 }
+
     edit_field: Backbone.View.extend
       className: "edit-response-field"
 
@@ -206,6 +210,7 @@ class Formbuilder
 
       forceRender: ->
         @model.trigger('change')
+
     main: Backbone.View.extend
       SUBVIEWS: []
 
@@ -217,6 +222,7 @@ class Formbuilder
       initialize: ->
         @$el = $(@options.selector)
         @formBuilder = @options.formBuilder
+        @fieldViews = []
 
         # Create the collection, and bind the appropriate events
         @collection = new Formbuilder.collection
@@ -297,6 +303,9 @@ class Formbuilder
           live: @options.live
           readonly: @options.readonly
           seedData: responseField.seedData
+
+        # Append view to @fieldViews
+        @fieldViews.push(view)
 
         #####
         # Calculates where to place this new field.
@@ -425,8 +434,14 @@ class Formbuilder
         @$('#formbuilder_form').serializeArray()
 
       formValid: ->
-        do(el = @$('#formbuilder_form')[0]) ->
-          !el.checkValidity || el.checkValidity()
+        do(valid = false) =>
+          valid = do(el = @$('#formbuilder_form')[0]) ->
+            !el.checkValidity || el.checkValidity()
+          return false if !valid
+          do(field=null) =>
+            for field in @fieldViews
+              return false if field.isValid && !field.isValid()
+            return true
 
       doAjaxSave: (payload) ->
         $.ajax
