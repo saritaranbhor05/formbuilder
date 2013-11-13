@@ -443,7 +443,6 @@ class Formbuilder
               return false if field.isValid && !field.isValid()
             return true
 
-
       doAjaxSave: (payload) ->
         $.ajax
           url: Formbuilder.options.HTTP_ENDPOINT
