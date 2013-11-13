@@ -36,6 +36,8 @@ class Formbuilder
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
       LENGTH_UNITS: 'field_options.min_max_length_units'
+      DEFAULT_VALUE: 'field_options.default_value'
+      HINT: 'field_options.hint'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'

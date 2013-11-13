@@ -1,12 +1,13 @@
 Formbuilder.registerField 'text',
 
   view: """
-    <input type='text' pattern="[a-zA-Z0-9]+" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />
+    <input type='text' pattern="[a-zA-Z0-9_\\s]+" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />
   """
 
   edit: """
     <%= Formbuilder.templates['edit/size']() %>
     <%= Formbuilder.templates['edit/min_max_length']() %>
+    <%= Formbuilder.templates['edit/default_value_hint']() %>
   """
 
   addButton: """
@@ -20,6 +21,10 @@ Formbuilder.registerField 'text',
   setup: (el, model, index) ->
     if model.get(Formbuilder.options.mappings.MINLENGTH)
       do(min_length = model.get(Formbuilder.options.mappings.MINLENGTH)) ->
-        el.attr("pattern", "[a-zA-Z0-9]{#{min_length},}")
+        el.attr("pattern", "[a-zA-Z0-9_\\s]{#{min_length},}")
     if model.get(Formbuilder.options.mappings.MAXLENGTH)
       el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH))
+    if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
+      el.attr("value", model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+    if model.get(Formbuilder.options.mappings.HINT)
+      el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT))

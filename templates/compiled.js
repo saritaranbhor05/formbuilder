@@ -73,6 +73,20 @@ __p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-com
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/default_value_hint"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_VALUE )) == null ? '' : __t) +
+'"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
+'"/>\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/integer_only"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -124,9 +138,7 @@ __p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input 
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<select data-rv-value="model.' +
-((__t = ( Formbuilder.options.mappings.LENGTH_UNITS )) == null ? '' : __t) +
-'" style="width: auto;">\n  <option value="characters">characters</option>\n  <option value="words">words</option>\n</select>\n';
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<label class="fb-field-label-length-unit">Characters</label>\n';
 
 }
 return __p
