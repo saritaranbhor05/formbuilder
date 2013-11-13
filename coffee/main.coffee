@@ -96,7 +96,7 @@ class Formbuilder
 
       isValid: ->
         return true if !@field.isValid
-        return @field.isValid(@$el, @model)
+        @field.isValid(@$el, @model)
 
       render: ->
         do (
