@@ -1,30 +1,27 @@
 Formbuilder.registerField 'date_of_birth',
 
+  today: new Date
+
+  restricted_date: new Date
+
   view: """
     <div class='input-line'>
-      <span class='month'>
-        <input type="text" />
-        <label>MM</label>
-      </span>
-
-      <span class='above-line'>/</span>
-
-      <span class='day'>
-        <input type="text" />
-        <label>DD</label>
-      </span>
-
-      <span class='above-line'>/</span>
-
-      <span class='year'>
-        <input type="text" />
-        <label>YYYY</label>
-      </span>
+      <input type='date' max=<%= this.today.toISOString().slice(0,10)%> />
     </div>
   """
 
-  edit: ""
+  edit: """
+    <%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>
+  """
 
   addButton: """
-    <span class="symbol"><span class="icon-gift"></span></span> Date
+    <span class="symbol"><span class="icon-gift"></span></span> BirthDay
   """
+
+  setup: (el, model, index) ->
+    if model.get(Formbuilder.options.mappings.MINAGE)
+      this.restricted_date.setFullYear(
+        this.today.getFullYear() -
+        model.get(Formbuilder.options.mappings.MINAGE)
+      )
+      el.attr("max", this.restricted_date.toISOString().slice(0,10))

@@ -64,6 +64,7 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname'],
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -78,9 +79,11 @@
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
         MAX: 'field_options.max',
+        STEP: 'field_options.step',
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
-        LENGTH_UNITS: 'field_options.min_max_length_units'
+        LENGTH_UNITS: 'field_options.min_max_length_units',
+        MINAGE: 'field_options.minage'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -151,14 +154,21 @@
         },
         initialize: function() {
           this.parentView = this.options.parentView;
+          this.field_type = this.model.get(Formbuilder.options.mappings.FIELD_TYPE);
+          this.field = Formbuilder.fields[this.field_type];
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
         },
+        isValid: function() {
+          if (!this.field.isValid) {
+            return true;
+          }
+          return this.field.isValid(this.$el, this.model);
+        },
         render: function() {
           var _this = this;
-          (function(cid, field_type, field, base_templ_suff) {
-            field = Formbuilder.fields[field_type];
-            _this.$el.addClass('response-field-' + field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+          (function(cid, base_templ_suff) {
+            _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
               rf: _this.model,
               opts: _this.options
             }));
@@ -177,10 +187,10 @@
                   if (val) {
                     _this.setFieldVal($(x), val);
                   }
-                  if (field.setup) {
-                    field.setup($(x), _this.model, index);
+                  if (_this.field.setup) {
+                    _this.field.setup($(x), _this.model, index);
                   }
-                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED)) {
+                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
                     $(x).attr("required", true);
                   }
                   return index;
@@ -190,7 +200,7 @@
             })(null, 0, function(attr) {
               return attr !== 'radio';
             });
-          })(this.model.getCid(), this.model.get(Formbuilder.options.mappings.FIELD_TYPE), null, this.model.is_input() ? '' : '_non_input');
+          })(this.model.getCid(), this.model.is_input() ? '' : '_non_input');
           return this;
         },
         setFieldVal: function(elem, val) {
@@ -305,6 +315,7 @@
         initialize: function() {
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
+          this.fieldViews = [];
           this.collection = new Formbuilder.collection;
           this.collection.bind('add', this.addOne, this);
           this.collection.bind('reset', this.reset, this);
@@ -406,6 +417,7 @@
             readonly: this.options.readonly,
             seedData: responseField.seedData
           });
+          this.fieldViews.push(view);
           if (options.$replaceEl != null) {
             return options.$replaceEl.replaceWith(view.render().el);
           } else if ((options.position == null) || options.position === -1) {
@@ -553,9 +565,26 @@
           return this.$('#formbuilder_form').serializeArray();
         },
         formValid: function() {
-          return (function(el) {
-            return !el.checkValidity || el.checkValidity();
-          })(this.$('#formbuilder_form')[0]);
+          var _this = this;
+          return (function(valid) {
+            valid = (function(el) {
+              return !el.checkValidity || el.checkValidity();
+            })(_this.$('#formbuilder_form')[0]);
+            if (!valid) {
+              return false;
+            }
+            return (function(field) {
+              var _i, _len, _ref;
+              _ref = _this.fieldViews;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                field = _ref[_i];
+                if (field.isValid && !field.isValid()) {
+                  return false;
+                }
+              }
+              return true;
+            })(null);
+          })(false);
         },
         doAjaxSave: function(payload) {
           var _this = this;
@@ -642,6 +671,19 @@
         }
       ];
       return attrs;
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          checked_chk_cnt = $el.find('input:checked').length;
+          return checked_chk_cnt > 0;
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
     }
   });
 
@@ -649,9 +691,26 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <span class='month'>\n    <input type=\"text\" />\n    <label>MM</label>\n  </span>\n\n  <span class='above-line'>/</span>\n\n  <span class='day'>\n    <input type=\"text\" />\n    <label>DD</label>\n  </span>\n\n  <span class='above-line'>/</span>\n\n  <span class='year'>\n    <input type=\"text\" />\n    <label>YYYY</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <input type='date' />\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date"
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('date_of_birth', {
+    today: new Date,
+    restricted_date: new Date,
+    view: "<div class='input-line'>\n  <input type='date' max=<%= this.today.toISOString().slice(0,10)%> />\n</div>",
+    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> BirthDay",
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MINAGE)) {
+        this.restricted_date.setFullYear(this.today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
+        return el.attr("max", this.restricted_date.toISOString().slice(0, 10));
+      }
+    }
   });
 
 }).call(this);
@@ -680,7 +739,7 @@
 
 (function() {
   Formbuilder.registerField('email', {
-    view: "<input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
+    view: "<input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email"
   });
@@ -692,6 +751,28 @@
     view: "<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('fullname', {
+    perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    }
   });
 
 }).call(this);
@@ -713,14 +794,17 @@
 (function() {
   Formbuilder.registerField('number', {
     view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
-    edit: "<%= Formbuilder.templates['edit/min_max']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
+    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
     setup: function(el, model, index) {
       if (model.get(Formbuilder.options.mappings.MIN)) {
         el.attr("min", model.get(Formbuilder.options.mappings.MIN));
       }
       if (model.get(Formbuilder.options.mappings.MAX)) {
-        return el.attr("max", model.get(Formbuilder.options.mappings.MAX));
+        el.attr("max", model.get(Formbuilder.options.mappings.MAX));
+      }
+      if (model.get(Formbuilder.options.mappings.STEP)) {
+        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
       }
     }
   });
@@ -742,7 +826,7 @@
 
 (function() {
   Formbuilder.registerField('price', {
-    view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' />\n    <label>Cents</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-dollar\"></span></span> Price"
   });
@@ -795,16 +879,21 @@
 
 (function() {
   Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <span class='hours'>\n    <input type=\"text\" />\n    <label>HH</label>\n  </span>\n\n  <span class='above-line'>:</span>\n\n  <span class='minutes'>\n    <input type=\"text\" />\n    <label>MM</label>\n  </span>\n\n  <span class='above-line'>:</span>\n\n  <span class='seconds'>\n    <input type=\"text\" />\n    <label>SS</label>\n  </span>\n\n  <span class='am_pm'>\n    <select>\n      <option>AM</option>\n      <option>PM</option>\n    </select>\n  </span>\n</div>",
-    edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time"
+    view: "<div class='input-line'>\n  <input type=\"time\" />\n</div>",
+    edit: "<%= Formbuilder.templates['edit/step']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.STEP)) {
+        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+      }
+    }
   });
 
 }).call(this);
 
 (function() {
   Formbuilder.registerField('website', {
-    view: "<input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
+    view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> Website"
   });
@@ -813,6 +902,18 @@
 
 this["Formbuilder"] = this["Formbuilder"] || {};
 this["Formbuilder"]["templates"] = this["Formbuilder"]["templates"] || {};
+
+this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
+
+}
+return __p
+};
 
 this["Formbuilder"]["templates"]["edit/base"] = function(obj) {
 obj || (obj = {});
@@ -912,15 +1013,18 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 return __p
 };
 
-this["Formbuilder"]["templates"]["edit/min_max"] = function(obj) {
+this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n<input type="text" data-rv-input="model.' +
-((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="text" data-rv-input="model.' +
-((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n';
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
+ if (typeof includeOther !== 'undefined'){ ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
+'\' />\n    Include "Middle Name"\n  </label>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -937,6 +1041,22 @@ __p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input 
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.LENGTH_UNITS )) == null ? '' : __t) +
 '" style="width: auto;">\n  <option value="characters">characters</option>\n  <option value="words">words</option>\n</select>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/min_max_step"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
 
 }
 return __p
@@ -980,6 +1100,18 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Size</div>\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.SIZE )) == null ? '' : __t) +
 '">\n  <option value="small">Small</option>\n  <option value="medium">Medium</option>\n  <option value="large">Large</option>\n</select>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
+'" style="width: 40px" />\n';
 
 }
 return __p

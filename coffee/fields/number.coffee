@@ -8,7 +8,7 @@ Formbuilder.registerField 'number',
   """
 
   edit: """
-    <%= Formbuilder.templates['edit/min_max']() %>
+    <%= Formbuilder.templates['edit/min_max_step']() %>
     <%= Formbuilder.templates['edit/units']() %>
     <%= Formbuilder.templates['edit/integer_only']() %>
   """
@@ -22,3 +22,5 @@ Formbuilder.registerField 'number',
       el.attr("min", model.get(Formbuilder.options.mappings.MIN))
     if model.get(Formbuilder.options.mappings.MAX)
       el.attr("max", model.get(Formbuilder.options.mappings.MAX))
+    if model.get(Formbuilder.options.mappings.STEP)
+      el.attr("step", model.get(Formbuilder.options.mappings.STEP))
