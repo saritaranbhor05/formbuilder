@@ -64,6 +64,7 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname'],
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -188,7 +189,7 @@
                   if (_this.field.setup) {
                     _this.field.setup($(x), _this.model, index);
                   }
-                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && _this.model.get('field_type') !== 'checkboxes') {
+                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
                     $(x).attr("required", true);
                   }
                   return index;
@@ -737,6 +738,28 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('fullname', {
+    perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('number', {
     view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
@@ -941,6 +964,23 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 '\' />\n<textarea data-rv-input=\'model.' +
 ((__t = ( Formbuilder.options.mappings.DESCRIPTION )) == null ? '' : __t) +
 '\'\n  placeholder=\'Add a longer description to this field\'></textarea>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
+ if (typeof includeOther !== 'undefined'){ ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
+'\' />\n    Include "Middle Name"\n  </label>\n';
+ } ;
+__p += '\n';
 
 }
 return __p

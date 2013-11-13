@@ -16,6 +16,7 @@ class Formbuilder
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
+    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname']
 
     mappings:
       SIZE: 'field_options.size'
@@ -125,8 +126,7 @@ class Formbuilder
                 $(x).attr("name", name)
                 @setFieldVal($(x), val) if val
                 @field.setup($(x), @model, index) if @field.setup
-                if (@model.get(Formbuilder.options.mappings.REQUIRED) &&
-                    @model.get('field_type') != 'checkboxes')
+                if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
                   $(x).attr("required", true)
                 index
         return @
@@ -139,7 +139,7 @@ class Formbuilder
             default: ->
               $(elem).val(val) if val
           (setters[type] || setters['default'])(elem, val)
-          
+
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
 
@@ -265,7 +265,7 @@ class Formbuilder
             @$fbLeft = @options.alt_parents['fb_left'].find('.fb-left')
           $(@options.alt_parents['fb_right']).html Formbuilder.templates['partials/right_side']({opts: @options})
           @$responseFields = @options.alt_parents['fb_right'].find('.fb-response-fields')
-          
+
         # Save jQuery objects for easy use
 
         @bindWindowScrollEvent()
