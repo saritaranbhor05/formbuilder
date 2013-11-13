@@ -834,12 +834,22 @@
 
 (function() {
   Formbuilder.registerField('text', {
-    view: "<input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
+    view: "<input type='text' pattern=\"[a-zA-Z0-9]+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Text",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
       return attrs;
+    },
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+        (function(min_length) {
+          return el.attr("pattern", "[a-zA-Z0-9]{" + min_length + ",}");
+        })(model.get(Formbuilder.options.mappings.MINLENGTH));
+      }
+      if (model.get(Formbuilder.options.mappings.MAXLENGTH)) {
+        return el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
+      }
     }
   });
 
@@ -990,9 +1000,9 @@ this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="text" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="text" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.LENGTH_UNITS )) == null ? '' : __t) +

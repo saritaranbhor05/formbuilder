@@ -120,9 +120,9 @@ this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="text" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="text" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.LENGTH_UNITS )) == null ? '' : __t) +
