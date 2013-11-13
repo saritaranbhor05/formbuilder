@@ -4,12 +4,12 @@ Formbuilder.registerField 'price',
     <div class='input-line'>
       <span class='above-line'>$</span>
       <span class='dolars'>
-        <input type='text' />
+        <input type='text' pattern="[0-9]+" />
         <label>Dollars</label>
       </span>
       <span class='above-line'>.</span>
       <span class='cents'>
-        <input type='text' />
+        <input type='text' pattern="[0-9]+" />
         <label>Cents</label>
       </span>
     </div>
