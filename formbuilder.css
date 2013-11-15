@@ -42,6 +42,7 @@
 .fb-edit-field-wrapper .js-add-option{background-color:#008000}
 .fb-edit-field-wrapper .js-remove-option{background-color:#f00}
 .fb-edit-field-wrapper .fb-bottom-add{margin-top:8px}
+.fb-edit-field-wrapper .fb-field-label-length-unit{display:inline-block}
 .fb-common-wrapper .fb-label-description{float:left;width:180px;}
 .fb-common-wrapper .fb-label-description input,.fb-common-wrapper .fb-label-description textarea{width:100%}
 .fb-common-wrapper .fb-common-checkboxes{margin-left:190px}
