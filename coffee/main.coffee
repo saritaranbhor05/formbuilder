@@ -36,6 +36,7 @@ class Formbuilder
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
       LENGTH_UNITS: 'field_options.min_max_length_units'
+      MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
       HINT: 'field_options.hint'
 

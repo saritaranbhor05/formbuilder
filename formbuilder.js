@@ -83,6 +83,7 @@
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
         LENGTH_UNITS: 'field_options.min_max_length_units',
+        MINAGE: 'field_options.minage',
         DEFAULT_VALUE: 'field_options.default_value',
         HINT: 'field_options.hint'
       },
@@ -700,6 +701,26 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('date_of_birth', {
+    view: "<div class='input-line'>\n  <input type='date'/>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> BirthDay",
+    setup: function(el, model, index) {
+      var _this = this;
+      return (function(today, restricted_date) {
+        if (model.get(Formbuilder.options.mappings.MINAGE)) {
+          restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
+          return el.attr("max", restricted_date.toISOString().slice(0, 10));
+        } else {
+          return el.attr("max", today.toISOString().slice(0, 10));
+        }
+      })(new Date, new Date);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('dropdown', {
     view: "<select>\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <option value=''></option>\n  <% } %>\n\n  <% for (i in (rf.get(Formbuilder.options.mappings.OPTIONS) || [])) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true }) %>",
@@ -756,6 +777,20 @@
         })(model.get('required'), 0);
         return valid;
       })(false);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('heading', {
+    type: 'non_input',
+    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
+    edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
+    addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
     }
   });
 
@@ -888,6 +923,18 @@
 
 this["Formbuilder"] = this["Formbuilder"] || {};
 this["Formbuilder"]["templates"] = this["Formbuilder"]["templates"] || {};
+
+this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
+
+}
+return __p
+};
 
 this["Formbuilder"]["templates"]["edit/base"] = function(obj) {
 obj || (obj = {});

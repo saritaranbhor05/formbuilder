@@ -1,6 +1,18 @@
 this["Formbuilder"] = this["Formbuilder"] || {};
 this["Formbuilder"]["templates"] = this["Formbuilder"]["templates"] || {};
 
+this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/base"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

@@ -53,6 +53,12 @@
 .response-field-paragraph textarea.rf-size-small{width:200px;min-height:60px}
 .response-field-paragraph textarea.rf-size-medium{width:400px;min-height:100px}
 .response-field-paragraph textarea.rf-size-large{width:100%;min-height:200px}
+.response-field-heading label.rf-size-small{font-size:10px;height:10px}
+.response-field-heading label.rf-size-medium{font-size:25px;height:25px}
+.response-field-heading label.rf-size-large{font-size:50px;height:50px}
+.response-field-heading p.rf-size-small{font-size:8px}
+.response-field-heading p.rf-size-medium{font-size:15px}
+.response-field-heading p.rf-size-large{font-size:40px}
 .response-field-address .street{width:400px}
 .response-field-address .suburb,.response-field-address .state,.response-field-address .zip,.response-field-address .country{width:198px}
 .response-field-date .month,.response-field-date .day,.response-field-date .year{width:50px}
