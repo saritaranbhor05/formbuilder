@@ -24,6 +24,7 @@ class Formbuilder
       LABEL: 'label'
       FIELD_TYPE: 'field_type'
       REQUIRED: 'required'
+      ADMIN_ONLY: 'admin_only'
       OPTIONS: 'field_options.options'
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'

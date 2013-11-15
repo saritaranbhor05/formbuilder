@@ -51,7 +51,9 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.REQUIRED )) == null ? '' : __t) +
-'\' />\n  Required\n</label>';
+'\' />\n  Required\n</label>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.ADMIN_ONLY )) == null ? '' : __t) +
+'\' />\n  Admin only\n</label>';
 
 }
 return __p
