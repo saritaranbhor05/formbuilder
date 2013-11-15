@@ -15,14 +15,12 @@ Formbuilder.registerField 'date_of_birth',
   """
 
   setup: (el, model, index) ->
-    today = new Date
-    restricted_date =  new Date
-    if model.get(Formbuilder.options.mappings.MINAGE)
-      restricted_date.setFullYear(
-        today.getFullYear() -
-        model.get(Formbuilder.options.mappings.MINAGE)
-      )
-      el.attr("max", restricted_date.toISOString().slice(0,10))
-    else
-      el.attr("max", today.toISOString().slice(0,10))
-
+    do(today = new Date, restricted_date = new Date) =>
+      if model.get(Formbuilder.options.mappings.MINAGE)
+        restricted_date.setFullYear(
+          today.getFullYear() -
+          model.get(Formbuilder.options.mappings.MINAGE)
+        )
+        el.attr("max", restricted_date.toISOString().slice(0,10))
+      else
+        el.attr("max", today.toISOString().slice(0,10))

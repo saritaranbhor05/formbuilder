@@ -706,15 +706,15 @@
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> BirthDay",
     setup: function(el, model, index) {
-      var restricted_date, today;
-      today = new Date;
-      restricted_date = new Date;
-      if (model.get(Formbuilder.options.mappings.MINAGE)) {
-        restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-        return el.attr("max", restricted_date.toISOString().slice(0, 10));
-      } else {
-        return el.attr("max", today.toISOString().slice(0, 10));
-      }
+      var _this = this;
+      return (function(today, restricted_date) {
+        if (model.get(Formbuilder.options.mappings.MINAGE)) {
+          restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
+          return el.attr("max", restricted_date.toISOString().slice(0, 10));
+        } else {
+          return el.attr("max", today.toISOString().slice(0, 10));
+        }
+      })(new Date, new Date);
     }
   });
 
@@ -785,8 +785,8 @@
 (function() {
   Formbuilder.registerField('heading', {
     type: 'non_input',
-    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'><%= rf.get(Formbuilder.options.mappings.LABEL) %></label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'><%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %></p>",
-    edit: "<div class=''>Heading Title</div>\n<input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'></textarea>\n<%= Formbuilder.templates['edit/size']() %>",
+    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
+    edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
