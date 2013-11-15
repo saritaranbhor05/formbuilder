@@ -11,7 +11,7 @@ Formbuilder.registerField 'address',
     <div class='input-line'>
       <span class='city'>
         <input type='text' />
-        <label>City</label>
+        <label>Suburb</label>
       </span>
 
       <span class='state'>

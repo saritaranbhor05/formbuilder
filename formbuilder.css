@@ -53,7 +53,7 @@
 .response-field-paragraph textarea.rf-size-medium{width:400px;min-height:100px}
 .response-field-paragraph textarea.rf-size-large{width:100%;min-height:200px}
 .response-field-address .street{width:400px}
-.response-field-address .city,.response-field-address .state,.response-field-address .zip,.response-field-address .country{width:198px}
+.response-field-address .suburb,.response-field-address .state,.response-field-address .zip,.response-field-address .country{width:198px}
 .response-field-date .month,.response-field-date .day,.response-field-date .year{width:50px}
 .response-field-time .hours,.response-field-time .minutes,.response-field-time .seconds{width:50px}
 .response-field-checkboxes .fb-option,.response-field-radio .fb-option{margin-bottom:5px;display:inline-block}

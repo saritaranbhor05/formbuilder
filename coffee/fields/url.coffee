@@ -1,4 +1,4 @@
-Formbuilder.registerField 'website',
+Formbuilder.registerField 'url',
 
   view: """
     <input type='url' pattern="https?://.+" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />
@@ -9,5 +9,5 @@ Formbuilder.registerField 'website',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-link"></span></span> Website
+    <span class="symbol"><span class="icon-link"></span></span> URL
   """
