@@ -1,12 +1,8 @@
 Formbuilder.registerField 'date_of_birth',
 
-  today: new Date
-
-  restricted_date: new Date
-
   view: """
     <div class='input-line'>
-      <input type='date' max=<%= this.today.toISOString().slice(0,10)%> />
+      <input type='date'/>
     </div>
   """
 
@@ -19,9 +15,14 @@ Formbuilder.registerField 'date_of_birth',
   """
 
   setup: (el, model, index) ->
+    today = new Date
+    restricted_date =  new Date
     if model.get(Formbuilder.options.mappings.MINAGE)
-      this.restricted_date.setFullYear(
-        this.today.getFullYear() -
+      restricted_date.setFullYear(
+        today.getFullYear() -
         model.get(Formbuilder.options.mappings.MINAGE)
       )
-      el.attr("max", this.restricted_date.toISOString().slice(0,10))
+      el.attr("max", restricted_date.toISOString().slice(0,10))
+    else
+      el.attr("max", today.toISOString().slice(0,10))
+
