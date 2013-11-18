@@ -100,9 +100,26 @@ class Formbuilder
         @field.isValid(@$el, @model)
 
       render: ->
+        if @options.live
+          @live_render()
+        else
+          @builder_render()
+
+      builder_render: ->
+        do (cid = @model.getCid(), that = @) ->
+          that.$el.addClass('response-field-'+that.model.get(Formbuilder.options.mappings.FIELD_TYPE))
+            .data('cid', cid)
+            .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
+          do (x = null, count = 0) ->
+            for x in that.$("input")
+              count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
+              $(x).attr("name", cid.toString() + "_" + count.toString())
+        return @
+
+      live_render: ->
         do (
           cid = @model.getCid(),
-          base_templ_suff = if @model.is_input() then '' else '_non_input'
+          base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
           @$el.addClass('response-field-'+ @field_type)
             .data('cid', cid)
@@ -307,6 +324,14 @@ class Formbuilder
         # Append view to @fieldViews
         @fieldViews.push(view)
 
+        do (obj_view = null, cnt = 1, fieldViews = @fieldViews) ->
+          for obj_view in fieldViews
+            obj_view.$el.attr('data-step', cnt)
+            obj_view.$el.attr('data-step-title', "step#{cnt}")
+            obj_view.$el.addClass('step')
+            obj_view.$el.addClass('active') if cnt == 1
+            cnt += 1
+
         #####
         # Calculates where to place this new field.
         #
@@ -364,6 +389,9 @@ class Formbuilder
       addAll: ->
         @collection.each @addOne, @
         @setSortable() if !@options.live
+        $("#formbuilder_form").easyWizard({
+          showSteps: false
+        }) if @options.live
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()

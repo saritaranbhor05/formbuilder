@@ -165,6 +165,37 @@
           return this.field.isValid(this.$el, this.model);
         },
         render: function() {
+          if (this.options.live) {
+            return this.live_render();
+          } else {
+            return this.builder_render();
+          }
+        },
+        builder_render: function() {
+          (function(cid, that) {
+            that.$el.addClass('response-field-' + that.model.get(Formbuilder.options.mappings.FIELD_TYPE)).data('cid', cid).html(Formbuilder.templates["view/base" + (!that.model.is_input() ? '_non_input' : '')]({
+              rf: that.model,
+              opts: that.options
+            }));
+            return (function(x, count) {
+              var _i, _len, _ref, _results;
+              _ref = that.$("input");
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                x = _ref[_i];
+                if ((function(attr) {
+                  return attr !== 'radio' && attr !== 'checkbox';
+                })($(x).attr('type'))) {
+                  count = count + 1;
+                }
+                _results.push($(x).attr("name", cid.toString() + "_" + count.toString()));
+              }
+              return _results;
+            })(null, 0);
+          })(this.model.getCid(), this);
+          return this;
+        },
+        live_render: function() {
           var _this = this;
           (function(cid, base_templ_suff) {
             _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
@@ -417,6 +448,21 @@
             seedData: responseField.seedData
           });
           this.fieldViews.push(view);
+          (function(obj_view, cnt, fieldViews) {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
+              obj_view = fieldViews[_i];
+              obj_view.$el.attr('data-step', cnt);
+              obj_view.$el.attr('data-step-title', "step" + cnt);
+              obj_view.$el.addClass('step');
+              if (cnt === 1) {
+                obj_view.$el.addClass('active');
+              }
+              _results.push(cnt += 1);
+            }
+            return _results;
+          })(null, 1, this.fieldViews);
           if (options.$replaceEl != null) {
             return options.$replaceEl.replaceWith(view.render().el);
           } else if ((options.position == null) || options.position === -1) {
@@ -476,7 +522,12 @@
         addAll: function() {
           this.collection.each(this.addOne, this);
           if (!this.options.live) {
-            return this.setSortable();
+            this.setSortable();
+          }
+          if (this.options.live) {
+            return $("#formbuilder_form").easyWizard({
+              showSteps: false
+            });
           }
         },
         hideShowNoResponseFields: function() {
