@@ -38,7 +38,9 @@ class Formbuilder
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
-      HINT: 'field_options.hint'
+      HINT: 'field_options.hint',
+      PREV_BUTTON_TEXT: 'field_options.prev_button_text',
+      NEXT_BUTTON_TEXT: 'field_options.next_button_text'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -83,6 +85,12 @@ class Formbuilder
       Formbuilder.inputFields[name] = opts
 
   @views:
+    wizard_tab: Backbone.View.extend
+      className: "fb-tab"
+
+      intialize: ->
+        @parentView = @options.parentView
+
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
 
@@ -95,6 +103,7 @@ class Formbuilder
         @parentView = @options.parentView
         @field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE)
         @field = Formbuilder.fields[@field_type]
+        @is_section_break = @field_type == 'section_break'
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
 
@@ -124,31 +133,32 @@ class Formbuilder
           cid = @model.getCid(),
           base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
-          @$el.addClass('response-field-'+ @field_type)
-            .data('cid', cid)
-            .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
-              rf: @model,
-              opts: @options}))
-          do ( # compute and add names and values to fields
-            x = null,
-            count = 0,
-            should_incr = (attr) -> attr != 'radio'
-          ) =>
-            for x in @$("input")
-              count = do( # set element name, value and call setup
-                x,
-                index = count + (if should_incr($(x).attr('type')) then 1 else 0),
-                name = null,
-                val = null
-              ) =>
-                name = cid.toString() + "_" + index.toString()
-                val = @model.get('field_values')[name] if @model.get('field_values')
-                $(x).attr("name", name)
-                @setFieldVal($(x), val) if val
-                @field.setup($(x), @model, index) if @field.setup
-                if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
-                  $(x).attr("required", true)
-                index
+          if !@is_section_break
+            @$el.addClass('response-field-'+ @field_type)
+              .data('cid', cid)
+              .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
+                rf: @model,
+                opts: @options}))
+            do ( # compute and add names and values to fields
+              x = null,
+              count = 0,
+              should_incr = (attr) -> attr != 'radio'
+            ) =>
+              for x in @$("input")
+                count = do( # set element name, value and call setup
+                  x,
+                  index = count + (if should_incr($(x).attr('type')) then 1 else 0),
+                  name = null,
+                  val = null
+                ) =>
+                  name = cid.toString() + "_" + index.toString()
+                  val = @model.get('field_values')[name] if @model.get('field_values')
+                  $(x).attr("name", name)
+                  @setFieldVal($(x), val) if val
+                  @field.setup($(x), @model, index) if @field.setup
+                  if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
+                    $(x).attr("required", true)
+                  index
         return @
 
       setFieldVal: (elem, val) ->
@@ -327,36 +337,29 @@ class Formbuilder
         # Append view to @fieldViews
         @fieldViews.push(view)
 
-        do (obj_view = null, cnt = 1, fieldViews = @fieldViews) ->
-          for obj_view in fieldViews
-            obj_view.$el.attr('data-step', cnt)
-            obj_view.$el.attr('data-step-title', "step#{cnt}")
-            obj_view.$el.addClass('step')
-            obj_view.$el.addClass('active') if cnt == 1
-            cnt += 1
+        if !@options.live
+          #####
+          # Calculates where to place this new field.
+          #
+          # Are we replacing a temporarily drag placeholder?
+          if options.$replaceEl?
+            options.$replaceEl.replaceWith(view.render().el)
 
-        #####
-        # Calculates where to place this new field.
-        #
-        # Are we replacing a temporarily drag placeholder?
-        if options.$replaceEl?
-          options.$replaceEl.replaceWith(view.render().el)
+          # Are we adding to the bottom?
+          else if !options.position? || options.position == -1
+            @$responseFields.append view.render().el
 
-        # Are we adding to the bottom?
-        else if !options.position? || options.position == -1
-          @$responseFields.append view.render().el
+          # Are we adding to the top?
+          else if options.position == 0
+            @$responseFields.prepend view.render().el
 
-        # Are we adding to the top?
-        else if options.position == 0
-          @$responseFields.prepend view.render().el
+          # Are we adding below an existing field?
+          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+            $replacePosition.before view.render().el
 
-        # Are we adding below an existing field?
-        else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-          $replacePosition.before view.render().el
-
-        # Catch-all: add to bottom
-        else
-          @$responseFields.append view.render().el
+          # Catch-all: add to bottom
+          else
+            @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -389,12 +392,58 @@ class Formbuilder
 
             $helper
 
+      addSectionBreak: (obj_view, cnt) ->
+        obj_view.$el.attr('data-step', cnt)
+        obj_view.$el.attr('data-step-title', "step#{cnt}")
+        obj_view.$el.addClass('step')
+        obj_view.$el.addClass('active') if cnt == 1
+
+      applyEasyWizard: ->
+        do (field_view = null, cnt = 1, fieldViews = @fieldViews,
+            add_break_to_next = false, _that = @, wizard_view = null,
+            wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next') ->
+          for field_view in fieldViews
+            if (field_view.is_section_break)
+              add_break_to_next = true
+              prev_btn_text = field_view.model.get(
+                Formbuilder.options.mappings.PREV_BUTTON_TEXT)
+              next_btn_text = field_view.model.get(
+                Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
+
+            if cnt == 1
+              wizard_view = new Formbuilder.views.wizard_tab
+                parentView: _that
+              _that.addSectionBreak(wizard_view, wiz_cnt)
+            else if add_break_to_next && !field_view.is_section_break
+              _that.$responseFields.append wizard_view.$el
+              wizard_view = new Formbuilder.views.wizard_tab
+                parentView: _that
+              wiz_cnt += 1
+              add_break_to_next = false if add_break_to_next
+              _that.addSectionBreak(wizard_view, wiz_cnt)
+
+            if wizard_view && field_view && !field_view.is_section_break
+              wizard_view.$el.append field_view.render().el
+            if cnt == fieldViews.length && wizard_view
+              _that.$responseFields.append wizard_view.$el
+            cnt += 1
+
+          $("#formbuilder_form").easyWizard({
+            showSteps: false,
+            submitButton: false,
+            prevButton: prev_btn_text,
+            nextButton: next_btn_text
+          })
+
+        return @
+
+
       addAll: ->
         @collection.each @addOne, @
-        @setSortable() if !@options.live
-        $("#formbuilder_form").easyWizard({
-          showSteps: false
-        }) if @options.live
+        if @options.live
+          @applyEasyWizard()
+        else
+          @setSortable()
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
