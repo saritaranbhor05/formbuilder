@@ -566,7 +566,14 @@
               showSteps: false,
               submitButton: false,
               prevButton: prev_btn_text,
-              nextButton: next_btn_text
+              nextButton: next_btn_text,
+              after: function(wizardObj) {
+                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps) {
+                  return wizardObj.parents('.form-panel').find('.update-button').show();
+                } else {
+                  return wizardObj.parents('.form-panel').find('.update-button').hide();
+                }
+              }
             });
           })(null, 1, this.fieldViews, false, this, null, 1, 'Back', 'Next');
           return this;
