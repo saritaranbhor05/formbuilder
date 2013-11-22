@@ -209,6 +209,11 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
+              file: function() {
+                if (val) {
+                  return $(elem).parent().append('<a class="active_link" href=' + val + '>', +val.split("/").pop().split("?")[0] + '</a>');
+                }
+              },
               checkbox: function() {
                 if (val) {
                   return $(elem).attr("checked", true);
@@ -753,7 +758,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a id='form_file'>file</a>\n<input type='file' />",
+    view: "<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });

@@ -1,7 +1,6 @@
 Formbuilder.registerField 'file',
 
   view: """
-    <a id='form_file'>file</a>
     <input type='file' />
   """
 

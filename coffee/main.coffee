@@ -137,6 +137,12 @@ class Formbuilder
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
+            file: ->
+              $(elem).parent().append(
+                '<a class="active_link" href='+val+'>'
+                +val.split("/").pop().split("?")[0]+
+                '</a>'
+              ) if val
             checkbox: ->
               $(elem).attr("checked", true) if val
             default: ->
