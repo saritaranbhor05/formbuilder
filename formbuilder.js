@@ -211,7 +211,7 @@
             setters = {
               file: function() {
                 if (val) {
-                  return $(elem).parent().append('<a class="active_link" href=' + val + '>', +val.split("/").pop().split("?")[0] + '</a>');
+                  return $(elem).parent().append('<a class="active_link" href=' + val + '>' + val.split("/").pop().split("?")[0] + '</a>');
                 }
               },
               checkbox: function() {

@@ -139,8 +139,8 @@ class Formbuilder
           setters =
             file: ->
               $(elem).parent().append(
-                '<a class="active_link" href='+val+'>'
-                +val.split("/").pop().split("?")[0]+
+                '<a class="active_link" href='+val+'>'+
+                val.split("/").pop().split("?")[0]+
                 '</a>'
               ) if val
             checkbox: ->
