@@ -85,7 +85,9 @@
         LENGTH_UNITS: 'field_options.min_max_length_units',
         MINAGE: 'field_options.minage',
         DEFAULT_VALUE: 'field_options.default_value',
-        HINT: 'field_options.hint'
+        HINT: 'field_options.hint',
+        PREV_BUTTON_TEXT: 'field_options.prev_button_text',
+        NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -147,6 +149,12 @@
     };
 
     Formbuilder.views = {
+      wizard_tab: Backbone.View.extend({
+        className: "fb-tab",
+        intialize: function() {
+          return this.parentView = this.options.parentView;
+        }
+      }),
       view_field: Backbone.View.extend({
         className: "fb-field-wrapper",
         events: {
@@ -158,6 +166,7 @@
           this.parentView = this.options.parentView;
           this.field_type = this.model.get(Formbuilder.options.mappings.FIELD_TYPE);
           this.field = Formbuilder.fields[this.field_type];
+          this.is_section_break = this.field_type === 'section_break';
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
         },
@@ -168,40 +177,73 @@
           return this.field.isValid(this.$el, this.model);
         },
         render: function() {
-          var _this = this;
-          (function(cid, base_templ_suff) {
-            _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
-              rf: _this.model,
-              opts: _this.options
+          if (this.options.live) {
+            return this.live_render();
+          } else {
+            return this.builder_render();
+          }
+        },
+        builder_render: function() {
+          (function(cid, that) {
+            that.$el.addClass('response-field-' + that.model.get(Formbuilder.options.mappings.FIELD_TYPE)).data('cid', cid).html(Formbuilder.templates["view/base" + (!that.model.is_input() ? '_non_input' : '')]({
+              rf: that.model,
+              opts: that.options
             }));
-            return (function(x, count, should_incr) {
+            return (function(x, count) {
               var _i, _len, _ref, _results;
-              _ref = _this.$("input");
+              _ref = that.$("input");
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 x = _ref[_i];
-                _results.push(count = (function(x, index, name, val) {
-                  name = cid.toString() + "_" + index.toString();
-                  if (_this.model.get('field_values')) {
-                    val = _this.model.get('field_values')[name];
-                  }
-                  $(x).attr("name", name);
-                  if (val) {
-                    _this.setFieldVal($(x), val);
-                  }
-                  if (_this.field.setup) {
-                    _this.field.setup($(x), _this.model, index);
-                  }
-                  if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
-                    $(x).attr("required", true);
-                  }
-                  return index;
-                })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                if ((function(attr) {
+                  return attr !== 'radio' && attr !== 'checkbox';
+                })($(x).attr('type'))) {
+                  count = count + 1;
+                }
+                _results.push($(x).attr("name", cid.toString() + "_" + count.toString()));
               }
               return _results;
-            })(null, 0, function(attr) {
-              return attr !== 'radio';
-            });
+            })(null, 0);
+          })(this.model.getCid(), this);
+          return this;
+        },
+        live_render: function() {
+          var _this = this;
+          (function(cid, base_templ_suff) {
+            if (!_this.is_section_break) {
+              _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+                rf: _this.model,
+                opts: _this.options
+              }));
+              return (function(x, count, should_incr) {
+                var _i, _len, _ref, _results;
+                _ref = _this.$("input");
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  x = _ref[_i];
+                  _results.push(count = (function(x, index, name, val) {
+                    name = cid.toString() + "_" + index.toString();
+                    if (_this.model.get('field_values')) {
+                      val = _this.model.get('field_values')[name];
+                    }
+                    $(x).attr("name", name);
+                    if (val) {
+                      _this.setFieldVal($(x), val);
+                    }
+                    if (_this.field.setup) {
+                      _this.field.setup($(x), _this.model, index);
+                    }
+                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+                      $(x).attr("required", true);
+                    }
+                    return index;
+                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                }
+                return _results;
+              })(null, 0, function(attr) {
+                return attr !== 'radio';
+              });
+            }
           })(this.model.getCid(), this.model.is_input() ? '' : '_non_input');
           return this;
         },
@@ -425,16 +467,18 @@
             seedData: responseField.seedData
           });
           this.fieldViews.push(view);
-          if (options.$replaceEl != null) {
-            return options.$replaceEl.replaceWith(view.render().el);
-          } else if ((options.position == null) || options.position === -1) {
-            return this.$responseFields.append(view.render().el);
-          } else if (options.position === 0) {
-            return this.$responseFields.prepend(view.render().el);
-          } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
-            return $replacePosition.before(view.render().el);
-          } else {
-            return this.$responseFields.append(view.render().el);
+          if (!this.options.live) {
+            if (options.$replaceEl != null) {
+              return options.$replaceEl.replaceWith(view.render().el);
+            } else if ((options.position == null) || options.position === -1) {
+              return this.$responseFields.append(view.render().el);
+            } else if (options.position === 0) {
+              return this.$responseFields.prepend(view.render().el);
+            } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
+              return $replacePosition.before(view.render().el);
+            } else {
+              return this.$responseFields.append(view.render().el);
+            }
           }
         },
         setSortable: function() {
@@ -481,9 +525,62 @@
             }
           });
         },
+        addSectionBreak: function(obj_view, cnt) {
+          obj_view.$el.attr('data-step', cnt);
+          obj_view.$el.attr('data-step-title', "step" + cnt);
+          obj_view.$el.addClass('step');
+          if (cnt === 1) {
+            return obj_view.$el.addClass('active');
+          }
+        },
+        applyEasyWizard: function() {
+          (function(field_view, cnt, fieldViews, add_break_to_next, _that, wizard_view, wiz_cnt, prev_btn_text, next_btn_text) {
+            var _i, _len;
+            for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
+              field_view = fieldViews[_i];
+              if (field_view.is_section_break) {
+                add_break_to_next = true;
+                prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
+                next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
+              }
+              if (cnt === 1) {
+                wizard_view = new Formbuilder.views.wizard_tab({
+                  parentView: _that
+                });
+                _that.addSectionBreak(wizard_view, wiz_cnt);
+              } else if (add_break_to_next && !field_view.is_section_break) {
+                _that.$responseFields.append(wizard_view.$el);
+                wizard_view = new Formbuilder.views.wizard_tab({
+                  parentView: _that
+                });
+                wiz_cnt += 1;
+                if (add_break_to_next) {
+                  add_break_to_next = false;
+                }
+                _that.addSectionBreak(wizard_view, wiz_cnt);
+              }
+              if (wizard_view && field_view && !field_view.is_section_break) {
+                wizard_view.$el.append(field_view.render().el);
+              }
+              if (cnt === fieldViews.length && wizard_view) {
+                _that.$responseFields.append(wizard_view.$el);
+              }
+              cnt += 1;
+            }
+            return $("#formbuilder_form").easyWizard({
+              showSteps: false,
+              submitButton: false,
+              prevButton: prev_btn_text,
+              nextButton: next_btn_text
+            });
+          })(null, 1, this.fieldViews, false, this, null, 1, 'Back', 'Next');
+          return this;
+        },
         addAll: function() {
           this.collection.each(this.addOne, this);
-          if (!this.options.live) {
+          if (this.options.live) {
+            return this.applyEasyWizard();
+          } else {
             return this.setSortable();
           }
         },
@@ -867,8 +964,8 @@
 (function() {
   Formbuilder.registerField('section_break', {
     type: 'non_input',
-    view: "<label class='section-name'><%= rf.get(Formbuilder.options.mappings.LABEL) %></label>\n<p><%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %></p>",
-    edit: "<div class='fb-edit-section-header'>Label</div>\n<input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'></textarea>",
+    view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <button class=\"prev\">\n    <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n  </button>\n</div>",
+    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>",
     addButton: "<span class='symbol'><span class='icon-minus'></span></span> Section Break"
   });
 
