@@ -326,7 +326,7 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 
  if(opts && opts.live) { ;
-__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  ';
+__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\'\n  ';
  if(opts.submitUrl) { ;
 __p += '\n  action="' +
 ((__t = ( opts.submitUrl )) == null ? '' : __t) +
@@ -336,7 +336,7 @@ __p += '\n  method="post">\n';
  } else { ;
 __p += '\n<div class=\'fb-right\'>\n';
  } ;
-__p += '\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n  ';
+__p += '\n  <div class=\'fb-no-response-fields\'>\n    <div class=\'input-line nav_help_user\'>\n      <img src="/assets/nav_help_user_new_form.png">\n      <label>Select fields to Add</label>\n    </div>\n  </div>\n  <div class=\'fb-response-fields\'></div>\n  ';
  if(opts && opts.submitUrl) { ;
 __p += '\n  <input type="submit" value="Submit">\n  ';
  } ;

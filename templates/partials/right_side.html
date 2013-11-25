@@ -1,6 +1,6 @@
 <% if(opts && opts.live) { %>
 <form id='formbuilder_form'
-  class='fb-right-live' 
+  class='fb-right-live'
   <% if(opts.submitUrl) { %>
   action="<%= opts.submitUrl %>"
   <% } %>
@@ -8,7 +8,12 @@
 <% } else { %>
 <div class='fb-right'>
 <% } %>
-  <div class='fb-no-response-fields'>No response fields</div>
+  <div class='fb-no-response-fields'>
+    <div class='input-line nav_help_user'>
+      <img src="/assets/nav_help_user_new_form.png">
+      <label>Select fields to Add</label>
+    </div>
+  </div>
   <div class='fb-response-fields'></div>
   <% if(opts && opts.submitUrl) { %>
   <input type="submit" value="Submit">
