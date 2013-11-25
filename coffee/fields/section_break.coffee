@@ -3,15 +3,26 @@ Formbuilder.registerField 'section_break',
   type: 'non_input'
 
   view: """
-    <label class='section-name'><%= rf.get(Formbuilder.options.mappings.LABEL) %></label>
-    <p><%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %></p>
+    <div class="easyWizardButtons" style="clear: both;">
+      <button class="next">
+        <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>
+      </button>
+      <button class="prev">
+        <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>
+      </button>
+    </div>
   """
 
   edit: """
-    <div class='fb-edit-section-header'>Label</div>
-    <input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />
-    <textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'
-      placeholder='Add a longer description to this field'></textarea>
+    <div class='fb-edit-section-header'>Next button</div>
+    <input type="text" pattern="[a-zA-Z0-9_\\s]+" data-rv-input=
+      "model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>"
+      value='Next'/>
+
+    <div class='fb-edit-section-header'>Back button</div>
+    <input type="text" pattern="[a-zA-Z0-9_\\s]+" data-rv-input=
+      "model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>"
+      value='Back'/>
   """
 
   addButton: """
