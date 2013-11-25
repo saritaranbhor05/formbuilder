@@ -252,8 +252,9 @@
           return (function(setters, type) {
             setters = {
               file: function() {
+                $(elem).siblings(".active_link").attr("href", val);
                 if (val) {
-                  return $(elem).parent().append('<a class="active_link" href=' + val + '>' + val.split("/").pop().split("?")[0] + '</a>');
+                  return $(elem).siblings(".active_link").text(val.split("/").pop().split("?")[0]);
                 }
               },
               checkbox: function() {
@@ -855,7 +856,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<input type='file' />",
+    view: "<a class=\"active_link\"></a>\n<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });

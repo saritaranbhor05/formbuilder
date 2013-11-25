@@ -165,10 +165,9 @@ class Formbuilder
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
             file: ->
-              $(elem).parent().append(
-                '<a class="active_link" href='+val+'>'+
-                val.split("/").pop().split("?")[0]+
-                '</a>'
+              $(elem).siblings(".active_link").attr("href",val)
+              $(elem).siblings(".active_link").text(
+                val.split("/").pop().split("?")[0]
               ) if val
             checkbox: ->
               $(elem).attr("checked", true) if val
