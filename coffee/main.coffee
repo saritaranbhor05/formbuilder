@@ -400,8 +400,9 @@ class Formbuilder
 
       applyEasyWizard: ->
         do (field_view = null, cnt = 1, fieldViews = @fieldViews,
-            add_break_to_next = false, _that = @, wizard_view = null,
-            wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next') ->
+            add_break_to_next = false, wizard_view = null,
+            wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
+            readonly = @options.readonly) =>
           for field_view in fieldViews
             if (field_view.is_section_break)
               add_break_to_next = true
@@ -412,27 +413,33 @@ class Formbuilder
 
             if cnt == 1
               wizard_view = new Formbuilder.views.wizard_tab
-                parentView: _that
-              _that.addSectionBreak(wizard_view, wiz_cnt)
+                parentView: @
+              @addSectionBreak(wizard_view, wiz_cnt)
             else if add_break_to_next && !field_view.is_section_break
-              _that.$responseFields.append wizard_view.$el
+              @$responseFields.append wizard_view.$el
               wizard_view = new Formbuilder.views.wizard_tab
-                parentView: _that
+                parentView: @
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
-              _that.addSectionBreak(wizard_view, wiz_cnt)
+              @addSectionBreak(wizard_view, wiz_cnt)
 
             if wizard_view && field_view && !field_view.is_section_break
               wizard_view.$el.append field_view.render().el
             if cnt == fieldViews.length && wizard_view
-              _that.$responseFields.append wizard_view.$el
+              @$responseFields.append wizard_view.$el
             cnt += 1
 
           $("#formbuilder_form").easyWizard({
             showSteps: false,
             submitButton: false,
             prevButton: prev_btn_text,
-            nextButton: next_btn_text
+            nextButton: next_btn_text,
+            after: (wizardObj) ->
+              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                 !readonly
+                wizardObj.parents('.form-panel').find('.update-button').show()
+              else
+                wizardObj.parents('.form-panel').find('.update-button').hide()
           })
 
         return @
