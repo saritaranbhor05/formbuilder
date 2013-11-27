@@ -251,6 +251,12 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
+              file: function() {
+                $(elem).siblings(".active_link").attr("href", val);
+                if (val) {
+                  return $(elem).siblings(".active_link").text(val.split("/").pop().split("?")[0]);
+                }
+              },
               checkbox: function() {
                 if (val) {
                   return $(elem).attr("checked", true);
@@ -858,7 +864,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<input type='file' />",
+    view: "<a class=\"active_link\"></a>\n<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });
@@ -1354,7 +1360,7 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 
  if(opts && opts.live) { ;
-__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  ';
+__p += '\n<form enctype="multipart/form-data"\n  id=\'formbuilder_form\'\n  class=\'fb-right-live\'\n  ';
  if(opts.submitUrl) { ;
 __p += '\n  action="' +
 ((__t = ( opts.submitUrl )) == null ? '' : __t) +

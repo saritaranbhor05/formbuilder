@@ -326,7 +326,7 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 
  if(opts && opts.live) { ;
-__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\' \n  ';
+__p += '\n<form enctype="multipart/form-data"\n  id=\'formbuilder_form\'\n  class=\'fb-right-live\'\n  ';
  if(opts.submitUrl) { ;
 __p += '\n  action="' +
 ((__t = ( opts.submitUrl )) == null ? '' : __t) +
