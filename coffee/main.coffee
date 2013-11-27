@@ -434,7 +434,8 @@ class Formbuilder
             prevButton: prev_btn_text,
             nextButton: next_btn_text,
             after: (wizardObj) ->
-              if parseInt($nextStep.attr('data-step')) == thisSettings.steps
+              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                 !_that.options.readonly
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()

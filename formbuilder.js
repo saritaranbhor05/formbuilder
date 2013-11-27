@@ -568,7 +568,7 @@
               prevButton: prev_btn_text,
               nextButton: next_btn_text,
               after: function(wizardObj) {
-                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps) {
+                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && !_that.options.readonly) {
                   return wizardObj.parents('.form-panel').find('.update-button').show();
                 } else {
                   return wizardObj.parents('.form-panel').find('.update-button').hide();
