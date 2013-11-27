@@ -416,7 +416,7 @@ class Formbuilder
                 parentView: @
               @addSectionBreak(wizard_view, wiz_cnt)
             else if add_break_to_next && !field_view.is_section_break
-              @.$responseFields.append wizard_view.$el
+              @$responseFields.append wizard_view.$el
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
               wiz_cnt += 1
