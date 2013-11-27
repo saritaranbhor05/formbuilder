@@ -529,7 +529,8 @@
           }
         },
         applyEasyWizard: function() {
-          (function(field_view, cnt, fieldViews, add_break_to_next, _that, wizard_view, wiz_cnt, prev_btn_text, next_btn_text) {
+          var _this = this;
+          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, readonly) {
             var _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
@@ -540,25 +541,25 @@
               }
               if (cnt === 1) {
                 wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _that
+                  parentView: _this
                 });
-                _that.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt);
               } else if (add_break_to_next && !field_view.is_section_break) {
-                _that.$responseFields.append(wizard_view.$el);
+                _this.$responseFields.append(wizard_view.$el);
                 wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _that
+                  parentView: _this
                 });
                 wiz_cnt += 1;
                 if (add_break_to_next) {
                   add_break_to_next = false;
                 }
-                _that.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt);
               }
               if (wizard_view && field_view && !field_view.is_section_break) {
                 wizard_view.$el.append(field_view.render().el);
               }
               if (cnt === fieldViews.length && wizard_view) {
-                _that.$responseFields.append(wizard_view.$el);
+                _this.$responseFields.append(wizard_view.$el);
               }
               cnt += 1;
             }
@@ -568,14 +569,14 @@
               prevButton: prev_btn_text,
               nextButton: next_btn_text,
               after: function(wizardObj) {
-                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && !_that.options.readonly) {
+                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && !readonly) {
                   return wizardObj.parents('.form-panel').find('.update-button').show();
                 } else {
                   return wizardObj.parents('.form-panel').find('.update-button').hide();
                 }
               }
             });
-          })(null, 1, this.fieldViews, false, this, null, 1, 'Back', 'Next');
+          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.readonly);
           return this;
         },
         addAll: function() {
