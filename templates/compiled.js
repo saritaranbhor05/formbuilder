@@ -336,7 +336,7 @@ __p += '\n  method="post">\n';
  } else { ;
 __p += '\n<div class=\'fb-right\'>\n';
  } ;
-__p += '\n  <div class=\'fb-no-response-fields\'>No response fields</div>\n  <div class=\'fb-response-fields\'></div>\n  ';
+__p += '\n  <div class=\'fb-no-response-fields\'>\n    <div class=\'input-line nav_help_user\'>\n      <div class=\'nav_help_user_new_form\'></div>\n      <label>Select fields to Add</label>\n    </div>\n  </div>\n  <div class=\'fb-response-fields\'></div>\n  ';
  if(opts && opts.submitUrl) { ;
 __p += '\n  <input type="submit" value="Submit">\n  ';
  } ;

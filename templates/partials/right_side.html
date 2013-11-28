@@ -9,7 +9,12 @@
 <% } else { %>
 <div class='fb-right'>
 <% } %>
-  <div class='fb-no-response-fields'>No response fields</div>
+  <div class='fb-no-response-fields'>
+    <div class='input-line nav_help_user'>
+      <div class='nav_help_user_new_form'></div>
+      <label>Select fields to Add</label>
+    </div>
+  </div>
   <div class='fb-response-fields'></div>
   <% if(opts && opts.submitUrl) { %>
   <input type="submit" value="Submit">
