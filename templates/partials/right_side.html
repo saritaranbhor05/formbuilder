@@ -1,5 +1,6 @@
 <% if(opts && opts.live) { %>
-<form id='formbuilder_form'
+<form enctype="multipart/form-data"
+  id='formbuilder_form'
   class='fb-right-live'
   <% if(opts.submitUrl) { %>
   action="<%= opts.submitUrl %>"

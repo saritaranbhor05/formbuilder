@@ -251,6 +251,12 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
+              file: function() {
+                $(elem).siblings(".active_link").attr("href", val);
+                if (val) {
+                  return $(elem).siblings(".active_link").text(val.split("/").pop().split("?")[0]);
+                }
+              },
               checkbox: function() {
                 if (val) {
                   return $(elem).attr("checked", true);
@@ -529,7 +535,8 @@
           }
         },
         applyEasyWizard: function() {
-          (function(field_view, cnt, fieldViews, add_break_to_next, _that, wizard_view, wiz_cnt, prev_btn_text, next_btn_text) {
+          var _this = this;
+          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, readonly) {
             var _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
@@ -540,25 +547,25 @@
               }
               if (cnt === 1) {
                 wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _that
+                  parentView: _this
                 });
-                _that.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt);
               } else if (add_break_to_next && !field_view.is_section_break) {
-                _that.$responseFields.append(wizard_view.$el);
+                _this.$responseFields.append(wizard_view.$el);
                 wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _that
+                  parentView: _this
                 });
                 wiz_cnt += 1;
                 if (add_break_to_next) {
                   add_break_to_next = false;
                 }
-                _that.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt);
               }
               if (wizard_view && field_view && !field_view.is_section_break) {
                 wizard_view.$el.append(field_view.render().el);
               }
               if (cnt === fieldViews.length && wizard_view) {
-                _that.$responseFields.append(wizard_view.$el);
+                _this.$responseFields.append(wizard_view.$el);
               }
               cnt += 1;
             }
@@ -566,9 +573,16 @@
               showSteps: false,
               submitButton: false,
               prevButton: prev_btn_text,
-              nextButton: next_btn_text
+              nextButton: next_btn_text,
+              after: function(wizardObj) {
+                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && !readonly) {
+                  return wizardObj.parents('.form-panel').find('.update-button').show();
+                } else {
+                  return wizardObj.parents('.form-panel').find('.update-button').hide();
+                }
+              }
             });
-          })(null, 1, this.fieldViews, false, this, null, 1, 'Back', 'Next');
+          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.readonly);
           return this;
         },
         addAll: function() {
@@ -850,7 +864,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<input type='file' />",
+    view: "<a class=\"active_link\"></a>\n<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });
@@ -1346,7 +1360,7 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 
  if(opts && opts.live) { ;
-__p += '\n<form id=\'formbuilder_form\'\n  class=\'fb-right-live\'\n  ';
+__p += '\n<form enctype="multipart/form-data"\n  id=\'formbuilder_form\'\n  class=\'fb-right-live\'\n  ';
  if(opts.submitUrl) { ;
 __p += '\n  action="' +
 ((__t = ( opts.submitUrl )) == null ? '' : __t) +
