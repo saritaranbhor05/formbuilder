@@ -363,6 +363,7 @@
           'click .fb-add-field-types a': 'addField'
         },
         initialize: function() {
+          var _base;
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
           this.fieldViews = [];
@@ -375,6 +376,7 @@
           if (!this.options.live) {
             this.options.readonly = true;
           }
+          (_base = this.options).showSubmit || (_base.showSubmit = false);
           this.render();
           this.collection.reset(this.options.bootstrapData);
           this.saveFormButton = this.$el.find(".js-save-form");
@@ -536,7 +538,7 @@
         },
         applyEasyWizard: function() {
           var _this = this;
-          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, readonly) {
+          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
             var _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
@@ -575,14 +577,14 @@
               prevButton: prev_btn_text,
               nextButton: next_btn_text,
               after: function(wizardObj) {
-                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && !readonly) {
+                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
                   return wizardObj.parents('.form-panel').find('.update-button').show();
                 } else {
                   return wizardObj.parents('.form-panel').find('.update-button').hide();
                 }
               }
             });
-          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.readonly);
+          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
           return this;
         },
         addAll: function() {

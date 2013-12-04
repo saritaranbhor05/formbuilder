@@ -268,6 +268,7 @@ class Formbuilder
         @collection.bind 'destroy', @ensureEditViewScrolled, @
 
         @options.readonly = true if !@options.live
+        @options.showSubmit ||= false
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -407,7 +408,7 @@ class Formbuilder
         do (field_view = null, cnt = 1, fieldViews = @fieldViews,
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
-            readonly = @options.readonly) =>
+            showSubmit = @options.showSubmit) =>
           for field_view in fieldViews
             if (field_view.is_section_break)
               add_break_to_next = true
@@ -441,7 +442,7 @@ class Formbuilder
             nextButton: next_btn_text,
             after: (wizardObj) ->
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                 !readonly
+                 showSubmit
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()
