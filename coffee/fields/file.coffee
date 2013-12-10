@@ -1,7 +1,7 @@
 Formbuilder.registerField 'file',
 
   view: """
-    <a class="active_link"></a>
+    <a target="_blank" class="active_link"></a>
     <input type='file' />
   """
 
