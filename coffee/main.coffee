@@ -153,11 +153,10 @@ class Formbuilder
                 ) =>
                   value = x.value if @model.get('field_type') == 'radio'
                   name = cid.toString() + "_" + index.toString()
-                  if @model.get('field_values')
-                    if $(x).attr('type') == 'radio'
-                      val = @model.get('field_values')[value]
-                    else
-                      val = @model.get('field_values')[name]
+                  if $(x).attr('type') == 'radio' and @model.get('field_values')
+                    val = @model.get('field_values')[value]
+                  else if @model.get('field_values')
+                    val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
                   @field.setup($(x), @model, index) if @field.setup
