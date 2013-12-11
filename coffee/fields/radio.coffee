@@ -1,8 +1,8 @@
 Formbuilder.registerField 'radio',
 
   view: """
-    <%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>
-    <% for ( var i=0 ; i < field_options.length ; i++) { %>
+    <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
+    <% for ( var i = 0 ; i < field_options.length ; i++) { %>
       <div>
         <label class='fb-option'>
           <input type='radio' value=<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label%> <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>

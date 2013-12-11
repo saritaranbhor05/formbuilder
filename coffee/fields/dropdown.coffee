@@ -6,8 +6,8 @@ Formbuilder.registerField 'dropdown',
         <option value=''></option>
       <% } %>
 
-      <%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>
-      <% for ( var i=0 ; i < field_options.length ; i++) { %>
+      <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
+      <% for ( var i = 0 ; i < field_options.length ; i++) { %>
         <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>
           <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>
         </option>
