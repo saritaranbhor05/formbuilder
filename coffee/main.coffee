@@ -16,7 +16,7 @@ class Formbuilder
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
-    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname']
+    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
 
     mappings:
       SIZE: 'field_options.size'
@@ -123,7 +123,7 @@ class Formbuilder
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
           do (x = null, count = 0) ->
-            for x in that.$("input")
+            for x in that.$("input, textarea, select")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
               $(x).attr("name", cid.toString() + "_" + count.toString())
         return @
@@ -144,15 +144,19 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input")
+              for x in @$("input, textarea, select")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x).attr('type')) then 1 else 0),
                   name = null,
                   val = null
                 ) =>
+                  value = x.value if @model.get('field_type') == 'radio'
                   name = cid.toString() + "_" + index.toString()
-                  val = @model.get('field_values')[name] if @model.get('field_values')
+                  if $(x).attr('type') == 'radio' and @model.get('field_values')
+                    val = @model.get('field_values')[value]
+                  else if @model.get('field_values')
+                    val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
                   @field.setup($(x), @model, index) if @field.setup
@@ -170,6 +174,8 @@ class Formbuilder
                 val.split("/").pop().split("?")[0]
               ) if val
             checkbox: ->
+              $(elem).attr("checked", true) if val
+            radio: ->
               $(elem).attr("checked", true) if val
             default: ->
               $(elem).val(val) if val
