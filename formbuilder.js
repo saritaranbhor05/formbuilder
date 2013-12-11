@@ -191,7 +191,7 @@
             }));
             return (function(x, count) {
               var _i, _len, _ref, _results;
-              _ref = that.$("input");
+              _ref = that.$("input, textarea, select");
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 x = _ref[_i];
@@ -217,7 +217,7 @@
               }));
               return (function(x, count, should_incr) {
                 var _i, _len, _ref, _results;
-                _ref = _this.$("input");
+                _ref = _this.$("input, textarea, select");
                 _results = [];
                 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                   x = _ref[_i];
@@ -880,7 +880,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a class=\"active_link\"></a>\n<input type='file' />",
+    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });
