@@ -123,7 +123,7 @@ class Formbuilder
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
           do (x = null, count = 0) ->
-            for x in that.$("input")
+            for x in that.$("input, textarea, select")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
               $(x).attr("name", cid.toString() + "_" + count.toString())
         return @
@@ -144,7 +144,7 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input")
+              for x in @$("input, textarea, select")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x).attr('type')) then 1 else 0),
