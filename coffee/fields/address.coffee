@@ -22,7 +22,7 @@ Formbuilder.registerField 'address',
 
     <div class='input-line'>
       <span>
-        <input type='text' pattern="[0-9]+"/>
+        <input type='text' pattern="[a-zA-Z0-9]+"/>
         <label>Zipcode</label>
       </span>
 
