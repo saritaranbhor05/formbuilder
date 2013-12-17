@@ -2,7 +2,7 @@ Formbuilder.registerField 'date',
 
   view: """
     <div class='input-line'>
-      <input id='<%= rf.getCid() %>' type='text' />
+      <input id='<%= rf.getCid() %>' type='text' readonly/>
     </div>
     <script>
       $(function() {

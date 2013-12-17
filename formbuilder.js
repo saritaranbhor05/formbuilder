@@ -820,7 +820,7 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' />\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker();\n  });\n</script>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date"
   });
@@ -1043,7 +1043,7 @@
 
 (function() {
   Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <input type=\"time\" />\n</div>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n  });\n</script>",
     edit: "<%= Formbuilder.templates['edit/step']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
     setup: function(el, model, index) {
