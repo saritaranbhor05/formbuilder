@@ -27,7 +27,7 @@
 .fb-field-wrapper .actions-wrapper a.js-clear{background-color:#f00}
 .fb-field-wrapper .active_link{bottom:0;position:absolute;z-index:3}
 .fb-field-wrapper .subtemplate-wrapper{border:1px dashed transparent;padding:10px 10px 0 10px;position:relative;}
-.fb-field-wrapper .subtemplate-wrapper input[readonly]{background-color:#fff !important}
+.fb-field-wrapper .subtemplate-wrapper input[readonly]{background-color:#fff;cursor:text}
 .fb-field-wrapper .subtemplate-wrapper .cover{position:absolute;top:0;left:0;height:100%;width:100%;z-index:2}
 .fb-field-wrapper .subtemplate-wrapper > label{display:block;font-weight:bold;margin-bottom:5px}
 .fb-field-wrapper .subtemplate-wrapper abbr{color:#f00}
