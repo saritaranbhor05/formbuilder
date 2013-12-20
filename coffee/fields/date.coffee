@@ -2,8 +2,13 @@ Formbuilder.registerField 'date',
 
   view: """
     <div class='input-line'>
-      <input type='date' />
+      <input id='<%= rf.getCid() %>' type='text' readonly/>
     </div>
+    <script>
+      $(function() {
+        $("#<%= rf.getCid() %>").datepicker();
+      });
+    </script>
   """
 
   edit: ""

@@ -2,8 +2,13 @@ Formbuilder.registerField 'time',
 
   view: """
     <div class='input-line'>
-      <input type="time" />
+      <input id='<%= rf.getCid() %>' type="text" readonly/>
     </div>
+    <script>
+      $(function() {
+        $("#<%= rf.getCid() %>").timepicker();
+      });
+    </script>
   """
 
   edit: """
