@@ -6,7 +6,7 @@ Formbuilder.registerField 'date',
     </div>
     <script>
       $(function() {
-        $("#<%= rf.getCid() %>").datepicker({ dateFormat: "dd-mm-yy" });
+        $("#<%= rf.getCid() %>").datepicker({ dateFormat: "dd/mm/yy" });
       });
     </script>
   """
