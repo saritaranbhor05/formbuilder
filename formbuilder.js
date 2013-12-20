@@ -820,7 +820,7 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd-mm-yy\" });\n  });\n</script>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date"
   });
