@@ -87,7 +87,8 @@
         DEFAULT_VALUE: 'field_options.default_value',
         HINT: 'field_options.hint',
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-        NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+        NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+        INCLUDE_CONDITIONS: 'field_options.include_conditions'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -288,8 +289,16 @@
           }
         },
         clear: function() {
-          this.parentView.handleFormUpdate();
-          return this.model.destroy();
+          return (function(index, that) {
+            that.parentView.handleFormUpdate();
+            index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
+              cid: that.cid
+            })[0]);
+            if (index > -1) {
+              that.parentView.fieldViews.splice(index, 1);
+            }
+            return that.model.destroy();
+          })(0, this);
         },
         duplicate: function() {
           var attrs;
@@ -314,7 +323,8 @@
         },
         render: function() {
           this.$el.html(Formbuilder.templates["edit/base" + (!this.model.is_input() ? '_non_input' : '')]({
-            rf: this.model
+            rf: this.model,
+            opts: this.options
           }));
           rivets.bind(this.$el, {
             model: this.model
@@ -891,7 +901,7 @@
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
     view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts })%>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -1088,7 +1098,7 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.templates['edit/common']() )) == null ? '' : __t) +
 '\n' +
-((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
 '\n';
 
 }
@@ -1146,6 +1156,35 @@ __p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-com
 '\n  </div>\n  <div class=\'fb-common-checkboxes\'>\n    ' +
 ((__t = ( Formbuilder.templates['edit/checkboxes']() )) == null ? '' : __t) +
 '\n  </div>\n  <div class=\'fb-clear\'></div>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/conditions"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n<label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
+'\' />\n    Include Conditions\n  </label>\n<div class=\'subtemplate-wrapper\' data-rv-show=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
+'\' >\n  <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n  <div class="span8">\n    <select>\n      ';
+ for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+__p += '\n        ';
+ if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+__p += '\n          ';
+ break ;
+__p += '\n        ';
+ } ;
+__p += '\n        <option>' +
+((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+'</option>\n      ';
+};
+__p += '\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n  <div class="span6">\n    <select>\n        <option>Equals</option>\n        <option>Greater Than</option>\n        <option>Less Than</option>\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n  <div class="span3">\n    <select>\n        <option>Show</option>\n        <option>Hide</option>\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\' data-rv-text=\'model.' +
+((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
+'\' />\n</div>';
 
 }
 return __p

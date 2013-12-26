@@ -37,6 +37,7 @@ Formbuilder.registerField 'fullname',
 
   edit: """
     <%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>
+    <%= Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts })%>
   """
 
   addButton: """

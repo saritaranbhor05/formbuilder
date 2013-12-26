@@ -41,6 +41,7 @@ class Formbuilder
       HINT: 'field_options.hint',
       PREV_BUTTON_TEXT: 'field_options.prev_button_text',
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+      INCLUDE_CONDITIONS: 'field_options.include_conditions'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -185,8 +186,11 @@ class Formbuilder
         @parentView.createAndShowEditView(@model) if !@options.live
 
       clear: ->
-        @parentView.handleFormUpdate()
-        @model.destroy()
+        do (index = 0, that = @) ->
+          that.parentView.handleFormUpdate()
+          index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0]);
+          that.parentView.fieldViews.splice(index, 1) if (index > -1)
+          that.model.destroy()
 
       duplicate: ->
         attrs = _.clone(@model.attributes)
@@ -207,7 +211,7 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       render: ->
-        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model}))
+        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model, opts: @options}))
         rivets.bind @$el, { model: @model }
         return @
 
