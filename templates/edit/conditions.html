@@ -3,32 +3,39 @@
   <input type='checkbox' data-rv-checked='model.<%= Formbuilder.options.mappings.INCLUDE_CONDITIONS %>' />
   Include Conditions
 </label>
-<div class='subtemplate-wrapper' data-rv-show='model.<%= Formbuilder.options.mappings.INCLUDE_CONDITIONS %>' >
-  <span class='fb-field-label fb-field-condition-label span1'> If </span>
-  <div class="span8">
-    <select>
-      <% for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){%>
-        <% if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ %>
-          <% break %>
-        <% } %>
-        <option><%= opts.parentView.fieldViews[i].model.attributes.label %></option>
-      <%}%>
-    </select>
+
+<div class='subtemplate-wrapper' data-rv-show='model.<%= Formbuilder.options.mappings.INCLUDE_CONDITIONS %>'>
+  <div class='condition' data-rv-each-condition='model.conditions'>
+    <span class='fb-field-label fb-field-condition-label span1'> If </span>
+    <div class="span8">
+      <select data-rv-value='condition:source'>
+          <option value="">---Select Field---</option>
+        <% for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){%>
+          <% if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ %>
+            <% break %>
+          <% } %>
+          <option><%= opts.parentView.fieldViews[i].model.attributes.label %></option>
+        <%}%>
+      </select>
+    </div>
+    <span class='fb-field-label fb-field-condition-label span2'> field </span>
+    <div class="span6">
+      <select data-rv-value='condition:condition'>
+          <option value="">---Select Comparator---</option>
+          <option>Equals</option>
+          <option>Greater Than</option>
+          <option>Less Than</option>
+      </select>
+    </div>
+    <input class='span5 pull-right' data-rv-input='condition:value' type='text'/>
+    <span class='fb-field-label fb-field-condition-label span2'> then </span>
+    <div class="span3">
+      <select data-rv-value='condition:action'>
+          <option value="">---Select Action---</option>
+          <option>Show</option>
+          <option>Hide</option>
+      </select>
+    </div>
+    <span class='fb-field-label fb-field-condition-label span2' data-rv-input='model.conditions.target' data-rv-text='model.<%= Formbuilder.options.mappings.LABEL %>' />
   </div>
-  <span class='fb-field-label fb-field-condition-label span2'> field </span>
-  <div class="span6">
-    <select>
-        <option>Equals</option>
-        <option>Greater Than</option>
-        <option>Less Than</option>
-    </select>
-  </div>
-  <span class='fb-field-label fb-field-condition-label span2'> then </span>
-  <div class="span3">
-    <select>
-        <option>Show</option>
-        <option>Hide</option>
-    </select>
-  </div>
-  <span class='fb-field-label fb-field-condition-label span2' data-rv-text='model.<%= Formbuilder.options.mappings.LABEL %>' />
 </div>

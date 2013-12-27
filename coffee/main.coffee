@@ -6,6 +6,13 @@ class Formbuilder
         field_type: field_type
         required: true
         field_options: {}
+        conditions: [
+                      source: "",
+                      condition: "",
+                      value: "",
+                      action: "",
+                      target: ""
+                    ]
 
       Formbuilder.fields[field_type].defaultAttributes?(attrs) || attrs
 

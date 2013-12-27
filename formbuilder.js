@@ -51,7 +51,16 @@
           label: "Untitled",
           field_type: field_type,
           required: true,
-          field_options: {}
+          field_options: {},
+          conditions: [
+            {
+              source: "",
+              condition: "",
+              value: "",
+              action: "",
+              target: ""
+            }
+          ]
         };
         return (typeof (_base = Formbuilder.fields[field_type]).defaultAttributes === "function" ? _base.defaultAttributes(attrs) : void 0) || attrs;
       },
@@ -1166,25 +1175,25 @@ obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n<label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
-'\' />\n    Include Conditions\n  </label>\n<div class=\'subtemplate-wrapper\' data-rv-show=\'model.' +
+'\' />\n  Include Conditions\n</label>\n\n<div class=\'subtemplate-wrapper\' data-rv-show=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
-'\' >\n  <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n  <div class="span8">\n    <select>\n      ';
+'\'>\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n    <div class="span8">\n      <select data-rv-value=\'condition:source\'>\n          <option value="">---Select Field---</option>\n        ';
  for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
-__p += '\n        ';
- if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
 __p += '\n          ';
+ if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+__p += '\n            ';
  break ;
-__p += '\n        ';
+__p += '\n          ';
  } ;
-__p += '\n        <option>' +
+__p += '\n          <option>' +
 ((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
-'</option>\n      ';
+'</option>\n        ';
 };
-__p += '\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n  <div class="span6">\n    <select>\n        <option>Equals</option>\n        <option>Greater Than</option>\n        <option>Less Than</option>\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n  <div class="span3">\n    <select>\n        <option>Show</option>\n        <option>Hide</option>\n    </select>\n  </div>\n  <span class=\'fb-field-label fb-field-condition-label span2\' data-rv-text=\'model.' +
+__p += '\n      </select>\n    </div>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n    <div class="span6">\n      <select data-rv-value=\'condition:condition\'>\n          <option value="">---Select Comparator---</option>\n          <option>Equals</option>\n          <option>Greater Than</option>\n          <option>Less Than</option>\n      </select>\n    </div>\n    <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n    <div class="span3">\n      <select data-rv-value=\'condition:action\'>\n          <option value="">---Select Action---</option>\n          <option>Show</option>\n          <option>Hide</option>\n      </select>\n    </div>\n    <span class=\'fb-field-label fb-field-condition-label span2\' data-rv-input=\'model.conditions.target\' data-rv-text=\'model.' +
 ((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
-'\' />\n</div>';
+'\' />\n  </div>\n</div>';
 
 }
 return __p
