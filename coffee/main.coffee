@@ -6,13 +6,7 @@ class Formbuilder
         field_type: field_type
         required: true
         field_options: {}
-        conditions: [
-                      source: "",
-                      condition: "",
-                      value: "",
-                      action: "",
-                      target: ""
-                    ]
+        conditions: []
 
       Formbuilder.fields[field_type].defaultAttributes?(attrs) || attrs
 
@@ -210,6 +204,7 @@ class Formbuilder
 
       events:
         'click .js-add-option': 'addOption'
+        'click .js-add-condition': 'addCondition'
         'click .js-remove-option': 'removeOption'
         'click .js-default-updated': 'defaultUpdated'
         'input .option-label-input': 'forceRender'
@@ -241,6 +236,21 @@ class Formbuilder
 
         @model.set Formbuilder.options.mappings.OPTIONS, options
         @model.trigger "change:#{Formbuilder.options.mappings.OPTIONS}"
+        @forceRender()
+
+      addCondition: (e) ->
+        $el = $(e.currentTarget)
+        i = @$el.find('.option').index($el.closest('.option'))
+        conditions = @model.get('conditions') || []
+        newCondition = { source: "", condition: "", value: "", action: "", target: "" }
+
+        if i > -1
+          conditions.splice(i + 1, 0, newCondition)
+        else
+          conditions.push newCondition
+
+        @model.set 'conditions', conditions
+        @model.trigger 'change:conditions'
         @forceRender()
 
       removeOption: (e) ->
@@ -275,6 +285,7 @@ class Formbuilder
         @$el = $(@options.selector)
         @formBuilder = @options.formBuilder
         @fieldViews = []
+        @formConditionsSaved = false
 
         # Create the collection, and bind the appropriate events
         @collection = new Formbuilder.collection
@@ -535,10 +546,24 @@ class Formbuilder
         @formSaved = true
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @collection.sort()
+        @collection.each @addConditions, @ unless @formConditionsSaved
+
         payload = JSON.stringify fields: @collection.toJSON()
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
+
+      addConditions: (model) ->
+        @formConditionsSaved = true
+        unless _.isEmpty(model.attributes.conditions)
+          _.each(model.attributes.conditions, (condition) ->
+            do(source = {}) =>
+              unless _.isEmpty(condition.source)
+                source = model.collection.get(condition.source)
+                if source
+                  source.attributes.conditions.push(condition)
+                  source.save()
+          )
 
       formData: ->
         @$('#formbuilder_form').serializeArray()

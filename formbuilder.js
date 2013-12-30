@@ -52,15 +52,7 @@
           field_type: field_type,
           required: true,
           field_options: {},
-          conditions: [
-            {
-              source: "",
-              condition: "",
-              value: "",
-              action: "",
-              target: ""
-            }
-          ]
+          conditions: []
         };
         return (typeof (_base = Formbuilder.fields[field_type]).defaultAttributes === "function" ? _base.defaultAttributes(attrs) : void 0) || attrs;
       },
@@ -323,6 +315,7 @@
         className: "edit-response-field",
         events: {
           'click .js-add-option': 'addOption',
+          'click .js-add-condition': 'addCondition',
           'click .js-remove-option': 'removeOption',
           'click .js-default-updated': 'defaultUpdated',
           'input .option-label-input': 'forceRender'
@@ -363,6 +356,27 @@
           this.model.trigger("change:" + Formbuilder.options.mappings.OPTIONS);
           return this.forceRender();
         },
+        addCondition: function(e) {
+          var $el, conditions, i, newCondition;
+          $el = $(e.currentTarget);
+          i = this.$el.find('.option').index($el.closest('.option'));
+          conditions = this.model.get('conditions') || [];
+          newCondition = {
+            source: "",
+            condition: "",
+            value: "",
+            action: "",
+            target: ""
+          };
+          if (i > -1) {
+            conditions.splice(i + 1, 0, newCondition);
+          } else {
+            conditions.push(newCondition);
+          }
+          this.model.set('conditions', conditions);
+          this.model.trigger('change:conditions');
+          return this.forceRender();
+        },
         removeOption: function(e) {
           var $el, index, options;
           $el = $(e.currentTarget);
@@ -397,6 +411,7 @@
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
           this.fieldViews = [];
+          this.formConditionsSaved = false;
           this.collection = new Formbuilder.collection;
           this.collection.bind('add', this.addOne, this);
           this.collection.bind('reset', this.reset, this);
@@ -698,6 +713,9 @@
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           this.collection.sort();
+          if (!this.formConditionsSaved) {
+            this.collection.each(this.addConditions, this);
+          }
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -705,6 +723,23 @@
             this.doAjaxSave(payload);
           }
           return this.formBuilder.trigger('save', payload);
+        },
+        addConditions: function(model) {
+          this.formConditionsSaved = true;
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(source) {
+                if (!_.isEmpty(condition.source)) {
+                  source = model.collection.get(condition.source);
+                  if (source) {
+                    source.attributes.conditions.push(condition);
+                    return source.save();
+                  }
+                }
+              })({});
+            });
+          }
         },
         formData: function() {
           return this.$('#formbuilder_form').serializeArray();
@@ -910,7 +945,7 @@
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
     view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts })%>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -1108,6 +1143,8 @@ __p +=
 ((__t = ( Formbuilder.templates['edit/common']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
+'\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
 '\n';
 
 }
@@ -1175,11 +1212,7 @@ obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
-((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
-'\' />\n  Include Conditions\n</label>\n\n<div class=\'subtemplate-wrapper\' data-rv-show=\'model.' +
-((__t = ( Formbuilder.options.mappings.INCLUDE_CONDITIONS )) == null ? '' : __t) +
-'\'>\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n    <div class="span8">\n      <select data-rv-value=\'condition:source\'>\n          <option value="">---Select Field---</option>\n        ';
+__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n    <div class="span8">\n      <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n        ';
  for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
 __p += '\n          ';
  if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
@@ -1187,13 +1220,17 @@ __p += '\n            ';
  break ;
 __p += '\n          ';
  } ;
-__p += '\n          <option>' +
+__p += '\n          <option value="' +
+((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+'">' +
 ((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
 '</option>\n        ';
 };
-__p += '\n      </select>\n    </div>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n    <div class="span6">\n      <select data-rv-value=\'condition:condition\'>\n          <option value="">---Select Comparator---</option>\n          <option>Equals</option>\n          <option>Greater Than</option>\n          <option>Less Than</option>\n      </select>\n    </div>\n    <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n    <div class="span3">\n      <select data-rv-value=\'condition:action\'>\n          <option value="">---Select Action---</option>\n          <option>Show</option>\n          <option>Hide</option>\n      </select>\n    </div>\n    <span class=\'fb-field-label fb-field-condition-label span2\' data-rv-input=\'model.conditions.target\' data-rv-text=\'model.' +
+__p += '\n      </select>\n    </div>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n    <div class="span6">\n      <select data-rv-value=\'condition:condition\'>\n          <option value="">Select Comparator</option>\n          <option>Equals</option>\n          <option>Greater Than</option>\n          <option>Less Than</option>\n      </select>\n    </div>\n    <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n    <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n    <div class="span3">\n      <select data-rv-value=\'condition:action\'>\n          <option value="">Select Action</option>\n          <option>Show</option>\n          <option>Hide</option>\n      </select>\n    </div>\n    <span data-rv-value=\'condition:target\' class=\'fb-field-label fb-field-condition-label span2\' data-rv-text=\'model.' +
 ((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
-'\' />\n  </div>\n</div>';
+'\' />\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add Condition</a>\n</div>';
 
 }
 return __p
