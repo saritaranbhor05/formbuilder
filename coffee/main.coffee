@@ -205,6 +205,7 @@ class Formbuilder
       events:
         'click .js-add-option': 'addOption'
         'click .js-add-condition': 'addCondition'
+        'click .js-remove-condition': 'removeCondition'
         'click .js-remove-option': 'removeOption'
         'click .js-default-updated': 'defaultUpdated'
         'input .option-label-input': 'forceRender'
@@ -260,6 +261,15 @@ class Formbuilder
         options.splice index, 1
         @model.set Formbuilder.options.mappings.OPTIONS, options
         @model.trigger "change:#{Formbuilder.options.mappings.OPTIONS}"
+        @forceRender()
+
+      removeCondition: (e) ->
+        $el = $(e.currentTarget)
+        index = @$el.find(".js-remove-option").index($el)
+        conditions = @model.get 'conditions'
+        conditions.splice index, 1
+        @model.set 'conditions', conditions
+        @model.trigger "change:conditions"
         @forceRender()
 
       defaultUpdated: (e) ->
