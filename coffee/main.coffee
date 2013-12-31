@@ -570,7 +570,7 @@ class Formbuilder
             do(source = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                if source[0]
+                unless _.has(source[0].attributes.conditions, condition)
                   source[0].attributes.conditions.push(condition)
                   source[0].save()
           )

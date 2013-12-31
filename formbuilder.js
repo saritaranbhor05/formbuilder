@@ -745,7 +745,7 @@
                   source = model.collection.where({
                     cid: condition.source
                   });
-                  if (source[0]) {
+                  if (!_.has(source[0].attributes.conditions, condition)) {
                     source[0].attributes.conditions.push(condition);
                     return source[0].save();
                   }
