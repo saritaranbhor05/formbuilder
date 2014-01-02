@@ -266,7 +266,6 @@ class Formbuilder
 
         @model.set 'conditions', conditions
         @model.trigger 'change:conditions'
-        @forceRender()
 
       removeOption: (e) ->
         $el = $(e.currentTarget)

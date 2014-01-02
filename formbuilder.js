@@ -390,8 +390,7 @@
             conditions.push(newCondition);
           }
           this.model.set('conditions', conditions);
-          this.model.trigger('change:conditions');
-          return this.forceRender();
+          return this.model.trigger('change:conditions');
         },
         removeOption: function(e) {
           var $el, index, options;
@@ -1245,19 +1244,19 @@ var c = -1;
 __p += '\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    ';
  c += 1;
 __p += '\n    ';
- var is_source = false ;
+ var show_condition = true ;
 __p += '\n    ';
  if (!_.isUndefined(rf.attributes.conditions[c])){ ;
 __p += '\n      ';
- if (rf.getCid() != rf.attributes.conditions[c].source){ ;
+ if (rf.getCid() == rf.attributes.conditions[c].source){ ;
 __p += '\n        ';
- is_source = true ;
+ show_condition = false ;
 __p += '\n      ';
  } ;
 __p += '\n    ';
  } ;
 __p += '\n    ';
-if (is_source) { ;
+if (show_condition) { ;
 __p += '\n      <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n            <option value="">Select Field</option>\n          ';
  for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
 __p += '\n            ';

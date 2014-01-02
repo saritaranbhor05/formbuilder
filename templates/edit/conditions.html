@@ -5,13 +5,13 @@
   <%var c = -1%>
   <div class='condition' data-rv-each-condition='model.conditions'>
     <% c += 1%>
-    <% var is_source = false %>
+    <% var show_condition = true %>
     <% if (!_.isUndefined(rf.attributes.conditions[c])){ %>
-      <% if (rf.getCid() != rf.attributes.conditions[c].source){ %>
-        <% is_source = true %>
+      <% if (rf.getCid() == rf.attributes.conditions[c].source){ %>
+        <% show_condition = false %>
       <% } %>
     <% } %>
-    <%if (is_source) { %>
+    <%if (show_condition) { %>
       <span class='fb-field-label fb-field-condition-label span1'> If </span>
       <div class="span8">
         <select data-rv-value='condition:source'>
