@@ -738,9 +738,8 @@
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           this.collection.sort();
-          if (!this.formConditionsSaved) {
-            this.collection.each(this.addConditions, this);
-          }
+          this.collection.each(this.removeSourceConditions, this);
+          this.collection.each(this.addConditions, this);
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -749,8 +748,25 @@
           }
           return this.formBuilder.trigger('save', payload);
         },
+        removeSourceConditions: function(model) {
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(index) {
+                if (!_.isEmpty(condition.source)) {
+                  if (condition.source === model.getCid()) {
+                    index = model.attributes.conditions.indexOf(condition);
+                    if (index > -1) {
+                      model.attributes.conditions.splice(index, 1);
+                    }
+                    return model.save();
+                  }
+                }
+              })(0);
+            });
+          }
+        },
         addConditions: function(model) {
-          this.formConditionsSaved = true;
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               var _this = this;

@@ -569,15 +569,26 @@ class Formbuilder
         @formSaved = true
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @collection.sort()
-        @collection.each @addConditions, @ unless @formConditionsSaved
+        @collection.each @removeSourceConditions, @
+        @collection.each @addConditions, @
 
         payload = JSON.stringify fields: @collection.toJSON()
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
 
+      removeSourceConditions: (model) ->
+        unless _.isEmpty(model.attributes.conditions)
+          _.each(model.attributes.conditions, (condition) ->
+            do(index=0) =>
+              unless _.isEmpty(condition.source)
+                if condition.source == model.getCid()
+                  index = model.attributes.conditions.indexOf(condition);
+                  model.attributes.conditions.splice(index, 1) if (index > -1)
+                  model.save()
+          )
+
       addConditions: (model) ->
-        @formConditionsSaved = true
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
             do(source = {}) =>
