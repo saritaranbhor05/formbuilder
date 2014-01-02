@@ -42,7 +42,7 @@ class Formbuilder
       HINT: 'field_options.hint',
       PREV_BUTTON_TEXT: 'field_options.prev_button_text',
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
-      INCLUDE_CONDITIONS: 'field_options.include_conditions'
+      MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
