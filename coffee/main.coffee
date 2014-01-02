@@ -191,7 +191,21 @@ class Formbuilder
           that.parentView.handleFormUpdate()
           index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0]);
           that.parentView.fieldViews.splice(index, 1) if (index > -1)
+          that.clearConditions that.model.getCid(), that.parentView.fieldViews
           that.model.destroy()
+
+      clearConditions: (cid, fieldViews) ->
+        _.each(fieldViews, (fieldView) ->
+          do(updated_conditions = {}) =>
+            unless _.isEmpty(fieldView.model.attributes.conditions)
+              updated_conditions = _.reject(fieldView.model.attributes.conditions, (condition) ->
+                return _.isEqual(condition.source, cid)
+              )
+              fieldView.model.attributes.conditions = []
+              fieldView.model.attributes.conditions = updated_conditions
+              #index = fieldView.attributes.conditions.indexOf(_.where(fieldView.attributes.conditions, {source: cid})[0]);
+              #fieldView.attributes.conditions.splice(index, 1) if (index > -1)
+        )
 
       duplicate: ->
         attrs = _.clone(@model.attributes)
