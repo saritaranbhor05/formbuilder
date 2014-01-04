@@ -51,7 +51,8 @@
           label: "Untitled",
           field_type: field_type,
           required: true,
-          field_options: {}
+          field_options: {},
+          conditions: []
         };
         return (typeof (_base = Formbuilder.fields[field_type]).defaultAttributes === "function" ? _base.defaultAttributes(attrs) : void 0) || attrs;
       },
@@ -87,7 +88,8 @@
         DEFAULT_VALUE: 'field_options.default_value',
         HINT: 'field_options.hint',
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-        NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+        NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+        MATCH_CONDITIONS: 'field_options.match_conditions'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -451,8 +453,31 @@
           }
         },
         clear: function() {
-          this.parentView.handleFormUpdate();
-          return this.model.destroy();
+          return (function(index, that) {
+            that.parentView.handleFormUpdate();
+            index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
+              cid: that.cid
+            })[0]);
+            if (index > -1) {
+              that.parentView.fieldViews.splice(index, 1);
+            }
+            that.clearConditions(that.model.getCid(), that.parentView.fieldViews);
+            return that.model.destroy();
+          })(0, this);
+        },
+        clearConditions: function(cid, fieldViews) {
+          return _.each(fieldViews, function(fieldView) {
+            var _this = this;
+            return (function(updated_conditions) {
+              if (!_.isEmpty(fieldView.model.attributes.conditions)) {
+                updated_conditions = _.reject(fieldView.model.attributes.conditions, function(condition) {
+                  return _.isEqual(condition.source, cid);
+                });
+                fieldView.model.attributes.conditions = [];
+                return fieldView.model.attributes.conditions = updated_conditions;
+              }
+            })({});
+          });
         },
         duplicate: function() {
           var attrs;
@@ -468,6 +493,8 @@
         className: "edit-response-field",
         events: {
           'click .js-add-option': 'addOption',
+          'click .js-add-condition': 'addCondition',
+          'click .js-remove-condition': 'removeCondition',
           'click .js-remove-option': 'removeOption',
           'click .js-default-updated': 'defaultUpdated',
           'input .option-label-input': 'forceRender'
@@ -477,7 +504,8 @@
         },
         render: function() {
           this.$el.html(Formbuilder.templates["edit/base" + (!this.model.is_input() ? '_non_input' : '')]({
-            rf: this.model
+            rf: this.model,
+            opts: this.options
           }));
           rivets.bind(this.$el, {
             model: this.model
@@ -507,6 +535,26 @@
           this.model.trigger("change:" + Formbuilder.options.mappings.OPTIONS);
           return this.forceRender();
         },
+        addCondition: function(e) {
+          var $el, conditions, i, newCondition;
+          $el = $(e.currentTarget);
+          i = this.$el.find('.option').index($el.closest('.option'));
+          conditions = this.model.get('conditions') || [];
+          newCondition = {
+            source: "",
+            condition: "",
+            value: "",
+            action: "",
+            target: ""
+          };
+          if (i > -1) {
+            conditions.splice(i + 1, 0, newCondition);
+          } else {
+            conditions.push(newCondition);
+          }
+          this.model.set('conditions', conditions);
+          return this.model.trigger('change:conditions');
+        },
         removeOption: function(e) {
           var $el, index, options;
           $el = $(e.currentTarget);
@@ -515,6 +563,16 @@
           options.splice(index, 1);
           this.model.set(Formbuilder.options.mappings.OPTIONS, options);
           this.model.trigger("change:" + Formbuilder.options.mappings.OPTIONS);
+          return this.forceRender();
+        },
+        removeCondition: function(e) {
+          var $el, conditions, index;
+          $el = $(e.currentTarget);
+          index = this.$el.find(".js-remove-option").index($el);
+          conditions = this.model.get('conditions');
+          conditions.splice(index, 1);
+          this.model.set('conditions', conditions);
+          this.model.trigger("change:conditions");
           return this.forceRender();
         },
         defaultUpdated: function(e) {
@@ -541,6 +599,7 @@
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
           this.fieldViews = [];
+          this.formConditionsSaved = false;
           this.collection = new Formbuilder.collection;
           this.collection.bind('add', this.addOne, this);
           this.collection.bind('reset', this.reset, this);
@@ -842,6 +901,8 @@
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           this.collection.sort();
+          this.collection.each(this.removeSourceConditions, this);
+          this.collection.each(this.addConditions, this);
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -849,6 +910,42 @@
             this.doAjaxSave(payload);
           }
           return this.formBuilder.trigger('save', payload);
+        },
+        removeSourceConditions: function(model) {
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(index) {
+                if (!_.isEmpty(condition.source)) {
+                  if (condition.source === model.getCid()) {
+                    index = model.attributes.conditions.indexOf(condition);
+                    if (index > -1) {
+                      model.attributes.conditions.splice(index, 1);
+                    }
+                    return model.save();
+                  }
+                }
+              })(0);
+            });
+          }
+        },
+        addConditions: function(model) {
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(source) {
+                if (!_.isEmpty(condition.source)) {
+                  source = model.collection.where({
+                    cid: condition.source
+                  });
+                  if (!_.has(source[0].attributes.conditions, condition)) {
+                    source[0].attributes.conditions.push(condition);
+                    return source[0].save();
+                  }
+                }
+              })({});
+            });
+          }
         },
         formData: function() {
           return this.$('#formbuilder_form').serializeArray();
@@ -1251,7 +1348,9 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.templates['edit/common']() )) == null ? '' : __t) +
 '\n' +
-((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
+'\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
 '\n';
 
 }
@@ -1309,6 +1408,61 @@ __p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-com
 '\n  </div>\n  <div class=\'fb-common-checkboxes\'>\n    ' +
 ((__t = ( Formbuilder.templates['edit/checkboxes']() )) == null ? '' : __t) +
 '\n  </div>\n  <div class=\'fb-clear\'></div>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/conditions"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
+'">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  ';
+var c = -1;
+__p += '\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\'>\n      ';
+ c += 1;
+__p += '\n      ';
+ var show_condition = true ;
+__p += '\n      ';
+ if (!_.isUndefined(rf.attributes.conditions[c])){ ;
+__p += '\n        ';
+ if (rf.getCid() == rf.attributes.conditions[c].source){ ;
+__p += '\n          ';
+ show_condition = false ;
+__p += '\n        ';
+ } ;
+__p += '\n      ';
+ } ;
+__p += '\n      ';
+if (show_condition) { ;
+__p += '\n        <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n        <div class="span8">\n          <select data-rv-value=\'condition:source\'>\n              <option value="">Select Field</option>\n            ';
+ for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+__p += '\n              ';
+ if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+__p += '\n                ';
+ break ;
+__p += '\n              ';
+ } ;
+__p += '\n              <option value="' +
+((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+'">' +
+((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+'</option>\n            ';
+};
+__p += '\n          </select>\n        </div>\n        <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n        <div class="span6">\n          <select data-rv-value=\'condition:condition\'>\n              <option value="">Select Comparator</option>\n              <option>equals</option>\n              <option>greater than</option>\n              <option>less than</option>\n              <option>is not empty</option>\n          </select>\n        </div>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n        <div class="span3">\n          <select data-rv-value=\'condition:action\'>\n              <option value="">Select Action</option>\n              <option>show</option>\n              <option>hide</option>\n          </select>\n        </div>\n        <div class="span8">\n          <select data-rv-value=\'condition:target\'>\n            <option value="">Select Field</option>\n            <option value="' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'" data-rv-text=\'model.' +
+((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
+'\'></option>\n          </select>\n        </div>\n        <a class="pull-right js-remove-condition ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n      ';
+ } ;
+__p += '\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add Condition</a>\n</div>';
 
 }
 return __p
