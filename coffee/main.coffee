@@ -98,6 +98,8 @@ class Formbuilder
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
         'click .js-clear': 'clear'
+        'keyup': 'changeStateSource',
+        'click': 'changeStateSource'
 
       initialize: ->
         @parentView = @options.parentView
@@ -106,6 +108,118 @@ class Formbuilder
         @is_section_break = @field_type == 'section_break'
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
+
+      check_price: (firstValue, secondValue, condition) ->
+        firstValue = parseInt firstValue
+        secondValue = parseInt secondValue
+        if(eval "#{firstValue} #{condition} #{secondValue}")
+          true
+        else
+          false
+
+      check_time: (firstValue, secondValue, condition) ->
+        do(firstDate = new Date(),secondDate = new Date()
+          , firstValue = firstValue
+          , secondValue = secondValue
+          ) =>
+            firstValue = firstValue.split(':')
+            secondValue = secondValue.split(':')
+            firstDate.setHours(firstValue[0])
+            firstDate.setMinutes(firstValue[1])
+            secondDate.setHours(secondValue[0])
+            secondDate.setMinutes(secondValue[1])
+            if (condition == "<")
+              if(firstDate < secondDate)
+                true
+              else
+                false
+            else if(condition == ">")
+              if(firstDate > secondDate)
+                true
+              else
+                false
+            else
+              false
+
+      check_date: (firstValue, secondValue, condition) ->
+        do(firstDate = new Date(),secondDate = new Date()
+          , firstValue = firstValue
+          , secondValue = secondValue
+          ) =>
+            firstValue = firstValue.split('/')
+            secondValue = secondValue.split('/')
+            firstDate
+              .setFullYear(firstValue[0],firstValue[1] - 1, firstValue[2])
+            secondDate
+              .setFullYear(secondValue[0],secondValue[1] - 1, secondValue[2])
+            if (condition == "<")
+              if(firstDate < secondDate)
+                true
+              else
+                false
+            else if(condition == ">")
+              if(firstDate > secondDate)
+                true
+              else
+                false
+            else
+              false 
+
+      show_hide_fields: (check_result, set_field) ->
+        do( set_field = set_field)=>
+          if(check_result is true )
+            @$el.addClass(set_field.action)
+          else
+            @$el.removeClass(set_field.action)
+
+      changeState: ->
+        do(
+          set_field = {},clicked_element = [],source_model = {}
+          ,elem_val = {},condition = "equals"
+          , check_result = false , i =0
+        ) =>
+          for set_field in @model.get("conditions")
+            do () =>
+              if set_field.target is @model.getCid()
+                source_model = @model.collection.
+                              where({cid: set_field.source})[0]
+                clicked_element = $("." + source_model.getCid())
+                elem_val = clicked_element
+                          .find("[name = "+source_model.getCid()+"_1]").val()
+              field_type = source_model.get('field_type')
+              
+              if set_field.condition is "equals"
+                condition = '=='
+              else if set_field.condition is "less than"
+                condition = '<'
+              else if set_field.condition is "greater than"
+                condition = '>'
+              else
+                condition = "!="
+
+              # TODO if field type is 'required' the make the field compulsory 
+              if field_type is 'price'
+                check_result = @check_price(elem_val, set_field.value, condition)
+                @show_hide_fields(check_result, set_field)
+              else if field_type is 'time'
+                check_result = @check_time(elem_val, set_field.value, condition)
+                @show_hide_fields(check_result, set_field)
+              else if field_type is 'date' or field_type is 'date_of_birth'
+                check_result = @check_date(elem_val, set_field.value, condition)
+                @show_hide_fields(check_result, set_field)
+              else if field_type is 'checkboxes'
+                elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
+                check_result = eval("'#{elem_val}' #{condition} 'true'")
+                @show_hide_fields(check_result, set_field)
+              else if eval("'#{elem_val}' #{condition} '#{set_field.value}'")
+                @$el.addClass(set_field.action)    
+              else
+                @$el.removeClass(set_field.action)
+                  
+        return @                  
+                          
+      changeStateSource: (ev) ->
+        @trigger('change_state')
 
       isValid: ->
         return true if !@field.isValid
@@ -130,11 +244,31 @@ class Formbuilder
 
       live_render: ->
         do (
-          cid = @model.getCid(),
+          set_field = {}, i =0,
+          action = "show",
+          cid = @model.getCid(),set_field_class = false,
           base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
+          if @model.get('conditions').length > 0
+            while i < @model.get('conditions').length
+              set_field = @model.get('conditions')[i]
+              if set_field.action is 'show' and @model.getCid() is set_field.target
+               set_field_class = true
+               break;            
+              i++
+
           if !@is_section_break
-            @$el.addClass('response-field-'+ @field_type)
+            if @model.get("conditions").length
+              for set_field in this.model.get("conditions")
+                do (set_field) =>
+                  if set_field.target is @model.getCid()
+                    for views_name in @options.parentView.fieldViews
+                      do (views_name,set_field) =>
+                        if views_name.model.get('cid') is set_field.source
+                          @listenTo(views_name, 'change_state', @changeState)  
+
+          if !@is_section_break
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
                 rf: @model,
@@ -147,9 +281,11 @@ class Formbuilder
               for x in @$("input, textarea, select")
                 count = do( # set element name, value and call setup
                   x,
-                  index = count + (if should_incr($(x).attr('type')) then 1 else 0),
+                  index = count + (if should_incr($(x)
+                          .attr('type')) then 1 else 0),
                   name = null,
                   val = null
+                  value = 0
                 ) =>
                   value = x.value if @model.get('field_type') == 'radio'
                   name = cid.toString() + "_" + index.toString()
@@ -159,8 +295,12 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
+                  @$el.addClass("hide") if set_field_class is true and val is null
                   @field.setup($(x), @model, index) if @field.setup
-                  if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
+                  if @model.get(Formbuilder.options.mappings.REQUIRED) &&
+                  $.inArray(@model.get('field_type'),
+                  Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
+                  set_field_class isnt true
                     $(x).attr("required", true)
                   index
         return @

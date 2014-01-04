@@ -160,7 +160,9 @@
         events: {
           'click .subtemplate-wrapper': 'focusEditView',
           'click .js-duplicate': 'duplicate',
-          'click .js-clear': 'clear'
+          'click .js-clear': 'clear',
+          'keyup': 'changeStateSource',
+          'click': 'changeStateSource'
         },
         initialize: function() {
           this.parentView = this.options.parentView;
@@ -169,6 +171,129 @@
           this.is_section_break = this.field_type === 'section_break';
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
+        },
+        check_price: function(firstValue, secondValue, condition) {
+          firstValue = parseInt(firstValue);
+          secondValue = parseInt(secondValue);
+          if (eval("" + firstValue + " " + condition + " " + secondValue)) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        check_time: function(firstValue, secondValue, condition) {
+          var _this = this;
+          return (function(firstDate, secondDate, firstValue, secondValue) {
+            firstValue = firstValue.split(':');
+            secondValue = secondValue.split(':');
+            firstDate.setHours(firstValue[0]);
+            firstDate.setMinutes(firstValue[1]);
+            secondDate.setHours(secondValue[0]);
+            secondDate.setMinutes(secondValue[1]);
+            if (condition === "<") {
+              if (firstDate < secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else if (condition === ">") {
+              if (firstDate > secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          })(new Date(), new Date(), firstValue, secondValue);
+        },
+        check_date: function(firstValue, secondValue, condition) {
+          var _this = this;
+          return (function(firstDate, secondDate, firstValue, secondValue) {
+            firstValue = firstValue.split('/');
+            secondValue = secondValue.split('/');
+            firstDate.setFullYear(firstValue[0], firstValue[1] - 1, firstValue[2]);
+            secondDate.setFullYear(secondValue[0], secondValue[1] - 1, secondValue[2]);
+            if (condition === "<") {
+              if (firstDate < secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else if (condition === ">") {
+              if (firstDate > secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          })(new Date(), new Date(), firstValue, secondValue);
+        },
+        show_hide_fields: function(check_result, set_field) {
+          var _this = this;
+          return (function(set_field) {
+            if (check_result === true) {
+              return _this.$el.addClass(set_field.action);
+            } else {
+              return _this.$el.removeClass(set_field.action);
+            }
+          })(set_field);
+        },
+        changeState: function() {
+          var _this = this;
+          (function(set_field, clicked_element, source_model, elem_val, condition, check_result, i) {
+            var _i, _len, _ref, _results;
+            _ref = _this.model.get("conditions");
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              set_field = _ref[_i];
+              _results.push((function() {
+                var field_type;
+                if (set_field.target === _this.model.getCid()) {
+                  source_model = _this.model.collection.where({
+                    cid: set_field.source
+                  })[0];
+                  clicked_element = $("." + source_model.getCid());
+                  elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
+                }
+                field_type = source_model.get('field_type');
+                if (set_field.condition === "equals") {
+                  condition = '==';
+                } else if (set_field.condition === "less than") {
+                  condition = '<';
+                } else if (set_field.condition === "greater than") {
+                  condition = '>';
+                } else {
+                  condition = "!=";
+                }
+                if (field_type === 'price') {
+                  check_result = _this.check_price(elem_val, set_field.value, condition);
+                  return _this.show_hide_fields(check_result, set_field);
+                } else if (field_type === 'time') {
+                  check_result = _this.check_time(elem_val, set_field.value, condition);
+                  return _this.show_hide_fields(check_result, set_field);
+                } else if (field_type === 'date' || field_type === 'date_of_birth') {
+                  check_result = _this.check_date(elem_val, set_field.value, condition);
+                  return _this.show_hide_fields(check_result, set_field);
+                } else if (field_type === 'checkboxes') {
+                  elem_val = clicked_element.find("[value = " + set_field.value + "]").is(':checked');
+                  check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+                  return _this.show_hide_fields(check_result, set_field);
+                } else if (eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'")) {
+                  return _this.$el.addClass(set_field.action);
+                } else {
+                  return _this.$el.removeClass(set_field.action);
+                }
+              })());
+            }
+            return _results;
+          })({}, [], {}, {}, "equals", false, 0);
+          return this;
+        },
+        changeStateSource: function(ev) {
+          return this.trigger('change_state');
         },
         isValid: function() {
           if (!this.field.isValid) {
@@ -209,20 +334,55 @@
         },
         live_render: function() {
           var _this = this;
-          (function(cid, base_templ_suff) {
+          (function(set_field, i, action, cid, set_field_class, base_templ_suff) {
+            var _fn, _i, _len, _ref;
+            if (_this.model.get('conditions').length > 0) {
+              while (i < _this.model.get('conditions').length) {
+                set_field = _this.model.get('conditions')[i];
+                if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
+                  set_field_class = true;
+                  break;
+                }
+                i++;
+              }
+            }
             if (!_this.is_section_break) {
-              _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+              if (_this.model.get("conditions").length) {
+                _ref = _this.model.get("conditions");
+                _fn = function(set_field) {
+                  var views_name, _j, _len1, _ref1, _results;
+                  if (set_field.target === _this.model.getCid()) {
+                    _ref1 = _this.options.parentView.fieldViews;
+                    _results = [];
+                    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                      views_name = _ref1[_j];
+                      _results.push((function(views_name, set_field) {
+                        if (views_name.model.get('cid') === set_field.source) {
+                          return _this.listenTo(views_name, 'change_state', _this.changeState);
+                        }
+                      })(views_name, set_field));
+                    }
+                    return _results;
+                  }
+                };
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  set_field = _ref[_i];
+                  _fn(set_field);
+                }
+              }
+            }
+            if (!_this.is_section_break) {
+              _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
                 rf: _this.model,
                 opts: _this.options
               }));
               return (function(x, count, should_incr) {
-                var _i, _len, _ref, _results;
-                _ref = _this.$("input, textarea, select");
+                var _j, _len1, _ref1, _results;
+                _ref1 = _this.$("input, textarea, select");
                 _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  x = _ref[_i];
-                  _results.push(count = (function(x, index, name, val) {
-                    var value;
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  x = _ref1[_j];
+                  _results.push(count = (function(x, index, name, val, value) {
                     if (_this.model.get('field_type') === 'radio') {
                       value = x.value;
                     }
@@ -236,21 +396,24 @@
                     if (val) {
                       _this.setFieldVal($(x), val);
                     }
+                    if (set_field_class === true && val === null) {
+                      _this.$el.addClass("hide");
+                    }
                     if (_this.field.setup) {
                       _this.field.setup($(x), _this.model, index);
                     }
-                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
                     }
                     return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
                 }
                 return _results;
               })(null, 0, function(attr) {
                 return attr !== 'radio';
               });
             }
-          })(this.model.getCid(), this.model.is_input() ? '' : '_non_input');
+          })({}, 0, "show", this.model.getCid(), false, this.model.is_input() ? '' : '_non_input');
           return this;
         },
         setFieldVal: function(elem, val) {
