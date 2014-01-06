@@ -87,7 +87,8 @@
         DEFAULT_VALUE: 'field_options.default_value',
         HINT: 'field_options.hint',
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-        NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+        NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+        HTML_DATA: 'field_options.html_data'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -895,6 +896,16 @@
     view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input type='file' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('free_text_html', {
+    type: 'non_input',
+    view: "<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>",
+    edit: "\n<div class='actions-wrapper-ck-editorc'>\n  <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'> Untitled </div>\n  </textarea>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      CKEDITOR.disableAutoInline = true;\n      editor = CKEDITOR.inline(document.getElementById(\"ck_<%= rf.getCid() %>\"));\n      editor.on( 'blur', function( e ) {\n        $(\"#ck_<%= rf.getCid() %>\").val(editor.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\"));\n        $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n      });\n    });\n\n  });\n\n</script>",
+    addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML"
   });
 
 }).call(this);

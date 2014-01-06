@@ -40,7 +40,8 @@ class Formbuilder
       DEFAULT_VALUE: 'field_options.default_value'
       HINT: 'field_options.hint',
       PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-      NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+      NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+      HTML_DATA: 'field_options.html_data'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'

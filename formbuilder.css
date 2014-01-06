@@ -25,6 +25,9 @@
 .fb-field-wrapper .actions-wrapper a{display:inline-block;background-color:#ccc;padding:2px 8px;}
 .fb-field-wrapper .actions-wrapper a.js-duplicate{background-color:#008000}
 .fb-field-wrapper .actions-wrapper a.js-clear{background-color:#f00}
+.fb-field-wrapper .actions-wrapper-edit-html{position:absolute;bottom:-7px;right:75px;z-index:3;}
+.fb-field-wrapper .actions-wrapper-edit-html a{display:inline-block;background-color:#ccc;padding:2px 8px;}
+.fb-field-wrapper .actions-wrapper-edit-html a.js-edit-html{background-color:#ffa500}
 .fb-field-wrapper .active_link{bottom:0;position:absolute;z-index:3}
 .fb-field-wrapper .subtemplate-wrapper{border:1px dashed transparent;padding:10px 10px 0 10px;position:relative;}
 .fb-field-wrapper .subtemplate-wrapper input[readonly]{background-color:#fff;cursor:text}
@@ -67,3 +70,4 @@
 .response-field-date .month,.response-field-date .day,.response-field-date .year{width:50px}
 .response-field-time .hours,.response-field-time .minutes,.response-field-time .seconds{width:50px}
 .response-field-checkboxes .fb-option,.response-field-radio .fb-option{margin-bottom:5px;display:inline-block}
+.actions-wrapper-ck-editor{z-index:3}
