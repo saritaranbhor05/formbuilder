@@ -848,6 +848,18 @@
           });
         }
       })(new Date, new Date);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find(".hasDatepicker").val() !== '';
+        })(model.get('required'));
+        return valid;
+      })(false);
     }
   });
 

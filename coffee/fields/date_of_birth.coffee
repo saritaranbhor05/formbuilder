@@ -30,3 +30,10 @@ Formbuilder.registerField 'date_of_birth',
           dateFormat: "dd/mm/yy",
           maxDate: today
         });
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required')) =>
+        return true if !required_attr
+        return $el.find(".hasDatepicker").val() != ''
+      valid
