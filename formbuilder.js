@@ -1111,19 +1111,37 @@
 
 (function() {
   Formbuilder.registerField('date_of_birth', {
-    view: "<div class='input-line'>\n  <input type='date'/>\n</div>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> BirthDay",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date Picker",
     setup: function(el, model, index) {
       var _this = this;
       return (function(today, restricted_date) {
         if (model.get(Formbuilder.options.mappings.MINAGE)) {
           restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-          return el.attr("max", restricted_date.toISOString().slice(0, 10));
+          return el.datepicker({
+            dateFormat: "dd/mm/yy",
+            maxDate: restricted_date
+          });
         } else {
-          return el.attr("max", today.toISOString().slice(0, 10));
+          return el.datepicker({
+            dateFormat: "dd/mm/yy",
+            maxDate: today
+          });
         }
       })(new Date, new Date);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find(".hasDatepicker").val() !== '';
+        })(model.get('required'));
+        return valid;
+      })(false);
     }
   });
 
