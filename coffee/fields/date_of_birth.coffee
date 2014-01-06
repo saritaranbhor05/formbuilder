@@ -2,7 +2,7 @@ Formbuilder.registerField 'date_of_birth',
 
   view: """
     <div class='input-line'>
-      <input type='date'/>
+      <input id='<%= rf.getCid() %>' type='text' readonly/>
     </div>
   """
 
@@ -11,7 +11,7 @@ Formbuilder.registerField 'date_of_birth',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-gift"></span></span> BirthDay
+    <span class="symbol"><span class="icon-gift"></span></span> Birth Date Picker
   """
 
   setup: (el, model, index) ->
@@ -21,6 +21,19 @@ Formbuilder.registerField 'date_of_birth',
           today.getFullYear() -
           model.get(Formbuilder.options.mappings.MINAGE)
         )
-        el.attr("max", restricted_date.toISOString().slice(0,10))
+        el.datepicker({
+          dateFormat: "dd/mm/yy",
+          maxDate: restricted_date
+        });
       else
-        el.attr("max", today.toISOString().slice(0,10))
+        el.datepicker({
+          dateFormat: "dd/mm/yy",
+          maxDate: today
+        });
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required')) =>
+        return true if !required_attr
+        return $el.find(".hasDatepicker").val() != ''
+      valid
