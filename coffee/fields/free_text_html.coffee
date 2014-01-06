@@ -3,6 +3,9 @@ Formbuilder.registerField 'free_text_html',
   type: 'non_input'
 
   view: """
+    <label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>
+      <%= rf.get(Formbuilder.options.mappings.LABEL) %>
+    </label>
     <div id='<%= rf.getCid() %>'></div>
     <script>
       $(function() {
@@ -10,12 +13,17 @@ Formbuilder.registerField 'free_text_html',
         $("#<%= rf.getCid() %>").html(data);
       });
     </script>
+
   """
 
   edit: """
 
+    </br>
+    <input type='text'
+      data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />
+
     <div class='actions-wrapper-ck-editorc'>
-      <textarea id='ck_<%= rf.getCid() %>' contenteditable="true" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'> Untitled </div>
+      <textarea id='ck_<%= rf.getCid() %>' contenteditable="true" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>
       </textarea>
     </div>
 
@@ -23,9 +31,10 @@ Formbuilder.registerField 'free_text_html',
       $(function() {
         $(document).ready( function() {
           CKEDITOR.disableAutoInline = true;
-          editor = CKEDITOR.inline(document.getElementById("ck_<%= rf.getCid() %>"));
-          editor.on( 'blur', function( e ) {
-            $("#ck_<%= rf.getCid() %>").val(editor.getData().replace(/(\\r\\n|\\n|\\r)/gm, ""));
+          editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById("ck_<%= rf.getCid() %>"));
+          editor_<%= rf.getCid() %>.setData("Edit Here")
+          editor_<%= rf.getCid() %>.on( 'blur', function( e ) {
+            $("#ck_<%= rf.getCid() %>").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, ""));
             $("#ck_<%= rf.getCid() %>").trigger("change");
           });
         });
