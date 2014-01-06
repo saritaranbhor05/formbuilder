@@ -188,10 +188,11 @@ class Formbuilder
                 source_model = @model.collection.
                               where({cid: set_field.source})[0]
                 clicked_element = $("." + source_model.getCid())
-                elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_1]").val()
                 field_type = source_model.get('field_type')
                 
+                elem_val = clicked_element
+                          .find("[name = "+source_model.getCid()+"_1]").val()
+
                 if set_field.condition is "equals"
                   condition = '=='
                 else if set_field.condition is "less than"
@@ -205,24 +206,19 @@ class Formbuilder
                 if field_type is 'price'
                   check_result = @check_price(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
-                  #@show_hide_fields(check_result, set_field)
                 else if field_type is 'time'
                   check_result = @check_time(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
-                  #@show_hide_fields(check_result, set_field)
                 else if field_type is 'date' or field_type is 'date_of_birth'
                   check_result = @check_date(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
-                  #@show_hide_fields(check_result, set_field)
-                else if field_type is 'checkboxes'
+                else if field_type is 'checkboxes' or field_type is 'radio'
                   elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
                   check_result = eval("'#{elem_val}' #{condition} 'true'")
                   check_match_condtions.push(check_result)
-                  #@show_hide_fields(check_result, set_field)
                 else
                   check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
                   check_match_condtions.push(check_result)
-                  #@show_hide_fields(check_result, set_field)
 
           if and_flag is true
             if check_match_condtions.indexOf(false) == -1

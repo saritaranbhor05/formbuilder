@@ -258,8 +258,8 @@
                   cid: set_field.source
                 })[0];
                 clicked_element = $("." + source_model.getCid());
-                elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
                 field_type = source_model.get('field_type');
+                elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
                 if (set_field.condition === "equals") {
                   condition = '==';
                 } else if (set_field.condition === "less than") {
@@ -278,7 +278,7 @@
                 } else if (field_type === 'date' || field_type === 'date_of_birth') {
                   check_result = _this.check_date(elem_val, set_field.value, condition);
                   return check_match_condtions.push(check_result);
-                } else if (field_type === 'checkboxes') {
+                } else if (field_type === 'checkboxes' || field_type === 'radio') {
                   elem_val = clicked_element.find("[value = " + set_field.value + "]").is(':checked');
                   check_result = eval("'" + elem_val + "' " + condition + " 'true'");
                   return check_match_condtions.push(check_result);
