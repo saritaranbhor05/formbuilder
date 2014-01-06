@@ -178,8 +178,10 @@ class Formbuilder
         do(
           set_field = {},clicked_element = [],source_model = {}
           ,elem_val = {},condition = "equals"
-          , check_result = false , i =0
+          , check_result = false , i =0,and_flag = false
+          , check_match_condtions = new Array()
         ) =>
+          and_flag = true if @model.get('field_options').match_conditions is 'and'
           for set_field in @model.get("conditions")
             do () =>
               if set_field.target is @model.getCid()
@@ -188,36 +190,48 @@ class Formbuilder
                 clicked_element = $("." + source_model.getCid())
                 elem_val = clicked_element
                           .find("[name = "+source_model.getCid()+"_1]").val()
-              field_type = source_model.get('field_type')
-              
-              if set_field.condition is "equals"
-                condition = '=='
-              else if set_field.condition is "less than"
-                condition = '<'
-              else if set_field.condition is "greater than"
-                condition = '>'
-              else
-                condition = "!="
+                field_type = source_model.get('field_type')
+                
+                if set_field.condition is "equals"
+                  condition = '=='
+                else if set_field.condition is "less than"
+                  condition = '<'
+                else if set_field.condition is "greater than"
+                  condition = '>'
+                else
+                  condition = "!="
 
-              # TODO if field type is 'required' the make the field compulsory 
-              if field_type is 'price'
-                check_result = @check_price(elem_val, set_field.value, condition)
-                @show_hide_fields(check_result, set_field)
-              else if field_type is 'time'
-                check_result = @check_time(elem_val, set_field.value, condition)
-                @show_hide_fields(check_result, set_field)
-              else if field_type is 'date' or field_type is 'date_of_birth'
-                check_result = @check_date(elem_val, set_field.value, condition)
-                @show_hide_fields(check_result, set_field)
-              else if field_type is 'checkboxes'
-                elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
-                check_result = eval("'#{elem_val}' #{condition} 'true'")
-                @show_hide_fields(check_result, set_field)
-              else if eval("'#{elem_val}' #{condition} '#{set_field.value}'")
-                @$el.addClass(set_field.action)    
-              else
-                @$el.removeClass(set_field.action)
-                  
+                # TODO if field type is 'required' the make the field compulsory 
+                if field_type is 'price'
+                  check_result = @check_price(elem_val, set_field.value, condition)
+                  check_match_condtions.push(check_result)
+                  #@show_hide_fields(check_result, set_field)
+                else if field_type is 'time'
+                  check_result = @check_time(elem_val, set_field.value, condition)
+                  check_match_condtions.push(check_result)
+                  #@show_hide_fields(check_result, set_field)
+                else if field_type is 'date' or field_type is 'date_of_birth'
+                  check_result = @check_date(elem_val, set_field.value, condition)
+                  check_match_condtions.push(check_result)
+                  #@show_hide_fields(check_result, set_field)
+                else if field_type is 'checkboxes'
+                  elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
+                  check_result = eval("'#{elem_val}' #{condition} 'true'")
+                  check_match_condtions.push(check_result)
+                  #@show_hide_fields(check_result, set_field)
+                else
+                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
+                  check_match_condtions.push(check_result)
+                  #@show_hide_fields(check_result, set_field)
+
+          if and_flag is true
+            if check_match_condtions.indexOf(false) == -1
+              @show_hide_fields(check_result, set_field)
+            else
+              @show_hide_fields('false', set_field)
+          else
+            @show_hide_fields(check_result, set_field)                    
+
         return @                  
                           
       changeStateSource: (ev) ->
@@ -297,7 +311,7 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
-                  @$el.addClass("hide") if set_field_class is true and val is null
+                  @$el.addClass("hide") if set_field_class is true and val is null or val is "" 
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@model.get('field_type'),
