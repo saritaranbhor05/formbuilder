@@ -164,7 +164,7 @@
           'click .js-duplicate': 'duplicate',
           'click .js-clear': 'clear',
           'keyup': 'changeStateSource',
-          'click': 'changeStateSource'
+          'change': 'changeStateSource'
         },
         initialize: function() {
           this.parentView = this.options.parentView;
@@ -214,8 +214,8 @@
           return (function(firstDate, secondDate, firstValue, secondValue) {
             firstValue = firstValue.split('/');
             secondValue = secondValue.split('/');
-            firstDate.setFullYear(firstValue[0], firstValue[1] - 1, firstValue[2]);
-            secondDate.setFullYear(secondValue[0], secondValue[1] - 1, secondValue[2]);
+            firstDate = new Date(firstValue[0], firstValue[1], firstValue[2]);
+            secondDate = new Date(secondValue[0], secondValue[1], secondValue[2]);
             if (condition === "<") {
               if (firstDate < secondDate) {
                 return true;
