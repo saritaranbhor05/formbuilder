@@ -22,7 +22,7 @@ Formbuilder.registerField 'free_text_html',
     <input type='text'
       data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />
 
-    <div class='actions-wrapper-ck-editorc'>
+    <div>
       <textarea id='ck_<%= rf.getCid() %>' contenteditable="true" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>
       </textarea>
     </div>
