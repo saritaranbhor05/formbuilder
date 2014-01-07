@@ -163,14 +163,29 @@ class Formbuilder
               else
                 false
             else
-              false 
+              false
+
+      
+      add_remove_require:(required) ->        
+         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
+            $.inArray(@model.get('field_type'),
+            Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
+              $("." + @model.getCid()).find("[name = "+@model.getCid()+"_1]").attr("required", required)
 
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field)=>
           if(check_result is true )
             @$el.addClass(set_field.action)
+            if(set_field.action == 'show')
+             @add_remove_require(true)
+            else
+             @add_remove_require(false)
           else
             @$el.removeClass(set_field.action)
+            if(set_field.action == 'hide')
+              add_remove_require(true)
+            else
+              @add_remove_require(false)  
 
       changeState: ->
         do(

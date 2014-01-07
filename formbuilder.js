@@ -233,13 +233,28 @@
             }
           })(new Date(), new Date(), firstValue, secondValue);
         },
+        add_remove_require: function(required) {
+          if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+            return $("." + this.model.getCid()).find("[name = " + this.model.getCid() + "_1]").attr("required", required);
+          }
+        },
         show_hide_fields: function(check_result, set_field) {
           var _this = this;
           return (function(set_field) {
             if (check_result === true) {
-              return _this.$el.addClass(set_field.action);
+              _this.$el.addClass(set_field.action);
+              if (set_field.action === 'show') {
+                return _this.add_remove_require(true);
+              } else {
+                return _this.add_remove_require(false);
+              }
             } else {
-              return _this.$el.removeClass(set_field.action);
+              _this.$el.removeClass(set_field.action);
+              if (set_field.action === 'hide') {
+                return add_remove_require(true);
+              } else {
+                return _this.add_remove_require(false);
+              }
             }
           })(set_field);
         },
