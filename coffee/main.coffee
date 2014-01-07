@@ -143,25 +143,46 @@ class Formbuilder
             else
               false
 
+      check_date_result: (condition, firstValue, secondValue) ->
+        firstValue[0] = parseInt(firstValue[0])
+        firstValue[1] = parseInt(firstValue[1])
+        firstValue[2] = parseInt(firstValue[2])
+
+        secondValue[0] = parseInt(secondValue[0])
+        secondValue[1] = parseInt(secondValue[1])
+        secondValue[2] = parseInt(secondValue[2])
+
+        if (condition == "<")
+          if(firstValue[2] <= secondValue[2])
+            if(firstValue[1] <= secondValue[1])
+              if(firstValue[0] < secondValue[0])
+                true
+          else
+            false
+        else if(condition == ">")
+          if(firstValue[2] >= secondValue[2])
+            if(firstValue[1] >= secondValue[1])
+              if(firstValue[0] > secondValue[0])
+               true
+          else
+            false
+        else
+          if(firstValue[2] is secondValue[2])
+            if(firstValue[1] is secondValue[1])
+              if(firstValue[0] is secondValue[0])
+                is_true is true
+
       check_date: (firstValue, secondValue, condition) ->
-        do(firstDate = new Date(),secondDate = new Date()
-          , firstValue = firstValue
+        do(
+            firstValue = firstValue
           , secondValue = secondValue
+          , is_true = false;
           ) =>
             firstValue = firstValue.split('/')
             secondValue = secondValue.split('/')
-            firstDate = new Date(firstValue[0],firstValue[1],firstValue[2])
-            secondDate = new Date(secondValue[0],secondValue[1],secondValue[2])
-            if (condition == "<")
-              if(firstDate < secondDate)
-                true
-              else
-                false
-            else if(condition == ">")
-              if(firstDate > secondDate)
-                true
-              else
-                false
+            is_true = @check_date_result(condition,firstValue,secondValue)
+            if is_true is true
+              true
             else
               false
 
@@ -216,7 +237,12 @@ class Formbuilder
                   condition = "!="
 
                 # TODO if field type is 'required' the make the field compulsory 
-                if field_type is 'price'
+                if field_type is 'fullname'
+                  elem_val = clicked_element
+                          .find("[name = "+source_model.getCid()+"_2]").val()
+                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
+                  check_match_condtions.push(check_result)
+                else if field_type is 'price'
                   check_result = @check_price(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
                 else if field_type is 'time'

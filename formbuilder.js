@@ -209,29 +209,55 @@
             }
           })(new Date(), new Date(), firstValue, secondValue);
         },
-        check_date: function(firstValue, secondValue, condition) {
-          var _this = this;
-          return (function(firstDate, secondDate, firstValue, secondValue) {
-            firstValue = firstValue.split('/');
-            secondValue = secondValue.split('/');
-            firstDate = new Date(firstValue[0], firstValue[1], firstValue[2]);
-            secondDate = new Date(secondValue[0], secondValue[1], secondValue[2]);
-            if (condition === "<") {
-              if (firstDate < secondDate) {
-                return true;
-              } else {
-                return false;
-              }
-            } else if (condition === ">") {
-              if (firstDate > secondDate) {
-                return true;
-              } else {
-                return false;
+        check_date_result: function(condition, firstValue, secondValue) {
+          firstValue[0] = parseInt(firstValue[0]);
+          firstValue[1] = parseInt(firstValue[1]);
+          firstValue[2] = parseInt(firstValue[2]);
+          secondValue[0] = parseInt(secondValue[0]);
+          secondValue[1] = parseInt(secondValue[1]);
+          secondValue[2] = parseInt(secondValue[2]);
+          if (condition === "<") {
+            if (firstValue[2] <= secondValue[2]) {
+              if (firstValue[1] <= secondValue[1]) {
+                if (firstValue[0] < secondValue[0]) {
+                  return true;
+                }
               }
             } else {
               return false;
             }
-          })(new Date(), new Date(), firstValue, secondValue);
+          } else if (condition === ">") {
+            if (firstValue[2] >= secondValue[2]) {
+              if (firstValue[1] >= secondValue[1]) {
+                if (firstValue[0] > secondValue[0]) {
+                  return true;
+                }
+              }
+            } else {
+              return false;
+            }
+          } else {
+            if (firstValue[2] === secondValue[2]) {
+              if (firstValue[1] === secondValue[1]) {
+                if (firstValue[0] === secondValue[0]) {
+                  return is_true === true;
+                }
+              }
+            }
+          }
+        },
+        check_date: function(firstValue, secondValue, condition) {
+          var _this = this;
+          return (function(firstValue, secondValue, is_true) {
+            firstValue = firstValue.split('/');
+            secondValue = secondValue.split('/');
+            is_true = _this.check_date_result(condition, firstValue, secondValue);
+            if (is_true === true) {
+              return true;
+            } else {
+              return false;
+            }
+          })(firstValue, secondValue, false);
         },
         add_remove_require: function(required) {
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
@@ -284,7 +310,11 @@
                 } else {
                   condition = "!=";
                 }
-                if (field_type === 'price') {
+                if (field_type === 'fullname') {
+                  elem_val = clicked_element.find("[name = " + source_model.getCid() + "_2]").val();
+                  check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
+                  return check_match_condtions.push(check_result);
+                } else if (field_type === 'price') {
                   check_result = _this.check_price(elem_val, set_field.value, condition);
                   return check_match_condtions.push(check_result);
                 } else if (field_type === 'time') {
