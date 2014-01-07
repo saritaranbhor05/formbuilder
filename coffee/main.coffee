@@ -134,8 +134,6 @@ class Formbuilder
 
        $("body").on "hidden", ".modal", ->
           $(this).removeData "modal"
-
-       
        
       isValid: ->
         return true if !@field.isValid
