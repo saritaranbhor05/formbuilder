@@ -240,7 +240,7 @@
             if (firstValue[2] === secondValue[2]) {
               if (firstValue[1] === secondValue[1]) {
                 if (firstValue[0] === secondValue[0]) {
-                  return is_true === true;
+                  return true;
                 }
               }
             }
@@ -277,7 +277,7 @@
             } else {
               _this.$el.removeClass(set_field.action);
               if (set_field.action === 'hide') {
-                return add_remove_require(true);
+                return _this.add_remove_require(true);
               } else {
                 return _this.add_remove_require(false);
               }
@@ -287,7 +287,7 @@
         changeState: function() {
           var _this = this;
           (function(set_field, clicked_element, source_model, elem_val, condition, check_result, i, and_flag, check_match_condtions) {
-            var _fn, _i, _len, _ref;
+            var _fn, _i, _j, _len, _len1, _ref, _ref1, _results;
             if (_this.model.get('field_options').match_conditions === 'and') {
               and_flag = true;
             }
@@ -313,23 +313,30 @@
                 if (field_type === 'fullname') {
                   elem_val = clicked_element.find("[name = " + source_model.getCid() + "_2]").val();
                   check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
                 } else if (field_type === 'price') {
                   check_result = _this.check_price(elem_val, set_field.value, condition);
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
                 } else if (field_type === 'time') {
                   check_result = _this.check_time(elem_val, set_field.value, condition);
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
                 } else if (field_type === 'date' || field_type === 'date_of_birth') {
                   check_result = _this.check_date(elem_val, set_field.value, condition);
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
                 } else if (field_type === 'checkboxes' || field_type === 'radio') {
                   elem_val = clicked_element.find("[value = " + set_field.value + "]").is(':checked');
                   check_result = eval("'" + elem_val + "' " + condition + " 'true'");
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
                 } else {
                   check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
-                  return check_match_condtions.push(check_result);
+                  check_match_condtions.push(check_result);
+                }
+                if (_this.model.get('field_type') === 'fullname') {
+                  return $el.find("[name = " + _this.model.getCid() + "_2]").val("");
+                } else if (_this.model.get('field_type') === 'checkboxes' || _this.model.get('field_type') === 'radio') {
+
+                } else {
+                  return _this.$el.find("[name = " + _this.model.getCid() + "_1]").val("");
                 }
               }
             };
@@ -339,13 +346,24 @@
             }
             if (and_flag === true) {
               if (check_match_condtions.indexOf(false) === -1) {
-                return _this.show_hide_fields(check_result, set_field);
+                _this.show_hide_fields(check_result, set_field);
               } else {
-                return _this.show_hide_fields('false', set_field);
+                _this.show_hide_fields('false', set_field);
               }
             } else {
-              return _this.show_hide_fields(check_result, set_field);
+              _this.show_hide_fields(check_result, set_field);
             }
+            _ref1 = _this.model.get("conditions");
+            _results = [];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              set_field = _ref1[_j];
+              _results.push((function() {
+                if (set_field.source === _this.model.getCid()) {
+                  return _this.changeStateSource();
+                }
+              })());
+            }
+            return _results;
           })({}, [], {}, {}, "equals", false, 0, false, new Array());
           return this;
         },
