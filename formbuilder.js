@@ -160,7 +160,8 @@
         events: {
           'click .subtemplate-wrapper': 'focusEditView',
           'click .js-duplicate': 'duplicate',
-          'click .js-clear': 'clear'
+          'click .js-clear': 'clear',
+          'click #gmap_button': 'openGMap'
         },
         initialize: function() {
           this.parentView = this.options.parentView;
@@ -169,6 +170,33 @@
           this.is_section_break = this.field_type === 'section_break';
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
+        },
+        openGMap: function() {
+          $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+        <div class="modal-dialog">\
+          <div class="modal-content">\
+            <div class="modal-header">\
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
+                <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
+            </div>\
+            <div class="modal-body" style="height:560px;">\
+              some class\
+            </div>\
+            <div class="modal-footer">\
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
+              <button type="button" class="btn btn-primary">Save changes</button>\
+            </div>\
+          </div>\
+        </div>\
+        </div>\
+        ').appendTo('.' + this.model.getCid());
+          $('#myModal').modal({
+            show: true,
+            remote: "gmap/show"
+          });
+          return $("body").on("hidden", ".modal", function() {
+            return $(this).removeData("modal");
+          });
         },
         isValid: function() {
           if (!this.field.isValid) {
@@ -211,7 +239,7 @@
           var _this = this;
           (function(cid, base_templ_suff) {
             if (!_this.is_section_break) {
-              _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+              _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
                 rf: _this.model,
                 opts: _this.options
               }));
@@ -905,6 +933,15 @@
         return valid;
       })(false);
     }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('gmap', {
+    view: "<input type='button' style=\"width: 100px ;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" />",
+    edit: "",
+    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps"
   });
 
 }).call(this);

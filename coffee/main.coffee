@@ -98,6 +98,7 @@ class Formbuilder
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
         'click .js-clear': 'clear'
+        'click #gmap_button': 'openGMap'
 
       initialize: ->
         @parentView = @options.parentView
@@ -107,6 +108,35 @@ class Formbuilder
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
 
+      openGMap: ->
+       $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Google Maps</h4>
+            </div>
+            <div class="modal-body" style="height:560px;">
+              some class
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+        </div>
+        ').appendTo('.'+@model.getCid())
+       $('#myModal').modal({
+        show: true,
+        remote: "gmap/show"
+       })
+
+       $("body").on "hidden", ".modal", ->
+          $(this).removeData "modal"
+
+       
+       
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)
@@ -134,7 +164,7 @@ class Formbuilder
           base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
           if !@is_section_break
-            @$el.addClass('response-field-'+ @field_type)
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
                 rf: @model,
