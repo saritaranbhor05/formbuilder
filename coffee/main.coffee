@@ -255,7 +255,7 @@ class Formbuilder
 
       addCondition: (e) ->
         $el = $(e.currentTarget)
-        i = @$el.find('.option').index($el.closest('.option'))
+        i = @$el.find('.condition').index($el.closest('.condition'))
         conditions = @model.get('conditions') || []
         newCondition = { source: "", condition: "", value: "", action: "", target: "" }
 

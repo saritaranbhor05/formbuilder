@@ -375,7 +375,7 @@
         addCondition: function(e) {
           var $el, conditions, i, newCondition;
           $el = $(e.currentTarget);
-          i = this.$el.find('.option').index($el.closest('.option'));
+          i = this.$el.find('.condition').index($el.closest('.condition'));
           conditions = this.model.get('conditions') || [];
           newCondition = {
             source: "",
