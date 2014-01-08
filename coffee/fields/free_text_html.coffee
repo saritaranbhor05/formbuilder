@@ -31,7 +31,10 @@ Formbuilder.registerField 'free_text_html',
       $(function() {
         $(document).ready( function() {
           CKEDITOR.disableAutoInline = true;
-          editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById("ck_<%= rf.getCid() %>"));
+          editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById("ck_<%= rf.getCid() %>"),
+          {
+            customConfig : 'bri_ckeditor_config.js'
+          });
           editor_<%= rf.getCid() %>.setData("Edit Here")
           editor_<%= rf.getCid() %>.on( 'blur', function( e ) {
             $("#ck_<%= rf.getCid() %>").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, ""));
