@@ -167,6 +167,7 @@
           'change': 'changeStateSource'
         },
         initialize: function() {
+          this.current_state = 'show';
           this.parentView = this.options.parentView;
           this.field_type = this.model.get(Formbuilder.options.mappings.FIELD_TYPE);
           this.field = Formbuilder.fields[this.field_type];
@@ -270,16 +271,20 @@
             if (check_result === true) {
               _this.$el.addClass(set_field.action);
               if (set_field.action === 'show') {
+                _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
               } else {
+                _this.current_state = "hide";
                 return _this.add_remove_require(false);
               }
             } else {
               _this.$el.removeClass(set_field.action);
               if (set_field.action === 'hide') {
+                _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
               } else {
-                return _this.add_remove_require(false);
+                _this.add_remove_require(false);
+                return _this.current_state = "hide";
               }
             }
           })(set_field);
@@ -422,13 +427,18 @@
                 i++;
               }
             }
+            if (set_field_class === true) {
+              _this.current_state = "hide";
+            } else {
+              _this.current_state = "show";
+            }
             if (!_this.is_section_break) {
               if (_this.model.get("conditions").length) {
                 _ref = _this.model.get("conditions");
                 _fn = function(set_field) {
                   var views_name, _j, _len1, _ref1, _results;
                   if (set_field.target === _this.model.getCid()) {
-                    _ref1 = _this.options.parentView.fieldViews;
+                    _ref1 = _this.parentView.fieldViews;
                     _results = [];
                     for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                       views_name = _ref1[_j];
@@ -480,8 +490,10 @@
                     }
                     if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
-                    } else {
-                      $(x).attr("required", false);
+                      console.log(name + " true");
+                    }
+                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) !== -1 && set_field_class !== true) {
+                      $(x).attr("required", true);
                     }
                     return index;
                   })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
@@ -694,6 +706,22 @@
           if (this.options.autoSave) {
             return this.initAutosave();
           }
+        },
+        getViewState: function() {
+          var current_view_state, fieldView;
+          current_view_state = (function() {
+            var _i, _len, _ref, _results;
+            _ref = this.fieldViews;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              fieldView = _ref[_i];
+              if (fieldView.current_state === 'show') {
+                _results.push(fieldView);
+              }
+            }
+            return _results;
+          }).call(this);
+          return current_view_state;
         },
         initAutosave: function() {
           var _this = this;
@@ -1149,7 +1177,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })(model.get('required'), 0);
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1170,7 +1198,7 @@
             return true;
           }
           return $el.find(".hasDatepicker").val() !== '';
-        })(model.get('required'));
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }
@@ -1208,7 +1236,7 @@
             return true;
           }
           return $el.find(".hasDatepicker").val() !== '';
-        })(model.get('required'));
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }
@@ -1270,7 +1298,7 @@
             return true;
           }
           return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
-        })(model.get('required'), 0);
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1363,7 +1391,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })(model.get('required'), 0);
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1428,7 +1456,7 @@
             return true;
           }
           return $el.find(".hasTimepicker").val() !== '';
-        })(model.get('required'));
+        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }

@@ -44,7 +44,7 @@ Formbuilder.registerField 'checkboxes',
 
   isValid: ($el, model) ->
     do(valid = false) =>
-      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
+      valid = do (required_attr = $("." + model.getCid()).find("[name = "+model.getCid()+"_1]").attr("required"), checked_chk_cnt = 0) =>
         return true if !required_attr
         checked_chk_cnt = $el.find('input:checked').length
         if $($el.find('input:checked').last()).val() == '__other__'
