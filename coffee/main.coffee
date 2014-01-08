@@ -457,9 +457,9 @@ class Formbuilder
 
       addCondition: (e) ->
         $el = $(e.currentTarget)
-        i = @$el.find('.option').index($el.closest('.option'))
+        i = @$el.find('.condition').index($el.closest('.condition'))
         conditions = @model.get('conditions') || []
-        newCondition = { source: "", condition: "", value: "", action: "", target: "" }
+        newCondition = { source: "", condition: "", value: "", action: "", target: "", isSource: true }
 
         if i > -1
           conditions.splice(i + 1, 0, newCondition)
@@ -793,11 +793,13 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}) =>
+            do(source = {}, source_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
                 unless _.has(source[0].attributes.conditions, condition)
-                  source[0].attributes.conditions.push(condition)
+                  _.extend( source_condition, condition)
+                  source_condition.isSource = false
+                  source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )
 
