@@ -51,7 +51,8 @@
           label: "Untitled",
           field_type: field_type,
           required: true,
-          field_options: {}
+          field_options: {},
+          conditions: []
         };
         return (typeof (_base = Formbuilder.fields[field_type]).defaultAttributes === "function" ? _base.defaultAttributes(attrs) : void 0) || attrs;
       },
@@ -87,7 +88,8 @@
         DEFAULT_VALUE: 'field_options.default_value',
         HINT: 'field_options.hint',
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-        NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+        NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+        MATCH_CONDITIONS: 'field_options.match_conditions'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -160,7 +162,9 @@
         events: {
           'click .subtemplate-wrapper': 'focusEditView',
           'click .js-duplicate': 'duplicate',
-          'click .js-clear': 'clear'
+          'click .js-clear': 'clear',
+          'keyup': 'changeStateSource',
+          'change': 'changeStateSource'
         },
         initialize: function() {
           this.parentView = this.options.parentView;
@@ -169,6 +173,202 @@
           this.is_section_break = this.field_type === 'section_break';
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
+        },
+        check_price: function(firstValue, secondValue, condition) {
+          firstValue = parseInt(firstValue);
+          secondValue = parseInt(secondValue);
+          if (eval("" + firstValue + " " + condition + " " + secondValue)) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        check_time: function(firstValue, secondValue, condition) {
+          var _this = this;
+          return (function(firstDate, secondDate, firstValue, secondValue) {
+            firstValue = firstValue.split(':');
+            secondValue = secondValue.split(':');
+            firstDate.setHours(firstValue[0]);
+            firstDate.setMinutes(firstValue[1]);
+            secondDate.setHours(secondValue[0]);
+            secondDate.setMinutes(secondValue[1]);
+            if (condition === "<") {
+              if (firstDate < secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else if (condition === ">") {
+              if (firstDate > secondDate) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          })(new Date(), new Date(), firstValue, secondValue);
+        },
+        check_date_result: function(condition, firstValue, secondValue) {
+          firstValue[0] = parseInt(firstValue[0]);
+          firstValue[1] = parseInt(firstValue[1]);
+          firstValue[2] = parseInt(firstValue[2]);
+          secondValue[0] = parseInt(secondValue[0]);
+          secondValue[1] = parseInt(secondValue[1]);
+          secondValue[2] = parseInt(secondValue[2]);
+          if (condition === "<") {
+            if (firstValue[2] <= secondValue[2]) {
+              if (firstValue[1] <= secondValue[1]) {
+                if (firstValue[0] < secondValue[0]) {
+                  return true;
+                }
+              }
+            } else {
+              return false;
+            }
+          } else if (condition === ">") {
+            if (firstValue[2] >= secondValue[2]) {
+              if (firstValue[1] >= secondValue[1]) {
+                if (firstValue[0] > secondValue[0]) {
+                  return true;
+                }
+              }
+            } else {
+              return false;
+            }
+          } else {
+            if (firstValue[2] === secondValue[2]) {
+              if (firstValue[1] === secondValue[1]) {
+                if (firstValue[0] === secondValue[0]) {
+                  return true;
+                }
+              }
+            }
+          }
+        },
+        check_date: function(firstValue, secondValue, condition) {
+          var _this = this;
+          return (function(firstValue, secondValue, is_true) {
+            firstValue = firstValue.split('/');
+            secondValue = secondValue.split('/');
+            is_true = _this.check_date_result(condition, firstValue, secondValue);
+            if (is_true === true) {
+              return true;
+            } else {
+              return false;
+            }
+          })(firstValue, secondValue, false);
+        },
+        add_remove_require: function(required) {
+          if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+            return $("." + this.model.getCid()).find("[name = " + this.model.getCid() + "_1]").attr("required", required);
+          }
+        },
+        show_hide_fields: function(check_result, set_field) {
+          var _this = this;
+          return (function(set_field) {
+            if (check_result === true) {
+              _this.$el.addClass(set_field.action);
+              if (set_field.action === 'show') {
+                return _this.add_remove_require(true);
+              } else {
+                return _this.add_remove_require(false);
+              }
+            } else {
+              _this.$el.removeClass(set_field.action);
+              if (set_field.action === 'hide') {
+                return _this.add_remove_require(true);
+              } else {
+                return _this.add_remove_require(false);
+              }
+            }
+          })(set_field);
+        },
+        changeState: function() {
+          var _this = this;
+          (function(set_field, clicked_element, source_model, elem_val, condition, check_result, i, and_flag, check_match_condtions) {
+            var _fn, _i, _j, _len, _len1, _ref, _ref1, _results;
+            if (_this.model.get('field_options').match_conditions === 'and') {
+              and_flag = true;
+            }
+            _ref = _this.model.get("conditions");
+            _fn = function() {
+              var field_type;
+              if (set_field.target === _this.model.getCid()) {
+                source_model = _this.model.collection.where({
+                  cid: set_field.source
+                })[0];
+                clicked_element = $("." + source_model.getCid());
+                field_type = source_model.get('field_type');
+                elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
+                if (set_field.condition === "equals") {
+                  condition = '==';
+                } else if (set_field.condition === "less than") {
+                  condition = '<';
+                } else if (set_field.condition === "greater than") {
+                  condition = '>';
+                } else {
+                  condition = "!=";
+                }
+                if (field_type === 'fullname') {
+                  elem_val = clicked_element.find("[name = " + source_model.getCid() + "_2]").val();
+                  check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
+                  check_match_condtions.push(check_result);
+                } else if (field_type === 'price') {
+                  check_result = _this.check_price(elem_val, set_field.value, condition);
+                  check_match_condtions.push(check_result);
+                } else if (field_type === 'time') {
+                  check_result = _this.check_time(elem_val, set_field.value, condition);
+                  check_match_condtions.push(check_result);
+                } else if (field_type === 'date' || field_type === 'date_of_birth') {
+                  check_result = _this.check_date(elem_val, set_field.value, condition);
+                  check_match_condtions.push(check_result);
+                } else if (field_type === 'checkboxes' || field_type === 'radio') {
+                  elem_val = clicked_element.find("[value = " + set_field.value + "]").is(':checked');
+                  check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+                  check_match_condtions.push(check_result);
+                } else {
+                  check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
+                  check_match_condtions.push(check_result);
+                }
+                if (_this.model.get('field_type') === 'fullname') {
+                  return $el.find("[name = " + _this.model.getCid() + "_2]").val("");
+                } else if (_this.model.get('field_type') === 'checkboxes' || _this.model.get('field_type') === 'radio') {
+
+                } else {
+                  return _this.$el.find("[name = " + _this.model.getCid() + "_1]").val("");
+                }
+              }
+            };
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              set_field = _ref[_i];
+              _fn();
+            }
+            if (and_flag === true) {
+              if (check_match_condtions.indexOf(false) === -1) {
+                _this.show_hide_fields(check_result, set_field);
+              } else {
+                _this.show_hide_fields('false', set_field);
+              }
+            } else {
+              _this.show_hide_fields(check_result, set_field);
+            }
+            _ref1 = _this.model.get("conditions");
+            _results = [];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              set_field = _ref1[_j];
+              _results.push((function() {
+                if (set_field.source === _this.model.getCid()) {
+                  return _this.changeStateSource();
+                }
+              })());
+            }
+            return _results;
+          })({}, [], {}, {}, "equals", false, 0, false, new Array());
+          return this;
+        },
+        changeStateSource: function(ev) {
+          return this.trigger('change_state');
         },
         isValid: function() {
           if (!this.field.isValid) {
@@ -209,20 +409,55 @@
         },
         live_render: function() {
           var _this = this;
-          (function(cid, base_templ_suff) {
+          (function(set_field, i, action, cid, set_field_class, base_templ_suff) {
+            var _fn, _i, _len, _ref;
+            if (_this.model.get('conditions').length > 0) {
+              while (i < _this.model.get('conditions').length) {
+                set_field = _this.model.get('conditions')[i];
+                if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
+                  set_field_class = true;
+                  break;
+                }
+                i++;
+              }
+            }
             if (!_this.is_section_break) {
-              _this.$el.addClass('response-field-' + _this.field_type).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+              if (_this.model.get("conditions").length) {
+                _ref = _this.model.get("conditions");
+                _fn = function(set_field) {
+                  var views_name, _j, _len1, _ref1, _results;
+                  if (set_field.target === _this.model.getCid()) {
+                    _ref1 = _this.options.parentView.fieldViews;
+                    _results = [];
+                    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                      views_name = _ref1[_j];
+                      _results.push((function(views_name, set_field) {
+                        if (views_name.model.get('cid') === set_field.source) {
+                          return _this.listenTo(views_name, 'change_state', _this.changeState);
+                        }
+                      })(views_name, set_field));
+                    }
+                    return _results;
+                  }
+                };
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  set_field = _ref[_i];
+                  _fn(set_field);
+                }
+              }
+            }
+            if (!_this.is_section_break) {
+              _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
                 rf: _this.model,
                 opts: _this.options
               }));
               return (function(x, count, should_incr) {
-                var _i, _len, _ref, _results;
-                _ref = _this.$("input, textarea, select");
+                var _j, _len1, _ref1, _results;
+                _ref1 = _this.$("input, textarea, select");
                 _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  x = _ref[_i];
-                  _results.push(count = (function(x, index, name, val) {
-                    var value;
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  x = _ref1[_j];
+                  _results.push(count = (function(x, index, name, val, value) {
                     if (_this.model.get('field_type') === 'radio') {
                       value = x.value;
                     }
@@ -236,21 +471,24 @@
                     if (val) {
                       _this.setFieldVal($(x), val);
                     }
+                    if (set_field_class === true && val === null || val === "") {
+                      _this.$el.addClass("hide");
+                    }
                     if (_this.field.setup) {
                       _this.field.setup($(x), _this.model, index);
                     }
-                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
                     }
                     return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
                 }
                 return _results;
               })(null, 0, function(attr) {
                 return attr !== 'radio';
               });
             }
-          })(this.model.getCid(), this.model.is_input() ? '' : '_non_input');
+          })({}, 0, "show", this.model.getCid(), false, this.model.is_input() ? '' : '_non_input');
           return this;
         },
         setFieldVal: function(elem, val) {
@@ -288,8 +526,31 @@
           }
         },
         clear: function() {
-          this.parentView.handleFormUpdate();
-          return this.model.destroy();
+          return (function(index, that) {
+            that.parentView.handleFormUpdate();
+            index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
+              cid: that.cid
+            })[0]);
+            if (index > -1) {
+              that.parentView.fieldViews.splice(index, 1);
+            }
+            that.clearConditions(that.model.getCid(), that.parentView.fieldViews);
+            return that.model.destroy();
+          })(0, this);
+        },
+        clearConditions: function(cid, fieldViews) {
+          return _.each(fieldViews, function(fieldView) {
+            var _this = this;
+            return (function(updated_conditions) {
+              if (!_.isEmpty(fieldView.model.attributes.conditions)) {
+                updated_conditions = _.reject(fieldView.model.attributes.conditions, function(condition) {
+                  return _.isEqual(condition.source, cid);
+                });
+                fieldView.model.attributes.conditions = [];
+                return fieldView.model.attributes.conditions = updated_conditions;
+              }
+            })({});
+          });
         },
         duplicate: function() {
           var attrs;
@@ -305,6 +566,8 @@
         className: "edit-response-field",
         events: {
           'click .js-add-option': 'addOption',
+          'click .js-add-condition': 'addCondition',
+          'click .js-remove-condition': 'removeCondition',
           'click .js-remove-option': 'removeOption',
           'click .js-default-updated': 'defaultUpdated',
           'input .option-label-input': 'forceRender'
@@ -314,7 +577,8 @@
         },
         render: function() {
           this.$el.html(Formbuilder.templates["edit/base" + (!this.model.is_input() ? '_non_input' : '')]({
-            rf: this.model
+            rf: this.model,
+            opts: this.options
           }));
           rivets.bind(this.$el, {
             model: this.model
@@ -344,6 +608,27 @@
           this.model.trigger("change:" + Formbuilder.options.mappings.OPTIONS);
           return this.forceRender();
         },
+        addCondition: function(e) {
+          var $el, conditions, i, newCondition;
+          $el = $(e.currentTarget);
+          i = this.$el.find('.condition').index($el.closest('.condition'));
+          conditions = this.model.get('conditions') || [];
+          newCondition = {
+            source: "",
+            condition: "",
+            value: "",
+            action: "",
+            target: "",
+            isSource: true
+          };
+          if (i > -1) {
+            conditions.splice(i + 1, 0, newCondition);
+          } else {
+            conditions.push(newCondition);
+          }
+          this.model.set('conditions', conditions);
+          return this.model.trigger('change:conditions');
+        },
         removeOption: function(e) {
           var $el, index, options;
           $el = $(e.currentTarget);
@@ -352,6 +637,16 @@
           options.splice(index, 1);
           this.model.set(Formbuilder.options.mappings.OPTIONS, options);
           this.model.trigger("change:" + Formbuilder.options.mappings.OPTIONS);
+          return this.forceRender();
+        },
+        removeCondition: function(e) {
+          var $el, conditions, index;
+          $el = $(e.currentTarget);
+          index = this.$el.find(".js-remove-option").index($el);
+          conditions = this.model.get('conditions');
+          conditions.splice(index, 1);
+          this.model.set('conditions', conditions);
+          this.model.trigger("change:conditions");
           return this.forceRender();
         },
         defaultUpdated: function(e) {
@@ -378,6 +673,7 @@
           this.$el = $(this.options.selector);
           this.formBuilder = this.options.formBuilder;
           this.fieldViews = [];
+          this.formConditionsSaved = false;
           this.collection = new Formbuilder.collection;
           this.collection.bind('add', this.addOne, this);
           this.collection.bind('reset', this.reset, this);
@@ -679,6 +975,8 @@
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           this.collection.sort();
+          this.collection.each(this.removeSourceConditions, this);
+          this.collection.each(this.addConditions, this);
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -686,6 +984,44 @@
             this.doAjaxSave(payload);
           }
           return this.formBuilder.trigger('save', payload);
+        },
+        removeSourceConditions: function(model) {
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(index) {
+                if (!_.isEmpty(condition.source)) {
+                  if (condition.source === model.getCid()) {
+                    index = model.attributes.conditions.indexOf(condition);
+                    if (index > -1) {
+                      model.attributes.conditions.splice(index, 1);
+                    }
+                    return model.save();
+                  }
+                }
+              })(0);
+            });
+          }
+        },
+        addConditions: function(model) {
+          if (!_.isEmpty(model.attributes.conditions)) {
+            return _.each(model.attributes.conditions, function(condition) {
+              var _this = this;
+              return (function(source, source_condition) {
+                if (!_.isEmpty(condition.source)) {
+                  source = model.collection.where({
+                    cid: condition.source
+                  });
+                  if (!_.has(source[0].attributes.conditions, condition)) {
+                    _.extend(source_condition, condition);
+                    source_condition.isSource = false;
+                    source[0].attributes.conditions.push(source_condition);
+                    return source[0].save();
+                  }
+                }
+              })({}, {});
+            });
+          }
         },
         formData: function() {
           return this.$('#formbuilder_form').serializeArray();
@@ -1130,7 +1466,9 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.templates['edit/common']() )) == null ? '' : __t) +
 '\n' +
-((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
+'\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
 '\n';
 
 }
@@ -1188,6 +1526,41 @@ __p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-com
 '\n  </div>\n  <div class=\'fb-common-checkboxes\'>\n    ' +
 ((__t = ( Formbuilder.templates['edit/checkboxes']() )) == null ? '' : __t) +
 '\n  </div>\n  <div class=\'fb-clear\'></div>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/conditions"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
+'">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\' data-rv-show="condition:isSource">\n      <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n          ';
+ for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+__p += '\n            ';
+ if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+__p += '\n              ';
+ break ;
+__p += '\n            ';
+ } ;
+__p += '\n            <option value="' +
+((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+'">' +
+((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+'</option>\n          ';
+};
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <select data-rv-value=\'condition:target\'>\n          <option value="">Select Field</option>\n          <option value="' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'" data-rv-text=\'model.' +
+((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
+'\'></option>\n        </select>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add Condition</a>\n</div>';
 
 }
 return __p
