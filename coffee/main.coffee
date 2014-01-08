@@ -260,25 +260,25 @@ class Formbuilder
                   check_match_condtions.push(check_result)
 
                 if (@model.get('field_type') is 'fullname')
-                  $el.find("[name = " + @model.getCid() + "_2]").val("")
+                  @$el.find("[name = " + @model.getCid() + "_2]").val("")
                 else if (@model.get('field_type') is 'checkboxes' || @model.get('field_type') is 'radio')  
                 else 
                   @$el.find("[name = " + this.model.getCid() + "_1]").val("");
                 
   
 
-          if and_flag is true
-            if check_match_condtions.indexOf(false) == -1
-              @show_hide_fields(check_result, set_field)
-            else
-              @show_hide_fields('false', set_field)
-          else
-            @show_hide_fields(check_result, set_field)
-
-          for set_field in @model.get("conditions")
-            do () =>
-              if set_field.source is @model.getCid()
-                @changeStateSource()                     
+                if and_flag is true
+                  if check_match_condtions.indexOf(false) == -1
+                    @show_hide_fields(check_result, set_field)
+                  else
+                    @show_hide_fields('false', set_field)
+                else
+                  @show_hide_fields(check_result, set_field)
+          
+                for set_field in @model.get("conditions")
+                  do () =>
+                    if set_field.source is @model.getCid()
+                      @changeStateSource()                     
 
         return @                  
                           
@@ -366,6 +366,8 @@ class Formbuilder
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
+                  else
+                    $(x).attr("required", false)  
                   index
         return @
 
