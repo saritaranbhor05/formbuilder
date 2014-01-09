@@ -133,8 +133,8 @@ class Formbuilder
           remote: "gmap/show"
         })
 
-        $("#myModal").on "show", (e) ->
-          console.log e
+        $("#myModal").on "shown.bs.modal", (e) ->
+          codeLatLng()
 
         $("body").on "hidden", ".modal", ->
           $(this).removeData "modal"

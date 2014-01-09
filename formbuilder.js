@@ -195,6 +195,9 @@
             show: true,
             remote: "gmap/show"
           });
+          $("#myModal").on("shown.bs.modal", function(e) {
+            return codeLatLng();
+          });
           return $("body").on("hidden", ".modal", function() {
             return $(this).removeData("modal");
           });
