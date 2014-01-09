@@ -490,10 +490,9 @@
                     }
                     if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
-                      console.log(name + " true");
                     }
                     if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) !== -1 && set_field_class !== true) {
-                      $(x).attr("required", true);
+                      _this.$el.find("[name = " + _this.model.getCid() + "_1]").attr("required", true);
                     }
                     return index;
                   })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
@@ -716,7 +715,7 @@
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               fieldView = _ref[_i];
               if (fieldView.current_state === 'show') {
-                _results.push(fieldView);
+                _results.push(fieldView.model.get('cid'));
               }
             }
             return _results;
@@ -1177,7 +1176,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1198,7 +1197,7 @@
             return true;
           }
           return $el.find(".hasDatepicker").val() !== '';
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }
@@ -1236,7 +1235,7 @@
             return true;
           }
           return $el.find(".hasDatepicker").val() !== '';
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }
@@ -1298,7 +1297,7 @@
             return true;
           }
           return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1391,7 +1390,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
         return valid;
       })(false);
     }
@@ -1456,7 +1455,7 @@
             return true;
           }
           return $el.find(".hasTimepicker").val() !== '';
-        })($("." + model.getCid()).find("[name = " + model.getCid() + "_1]").attr("required"));
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
     }

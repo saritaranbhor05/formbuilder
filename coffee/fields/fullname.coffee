@@ -45,7 +45,7 @@ Formbuilder.registerField 'fullname',
 
   isValid: ($el, model) ->
     do(valid = false) =>
-      valid = do (required_attr = $("." + model.getCid()).find("[name = "+model.getCid()+"_1]").attr("required"), checked_chk_cnt = 0) =>
+      valid = do (required_attr = $el.find("[name = "+model.getCid()+"_1]").attr("required"), checked_chk_cnt = 0) =>
         return true if !required_attr
         return ($el.find("#first_name").val() != '' &&
           $el.find("#last_name").val() != '')

@@ -375,13 +375,12 @@ class Formbuilder
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
-                    console.log name + " true"
-
+                    
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@model.get('field_type'),
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) != -1 &&
                   set_field_class isnt true  
-                    $(x).attr("required", true)
+                    @$el.find("[name = "+@model.getCid()+"_1]").attr("required",true)
                     
                   index
         return @
@@ -545,8 +544,8 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
 
-      getViewState: -> 
-        current_view_state = (fieldView for fieldView in @fieldViews when fieldView.current_state is 'show')
+      getCurrentView: -> 
+        current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
         current_view_state
 
       initAutosave: ->
