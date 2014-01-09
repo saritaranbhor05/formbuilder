@@ -18,7 +18,7 @@ Formbuilder.registerField 'date',
   """
   isValid: ($el, model) ->
     do(valid = false) =>
-      valid = do (required_attr = model.get('required')) =>
+      valid = do (required_attr = $el.find("[name = "+model.getCid()+"_1]").attr("required")) =>
         return true if !required_attr
         return $el.find(".hasDatepicker").val() != ''
       valid
