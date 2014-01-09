@@ -482,7 +482,7 @@
                     if (val) {
                       _this.setFieldVal($(x), val);
                     }
-                    if (set_field_class === true && val === null || val === "") {
+                    if (set_field_class === true && val === null || _this.$el.find("[name = " + _this.model.getCid() + "_1]").val() === "") {
                       _this.$el.addClass("hide");
                     }
                     if (_this.field.setup) {
@@ -490,9 +490,6 @@
                     }
                     if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
-                    }
-                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) !== -1 && set_field_class !== true) {
-                      _this.$el.find("[name = " + _this.model.getCid() + "_1]").attr("required", true);
                     }
                     return index;
                   })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
@@ -706,7 +703,7 @@
             return this.initAutosave();
           }
         },
-        getViewState: function() {
+        getCurrentView: function() {
           var current_view_state, fieldView;
           current_view_state = (function() {
             var _i, _len, _ref, _results;
@@ -1065,17 +1062,18 @@
             if (!valid) {
               return false;
             }
-            return (function(field) {
-              var _i, _len, _ref;
-              _ref = _this.fieldViews;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                field = _ref[_i];
-                if (field.isValid && !field.isValid()) {
-                  return false;
+            return (function(field, i) {
+              while (i < _this.fieldViews.length) {
+                field = _this.fieldViews[i];
+                if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
+                  if (field.isValid && !field.isValid()) {
+                    return false;
+                  }
                 }
+                i++;
               }
               return true;
-            })(null);
+            })(null, 0);
           })(false);
         },
         doAjaxSave: function(payload) {
@@ -1176,7 +1174,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })(model.get('required'), 0);
         return valid;
       })(false);
     }
@@ -1297,7 +1295,7 @@
             return true;
           }
           return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })(model.get('required'), 0);
         return valid;
       })(false);
     }
@@ -1390,7 +1388,7 @@
             return $el.find('input:text').val() !== '';
           }
           return checked_chk_cnt > 0;
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"), 0);
+        })(model.get('required'), 0);
         return valid;
       })(false);
     }

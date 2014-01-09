@@ -368,20 +368,14 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
-                  @$el.addClass("hide") if set_field_class is true and val is null or val is ""
+                  @$el.addClass("hide") if set_field_class is true and val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is ""
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@model.get('field_type'),
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
-                    
-                  if @model.get(Formbuilder.options.mappings.REQUIRED) &&
-                  $.inArray(@model.get('field_type'),
-                  Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) != -1 &&
-                  set_field_class isnt true  
-                    @$el.find("[name = "+@model.getCid()+"_1]").attr("required",true)
-                    
+                            
                   index
         return @
 
@@ -831,9 +825,12 @@ class Formbuilder
           valid = do(el = @$('#formbuilder_form')[0]) ->
             !el.checkValidity || el.checkValidity()
           return false if !valid
-          do(field=null) =>
-            for field in @fieldViews
-              return false if field.isValid && !field.isValid()
+          do(field=null,i=0) =>
+            while i< @fieldViews.length
+              field = @fieldViews[i]
+              if @getCurrentView().indexOf(field.model.get('cid')) != -1
+                return false if field.isValid && !field.isValid()
+              i++  
             return true
 
       doAjaxSave: (payload) ->
