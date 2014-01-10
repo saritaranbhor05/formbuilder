@@ -315,28 +315,30 @@ class Formbuilder
           cid = @model.getCid(),set_field_class = false,
           base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
-          if @model.get('conditions').length > 0
-            while i < @model.get('conditions').length
-              set_field = @model.get('conditions')[i]
-              if set_field.action is 'show' and @model.getCid() is set_field.target
-               set_field_class = true
-               break;            
-              i++
+          if @model.attributes.conditions
+            if @model.get('conditions').length > 0
+              while i < @model.get('conditions').length
+                set_field = @model.get('conditions')[i]
+                if set_field.action is 'show' and @model.getCid() is set_field.target
+                 set_field_class = true
+                 break;            
+                i++
 
           if set_field_class is true
             @current_state = "hide"
           else
             @current_state = "show"
 
-          if !@is_section_break
-            if @model.get("conditions").length
-              for set_field in this.model.get("conditions")
-                do (set_field) =>
-                  if set_field.target is @model.getCid()
-                    for views_name in @parentView.fieldViews
-                      do (views_name,set_field) =>
-                        if views_name.model.get('cid') is set_field.source
-                          @listenTo(views_name, 'change_state', @changeState)  
+          if @model.attributes.conditions
+            if !@is_section_break
+              if @model.get("conditions").length
+                for set_field in this.model.get("conditions")
+                  do (set_field) =>
+                    if set_field.target is @model.getCid()
+                      for views_name in @parentView.fieldViews
+                        do (views_name,set_field) =>
+                          if views_name.model.get('cid') is set_field.source
+                            @listenTo(views_name, 'change_state', @changeState)  
 
 
           if !@is_section_break
@@ -368,7 +370,7 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
-                  @$el.addClass("hide") if set_field_class is true and val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is ""
+                  @$el.addClass("hide") if set_field_class is true and (val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is "")
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@model.get('field_type'),
