@@ -1,7 +1,7 @@
 Formbuilder.registerField 'gmap',
 
   view: """
-    <input type='button' style="width: 100px ;padding-top: 5px;padding-bottom: 5px;" id="gmap_button" />
+    <button type='button' style="width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;" id="gmap_button" value="" />
   """
 
   edit: ""

@@ -183,8 +183,7 @@
                 <div class="modal-body" style="height:560px;">\
                 </div>\
                 <div class="modal-footer">\
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
-                  <button type="button" class="btn btn-primary">Save changes</button>\
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>\
                 </div>\
               </div>\
             </div>\
@@ -196,9 +195,10 @@
             remote: "gmap/show"
           });
           $("#myModal").on("shown.bs.modal", function(e) {
-            return codeLatLng();
+            return codeLatLng($("#gmap_button").val());
           });
-          return $("body").on("hidden", ".modal", function() {
+          return $("#myModal").on("hidden", ".modal", function() {
+            $("#gmap_button").val(getLatLong());
             return $(this).removeData("modal");
           });
         },
@@ -943,7 +943,7 @@
 
 (function() {
   Formbuilder.registerField('gmap', {
-    view: "<input type='button' style=\"width: 100px ;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" />",
+    view: "<button type='button' style=\"width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps"
   });

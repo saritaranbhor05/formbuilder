@@ -120,8 +120,7 @@ class Formbuilder
                 <div class="modal-body" style="height:560px;">
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Save changes</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
                 </div>
               </div>
             </div>
@@ -134,9 +133,10 @@ class Formbuilder
         })
 
         $("#myModal").on "shown.bs.modal", (e) ->
-          codeLatLng()
+          codeLatLng($("#gmap_button").val())
 
-        $("body").on "hidden", ".modal", ->
+        $("#myModal").on "hidden", ".modal", ->
+          $("#gmap_button").val(getLatLong())
           $(this).removeData "modal"
        
       isValid: ->
