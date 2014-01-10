@@ -417,14 +417,16 @@
           var _this = this;
           (function(set_field, i, action, cid, set_field_class, base_templ_suff) {
             var _fn, _i, _len, _ref;
-            if (_this.model.get('conditions').length > 0) {
-              while (i < _this.model.get('conditions').length) {
-                set_field = _this.model.get('conditions')[i];
-                if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
-                  set_field_class = true;
-                  break;
+            if (_this.model.attributes.conditions) {
+              if (_this.model.get('conditions').length > 0) {
+                while (i < _this.model.get('conditions').length) {
+                  set_field = _this.model.get('conditions')[i];
+                  if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
+                    set_field_class = true;
+                    break;
+                  }
+                  i++;
                 }
-                i++;
               }
             }
             if (set_field_class === true) {
@@ -432,28 +434,30 @@
             } else {
               _this.current_state = "show";
             }
-            if (!_this.is_section_break) {
-              if (_this.model.get("conditions").length) {
-                _ref = _this.model.get("conditions");
-                _fn = function(set_field) {
-                  var views_name, _j, _len1, _ref1, _results;
-                  if (set_field.target === _this.model.getCid()) {
-                    _ref1 = _this.parentView.fieldViews;
-                    _results = [];
-                    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                      views_name = _ref1[_j];
-                      _results.push((function(views_name, set_field) {
-                        if (views_name.model.get('cid') === set_field.source) {
-                          return _this.listenTo(views_name, 'change_state', _this.changeState);
-                        }
-                      })(views_name, set_field));
+            if (_this.model.attributes.conditions) {
+              if (!_this.is_section_break) {
+                if (_this.model.get("conditions").length) {
+                  _ref = _this.model.get("conditions");
+                  _fn = function(set_field) {
+                    var views_name, _j, _len1, _ref1, _results;
+                    if (set_field.target === _this.model.getCid()) {
+                      _ref1 = _this.parentView.fieldViews;
+                      _results = [];
+                      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                        views_name = _ref1[_j];
+                        _results.push((function(views_name, set_field) {
+                          if (views_name.model.get('cid') === set_field.source) {
+                            return _this.listenTo(views_name, 'change_state', _this.changeState);
+                          }
+                        })(views_name, set_field));
+                      }
+                      return _results;
                     }
-                    return _results;
+                  };
+                  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    set_field = _ref[_i];
+                    _fn(set_field);
                   }
-                };
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  set_field = _ref[_i];
-                  _fn(set_field);
                 }
               }
             }
@@ -482,7 +486,7 @@
                     if (val) {
                       _this.setFieldVal($(x), val);
                     }
-                    if (set_field_class === true && val === null || _this.$el.find("[name = " + _this.model.getCid() + "_1]").val() === "") {
+                    if (set_field_class === true && (val === null || _this.$el.find("[name = " + _this.model.getCid() + "_1]").val() === "")) {
                       _this.$el.addClass("hide");
                     }
                     if (_this.field.setup) {
