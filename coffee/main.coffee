@@ -135,7 +135,7 @@ class Formbuilder
         $("#myModal").on "shown.bs.modal", (e) ->
           codeLatLng($("#gmap_button").val())
 
-        $("#myModal").on "hidden", ".modal", ->
+        $('#myModal').on 'hidden.bs.modal', (e) ->
           $("#gmap_button").val(getLatLong())
           $(this).removeData "modal"
        

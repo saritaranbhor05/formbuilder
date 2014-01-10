@@ -197,7 +197,7 @@
           $("#myModal").on("shown.bs.modal", function(e) {
             return codeLatLng($("#gmap_button").val());
           });
-          return $("#myModal").on("hidden", ".modal", function() {
+          return $('#myModal').on('hidden.bs.modal', function(e) {
             $("#gmap_button").val(getLatLong());
             return $(this).removeData("modal");
           });
@@ -943,7 +943,7 @@
 
 (function() {
   Formbuilder.registerField('gmap', {
-    view: "<button type='button' style=\"width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    view: "<input type='button' style=\"width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps"
   });
