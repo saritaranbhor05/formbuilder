@@ -339,13 +339,7 @@
                     check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
                     check_match_condtions.push(check_result);
                   }
-                  if (_this.model.get('field_type') === 'fullname') {
-                    _this.$el.find("[name = " + _this.model.getCid() + "_2]").val("");
-                  } else if (_this.model.get('field_type') === 'checkboxes' || _this.model.get('field_type') === 'radio') {
-
-                  } else {
-                    _this.$el.find("[name = " + _this.model.getCid() + "_1]").val("");
-                  }
+                  _this.clearFields();
                   if (and_flag === true) {
                     if (check_match_condtions.indexOf(false) === -1) {
                       _this.show_hide_fields(check_result, set_field);
@@ -372,6 +366,12 @@
             return _results;
           })({}, [], {}, {}, "equals", false, 0, false, new Array());
           return this;
+        },
+        clearFields: function() {
+          if (!this.field.clearFields) {
+            return true;
+          }
+          return this.field.clearFields(this.$el, this.model);
         },
         changeStateSource: function(ev) {
           return this.trigger('change_state');
@@ -1142,9 +1142,15 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span>\n    <input type='text' />\n    <label>Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' />\n    <label>Suburb</label>\n  </span>\n\n  <span>\n    <input type='text' />\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Zipcode</label>\n  </span>\n\n  <span>\n    <select class='dropdown_country'><option>United States</option></select>\n    <label>Country</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' id='suburb'/>\n    <label>Suburb</label>\n  </span>\n\n  <span>\n    <input type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' id='zipcode'>\n  <span>\n    <input type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Zipcode</label>\n  </span>\n\n  <span>\n    <select class='dropdown_country'><option>United States</option></select>\n    <label>Country</label>\n  </span>\n</div>",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address"
+    addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
+    clearFields: function($el, model) {
+      $el.find("#address").val("");
+      $el.find("#suburb").val("");
+      $el.find("#state").val("");
+      return $el.find("#zipcode").val("");
+    }
   });
 
 }).call(this);
@@ -1181,6 +1187,16 @@
         })(model.get('required'), 0);
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      var elem, _i, _len, _ref, _results;
+      _ref = $el.find('input:checked');
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        _results.push(elem.checked = false);
+      }
+      return _results;
     }
   });
 
@@ -1202,6 +1218,9 @@
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1240,6 +1259,9 @@
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1271,7 +1293,10 @@
   Formbuilder.registerField('email', {
     view: "<input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email"
+    addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email",
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    }
   });
 
 }).call(this);
@@ -1288,7 +1313,7 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
     edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
@@ -1302,6 +1327,11 @@
         })(model.get('required'), 0);
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      $el.find("#first_name").val("");
+      $el.find("#last_name").val("");
+      return $el.find("#suffix").val("");
     }
   });
 
@@ -1336,6 +1366,9 @@
       if (model.get(Formbuilder.options.mappings.STEP)) {
         return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
       }
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1349,6 +1382,9 @@
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
       return attrs;
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1358,7 +1394,10 @@
   Formbuilder.registerField('price', {
     view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-dollar\"></span></span> Price"
+    addButton: "<span class=\"symbol\"><span class=\"icon-dollar\"></span></span> Price",
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    }
   });
 
 }).call(this);
@@ -1395,6 +1434,16 @@
         })(model.get('required'), 0);
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      var elem, _i, _len, _ref, _results;
+      _ref = $el.find('input:checked');
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        _results.push(elem.checked = false);
+      }
+      return _results;
     }
   });
 
@@ -1434,6 +1483,9 @@
       if (model.get(Formbuilder.options.mappings.HINT)) {
         return el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT));
       }
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1460,6 +1512,9 @@
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
     }
   });
 
@@ -1469,7 +1524,10 @@
   Formbuilder.registerField('url', {
     view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL"
+    addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL",
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    }
   });
 
 }).call(this);

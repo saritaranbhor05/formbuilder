@@ -263,12 +263,8 @@ class Formbuilder
                   check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
                   check_match_condtions.push(check_result)
 
-                if (@model.get('field_type') is 'fullname')
-                  @$el.find("[name = " + @model.getCid() + "_2]").val("")
-                else if (@model.get('field_type') is 'checkboxes' || @model.get('field_type') is 'radio')  
-                else 
-                  @$el.find("[name = " + this.model.getCid() + "_1]").val("");
-                
+                @clearFields()
+
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
                     @show_hide_fields(check_result, set_field)
@@ -282,7 +278,11 @@ class Formbuilder
                     if set_field.source is @model.getCid()
                       @changeStateSource()                     
 
-        return @                  
+        return @
+
+      clearFields: ->
+        return true if !@field.clearFields
+        @field.clearFields(@$el, @model)                      
                           
       changeStateSource: (ev) ->
         @trigger('change_state')

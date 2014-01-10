@@ -16,3 +16,5 @@ Formbuilder.registerField 'paragraph',
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'
     attrs
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");

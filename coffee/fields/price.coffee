@@ -20,3 +20,5 @@ Formbuilder.registerField 'price',
   addButton: """
     <span class="symbol"><span class="icon-dollar"></span></span> Price
   """
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");

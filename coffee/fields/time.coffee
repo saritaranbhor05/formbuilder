@@ -29,3 +29,6 @@ Formbuilder.registerField 'time',
         return true if !required_attr
         return $el.find(".hasTimepicker").val() != ''
       valid
+      
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");    

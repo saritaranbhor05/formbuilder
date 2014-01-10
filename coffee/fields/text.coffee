@@ -28,3 +28,6 @@ Formbuilder.registerField 'text',
       el.attr("value", model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
     if model.get(Formbuilder.options.mappings.HINT)
       el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT))
+
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");

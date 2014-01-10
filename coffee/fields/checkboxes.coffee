@@ -51,3 +51,8 @@ Formbuilder.registerField 'checkboxes',
           return $el.find('input:text').val() != ''
         return checked_chk_cnt > 0
       valid
+
+  clearFields: ($el, model) ->
+    for elem in $el.find('input:checked')
+      elem.checked = false
+

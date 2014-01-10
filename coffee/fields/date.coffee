@@ -22,3 +22,6 @@ Formbuilder.registerField 'date',
         return true if !required_attr
         return $el.find(".hasDatepicker").val() != ''
       valid
+
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");

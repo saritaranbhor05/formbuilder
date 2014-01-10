@@ -24,3 +24,6 @@ Formbuilder.registerField 'number',
       el.attr("max", model.get(Formbuilder.options.mappings.MAX))
     if model.get(Formbuilder.options.mappings.STEP)
       el.attr("step", model.get(Formbuilder.options.mappings.STEP))
+
+  clearFields: ($el, model) ->
+    $el.find("[name = " + model.getCid() + "_1]").val("");    
