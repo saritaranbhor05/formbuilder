@@ -112,40 +112,6 @@ class Formbuilder
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
 
-      check_price: (firstValue, secondValue, condition) ->
-        firstValue = parseInt firstValue
-        secondValue = parseInt secondValue
-        if(eval "#{firstValue} #{condition} #{secondValue}")
-          true
-        else
-          false
-
-      check_time: (firstValue, secondValue, condition) ->
-        do(firstDate = new Date(),secondDate = new Date()
-          , firstValue = firstValue
-          , secondValue = secondValue
-          ) =>
-            firstValue = firstValue.split(':')
-            secondValue = secondValue.split(':')
-            firstDate.setHours(firstValue[0])
-            firstDate.setMinutes(firstValue[1])
-            secondDate.setHours(secondValue[0])
-            secondDate.setMinutes(secondValue[1])
-            if (condition == "<")
-              if(firstDate < secondDate)
-                true
-              else
-                false
-            else if(condition == ">")
-              if(firstDate > secondDate)
-                true
-              else
-                false
-            else
-              false
-
-
-      
       add_remove_require:(required) ->        
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
@@ -186,10 +152,6 @@ class Formbuilder
                               where({cid: set_field.source})[0]
                 clicked_element = $("." + source_model.getCid())
                 field_type = source_model.get('field_type')
-                
-                elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_1]").val()
-
                 if set_field.condition is "equals"
                   condition = '=='
                 else if set_field.condition is "less than"
@@ -201,16 +163,6 @@ class Formbuilder
 
                 check_result = @evalResult(clicked_element, source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
-                if field_type is 'price'
-                  check_result = @check_price(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-                else if field_type is 'time'
-                  check_result = @check_time(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-               else
-                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
-                  check_match_condtions.push(check_result)
-
                 @clearFields()
 
                 if and_flag is true

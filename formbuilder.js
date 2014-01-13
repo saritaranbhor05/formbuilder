@@ -175,41 +175,6 @@
           this.listenTo(this.model, "change", this.render);
           return this.listenTo(this.model, "destroy", this.remove);
         },
-        check_price: function(firstValue, secondValue, condition) {
-          firstValue = parseInt(firstValue);
-          secondValue = parseInt(secondValue);
-          if (eval("" + firstValue + " " + condition + " " + secondValue)) {
-            return true;
-          } else {
-            return false;
-          }
-        },
-        check_time: function(firstValue, secondValue, condition) {
-          var _this = this;
-          return (function(firstDate, secondDate, firstValue, secondValue) {
-            firstValue = firstValue.split(':');
-            secondValue = secondValue.split(':');
-            firstDate.setHours(firstValue[0]);
-            firstDate.setMinutes(firstValue[1]);
-            secondDate.setHours(secondValue[0]);
-            secondDate.setMinutes(secondValue[1]);
-            if (condition === "<") {
-              if (firstDate < secondDate) {
-                return true;
-              } else {
-                return false;
-              }
-            } else if (condition === ">") {
-              if (firstDate > secondDate) {
-                return true;
-              } else {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          })(new Date(), new Date(), firstValue, secondValue);
-        },
         add_remove_require: function(required) {
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             return $("." + this.model.getCid()).find("[name = " + this.model.getCid() + "_1]").attr("required", required);
@@ -258,7 +223,6 @@
                   })[0];
                   clicked_element = $("." + source_model.getCid());
                   field_type = source_model.get('field_type');
-                  elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
                   if (set_field.condition === "equals") {
                     condition = '==';
                   } else if (set_field.condition === "less than") {
@@ -270,42 +234,32 @@
                   }
                   check_result = _this.evalResult(clicked_element, source_model, condition, set_field.value);
                   check_match_condtions.push(check_result);
-                  if (field_type === 'price') {
-                    check_result = _this.check_price(elem_val, set_field.value, condition);
-                    check_match_condtions.push(check_result);
-                  } else if (field_type === 'time') {
-                    check_result = _this.check_time(elem_val, set_field.value, condition);
-                    check_match_condtions.push(check_result);
-                  }
-                } else {
-                  check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
-                  check_match_condtions.push(check_result);
-                }
-                _this.clearFields();
-                if (and_flag === true) {
-                  if (check_match_condtions.indexOf(false) === -1) {
-                    _this.show_hide_fields(true, set_field);
-                  } else {
-                    _this.show_hide_fields('false', set_field);
-                  }
-                } else {
-                  if (check_match_condtions.indexOf(true) !== -1) {
-                    _this.show_hide_fields(true, set_field);
-                  } else {
-                    _this.show_hide_fields('false', set_field);
-                  }
-                }
-                _ref1 = _this.model.get("conditions");
-                _results1 = [];
-                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                  set_field = _ref1[_j];
-                  _results1.push((function() {
-                    if (set_field.source === _this.model.getCid()) {
-                      return _this.changeStateSource();
+                  _this.clearFields();
+                  if (and_flag === true) {
+                    if (check_match_condtions.indexOf(false) === -1) {
+                      _this.show_hide_fields(true, set_field);
+                    } else {
+                      _this.show_hide_fields('false', set_field);
                     }
-                  })());
+                  } else {
+                    if (check_match_condtions.indexOf(true) !== -1) {
+                      _this.show_hide_fields(true, set_field);
+                    } else {
+                      _this.show_hide_fields('false', set_field);
+                    }
+                  }
+                  _ref1 = _this.model.get("conditions");
+                  _results1 = [];
+                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                    set_field = _ref1[_j];
+                    _results1.push((function() {
+                      if (set_field.source === _this.model.getCid()) {
+                        return _this.changeStateSource();
+                      }
+                    })());
+                  }
+                  return _results1;
                 }
-                return _results1;
               })());
             }
             return _results;
@@ -1107,6 +1061,15 @@
       $el.find("#suburb").val("");
       $el.find("#state").val("");
       return $el.find("#zipcode").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
@@ -1367,6 +1330,15 @@
     addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email",
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
@@ -1448,6 +1420,15 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
@@ -1464,6 +1445,15 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
@@ -1476,6 +1466,20 @@
     addButton: "<span class=\"symbol\"><span class=\"icon-dollar\"></span></span> Price",
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(firstValue, check_result, secondValue, is_true) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        firstValue = parseInt(elem_val);
+        secondValue = parseInt(set_value);
+        if (eval("" + firstValue + " " + condition + " " + secondValue)) {
+          return true;
+        } else {
+          return false;
+        }
+      })('', false, '', false);
     }
   });
 
@@ -1573,6 +1577,15 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
@@ -1602,6 +1615,33 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(firstDate, secondDate, firstValue, secondValue) {
+        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+        firstValue = firstValue.split(':');
+        secondValue = set_value.split(':');
+        firstDate.setHours(firstValue[0]);
+        firstDate.setMinutes(firstValue[1]);
+        secondDate.setHours(secondValue[0]);
+        secondDate.setMinutes(secondValue[1]);
+        if (condition === "<") {
+          if (firstDate < secondDate) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (condition === ">") {
+          if (firstDate > secondDate) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      })(new Date(), new Date(), firstValue, secondValue);
     }
   });
 
@@ -1614,6 +1654,15 @@
     addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL",
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        return check_result;
+      })(false);
     }
   });
 
