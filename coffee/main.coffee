@@ -342,7 +342,8 @@ class Formbuilder
 
 
           if !@is_section_break
-            $('.readonly').find('input, textarea, select').attr('readonly', 'readonly') if @model.get("field_options").state is "readonly"
+            @$el.addClass('readonly') if @model.get("field_options").state is "readonly"
+            $('.readonly').find('input, textarea, select').attr('readonly', 'readonly');
             @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
