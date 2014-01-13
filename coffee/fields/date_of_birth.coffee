@@ -39,4 +39,53 @@ Formbuilder.registerField 'date_of_birth',
       valid
 
   clearFields: ($el, model) ->
-    $el.find("[name = " + model.getCid() + "_1]").val("");    
+    $el.find("[name = " + model.getCid() + "_1]").val("")
+
+  check_date_result: (condition, firstValue, secondValue) ->
+    firstValue[0] = parseInt(firstValue[0])
+    firstValue[1] = parseInt(firstValue[1])
+    firstValue[2] = parseInt(firstValue[2])
+
+    secondValue[0] = parseInt(secondValue[0])
+    secondValue[1] = parseInt(secondValue[1])
+    secondValue[2] = parseInt(secondValue[2])
+
+    if (condition == "<")
+      if(firstValue[2] <= secondValue[2])
+        if(firstValue[1] <= secondValue[1])
+          if(firstValue[0] < secondValue[0])
+            true
+      else
+        false
+    else if(condition == ">")
+      if(firstValue[2] >= secondValue[2])
+        if(firstValue[1] >= secondValue[1])
+          if(firstValue[0] > secondValue[0])
+           true
+      else
+        false
+    else
+      if(firstValue[2] is secondValue[2])
+        if(firstValue[1] is secondValue[1])
+          if(firstValue[0] is secondValue[0])
+            true
+
+
+
+  evalResult: (clicked_element, cid, condition, set_value) ->
+    do(  
+       firstValue = '' ,
+       check_result = false,
+       secondValue = '',
+       is_true = false                  
+    ) =>
+      firstValue = clicked_element
+                          .find("[name = "+cid+"_1]").val()
+      secondvalue = set_value                    
+      firstValue = firstValue.split('/')
+      secondValue = secondValue.split('/')
+      is_true = check_date_result(condition,firstValue,secondValue)
+      if is_true is true
+        true
+      else
+        false

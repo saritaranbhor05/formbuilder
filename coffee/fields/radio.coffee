@@ -55,4 +55,13 @@ Formbuilder.registerField 'radio',
 
   clearFields: ($el, model) ->
     for elem in $el.find('input:checked')
-      elem.checked = false    
+      elem.checked = false
+
+  evalResult: (clicked_element, cid, condition, set_value) ->
+    do(
+       elem_val = '' ,
+       check_result = false                   
+    ) =>
+      elem_val = clicked_element.find("[value = " + set_value+"]").is(':checked')
+      check_result = eval("'#{elem_val}' #{condition} 'true'")
+      check_result

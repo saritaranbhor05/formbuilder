@@ -210,58 +210,8 @@
             }
           })(new Date(), new Date(), firstValue, secondValue);
         },
-        check_date_result: function(condition, firstValue, secondValue) {
-          firstValue[0] = parseInt(firstValue[0]);
-          firstValue[1] = parseInt(firstValue[1]);
-          firstValue[2] = parseInt(firstValue[2]);
-          secondValue[0] = parseInt(secondValue[0]);
-          secondValue[1] = parseInt(secondValue[1]);
-          secondValue[2] = parseInt(secondValue[2]);
-          if (condition === "<") {
-            if (firstValue[2] <= secondValue[2]) {
-              if (firstValue[1] <= secondValue[1]) {
-                if (firstValue[0] < secondValue[0]) {
-                  return true;
-                }
-              }
-            } else {
-              return false;
-            }
-          } else if (condition === ">") {
-            if (firstValue[2] >= secondValue[2]) {
-              if (firstValue[1] >= secondValue[1]) {
-                if (firstValue[0] > secondValue[0]) {
-                  return true;
-                }
-              }
-            } else {
-              return false;
-            }
-          } else {
-            if (firstValue[2] === secondValue[2]) {
-              if (firstValue[1] === secondValue[1]) {
-                if (firstValue[0] === secondValue[0]) {
-                  return true;
-                }
-              }
-            }
-          }
-        },
-        check_date: function(firstValue, secondValue, condition) {
-          var _this = this;
-          return (function(firstValue, secondValue, is_true) {
-            firstValue = firstValue.split('/');
-            secondValue = secondValue.split('/');
-            is_true = _this.check_date_result(condition, firstValue, secondValue);
-            if (is_true === true) {
-              return true;
-            } else {
-              return false;
-            }
-          })(firstValue, secondValue, false);
-        },
         add_remove_require: function(required) {
-          if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+          if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             return $("." + this.model.getCid()).find("[name = " + this.model.getCid() + "_1]").attr("required", required);
           }
         },
@@ -318,54 +268,61 @@
                   } else {
                     condition = "!=";
                   }
-                  if (field_type === 'fullname') {
-                    elem_val = clicked_element.find("[name = " + source_model.getCid() + "_2]").val();
-                    check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
-                    check_match_condtions.push(check_result);
-                  } else if (field_type === 'price') {
+                  check_result = _this.evalResult(clicked_element, source_model, condition, set_field.value);
+                  check_match_condtions.push(check_result);
+                  if (field_type === 'price') {
                     check_result = _this.check_price(elem_val, set_field.value, condition);
                     check_match_condtions.push(check_result);
                   } else if (field_type === 'time') {
                     check_result = _this.check_time(elem_val, set_field.value, condition);
                     check_match_condtions.push(check_result);
-                  } else if (field_type === 'date' || field_type === 'date_of_birth') {
-                    check_result = _this.check_date(elem_val, set_field.value, condition);
-                    check_match_condtions.push(check_result);
-                  } else if (field_type === 'checkboxes' || field_type === 'radio') {
-                    elem_val = clicked_element.find("[value = " + set_field.value + "]").is(':checked');
-                    check_result = eval("'" + elem_val + "' " + condition + " 'true'");
-                    check_match_condtions.push(check_result);
-                  } else {
-                    check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
-                    check_match_condtions.push(check_result);
                   }
-                  _this.clearFields();
-                  if (and_flag === true) {
-                    if (check_match_condtions.indexOf(false) === -1) {
-                      _this.show_hide_fields(check_result, set_field);
-                    } else {
-                      _this.show_hide_fields('false', set_field);
-                    }
-                  } else {
-                    _this.show_hide_fields(check_result, set_field);
-                  }
-                  _ref1 = _this.model.get("conditions");
-                  _results1 = [];
-                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                    set_field = _ref1[_j];
-                    _results1.push((function() {
-                      if (set_field.source === _this.model.getCid()) {
-                        return _this.changeStateSource();
-                      }
-                    })());
-                  }
-                  return _results1;
+                } else {
+                  check_result = eval("'" + elem_val + "' " + condition + " '" + set_field.value + "'");
+                  check_match_condtions.push(check_result);
                 }
+                _this.clearFields();
+                if (and_flag === true) {
+                  if (check_match_condtions.indexOf(false) === -1) {
+                    _this.show_hide_fields(true, set_field);
+                  } else {
+                    _this.show_hide_fields('false', set_field);
+                  }
+                } else {
+                  if (check_match_condtions.indexOf(true) !== -1) {
+                    _this.show_hide_fields(true, set_field);
+                  } else {
+                    _this.show_hide_fields('false', set_field);
+                  }
+                }
+                _ref1 = _this.model.get("conditions");
+                _results1 = [];
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  set_field = _ref1[_j];
+                  _results1.push((function() {
+                    if (set_field.source === _this.model.getCid()) {
+                      return _this.changeStateSource();
+                    }
+                  })());
+                }
+                return _results1;
               })());
             }
             return _results;
           })({}, [], {}, {}, "equals", false, 0, false, new Array());
           return this;
+        },
+        evalResult: function(clicked_element, source_model, condition, value) {
+          var _this = this;
+          return (function(field_type, field) {
+            var check_result;
+            field = Formbuilder.fields[field_type];
+            if (!field.evalResult) {
+              return true;
+            }
+            check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value);
+            return check_result;
+          })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '');
         },
         clearFields: function() {
           if (!this.field.clearFields) {
@@ -473,7 +430,7 @@
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   x = _ref1[_j];
                   _results.push(count = (function(x, index, name, val, value) {
-                    if (_this.model.get('field_type') === 'radio') {
+                    if (_this.field_type === 'radio') {
                       value = x.value;
                     }
                     name = cid.toString() + "_" + index.toString();
@@ -492,7 +449,7 @@
                     if (_this.field.setup) {
                       _this.field.setup($(x), _this.model, index);
                     }
-                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
+                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1 && set_field_class !== true) {
                       $(x).attr("required", true);
                     }
                     return index;
@@ -1197,6 +1154,14 @@
         _results.push(elem.checked = false);
       }
       return _results;
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(elem_val, check_result) {
+        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        return check_result;
+      })('', false);
     }
   });
 
@@ -1221,6 +1186,59 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    check_date_result: function(condition, firstValue, secondValue) {
+      firstValue[0] = parseInt(firstValue[0]);
+      firstValue[1] = parseInt(firstValue[1]);
+      firstValue[2] = parseInt(firstValue[2]);
+      secondValue[0] = parseInt(secondValue[0]);
+      secondValue[1] = parseInt(secondValue[1]);
+      secondValue[2] = parseInt(secondValue[2]);
+      if (condition === "<") {
+        if (firstValue[2] <= secondValue[2]) {
+          if (firstValue[1] <= secondValue[1]) {
+            if (firstValue[0] < secondValue[0]) {
+              return true;
+            }
+          }
+        } else {
+          return false;
+        }
+      } else if (condition === ">") {
+        if (firstValue[2] >= secondValue[2]) {
+          if (firstValue[1] >= secondValue[1]) {
+            if (firstValue[0] > secondValue[0]) {
+              return true;
+            }
+          }
+        } else {
+          return false;
+        }
+      } else {
+        if (firstValue[2] === secondValue[2]) {
+          if (firstValue[1] === secondValue[1]) {
+            if (firstValue[0] === secondValue[0]) {
+              return true;
+            }
+          }
+        }
+      }
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(firstValue, check_result, secondValue, is_true) {
+        var secondvalue;
+        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+        secondvalue = set_value;
+        firstValue = firstValue.split('/');
+        secondValue = secondValue.split('/');
+        is_true = check_date_result(condition, firstValue, secondValue);
+        if (is_true === true) {
+          return true;
+        } else {
+          return false;
+        }
+      })('', false, '', false);
     }
   });
 
@@ -1262,6 +1280,59 @@
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    check_date_result: function(condition, firstValue, secondValue) {
+      firstValue[0] = parseInt(firstValue[0]);
+      firstValue[1] = parseInt(firstValue[1]);
+      firstValue[2] = parseInt(firstValue[2]);
+      secondValue[0] = parseInt(secondValue[0]);
+      secondValue[1] = parseInt(secondValue[1]);
+      secondValue[2] = parseInt(secondValue[2]);
+      if (condition === "<") {
+        if (firstValue[2] <= secondValue[2]) {
+          if (firstValue[1] <= secondValue[1]) {
+            if (firstValue[0] < secondValue[0]) {
+              return true;
+            }
+          }
+        } else {
+          return false;
+        }
+      } else if (condition === ">") {
+        if (firstValue[2] >= secondValue[2]) {
+          if (firstValue[1] >= secondValue[1]) {
+            if (firstValue[0] > secondValue[0]) {
+              return true;
+            }
+          }
+        } else {
+          return false;
+        }
+      } else {
+        if (firstValue[2] === secondValue[2]) {
+          if (firstValue[1] === secondValue[1]) {
+            if (firstValue[0] === secondValue[0]) {
+              return true;
+            }
+          }
+        }
+      }
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(firstValue, check_result, secondValue, is_true) {
+        var secondvalue;
+        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+        secondvalue = set_value;
+        firstValue = firstValue.split('/');
+        secondValue = secondValue.split('/');
+        is_true = check_date_result(condition, firstValue, secondValue);
+        if (is_true === true) {
+          return true;
+        } else {
+          return false;
+        }
+      })('', false, '', false);
     }
   });
 
@@ -1332,6 +1403,14 @@
       $el.find("#first_name").val("");
       $el.find("#last_name").val("");
       return $el.find("#suffix").val("");
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var check_result, elem_val,
+        _this = this;
+      (function(elem_val, check_result) {})('', false);
+      elem_val = clicked_element.find("[name = " + cid + "_2]").val();
+      check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+      return check_result;
     }
   });
 
@@ -1444,6 +1523,14 @@
         _results.push(elem.checked = false);
       }
       return _results;
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(elem_val, check_result) {
+        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        return check_result;
+      })('', false);
     }
   });
 

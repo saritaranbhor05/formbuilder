@@ -144,53 +144,11 @@ class Formbuilder
             else
               false
 
-      check_date_result: (condition, firstValue, secondValue) ->
-        firstValue[0] = parseInt(firstValue[0])
-        firstValue[1] = parseInt(firstValue[1])
-        firstValue[2] = parseInt(firstValue[2])
-
-        secondValue[0] = parseInt(secondValue[0])
-        secondValue[1] = parseInt(secondValue[1])
-        secondValue[2] = parseInt(secondValue[2])
-
-        if (condition == "<")
-          if(firstValue[2] <= secondValue[2])
-            if(firstValue[1] <= secondValue[1])
-              if(firstValue[0] < secondValue[0])
-                true
-          else
-            false
-        else if(condition == ">")
-          if(firstValue[2] >= secondValue[2])
-            if(firstValue[1] >= secondValue[1])
-              if(firstValue[0] > secondValue[0])
-               true
-          else
-            false
-        else
-          if(firstValue[2] is secondValue[2])
-            if(firstValue[1] is secondValue[1])
-              if(firstValue[0] is secondValue[0])
-                true
-
-      check_date: (firstValue, secondValue, condition) ->
-        do(
-            firstValue = firstValue
-          , secondValue = secondValue
-          , is_true = false;
-          ) =>
-            firstValue = firstValue.split('/')
-            secondValue = secondValue.split('/')
-            is_true = @check_date_result(condition,firstValue,secondValue)
-            if is_true is true
-              true
-            else
-              false
 
       
       add_remove_require:(required) ->        
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
-            $.inArray(@model.get('field_type'),
+            $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
               $("." + @model.getCid()).find("[name = "+@model.getCid()+"_1]").attr("required", required)
 
@@ -241,25 +199,15 @@ class Formbuilder
                 else
                   condition = "!="
 
-                if field_type is 'fullname'
-                  elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_2]").val()
-                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
-                  check_match_condtions.push(check_result)
-                else if field_type is 'price'
+                check_result = @evalResult(clicked_element, source_model, condition, set_field.value)
+                check_match_condtions.push(check_result)
+                if field_type is 'price'
                   check_result = @check_price(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
                 else if field_type is 'time'
                   check_result = @check_time(elem_val, set_field.value, condition)
                   check_match_condtions.push(check_result)
-                else if field_type is 'date' or field_type is 'date_of_birth'
-                  check_result = @check_date(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-                else if field_type is 'checkboxes' or field_type is 'radio'
-                  elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
-                  check_result = eval("'#{elem_val}' #{condition} 'true'")
-                  check_match_condtions.push(check_result)
-                else
+               else
                   check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
                   check_match_condtions.push(check_result)
 
@@ -267,11 +215,14 @@ class Formbuilder
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
-                    @show_hide_fields(check_result, set_field)
+                    @show_hide_fields(true, set_field)
                   else
                     @show_hide_fields('false', set_field)
                 else
-                  @show_hide_fields(check_result, set_field)
+                  if check_match_condtions.indexOf(true) != -1
+                    @show_hide_fields(true, set_field)
+                  else
+                    @show_hide_fields('false', set_field)
           
                 for set_field in @model.get("conditions")
                   do () =>
@@ -279,6 +230,16 @@ class Formbuilder
                       @changeStateSource()                     
 
         return @
+
+      evalResult: (clicked_element, source_model, condition, value)->
+        do(
+        field_type = source_model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        field = ''
+        ) =>
+          field = Formbuilder.fields[field_type]
+          return true if !field.evalResult
+          check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value)
+          check_result 
 
       clearFields: ->
         return true if !@field.clearFields
@@ -362,7 +323,7 @@ class Formbuilder
                   val = null
                   value = 0
                 ) =>
-                  value = x.value if @model.get('field_type') == 'radio'
+                  value = x.value if @field_type == 'radio'
                   name = cid.toString() + "_" + index.toString()
                   if $(x).attr('type') == 'radio' and @model.get('field_values')
                     val = @model.get('field_values')[value]
@@ -373,7 +334,7 @@ class Formbuilder
                   @$el.addClass("hide") if set_field_class is true and (val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is "")
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
-                  $.inArray(@model.get('field_type'),
+                  $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
