@@ -931,7 +931,8 @@
         addAll: function() {
           this.collection.each(this.addOne, this);
           if (this.options.live) {
-            return this.applyEasyWizard();
+            this.applyEasyWizard();
+            return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
           }
