@@ -373,6 +373,9 @@
               }
             }
             if (!_this.is_section_break) {
+              if (_this.model.get("field_options").state === "readonly") {
+                _this.$el.addClass('readonly');
+              }
               _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
                 rf: _this.model,
                 opts: _this.options
@@ -848,7 +851,8 @@
         addAll: function() {
           this.collection.each(this.addOne, this);
           if (this.options.live) {
-            return this.applyEasyWizard();
+            this.applyEasyWizard();
+            return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
           }
