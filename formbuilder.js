@@ -206,7 +206,7 @@
         },
         changeState: function() {
           var _this = this;
-          (function(set_field, clicked_element, source_model, elem_val, condition, check_result, i, and_flag, check_match_condtions) {
+          (function(set_field, i, and_flag, check_match_condtions) {
             var _i, _len, _ref, _results;
             if (_this.model.get('field_options').match_conditions === 'and') {
               and_flag = true;
@@ -215,8 +215,8 @@
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               set_field = _ref[_i];
-              _results.push((function() {
-                var field_type, _j, _len1, _ref1, _results1;
+              _results.push((function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
+                var _j, _len1, _ref1, _results1;
                 if (set_field.target === _this.model.getCid()) {
                   source_model = _this.model.collection.where({
                     cid: set_field.source
@@ -260,23 +260,22 @@
                   }
                   return _results1;
                 }
-              })());
+              })({}, [], {}, "equals", '', false));
             }
             return _results;
-          })({}, [], {}, {}, "equals", false, 0, false, new Array());
+          })({}, 0, false, new Array());
           return this;
         },
         evalResult: function(clicked_element, source_model, condition, value) {
           var _this = this;
-          return (function(field_type, field) {
-            var check_result;
+          return (function(field_type, field, check_result) {
             field = Formbuilder.fields[field_type];
             if (!field.evalResult) {
               return true;
             }
             check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value, field);
             return check_result;
-          })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '');
+          })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '', 'false');
         },
         clearFields: function() {
           if (!this.field.clearFields) {
@@ -334,10 +333,10 @@
                   set_field = _this.model.get('conditions')[i];
                   if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
                     set_field_class = true;
-                    break;
                   }
-                  i++;
+                  break;
                 }
+                i++;
               }
             }
             if (set_field_class === true) {
@@ -386,8 +385,7 @@
                 _results = [];
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   x = _ref1[_j];
-                  _results.push(count = (function(x, index, name, val, value) {
-                    var elem_value;
+                  _results.push(count = (function(x, index, name, val, value, elem_value) {
                     if (_this.field_type === 'radio') {
                       value = x.value;
                     }
@@ -419,7 +417,7 @@
                       $(x).attr("required", true);
                     }
                     return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
+                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
                 }
                 return _results;
               })(null, 0, function(attr) {
