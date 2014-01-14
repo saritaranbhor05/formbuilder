@@ -35,8 +35,8 @@ Formbuilder.registerField 'time',
 
   evalResult: (clicked_element, cid, condition, set_value) ->  
     do(firstDate = new Date(),secondDate = new Date()
-          , firstValue = firstValue
-          , secondValue = secondValue
+          , firstValue = ""
+          , secondValue = ""
           ) =>
             firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
@@ -56,5 +56,13 @@ Formbuilder.registerField 'time',
                 true
               else
                 false
+            else if(condition == "==")
+              if(parseInt(firstValue[0]) == parseInt(secondValue[0]))
+                if(parseInt(firstValue[1]) == parseInt(secondValue[1]))
+                  true
+                else
+                  false
+              else
+                false    
             else
               false

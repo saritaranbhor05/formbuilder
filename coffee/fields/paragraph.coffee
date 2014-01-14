@@ -25,5 +25,5 @@ Formbuilder.registerField 'paragraph',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_field}'")
+      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
       check_result  

@@ -37,6 +37,6 @@ Formbuilder.registerField 'text',
       check_result=false
     ) =>
       elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_field}'")
+                          .find("[name = "+cid+"_1]").val()
+      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
       check_result  

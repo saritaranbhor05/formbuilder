@@ -190,7 +190,7 @@ class Formbuilder
         ) =>
           field = Formbuilder.fields[field_type]
           return true if !field.evalResult
-          check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value)
+          check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value,field)
           check_result 
 
       clearFields: ->
@@ -283,7 +283,16 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
-                  @$el.addClass("hide") if set_field_class is true and (val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is "")
+
+                  if(@field_type is "fullname")  
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_2]").val()
+                  else
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_1]").val()
+                  
+                  @$el.addClass("hide") if set_field_class is false and @model.get('field_values') and elem_value is ""
+
+                  @$el.addClass("hide") if set_field_class is true and (val is null or elem_value is "" or @$el.find("[name = "+@model.getCid()+"_1]").val() is false)
+                  
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,

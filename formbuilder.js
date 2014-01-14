@@ -274,7 +274,7 @@
             if (!field.evalResult) {
               return true;
             }
-            check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value);
+            check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value, field);
             return check_result;
           })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '');
         },
@@ -384,6 +384,7 @@
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   x = _ref1[_j];
                   _results.push(count = (function(x, index, name, val, value) {
+                    var elem_value;
                     if (_this.field_type === 'radio') {
                       value = x.value;
                     }
@@ -397,7 +398,15 @@
                     if (val) {
                       _this.setFieldVal($(x), val);
                     }
-                    if (set_field_class === true && (val === null || _this.$el.find("[name = " + _this.model.getCid() + "_1]").val() === "")) {
+                    if (_this.field_type === "fullname") {
+                      elem_value = _this.$el.find("[name = " + _this.model.getCid() + "_2]").val();
+                    } else {
+                      elem_value = _this.$el.find("[name = " + _this.model.getCid() + "_1]").val();
+                    }
+                    if (set_field_class === false && _this.model.get('field_values') && elem_value === "") {
+                      _this.$el.addClass("hide");
+                    }
+                    if (set_field_class === true && (val === null || elem_value === "" || _this.$el.find("[name = " + _this.model.getCid() + "_1]").val() === false)) {
                       _this.$el.addClass("hide");
                     }
                     if (_this.field.setup) {
@@ -1064,12 +1073,26 @@
     },
     evalResult: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result) {
+      return (function(check_result, check_match_condtions) {
         var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
-        return check_result;
-      })(false);
+        elem_val = clicked_element.find("#address").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_match_condtions.push(check_result);
+        elem_val = clicked_element.find("#suburb").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_match_condtions.push(check_result);
+        elem_val = clicked_element.find("#state").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_match_condtions.push(check_result);
+        elem_val = clicked_element.find("[name=" + cid + "_4]");
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_match_condtions.push(check_result);
+        if (check_match_condtions.indexOf(false) === -1) {
+          return true;
+        } else {
+          return false;
+        }
+      })(false, []);
     }
   });
 
@@ -1187,15 +1210,13 @@
         }
       }
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalResult: function(clicked_element, cid, condition, set_value, field) {
       var _this = this;
       return (function(firstValue, check_result, secondValue, is_true) {
-        var secondvalue;
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        secondvalue = set_value;
         firstValue = firstValue.split('/');
-        secondValue = secondValue.split('/');
-        is_true = check_date_result(condition, firstValue, secondValue);
+        secondValue = set_value.split('/');
+        is_true = field.check_date_result(condition, firstValue, secondValue);
         if (is_true === true) {
           return true;
         } else {
@@ -1281,15 +1302,13 @@
         }
       }
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalResult: function(clicked_element, cid, condition, set_value, field) {
       var _this = this;
       return (function(firstValue, check_result, secondValue, is_true) {
-        var secondvalue;
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        secondvalue = set_value;
         firstValue = firstValue.split('/');
-        secondValue = secondValue.split('/');
-        is_true = check_date_result(condition, firstValue, secondValue);
+        secondValue = set_value.split('/');
+        is_true = field.check_date_result(condition, firstValue, secondValue);
         if (is_true === true) {
           return true;
         } else {
@@ -1303,7 +1322,7 @@
 
 (function() {
   Formbuilder.registerField('dropdown', {
-    view: "<select>\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <option value=''></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
+    view: "<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <option value=''></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",
     defaultAttributes: function(attrs) {
@@ -1318,6 +1337,33 @@
       ];
       attrs.field_options.include_blank_option = false;
       return attrs;
+    },
+    evalResult: function(clicked_element, cid, condition, set_value) {
+      var elem_val,
+        _this = this;
+      (function(check_result) {})(false);
+      elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+      elem_val = parseInt(elem_val);
+      set_value = parseInt(set_value);
+      if (condition === '<') {
+        if (elem_val < set_value) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (condition === '>') {
+        if (elem_val > set_value) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (elem_val === set_value) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     }
   });
 
@@ -1336,7 +1382,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
       })(false);
     }
@@ -1380,7 +1426,7 @@
       var check_result, elem_val,
         _this = this;
       (function(elem_val, check_result) {})('', false);
-      elem_val = clicked_element.find("[name = " + cid + "_2]").val();
+      elem_val = clicked_element.find("#first_name").val();
       check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
       return check_result;
     }
@@ -1451,7 +1497,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
       })(false);
     }
@@ -1582,8 +1628,8 @@
       var _this = this;
       return (function(check_result) {
         var elem_val;
-        elem_val = clicked_element.find("[name = " + source_model.getCid() + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
       })(false);
     }
@@ -1638,10 +1684,20 @@
           } else {
             return false;
           }
+        } else if (condition === "==") {
+          if (parseInt(firstValue[0]) === parseInt(secondValue[0])) {
+            if (parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            return false;
+          }
         } else {
           return false;
         }
-      })(new Date(), new Date(), firstValue, secondValue);
+      })(new Date(), new Date(), "", "");
     }
   });
 
@@ -1660,7 +1716,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_field + "'");
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
       })(false);
     }

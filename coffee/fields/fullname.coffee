@@ -62,6 +62,6 @@ Formbuilder.registerField 'fullname',
        check_result = false                   
     ) =>           
     elem_val = clicked_element
-                          .find("[name = "+cid+"_2]").val()           
+                          .find("#first_name").val()           
     check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")  
     check_result

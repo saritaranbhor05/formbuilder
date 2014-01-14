@@ -58,7 +58,7 @@ Formbuilder.registerField 'date',
 
 
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalResult: (clicked_element, cid, condition, set_value, field) ->
     do(  
        firstValue = '' ,
        check_result = false,
@@ -67,10 +67,9 @@ Formbuilder.registerField 'date',
     ) =>
       firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      secondvalue = set_value                    
       firstValue = firstValue.split('/')
-      secondValue = secondValue.split('/')
-      is_true = check_date_result(condition,firstValue,secondValue)
+      secondValue = set_value.split('/')
+      is_true = field.check_date_result(condition,firstValue,secondValue)
       if is_true is true
         true
       else
