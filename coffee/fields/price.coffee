@@ -36,5 +36,3 @@ Formbuilder.registerField 'price',
       secondValue = parseInt set_value
       if(eval "#{firstValue} #{condition} #{secondValue}")
         true
-      else
-        false  

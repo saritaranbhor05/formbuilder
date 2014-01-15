@@ -1183,32 +1183,22 @@
       secondValue[1] = parseInt(secondValue[1]);
       secondValue[2] = parseInt(secondValue[2]);
       if (condition === "<") {
-        if (firstValue[2] <= secondValue[2]) {
-          if (firstValue[1] <= secondValue[1]) {
-            if (firstValue[0] < secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
+          return true;
         } else {
           return false;
         }
       } else if (condition === ">") {
-        if (firstValue[2] >= secondValue[2]) {
-          if (firstValue[1] >= secondValue[1]) {
-            if (firstValue[0] > secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
+          return true;
         } else {
           return false;
         }
       } else {
-        if (firstValue[2] === secondValue[2]) {
-          if (firstValue[1] === secondValue[1]) {
-            if (firstValue[0] === secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
+          return true;
+        } else {
+          return false;
         }
       }
     },
@@ -1218,12 +1208,7 @@
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
         firstValue = firstValue.split('/');
         secondValue = set_value.split('/');
-        is_true = field.check_date_result(condition, firstValue, secondValue);
-        if (is_true === true) {
-          return true;
-        } else {
-          return false;
-        }
+        return is_true = field.check_date_result(condition, firstValue, secondValue);
       })('', false, '', false);
     }
   });
@@ -1275,32 +1260,22 @@
       secondValue[1] = parseInt(secondValue[1]);
       secondValue[2] = parseInt(secondValue[2]);
       if (condition === "<") {
-        if (firstValue[2] <= secondValue[2]) {
-          if (firstValue[1] <= secondValue[1]) {
-            if (firstValue[0] < secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
+          return true;
         } else {
           return false;
         }
       } else if (condition === ">") {
-        if (firstValue[2] >= secondValue[2]) {
-          if (firstValue[1] >= secondValue[1]) {
-            if (firstValue[0] > secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
+          return true;
         } else {
           return false;
         }
       } else {
-        if (firstValue[2] === secondValue[2]) {
-          if (firstValue[1] === secondValue[1]) {
-            if (firstValue[0] === secondValue[0]) {
-              return true;
-            }
-          }
+        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
+          return true;
+        } else {
+          return false;
         }
       }
     },
@@ -1310,12 +1285,7 @@
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
         firstValue = firstValue.split('/');
         secondValue = set_value.split('/');
-        is_true = field.check_date_result(condition, firstValue, secondValue);
-        if (is_true === true) {
-          return true;
-        } else {
-          return false;
-        }
+        return is_true = field.check_date_result(condition, firstValue, secondValue);
       })('', false, '', false);
     }
   });
@@ -1345,8 +1315,10 @@
         _this = this;
       (function(check_result) {})(false);
       elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-      elem_val = parseInt(elem_val);
-      set_value = parseInt(set_value);
+      if (typeof elem_val === 'number') {
+        elem_val = parseInt(elem_val);
+        set_value = parseInt(set_value);
+      }
       if (condition === '<') {
         if (elem_val < set_value) {
           return true;
@@ -1524,8 +1496,6 @@
         secondValue = parseInt(set_value);
         if (eval("" + firstValue + " " + condition + " " + secondValue)) {
           return true;
-        } else {
-          return false;
         }
       })('', false, '', false);
     }
@@ -1687,17 +1657,9 @@
             return false;
           }
         } else if (condition === "==") {
-          if (parseInt(firstValue[0]) === parseInt(secondValue[0])) {
-            if (parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-              return true;
-            } else {
-              return false;
-            }
-          } else {
-            return false;
+          if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+            return true;
           }
-        } else {
-          return false;
         }
       })(new Date(), new Date(), "", "");
     }

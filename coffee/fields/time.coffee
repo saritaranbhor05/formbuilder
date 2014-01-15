@@ -57,12 +57,6 @@ Formbuilder.registerField 'time',
               else
                 false
             else if(condition == "==")
-              if(parseInt(firstValue[0]) == parseInt(secondValue[0]))
-                if(parseInt(firstValue[1]) == parseInt(secondValue[1]))
+              if(parseInt(firstValue[0]) == parseInt(secondValue[0]) &&
+                 parseInt(firstValue[1]) == parseInt(secondValue[1]))
                   true
-                else
-                  false
-              else
-                false    
-            else
-              false

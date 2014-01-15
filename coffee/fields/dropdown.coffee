@@ -42,8 +42,9 @@ Formbuilder.registerField 'dropdown',
     ) =>
     elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-    elem_val = parseInt elem_val
-    set_value = parseInt set_value
+    if (typeof elem_val is 'number')
+      elem_val = parseInt elem_val
+      set_value = parseInt set_value
     if(condition == '<')
       if(elem_val < set_value)
         true
