@@ -44,7 +44,7 @@ Formbuilder.registerField 'address',
     $el.find("#state").val("")
     $el.find("#zipcode").val("")
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
       check_result=false,
       check_match_condtions=[]

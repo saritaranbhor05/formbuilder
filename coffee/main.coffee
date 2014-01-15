@@ -167,7 +167,7 @@ class Formbuilder
                 else
                   condition = "!="
 
-                check_result = @evalResult(clicked_element,
+                check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
                 @clearFields()
@@ -190,15 +190,15 @@ class Formbuilder
 
         return @
 
-      evalResult: (clicked_element, source_model, condition, value)->
+      evalCondition: (clicked_element, source_model, condition, value)->
         do(
         field_type = source_model.get(Formbuilder.options.mappings.FIELD_TYPE)
         field = '',check_result = 'false'
         ) =>
           field = Formbuilder.fields[field_type]
-          return true if !field.evalResult
+          return true if !field.evalCondition
           check_result = field
-            .evalResult(clicked_element
+            .evalCondition(clicked_element
               , source_model.getCid(), condition, value,field)
           check_result
 

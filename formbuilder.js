@@ -232,7 +232,7 @@
                   } else {
                     condition = "!=";
                   }
-                  check_result = _this.evalResult(clicked_element, source_model, condition, set_field.value);
+                  check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
                   check_match_condtions.push(check_result);
                   _this.clearFields();
                   if (and_flag === true) {
@@ -266,14 +266,14 @@
           })({}, 0, false, new Array());
           return this;
         },
-        evalResult: function(clicked_element, source_model, condition, value) {
+        evalCondition: function(clicked_element, source_model, condition, value) {
           var _this = this;
           return (function(field_type, field, check_result) {
             field = Formbuilder.fields[field_type];
-            if (!field.evalResult) {
+            if (!field.evalCondition) {
               return true;
             }
-            check_result = field.evalResult(clicked_element, source_model.getCid(), condition, value, field);
+            check_result = field.evalCondition(clicked_element, source_model.getCid(), condition, value, field);
             return check_result;
           })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '', 'false');
         },
@@ -1073,7 +1073,7 @@
       $el.find("#state").val("");
       return $el.find("#zipcode").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result, check_match_condtions) {
         var elem_val;
@@ -1143,7 +1143,7 @@
       }
       return _results;
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(elem_val, check_result) {
         elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
@@ -1202,7 +1202,7 @@
         }
       }
     },
-    evalResult: function(clicked_element, cid, condition, set_value, field) {
+    evalCondition: function(clicked_element, cid, condition, set_value, field) {
       var _this = this;
       return (function(firstValue, check_result, secondValue, is_true) {
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
@@ -1279,7 +1279,7 @@
         }
       }
     },
-    evalResult: function(clicked_element, cid, condition, set_value, field) {
+    evalCondition: function(clicked_element, cid, condition, set_value, field) {
       var _this = this;
       return (function(firstValue, check_result, secondValue, is_true) {
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
@@ -1310,7 +1310,7 @@
       attrs.field_options.include_blank_option = false;
       return attrs;
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var elem_val,
         _this = this;
       (function(check_result) {})(false);
@@ -1351,7 +1351,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result) {
         var elem_val;
@@ -1396,7 +1396,7 @@
       $el.find("#last_name").val("");
       return $el.find("#suffix").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var check_result, elem_val,
         _this = this;
       (function(elem_val, check_result) {})('', false);
@@ -1441,7 +1441,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result) {
         var elem_val;
@@ -1466,7 +1466,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result) {
         var elem_val;
@@ -1487,7 +1487,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(firstValue, check_result, secondValue, is_true) {
         var elem_val;
@@ -1546,7 +1546,7 @@
       }
       return _results;
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(elem_val, check_result) {
         elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
@@ -1596,7 +1596,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result) {
         var elem_val;
@@ -1634,7 +1634,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(firstDate, secondDate, firstValue, secondValue) {
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
@@ -1675,7 +1675,7 @@
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
-    evalResult: function(clicked_element, cid, condition, set_value) {
+    evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(check_result) {
         var elem_val;

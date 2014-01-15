@@ -74,7 +74,7 @@ Formbuilder.registerField 'date_of_birth',
 
 
 
-  evalResult: (clicked_element, cid, condition, set_value, field) ->
+  evalCondition: (clicked_element, cid, condition, set_value, field) ->
     do(  
        firstValue = '' ,
        check_result = false,

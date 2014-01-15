@@ -36,7 +36,7 @@ Formbuilder.registerField 'dropdown',
 
     attrs
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
       check_result=false
     ) =>

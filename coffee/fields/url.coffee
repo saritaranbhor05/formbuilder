@@ -14,7 +14,7 @@ Formbuilder.registerField 'url',
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
       check_result=false
     ) =>

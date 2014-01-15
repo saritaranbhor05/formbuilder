@@ -56,7 +56,7 @@ Formbuilder.registerField 'fullname',
     $el.find("#last_name").val("")
     $el.find("#suffix").val("")
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
        elem_val = '' ,
        check_result = false                   

@@ -33,7 +33,7 @@ Formbuilder.registerField 'time',
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
-  evalResult: (clicked_element, cid, condition, set_value) ->  
+  evalCondition: (clicked_element, cid, condition, set_value) ->  
     do(firstDate = new Date(),secondDate = new Date()
           , firstValue = ""
           , secondValue = ""

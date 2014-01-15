@@ -57,7 +57,7 @@ Formbuilder.registerField 'radio',
     for elem in $el.find('input:checked')
       elem.checked = false
 
-  evalResult: (clicked_element, cid, condition, set_value) ->
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
        elem_val = '' ,
        check_result = false                   
