@@ -6,6 +6,7 @@ class Formbuilder
         field_type: field_type
         required: true
         field_options: {}
+        conditions: []
 
       Formbuilder.fields[field_type].defaultAttributes?(attrs) || attrs
 
@@ -38,10 +39,11 @@ class Formbuilder
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
-      HINT: 'field_options.hint',
-      PREV_BUTTON_TEXT: 'field_options.prev_button_text',
-      NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+      HINT: 'field_options.hint'
+      PREV_BUTTON_TEXT: 'field_options.prev_button_text'
+      NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       HTML_DATA: 'field_options.html_data'
+      MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -99,14 +101,114 @@ class Formbuilder
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
         'click .js-clear': 'clear'
+        'keyup': 'changeStateSource',
+        'change': 'changeStateSource'
 
       initialize: ->
+        @current_state = 'show'
         @parentView = @options.parentView
         @field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE)
         @field = Formbuilder.fields[@field_type]
         @is_section_break = @field_type == 'section_break'
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
+
+      add_remove_require:(required) ->
+        if @model.get(Formbuilder.options.mappings.REQUIRED) &&
+            $.inArray(@field_type,
+            Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
+          $("." + @model.getCid())
+          .find("[name = "+@model.getCid()+"_1]")
+          .attr("required", required)
+
+      show_hide_fields: (check_result, set_field) ->
+        do( set_field = set_field)=>
+          if(check_result is true )
+            @$el.addClass(set_field.action)
+            if(set_field.action == 'show')
+              @current_state = set_field.action
+              @add_remove_require(true)
+            else
+              @current_state = "hide"
+              @add_remove_require(false)
+          else
+            @$el.removeClass(set_field.action)
+            if(set_field.action == 'hide')
+              @current_state = set_field.action
+              @add_remove_require(true)
+            else
+              @add_remove_require(false)
+              @current_state = "hide"
+
+      changeState: ->
+        do(
+          set_field = {}
+          , i =0,and_flag = false
+          , check_match_condtions = new Array()
+        ) =>
+          and_flag = true if @model.get('field_options')
+          .match_conditions is 'and'
+          for set_field in @model.get("conditions")
+            do (
+              source_model = {},clicked_element = []
+              ,elem_val = {},condition = "equals",
+              field_type = '', check_result = false
+            ) =>
+              if set_field.target is @model.getCid()
+                source_model = @model.collection.
+                              where({cid: set_field.source})[0]
+                clicked_element = $("." + source_model.getCid())
+                field_type = source_model.get('field_type')
+                if set_field.condition is "equals"
+                  condition = '=='
+                else if set_field.condition is "less than"
+                  condition = '<'
+                else if set_field.condition is "greater than"
+                  condition = '>'
+                else
+                  condition = "!="
+
+                check_result = @evalCondition(clicked_element,
+                    source_model, condition, set_field.value)
+                check_match_condtions.push(check_result)
+                @clearFields()
+
+                if and_flag is true
+                  if check_match_condtions.indexOf(false) == -1
+                    @show_hide_fields(true, set_field)
+                  else
+                    @show_hide_fields('false', set_field)
+                else
+                  if check_match_condtions.indexOf(true) != -1
+                    @show_hide_fields(true, set_field)
+                  else
+                    @show_hide_fields('false', set_field)
+
+                for set_field in @model.get("conditions")
+                  do () =>
+                    if set_field.source is @model.getCid()
+                      @changeStateSource()
+
+        return @
+
+      evalCondition: (clicked_element, source_model, condition, value)->
+        do(
+        field_type = source_model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        field = '',check_result = 'false'
+        ) =>
+          field = Formbuilder.fields[field_type]
+          return true if !field.evalCondition
+          check_result = field
+            .evalCondition(clicked_element
+              , source_model.getCid(), condition, value,field)
+          check_result
+
+      clearFields: ->
+        return true if !@field.clearFields
+        @field.clearFields(@$el, @model)
+
+      changeStateSource: (ev) ->
+        @trigger('change_state')
 
       isValid: ->
         return true if !@field.isValid
@@ -131,11 +233,42 @@ class Formbuilder
 
       live_render: ->
         do (
-          cid = @model.getCid(),
+          set_field = {}, i =0,
+          action = "show",
+          cid = @model.getCid(),set_field_class = false,
           base_templ_suff = if @model.is_input() then '' else '_non_input',
         ) =>
+          if @model.attributes.conditions
+            if @model.get('conditions').length > 0
+              while i < @model.get('conditions').length
+                set_field = @model.get('conditions')[i]
+                if set_field
+                  .action is 'show' and @model.getCid() is set_field.target
+                    set_field_class = true
+                 break
+                i++
+
+          if set_field_class is true
+            @current_state = "hide"
+          else
+            @current_state = "show"
+
+          if @model.attributes.conditions
+            if !@is_section_break
+              if @model.get("conditions").length
+                for set_field in this.model.get("conditions")
+                  do (set_field) =>
+                    if set_field.target is @model.getCid()
+                      for views_name in @parentView.fieldViews
+                        do (views_name,set_field) =>
+                          if views_name.model.get('cid') is set_field.source
+                            @listenTo(views_name, 'change_state', @changeState)
+
+
           if !@is_section_break
-            @$el.addClass('response-field-'+ @field_type)
+            @$el.addClass('readonly') if @model.get("field_options")
+                                          .state is "readonly"
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
                 rf: @model,
@@ -148,11 +281,14 @@ class Formbuilder
               for x in @$("input, textarea, select")
                 count = do( # set element name, value and call setup
                   x,
-                  index = count + (if should_incr($(x).attr('type')) then 1 else 0),
+                  index = count + (if should_incr($(x)
+                          .attr('type')) then 1 else 0),
                   name = null,
-                  val = null
+                  val = null,
+                  value = 0,
+                  elem_value = ''
                 ) =>
-                  value = x.value if @model.get('field_type') == 'radio'
+                  value = x.value if @field_type == 'radio'
                   name = cid.toString() + "_" + index.toString()
                   if $(x).attr('type') == 'radio' and @model.get('field_values')
                     val = @model.get('field_values')[value]
@@ -160,9 +296,23 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
+
+                  if(@field_type is "fullname")
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_2]").val()
+                  else
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_1]").val()
+
+                  @$el.addClass("hide") if set_field_class is false and @model.get('field_values') and elem_value is ""
+
+                  @$el.addClass("hide") if set_field_class is true and (val is null or elem_value is "" or @$el.find("[name = "+@model.getCid()+"_1]").val() is false)
+
                   @field.setup($(x), @model, index) if @field.setup
-                  if @model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(@model.get('field_type'), Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
+                  if @model.get(Formbuilder.options.mappings.REQUIRED) &&
+                  $.inArray(@field_type,
+                  Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
+                  set_field_class isnt true
                     $(x).attr("required", true)
+
                   index
         return @
 
@@ -186,8 +336,26 @@ class Formbuilder
         @parentView.createAndShowEditView(@model) if !@options.live
 
       clear: ->
-        @parentView.handleFormUpdate()
-        @model.destroy()
+        do (index = 0, that = @) ->
+          that.parentView.handleFormUpdate()
+          index = that.parentView.fieldViews
+            .indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0])
+          that.parentView.fieldViews.splice(index, 1) if (index > -1)
+          that.clearConditions that.model.getCid(), that.parentView.fieldViews
+          that.model.destroy()
+
+      clearConditions: (cid, fieldViews) ->
+        _.each(fieldViews, (fieldView) ->
+          do(updated_conditions = {}) =>
+            unless _.isEmpty(fieldView.model.attributes.conditions)
+              updated_conditions = _.reject(fieldView.model.attributes.conditions, (condition) ->
+                return _.isEqual(condition.source, cid)
+              )
+              fieldView.model.attributes.conditions = []
+              fieldView.model.attributes.conditions = updated_conditions
+              #index = fieldView.attributes.conditions.indexOf(_.where(fieldView.attributes.conditions, {source: cid})[0]);
+              #fieldView.attributes.conditions.splice(index, 1) if (index > -1)
+        )
 
       duplicate: ->
         attrs = _.clone(@model.attributes)
@@ -200,6 +368,8 @@ class Formbuilder
 
       events:
         'click .js-add-option': 'addOption'
+        'click .js-add-condition': 'addCondition'
+        'click .js-remove-condition': 'removeCondition'
         'click .js-remove-option': 'removeOption'
         'click .js-default-updated': 'defaultUpdated'
         'input .option-label-input': 'forceRender'
@@ -208,7 +378,7 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       render: ->
-        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model}))
+        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model, opts: @options}))
         rivets.bind @$el, { model: @model }
         return @
 
@@ -233,6 +403,20 @@ class Formbuilder
         @model.trigger "change:#{Formbuilder.options.mappings.OPTIONS}"
         @forceRender()
 
+      addCondition: (e) ->
+        $el = $(e.currentTarget)
+        i = @$el.find('.condition').index($el.closest('.condition'))
+        conditions = @model.get('conditions') || []
+        newCondition = { source: "", condition: "", value: "", action: "", target: "", isSource: true }
+
+        if i > -1
+          conditions.splice(i + 1, 0, newCondition)
+        else
+          conditions.push newCondition
+
+        @model.set 'conditions', conditions
+        @model.trigger 'change:conditions'
+
       removeOption: (e) ->
         $el = $(e.currentTarget)
         index = @$el.find(".js-remove-option").index($el)
@@ -240,6 +424,15 @@ class Formbuilder
         options.splice index, 1
         @model.set Formbuilder.options.mappings.OPTIONS, options
         @model.trigger "change:#{Formbuilder.options.mappings.OPTIONS}"
+        @forceRender()
+
+      removeCondition: (e) ->
+        $el = $(e.currentTarget)
+        index = @$el.find(".js-remove-option").index($el)
+        conditions = @model.get 'conditions'
+        conditions.splice index, 1
+        @model.set 'conditions', conditions
+        @model.trigger "change:conditions"
         @forceRender()
 
       defaultUpdated: (e) ->
@@ -265,6 +458,7 @@ class Formbuilder
         @$el = $(@options.selector)
         @formBuilder = @options.formBuilder
         @fieldViews = []
+        @formConditionsSaved = false
 
         # Create the collection, and bind the appropriate events
         @collection = new Formbuilder.collection
@@ -281,6 +475,10 @@ class Formbuilder
         @saveFormButton = @$el.find(".js-save-form")
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
+
+      getCurrentView: ->
+        current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
+        current_view_state
 
       initAutosave: ->
         @formSaved = true
@@ -462,6 +660,7 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
+          $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
 
@@ -525,10 +724,37 @@ class Formbuilder
         @formSaved = true
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @collection.sort()
+        @collection.each @removeSourceConditions, @
+        @collection.each @addConditions, @
+
         payload = JSON.stringify fields: @collection.toJSON()
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
+
+      removeSourceConditions: (model) ->
+        unless _.isEmpty(model.attributes.conditions)
+          _.each(model.attributes.conditions, (condition) ->
+            do(index=0) =>
+              unless _.isEmpty(condition.source)
+                if condition.source == model.getCid()
+                  index = model.attributes.conditions.indexOf(condition);
+                  model.attributes.conditions.splice(index, 1) if (index > -1)
+                  model.save()
+          )
+
+      addConditions: (model) ->
+        unless _.isEmpty(model.attributes.conditions)
+          _.each(model.attributes.conditions, (condition) ->
+            do(source = {}, source_condition = {}) =>
+              unless _.isEmpty(condition.source)
+                source = model.collection.where({cid: condition.source})
+                unless _.has(source[0].attributes.conditions, condition)
+                  _.extend( source_condition, condition)
+                  source_condition.isSource = false
+                  source[0].attributes.conditions.push(source_condition)
+                  source[0].save()
+          )
 
       formData: ->
         @$('#formbuilder_form').serializeArray()
@@ -538,9 +764,12 @@ class Formbuilder
           valid = do(el = @$('#formbuilder_form')[0]) ->
             !el.checkValidity || el.checkValidity()
           return false if !valid
-          do(field=null) =>
-            for field in @fieldViews
-              return false if field.isValid && !field.isValid()
+          do(field=null,i=0) =>
+            while i< @fieldViews.length
+              field = @fieldViews[i]
+              if @getCurrentView().indexOf(field.model.get('cid')) != -1
+                return false if field.isValid && !field.isValid()
+              i++
             return true
 
       doAjaxSave: (payload) ->
