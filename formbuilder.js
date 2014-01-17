@@ -66,6 +66,7 @@
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
       FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
+      CKEDITOR_CONFIG: ' ',
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -89,6 +90,7 @@
         HINT: 'field_options.hint',
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
         NEXT_BUTTON_TEXT: 'field_options.next_button_text',
+        HTML_DATA: 'field_options.html_data',
         MATCH_CONDITIONS: 'field_options.match_conditions'
       },
       dict: {
@@ -625,8 +627,9 @@
           this.saveFormButton = this.$el.find(".js-save-form");
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
           if (this.options.autoSave) {
-            return this.initAutosave();
+            this.initAutosave();
           }
+          return Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
         },
         getCurrentView: function() {
           var current_view_state, fieldView;
@@ -1152,6 +1155,18 @@
       })('', false);
     }
   });
+
+}).call(this);
+
+(function() {
+  if (typeof CKEDITOR !== 'undefined') {
+    Formbuilder.registerField('free_text_html', {
+      type: 'non_input',
+      view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n",
+      edit: "\n</br>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n  </textarea>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      CKEDITOR.disableAutoInline = true;\n      editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n      editor_<%= rf.getCid() %>.on( 'blur', function( e ) {\n        $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\"));\n        $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n      });\n    });\n  });\n</script>\n",
+      addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML"
+    });
+  }
 
 }).call(this);
 
@@ -1757,7 +1772,7 @@ __p += '<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.REQUIRED )) == null ? '' : __t) +
 '\' />\n  Required\n</label>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.ADMIN_ONLY )) == null ? '' : __t) +
-'\' />\n  Admin only\n</label>';
+'\' />\n  Admin only access\n</label>';
 
 }
 return __p
@@ -1767,9 +1782,9 @@ this["Formbuilder"]["templates"]["edit/common"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description\'>\n    ' +
+__p += '<div class=\'fb-edit-section-header\'>Label</div>\n\n<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description span11\'>\n    ' +
 ((__t = ( Formbuilder.templates['edit/label_description']() )) == null ? '' : __t) +
-'\n  </div>\n  <div class=\'fb-common-checkboxes\'>\n    ' +
+'\n  </div>\n  <div class=\'fb-common-checkboxes span12\'>\n    ' +
 ((__t = ( Formbuilder.templates['edit/checkboxes']() )) == null ? '' : __t) +
 '\n  </div>\n  <div class=\'fb-clear\'></div>\n</div>\n';
 

@@ -18,6 +18,7 @@ class Formbuilder
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    CKEDITOR_CONFIG: ' '
 
     mappings:
       SIZE: 'field_options.size'
@@ -39,9 +40,10 @@ class Formbuilder
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
-      HINT: 'field_options.hint',
-      PREV_BUTTON_TEXT: 'field_options.prev_button_text',
+      HINT: 'field_options.hint'
+      PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+      HTML_DATA: 'field_options.html_data'
       MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
@@ -182,7 +184,7 @@ class Formbuilder
                     @show_hide_fields(true, set_field)
                   else
                     @show_hide_fields('false', set_field)
-          
+
                 for set_field in @model.get("conditions")
                   do () =>
                     if set_field.source is @model.getCid()
@@ -205,7 +207,7 @@ class Formbuilder
       clearFields: ->
         return true if !@field.clearFields
         @field.clearFields(@$el, @model)
-                          
+
       changeStateSource: (ev) ->
         @trigger('change_state')
 
@@ -300,18 +302,18 @@ class Formbuilder
                     elem_value = @$el.find("[name = "+@model.getCid()+"_2]").val()
                   else
                     elem_value = @$el.find("[name = "+@model.getCid()+"_1]").val()
-                  
+
                   @$el.addClass("hide") if set_field_class is false and @model.get('field_values') and elem_value is ""
 
                   @$el.addClass("hide") if set_field_class is true and (val is null or elem_value is "" or @$el.find("[name = "+@model.getCid()+"_1]").val() is false)
-                  
+
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
-                            
+
                   index
         return @
 
@@ -474,8 +476,9 @@ class Formbuilder
         @saveFormButton = @$el.find(".js-save-form")
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
+        Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
 
-      getCurrentView: -> 
+      getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
         current_view_state
 
@@ -546,7 +549,7 @@ class Formbuilder
 
         # Append view to @fieldViews
         @fieldViews.push(view)
-        
+
         if !@options.live
           #####
           # Calculates where to place this new field.
@@ -768,7 +771,7 @@ class Formbuilder
               field = @fieldViews[i]
               if @getCurrentView().indexOf(field.model.get('cid')) != -1
                 return false if field.isValid && !field.isValid()
-              i++  
+              i++
             return true
 
       doAjaxSave: (payload) ->
