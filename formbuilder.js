@@ -1159,6 +1159,18 @@
 }).call(this);
 
 (function() {
+  if (typeof CKEDITOR !== 'undefined') {
+    Formbuilder.registerField('free_text_html', {
+      type: 'non_input',
+      view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n",
+      edit: "\n</br>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n  </textarea>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      CKEDITOR.disableAutoInline = true;\n      editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n      editor_<%= rf.getCid() %>.on( 'blur', function( e ) {\n        $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\"));\n        $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n      });\n    });\n  });\n</script>\n",
+      addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML"
+    });
+  }
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('date', {
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n  });\n</script>",
     edit: "",
@@ -1373,18 +1385,6 @@
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });
-
-}).call(this);
-
-(function() {
-  if (_.isUndefined(typeof CKEDITOR)) {
-    Formbuilder.registerField('free_text_html', {
-      type: 'non_input',
-      view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n",
-      edit: "\n</br>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n  </textarea>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      CKEDITOR.disableAutoInline = true;\n      editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n      editor_<%= rf.getCid() %>.on( 'blur', function( e ) {\n        $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\"));\n        $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n      });\n    });\n  });\n</script>\n",
-      addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML"
-    });
-  }
 
 }).call(this);
 
