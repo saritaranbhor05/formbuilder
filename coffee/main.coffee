@@ -18,6 +18,7 @@ class Formbuilder
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    CKEDITOR_CONFIG: ' '
 
     mappings:
       SIZE: 'field_options.size'
@@ -475,6 +476,7 @@ class Formbuilder
         @saveFormButton = @$el.find(".js-save-form")
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
+        Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
