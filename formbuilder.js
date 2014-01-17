@@ -1377,7 +1377,7 @@
 }).call(this);
 
 (function() {
-  if (CKEDITOR) {
+  if (_.isUndefined(typeof CKEDITOR)) {
     Formbuilder.registerField('free_text_html', {
       type: 'non_input',
       view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n",

@@ -1,4 +1,4 @@
-if CKEDITOR
+if _.isUndefined(typeof(CKEDITOR))
   Formbuilder.registerField 'free_text_html',
 
     type: 'non_input'
