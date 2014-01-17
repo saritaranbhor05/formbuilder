@@ -102,6 +102,7 @@ class Formbuilder
         'click .js-clear': 'clear'
         'keyup': 'changeStateSource',
         'change': 'changeStateSource'
+        'click #gmap_button': 'openGMap'
 
       initialize: ->
         @current_state = 'show'
@@ -287,6 +288,44 @@ class Formbuilder
       changeStateSource: (ev) ->
         @trigger('change_state')
 
+      openGMap: ->
+        if $('#myModal').length is 0
+          $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h4 class="modal-title" id="myModalLabel">Google Maps</h4>
+                </div>
+                <div class="modal-body" style="height:560px;">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>
+                </div>
+              </div>
+            </div>
+            </div>
+            ').appendTo('.formbuilder-panel')
+          $('#myModal').modal({
+            show: true,
+            remote: "gmap/show"
+          }) 
+
+        $('#ok').val(this.model.getCid()) 
+        $('#myModal').modal({
+          show: true
+        })
+
+        $("#myModal").on "shown", (e) ->
+          codeLatLng($("[name = " + getCid() + "_1]").val())
+
+        $('#ok').on 'click', (e) ->
+            $("[name = " + getCid() + "_1]").val(getLatLong());  
+
+        $('#myModal').on 'hidden.bs.modal', (e) ->
+          $('#myModal').off('shown').on('shown')
+          $(this).removeData "modal"
+       
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)
@@ -342,7 +381,7 @@ class Formbuilder
 
 
           if !@is_section_break
-            @$el.addClass('readonly') if @model.get("field_options").state is "readonly"
+            #@$el.addClass('readonly') if @model.get("field_options").state is "readonly"
             @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({

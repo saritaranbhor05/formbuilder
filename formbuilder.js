@@ -164,7 +164,8 @@
           'click .js-duplicate': 'duplicate',
           'click .js-clear': 'clear',
           'keyup': 'changeStateSource',
-          'change': 'changeStateSource'
+          'change': 'changeStateSource',
+          'click #gmap_button': 'openGMap'
         },
         initialize: function() {
           this.current_state = 'show';
@@ -376,6 +377,44 @@
         changeStateSource: function(ev) {
           return this.trigger('change_state');
         },
+        openGMap: function() {
+          if ($('#myModal').length === 0) {
+            $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+            <div class="modal-dialog">\
+              <div class="modal-content">\
+                <div class="modal-header">\
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
+                  <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
+                </div>\
+                <div class="modal-body" style="height:560px;">\
+                </div>\
+                <div class="modal-footer">\
+                  <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
+                </div>\
+              </div>\
+            </div>\
+            </div>\
+            ').appendTo('.formbuilder-panel');
+            $('#myModal').modal({
+              show: true,
+              remote: "gmap/show"
+            });
+          }
+          $('#ok').val(this.model.getCid());
+          $('#myModal').modal({
+            show: true
+          });
+          $("#myModal").on("shown", function(e) {
+            return codeLatLng($("[name = " + getCid() + "_1]").val());
+          });
+          $('#ok').on('click', function(e) {
+            return $("[name = " + getCid() + "_1]").val(getLatLong());
+          });
+          return $('#myModal').on('hidden.bs.modal', function(e) {
+            $('#myModal').off('shown').on('shown');
+            return $(this).removeData("modal");
+          });
+        },
         isValid: function() {
           if (!this.field.isValid) {
             return true;
@@ -462,9 +501,6 @@
               }
             }
             if (!_this.is_section_break) {
-              if (_this.model.get("field_options").state === "readonly") {
-                _this.$el.addClass('readonly');
-              }
               _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
                 rf: _this.model,
                 opts: _this.options
@@ -1215,7 +1251,7 @@
   Formbuilder.registerField('date_of_birth', {
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date Picker",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
     setup: function(el, model, index) {
       var _this = this;
       return (function(today, restricted_date) {
@@ -1307,6 +1343,15 @@
         return valid;
       })(false);
     }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('gmap', {
+    view: "<input type='button' style=\"width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    edit: "",
+    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps"
   });
 
 }).call(this);
