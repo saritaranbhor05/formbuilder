@@ -18,6 +18,7 @@ class Formbuilder
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    CKEDITOR_CONFIG: ' '
 
     mappings:
       SIZE: 'field_options.size'
@@ -39,9 +40,10 @@ class Formbuilder
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
-      HINT: 'field_options.hint',
-      PREV_BUTTON_TEXT: 'field_options.prev_button_text',
+      HINT: 'field_options.hint'
+      PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
+      HTML_DATA: 'field_options.html_data'
       MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
@@ -113,126 +115,52 @@ class Formbuilder
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
 
-      check_price: (firstValue, secondValue, condition) ->
-        firstValue = parseInt firstValue
-        secondValue = parseInt secondValue
-        if(eval "#{firstValue} #{condition} #{secondValue}")
-          true
-        else
-          false
-
-      check_time: (firstValue, secondValue, condition) ->
-        do(firstDate = new Date(),secondDate = new Date()
-          , firstValue = firstValue
-          , secondValue = secondValue
-          ) =>
-            firstValue = firstValue.split(':')
-            secondValue = secondValue.split(':')
-            firstDate.setHours(firstValue[0])
-            firstDate.setMinutes(firstValue[1])
-            secondDate.setHours(secondValue[0])
-            secondDate.setMinutes(secondValue[1])
-            if (condition == "<")
-              if(firstDate < secondDate)
-                true
-              else
-                false
-            else if(condition == ">")
-              if(firstDate > secondDate)
-                true
-              else
-                false
-            else
-              false
-
-      check_date_result: (condition, firstValue, secondValue) ->
-        firstValue[0] = parseInt(firstValue[0])
-        firstValue[1] = parseInt(firstValue[1])
-        firstValue[2] = parseInt(firstValue[2])
-
-        secondValue[0] = parseInt(secondValue[0])
-        secondValue[1] = parseInt(secondValue[1])
-        secondValue[2] = parseInt(secondValue[2])
-
-        if (condition == "<")
-          if(firstValue[2] <= secondValue[2])
-            if(firstValue[1] <= secondValue[1])
-              if(firstValue[0] < secondValue[0])
-                true
-          else
-            false
-        else if(condition == ">")
-          if(firstValue[2] >= secondValue[2])
-            if(firstValue[1] >= secondValue[1])
-              if(firstValue[0] > secondValue[0])
-               true
-          else
-            false
-        else
-          if(firstValue[2] is secondValue[2])
-            if(firstValue[1] is secondValue[1])
-              if(firstValue[0] is secondValue[0])
-                true
-
-      check_date: (firstValue, secondValue, condition) ->
-        do(
-            firstValue = firstValue
-          , secondValue = secondValue
-          , is_true = false;
-          ) =>
-            firstValue = firstValue.split('/')
-            secondValue = secondValue.split('/')
-            is_true = @check_date_result(condition,firstValue,secondValue)
-            if is_true is true
-              true
-            else
-              false
-
-      
-      add_remove_require:(required) ->        
+      add_remove_require:(required) ->
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
-            $.inArray(@model.get('field_type'),
+            $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
-              $("." + @model.getCid()).find("[name = "+@model.getCid()+"_1]").attr("required", required)
+          $("." + @model.getCid())
+          .find("[name = "+@model.getCid()+"_1]")
+          .attr("required", required)
 
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field)=>
           if(check_result is true )
             @$el.addClass(set_field.action)
             if(set_field.action == 'show')
-             @current_state = set_field.action  
-             @add_remove_require(true)
+              @current_state = set_field.action
+              @add_remove_require(true)
             else
-             @current_state = "hide"    
-             @add_remove_require(false)
+              @current_state = "hide"
+              @add_remove_require(false)
           else
             @$el.removeClass(set_field.action)
             if(set_field.action == 'hide')
-              @current_state = set_field.action 
+              @current_state = set_field.action
               @add_remove_require(true)
             else
               @add_remove_require(false)
-              @current_state = "hide"   
+              @current_state = "hide"
 
       changeState: ->
         do(
-          set_field = {},clicked_element = [],source_model = {}
-          ,elem_val = {},condition = "equals"
-          , check_result = false , i =0,and_flag = false
+          set_field = {}
+          , i =0,and_flag = false
           , check_match_condtions = new Array()
         ) =>
-          and_flag = true if @model.get('field_options').match_conditions is 'and'
+          and_flag = true if @model.get('field_options')
+          .match_conditions is 'and'
           for set_field in @model.get("conditions")
-            do () =>
+            do (
+              source_model = {},clicked_element = []
+              ,elem_val = {},condition = "equals",
+              field_type = '', check_result = false
+            ) =>
               if set_field.target is @model.getCid()
                 source_model = @model.collection.
                               where({cid: set_field.source})[0]
                 clicked_element = $("." + source_model.getCid())
                 field_type = source_model.get('field_type')
-                
-                elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_1]").val()
-
                 if set_field.condition is "equals"
                   condition = '=='
                 else if set_field.condition is "less than"
@@ -242,49 +170,45 @@ class Formbuilder
                 else
                   condition = "!="
 
-                if field_type is 'fullname'
-                  elem_val = clicked_element
-                          .find("[name = "+source_model.getCid()+"_2]").val()
-                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
-                  check_match_condtions.push(check_result)
-                else if field_type is 'price'
-                  check_result = @check_price(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-                else if field_type is 'time'
-                  check_result = @check_time(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-                else if field_type is 'date' or field_type is 'date_of_birth'
-                  check_result = @check_date(elem_val, set_field.value, condition)
-                  check_match_condtions.push(check_result)
-                else if field_type is 'checkboxes' or field_type is 'radio'
-                  elem_val = clicked_element.find("[value = " + set_field.value+"]").is(':checked')
-                  check_result = eval("'#{elem_val}' #{condition} 'true'")
-                  check_match_condtions.push(check_result)
-                else
-                  check_result = eval("'#{elem_val}' #{condition} '#{set_field.value}'")
-                  check_match_condtions.push(check_result)
+                check_result = @evalCondition(clicked_element,
+                    source_model, condition, set_field.value)
+                check_match_condtions.push(check_result)
+                @clearFields()
 
-                if (@model.get('field_type') is 'fullname')
-                  @$el.find("[name = " + @model.getCid() + "_2]").val("")
-                else if (@model.get('field_type') is 'checkboxes' || @model.get('field_type') is 'radio')  
-                else 
-                  @$el.find("[name = " + this.model.getCid() + "_1]").val("");
-                
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
-                    @show_hide_fields(check_result, set_field)
+                    @show_hide_fields(true, set_field)
                   else
                     @show_hide_fields('false', set_field)
                 else
-                  @show_hide_fields(check_result, set_field)
-          
+                  if check_match_condtions.indexOf(true) != -1
+                    @show_hide_fields(true, set_field)
+                  else
+                    @show_hide_fields('false', set_field)
+
                 for set_field in @model.get("conditions")
                   do () =>
                     if set_field.source is @model.getCid()
-                      @changeStateSource()                     
+                      @changeStateSource()
 
-        return @                  
-                          
+        return @
+
+      evalCondition: (clicked_element, source_model, condition, value)->
+        do(
+        field_type = source_model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        field = '',check_result = 'false'
+        ) =>
+          field = Formbuilder.fields[field_type]
+          return true if !field.evalCondition
+          check_result = field
+            .evalCondition(clicked_element
+              , source_model.getCid(), condition, value,field)
+          check_result
+
+      clearFields: ->
+        return true if !@field.clearFields
+        @field.clearFields(@$el, @model)
+
       changeStateSource: (ev) ->
         @trigger('change_state')
 
@@ -368,9 +292,10 @@ class Formbuilder
             if @model.get('conditions').length > 0
               while i < @model.get('conditions').length
                 set_field = @model.get('conditions')[i]
-                if set_field.action is 'show' and @model.getCid() is set_field.target
-                 set_field_class = true
-                 break;            
+                if set_field
+                  .action is 'show' and @model.getCid() is set_field.target
+                    set_field_class = true
+                 break
                 i++
 
           if set_field_class is true
@@ -387,11 +312,12 @@ class Formbuilder
                       for views_name in @parentView.fieldViews
                         do (views_name,set_field) =>
                           if views_name.model.get('cid') is set_field.source
-                            @listenTo(views_name, 'change_state', @changeState)  
+                            @listenTo(views_name, 'change_state', @changeState)
 
 
           if !@is_section_break
-            #@$el.addClass('readonly') if @model.get("field_options").state is "readonly"
+            @$el.addClass('readonly') if @model.get("field_options")
+                                          .state is "readonly"
             @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
               .data('cid', cid)
               .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
@@ -408,10 +334,11 @@ class Formbuilder
                   index = count + (if should_incr($(x)
                           .attr('type')) then 1 else 0),
                   name = null,
-                  val = null
-                  value = 0
+                  val = null,
+                  value = 0,
+                  elem_value = ''
                 ) =>
-                  value = x.value if @model.get('field_type') == 'radio'
+                  value = x.value if @field_type == 'radio'
                   name = cid.toString() + "_" + index.toString()
                   if $(x).attr('type') == 'radio' and @model.get('field_values')
                     val = @model.get('field_values')[value]
@@ -419,14 +346,23 @@ class Formbuilder
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
                   @setFieldVal($(x), val) if val
-                  @$el.addClass("hide") if set_field_class is true and (val is null or @$el.find("[name = "+@model.getCid()+"_1]").val() is "")
+
+                  if(@field_type is "fullname")
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_2]").val()
+                  else
+                    elem_value = @$el.find("[name = "+@model.getCid()+"_1]").val()
+
+                  @$el.addClass("hide") if set_field_class is false and @model.get('field_values') and elem_value is ""
+
+                  @$el.addClass("hide") if set_field_class is true and (val is null or elem_value is "" or @$el.find("[name = "+@model.getCid()+"_1]").val() is false)
+
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
-                  $.inArray(@model.get('field_type'),
+                  $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
                   set_field_class isnt true
                     $(x).attr("required", true)
-                            
+
                   index
         return @
 
@@ -452,7 +388,8 @@ class Formbuilder
       clear: ->
         do (index = 0, that = @) ->
           that.parentView.handleFormUpdate()
-          index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0]);
+          index = that.parentView.fieldViews
+            .indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0])
           that.parentView.fieldViews.splice(index, 1) if (index > -1)
           that.clearConditions that.model.getCid(), that.parentView.fieldViews
           that.model.destroy()
@@ -588,8 +525,9 @@ class Formbuilder
         @saveFormButton = @$el.find(".js-save-form")
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
+        Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
 
-      getCurrentView: -> 
+      getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
         current_view_state
 
@@ -660,7 +598,7 @@ class Formbuilder
 
         # Append view to @fieldViews
         @fieldViews.push(view)
-        
+
         if !@options.live
           #####
           # Calculates where to place this new field.
@@ -882,7 +820,7 @@ class Formbuilder
               field = @fieldViews[i]
               if @getCurrentView().indexOf(field.model.get('cid')) != -1
                 return false if field.isValid && !field.isValid()
-              i++  
+              i++
             return true
 
       doAjaxSave: (payload) ->
