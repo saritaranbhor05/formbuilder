@@ -317,7 +317,17 @@ class Formbuilder
         })
 
         $("#myModal").on "shown", (e) ->
-          codeLatLng($("[name = " + getCid() + "_1]").val())
+            $( "#address" ).keypress (event) -> 
+              if(event.keyCode == 13)
+                codeAddress();
+
+            $( "#latlng" ).keypress (event) ->
+              if(event.keyCode == 13)
+                codeLatLng();
+                
+            gmap_button_value = $("[name = " + getCid() + "_1]").val()
+            if( gmap_button_value != "")
+              codeLatLng(gmap_button_value);
 
         $('#ok').on 'click', (e) ->
             $("[name = " + getCid() + "_1]").val(getLatLong());  

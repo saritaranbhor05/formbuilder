@@ -405,7 +405,21 @@
             show: true
           });
           $("#myModal").on("shown", function(e) {
-            return codeLatLng($("[name = " + getCid() + "_1]").val());
+            var gmap_button_value;
+            $("#address").keypress(function(event) {
+              if (event.keyCode === 13) {
+                return codeAddress();
+              }
+            });
+            $("#latlng").keypress(function(event) {
+              if (event.keyCode === 13) {
+                return codeLatLng();
+              }
+            });
+            gmap_button_value = $("[name = " + getCid() + "_1]").val();
+            if (gmap_button_value !== "") {
+              return codeLatLng(gmap_button_value);
+            }
           });
           $('#ok').on('click', function(e) {
             return $("[name = " + getCid() + "_1]").val(getLatLong());
