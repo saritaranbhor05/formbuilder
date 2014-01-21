@@ -50,20 +50,11 @@ Formbuilder.registerField 'address',
       check_match_condtions=[]
 
     ) =>
-      elem_val = clicked_element.find("#address").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
-      check_match_condtions.push(check_result)
-      elem_val = clicked_element.find("#suburb").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
-      check_match_condtions.push(check_result)
-      elem_val = clicked_element.find("#state").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
-      check_match_condtions.push(check_result)
-      elem_val = clicked_element.find("[name="+cid+"_4]")
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
-      check_match_condtions.push(check_result)
-      
-      if check_match_condtions.indexOf(false) == -1
-        true
+      if(condition is '!=')
+        elem_val = ( clicked_element.find("#address").val() != '' &&
+                   clicked_element.find("#suburb").val() != '' &&
+                   clicked_element.find("#state").val() != '' &&
+                   clicked_element.find("[name="+cid+"_4]") != '' )
       else
-        false  
+        #do something
+      elem_val  
