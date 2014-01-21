@@ -1574,6 +1574,61 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('scale_rating', {
+    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <div class=\"span1\">\n      <%= i+1 %>\n      __________\n      <label class='fb-option'>\n        <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      </label>\n    </div>\n  <% } %>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Scale Rating",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.options = [
+        {
+          label: "",
+          checked: false
+        }, {
+          label: "",
+          checked: false
+        }
+      ];
+      return attrs;
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          checked_chk_cnt = $el.find('input:checked').length;
+          if ($el.find('input:checked').val() === '__other__') {
+            return $el.find('input:text').val() !== '';
+          }
+          return checked_chk_cnt > 0;
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    },
+    clearFields: function($el, model) {
+      var elem, _i, _len, _ref, _results;
+      _ref = $el.find('input:checked');
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        _results.push(elem.checked = false);
+      }
+      return _results;
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(elem_val, check_result) {
+        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        return check_result;
+      })('', false);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('section_break', {
     type: 'non_input',
     view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <button class=\"prev\">\n    <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n  </button>\n</div>",
