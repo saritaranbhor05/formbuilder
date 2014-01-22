@@ -241,11 +241,11 @@ class Formbuilder
         })
 
         $("#myModal").on "shown", (e) ->
-            $( "#address" ).keypress (event) -> 
+            $( "#gmap_address" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeAddress();
 
-            $( "#latlng" ).keypress (event) ->
+            $( "#gmap_latlng" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeLatLng();
                 

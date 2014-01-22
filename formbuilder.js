@@ -318,12 +318,12 @@
           });
           $("#myModal").on("shown", function(e) {
             var gmap_button_value;
-            $("#address").keypress(function(event) {
+            $("#gmap_address").keypress(function(event) {
               if (event.keyCode === 13) {
                 return codeAddress();
               }
             });
-            $("#latlng").keypress(function(event) {
+            $("#gmap_latlng").keypress(function(event) {
               if (event.keyCode === 13) {
                 return codeLatLng();
               }
