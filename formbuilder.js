@@ -1575,7 +1575,7 @@
 
 (function() {
   Formbuilder.registerField('scale_rating', {
-    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <div class=\"span1\">\n      <%= i+1 %>\n      __________\n      <label class='fb-option'>\n        <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      </label>\n    </div>\n  <% } %>\n</div>",
+    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <div class=\"span1 scale_rating\">\n      <%= i+1 %>\n      <div class=\"divider\"></div>\n      <label class='fb-option'>\n        <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      </label>\n    </div>\n  <% } %>\n</div>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Scale Rating",
     defaultAttributes: function(attrs) {

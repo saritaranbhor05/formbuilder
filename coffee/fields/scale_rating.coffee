@@ -4,9 +4,9 @@ Formbuilder.registerField 'scale_rating',
     <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
     <div class='row-fluid'>
       <% for ( var i = 0 ; i < field_options.length ; i++) { %>
-        <div class="span1">
+        <div class="span1 scale_rating">
           <%= i+1 %>
-          __________
+          <div class="divider"></div>
           <label class='fb-option'>
             <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>
           </label>
