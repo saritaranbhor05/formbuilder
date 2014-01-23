@@ -11,7 +11,7 @@ Formbuilder.registerField 'date_of_birth',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-gift"></span></span> Birth Date Picker
+    <span class="symbol"><span class="icon-gift"></span></span> Birth Date
   """
 
   setup: (el, model, index) ->
