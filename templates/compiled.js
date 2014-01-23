@@ -240,6 +240,28 @@ __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/scale_rating_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label">Starting Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STARTING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label scale_rating_label">Ending Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.ENDING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'option\' data-rv-each-option=\'model.' +
+((__t = ( Formbuilder.options.mappings.OPTIONS )) == null ? '' : __t) +
+'\'>\n  <input type="checkbox" class=\'js-default-updated\' data-rv-checked="option:checked" />\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Add Option"><i class=\'icon-plus-sign\'></i></a>\n  <a class="js-remove-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Remove Option"><i class=\'icon-minus-sign\'></i></a>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/size"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

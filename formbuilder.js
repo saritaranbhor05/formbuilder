@@ -91,6 +91,8 @@
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
         NEXT_BUTTON_TEXT: 'field_options.next_button_text',
         HTML_DATA: 'field_options.html_data',
+        STARTING_POINT_TEXT: 'field_options.start_point_text',
+        ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions'
       },
       dict: {
@@ -388,7 +390,7 @@
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   x = _ref1[_j];
                   _results.push(count = (function(x, index, name, val, value, elem_value) {
-                    if (_this.field_type === 'radio') {
+                    if (_this.field_type === 'radio' || 'scale_rating') {
                       value = x.value;
                     }
                     name = cid.toString() + "_" + index.toString();
@@ -1575,8 +1577,8 @@
 
 (function() {
   Formbuilder.registerField('scale_rating', {
-    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <div class=\"span1 scale_rating\">\n      <%= i+1 %>\n      <div class=\"divider\"></div>\n      <label class='fb-option'>\n        <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      </label>\n    </div>\n  <% } %>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
+    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <label class='span1 scale_rating_text'>\n    <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n  </label>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <label class='span1 scale_rating_text'>\n    <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n  </label>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/scale_rating_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Scale Rating",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
@@ -1993,6 +1995,28 @@ __p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 '\' />\n    Include "other"\n  </label>\n';
  } ;
 __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/scale_rating_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label">Starting Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STARTING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label scale_rating_label">Ending Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.ENDING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'option\' data-rv-each-option=\'model.' +
+((__t = ( Formbuilder.options.mappings.OPTIONS )) == null ? '' : __t) +
+'\'>\n  <input type="checkbox" class=\'js-default-updated\' data-rv-checked="option:checked" />\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Add Option"><i class=\'icon-plus-sign\'></i></a>\n  <a class="js-remove-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Remove Option"><i class=\'icon-minus-sign\'></i></a>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add option</a>\n</div>\n';
 

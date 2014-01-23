@@ -3,20 +3,28 @@ Formbuilder.registerField 'scale_rating',
   view: """
     <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
     <div class='row-fluid'>
-      <% for ( var i = 0 ; i < field_options.length ; i++) { %>
-        <div class="span1 scale_rating">
-          <%= i+1 %>
-          <div class="divider"></div>
-          <label class='fb-option'>
-            <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>
-          </label>
-        </div>
-      <% } %>
+      <label class='span1 scale_rating_text'>
+        <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>
+      </label>
+      <div>
+        <% for ( var i = 0 ; i < field_options.length ; i++) { %>
+          <div class="span1 scale_rating">
+            <%= i+1 %>
+            <div class="divider"></div>
+            <label class='fb-option'>
+              <input type='radio' value='<%= i+1 %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>
+            </label>
+          </div>
+        <% } %>
+      </div>
+      <label class='span1 scale_rating_text'>
+        <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>
+      </label>
     </div>
   """
 
   edit: """
-    <%= Formbuilder.templates['edit/options']({ includeOther: true }) %>
+    <%= Formbuilder.templates['edit/scale_rating_options']() %>
   """
 
   addButton: """

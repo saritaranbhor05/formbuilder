@@ -1,0 +1,21 @@
+<div class='fb-edit-section-header'>Options</div>
+
+<div class='row-fluid'>
+  <span class="fb-field-label">Starting Point:</span>
+  <input type="text" data-rv-input="model.<%= Formbuilder.options.mappings.STARTING_POINT_TEXT %>" class='option-label-input span3' />
+</div>
+
+<div class='row-fluid'>
+  <span class="fb-field-label scale_rating_label">Ending Point:</span>
+  <input type="text" data-rv-input="model.<%= Formbuilder.options.mappings.ENDING_POINT_TEXT %>" class='option-label-input span3' />
+</div>
+
+<div class='option' data-rv-each-option='model.<%= Formbuilder.options.mappings.OPTIONS %>'>
+  <input type="checkbox" class='js-default-updated' data-rv-checked="option:checked" />
+  <a class="js-add-option <%= Formbuilder.options.BUTTON_CLASS %>" title="Add Option"><i class='icon-plus-sign'></i></a>
+  <a class="js-remove-option <%= Formbuilder.options.BUTTON_CLASS %>" title="Remove Option"><i class='icon-minus-sign'></i></a>
+</div>
+
+<div class='fb-bottom-add'>
+  <a class="js-add-option <%= Formbuilder.options.BUTTON_CLASS %>">Add option</a>
+</div>
