@@ -290,35 +290,19 @@
           return this.trigger('change_state');
         },
         openGMap: function() {
-          if ($('#myModal').length === 0) {
-            $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
-            <div class="modal-dialog">\
-              <div class="modal-content">\
-                <div class="modal-header">\
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
-                  <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
-                </div>\
-                <div class="modal-body" style="height:560px;">\
-                </div>\
-                <div class="modal-footer">\
-                  <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
-                </div>\
-              </div>\
-            </div>\
-            </div>\
-            ').appendTo('.formbuilder-panel');
-            $('#myModal').modal({
-              show: true,
-              remote: "gmap/show"
-            });
+          if ($('#myModal1').length === 0) {
+            if (this.field.addRequiredConditions) {
+              this.field.addRequiredConditions();
+            }
           }
           $('#ok').val(this.model.getCid());
-          $('#myModal').modal({
+          $('#myModal1').modal({
             show: true
           });
-          $("#myModal").on("shown", function(e) {
+          $("#myModal1").on("shown", function(e) {
             var gmap_button_value;
-            $("#address").keypress(function(event) {
+            initialize();
+            $("#gmap_address").keypress(function(event) {
               if (event.keyCode === 13) {
                 return codeAddress();
               }
@@ -336,8 +320,8 @@
           $('#ok').on('click', function(e) {
             return $("[name = " + getCid() + "_1]").val(getLatLong());
           });
-          return $('#myModal').on('hidden.bs.modal', function(e) {
-            $('#myModal').off('shown').on('shown');
+          return $('#myModal1').on('hidden.bs.modal', function(e) {
+            $('#myModal1').off('shown').on('shown');
             return $(this).removeData("modal");
           });
         },
@@ -1478,9 +1462,36 @@
 
 (function() {
   Formbuilder.registerField('gmap', {
-    view: "<input type='button' style=\"width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    view: "<input type='button' style=\"width: 100px ;min-height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps",
+    addRequiredConditions: function() {
+      return $('<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+        <div class="modal-dialog">\
+          <div class="modal-content">\
+            <div class="modal-header">\
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
+              <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
+            </div>\
+            <div class="modal-body">\
+              <div class="row-fluid panel top-panel1">\
+                <input id="latlng" class="panel1" type="text" value="40.714224,-73.961452"/>\
+                <input type="button" value="Lat,Long" onclick="codeLatLng()"/>\
+              </div>\
+              <div class="row-fluid panel top-panel2">\
+                <input id="gmap_address" class="panel1" type="textbox" value="Sydney, NSW"/>\
+                <input type="button" value="Location" onclick="codeAddress()"/>\
+              </div>\
+              <div id="map-canvas"/>\
+            </div>\
+            <div class="modal-footer">\
+              <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+  ').appendTo('body');
+    },
     isValid: function($el, model) {
       var _this = this;
       return (function(valid) {
