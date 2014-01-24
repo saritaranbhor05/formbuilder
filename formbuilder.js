@@ -1651,9 +1651,9 @@
 
 (function() {
   Formbuilder.registerField('scale_rating', {
-    view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<div class='row-fluid'>\n  <label class='span1 scale_rating_text'>\n    <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n  </label>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <label class='span1 scale_rating_text'>\n    <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n  </label>\n</div>",
+    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid'>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"span1 scale_rating_text scale_rating\">\n    <div class=\"divider\"></div>\n    <label class='span1'>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
     edit: "<%= Formbuilder.templates['edit/scale_rating_options']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Scale Rating",
+    addButton: "<span class=\"symbol\">\n  <span class=\"icon-circle-blank\"></span>\n</span> Scale Rating",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
         {
@@ -1683,19 +1683,22 @@
       })(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref, _results;
-      _ref = $el.find('input:checked');
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        elem = _ref[_i];
-        _results.push(elem.checked = false);
-      }
-      return _results;
+      var _this = this;
+      return (function(elem) {
+        var _i, _len, _ref, _results;
+        _ref = $el.find('input:checked');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          elem = _ref[_i];
+          _results.push(elem.checked = false);
+        }
+        return _results;
+      })('');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+      return (function(el_val, check_result) {
+        el_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
         check_result = eval("'" + elem_val + "' " + condition + " 'true'");
         return check_result;
       })('', false);
