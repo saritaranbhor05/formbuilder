@@ -44,6 +44,8 @@ class Formbuilder
       PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       HTML_DATA: 'field_options.html_data'
+      STARTING_POINT_TEXT: 'field_options.start_point_text'
+      ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
@@ -338,7 +340,7 @@ class Formbuilder
                   value = 0,
                   elem_value = ''
                 ) =>
-                  value = x.value if @field_type == 'radio'
+                  value = x.value if @field_type == 'radio' || 'scale_rating'
                   name = cid.toString() + "_" + index.toString()
                   if $(x).attr('type') == 'radio' and @model.get('field_values')
                     val = @model.get('field_values')[value]
