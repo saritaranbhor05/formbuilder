@@ -91,6 +91,8 @@
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
         NEXT_BUTTON_TEXT: 'field_options.next_button_text',
         HTML_DATA: 'field_options.html_data',
+        STARTING_POINT_TEXT: 'field_options.start_point_text',
+        ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions'
       },
       dict: {
@@ -166,7 +168,8 @@
           'click .js-duplicate': 'duplicate',
           'click .js-clear': 'clear',
           'keyup': 'changeStateSource',
-          'change': 'changeStateSource'
+          'change': 'changeStateSource',
+          'click #gmap_button': 'openGMap'
         },
         initialize: function() {
           this.current_state = 'show';
@@ -288,6 +291,58 @@
         changeStateSource: function(ev) {
           return this.trigger('change_state');
         },
+        openGMap: function() {
+          if ($('#myModal').length === 0) {
+            $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+            <div class="modal-dialog">\
+              <div class="modal-content">\
+                <div class="modal-header">\
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
+                  <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
+                </div>\
+                <div class="modal-body" style="height:560px;">\
+                </div>\
+                <div class="modal-footer">\
+                  <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
+                </div>\
+              </div>\
+            </div>\
+            </div>\
+            ').appendTo('.formbuilder-panel');
+            $('#myModal').modal({
+              show: true,
+              remote: "gmap/show"
+            });
+          }
+          $('#ok').val(this.model.getCid());
+          $('#myModal').modal({
+            show: true
+          });
+          $("#myModal").on("shown", function(e) {
+            var gmap_button_value;
+            $("#gmap_address").keypress(function(event) {
+              if (event.keyCode === 13) {
+                return codeAddress();
+              }
+            });
+            $("#gmap_latlng").keypress(function(event) {
+              if (event.keyCode === 13) {
+                return codeLatLng();
+              }
+            });
+            gmap_button_value = $("[name = " + getCid() + "_1]").val();
+            if (gmap_button_value !== "") {
+              return codeLatLng(gmap_button_value);
+            }
+          });
+          $('#ok').on('click', function(e) {
+            return $("[name = " + getCid() + "_1]").val(getLatLong());
+          });
+          return $('#myModal').on('hidden.bs.modal', function(e) {
+            $('#myModal').off('shown').on('shown');
+            return $(this).removeData("modal");
+          });
+        },
         isValid: function() {
           if (!this.field.isValid) {
             return true;
@@ -388,7 +443,7 @@
                 for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                   x = _ref1[_j];
                   _results.push(count = (function(x, index, name, val, value, elem_value) {
-                    if (_this.field_type === 'radio') {
+                    if (_this.field_type === 'radio' || 'scale_rating') {
                       value = x.value;
                     }
                     name = cid.toString() + "_" + index.toString();
@@ -1234,7 +1289,7 @@
   Formbuilder.registerField('date_of_birth', {
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date Picker",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
     setup: function(el, model, index) {
       var _this = this;
       return (function(today, restricted_date) {
@@ -1424,6 +1479,27 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('gmap', {
+    view: "<input type='button' style=\"min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    edit: "",
+    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps",
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find("[name = " + model.getCid() + "_1]").val() !== '';
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+        return valid;
+      })(false);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('heading', {
     type: 'non_input',
     view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
@@ -1565,6 +1641,64 @@
       var _this = this;
       return (function(elem_val, check_result) {
         elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        return check_result;
+      })('', false);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('scale_rating', {
+    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid mobile-device'>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"span1 scale_rating_text scale_rating\">\n    <div class=\"divider\"></div>\n    <label class='span1'>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/scale_rating_options']() %>",
+    addButton: "<span class=\"symbol\">\n  <span class=\"icon-circle-blank\"></span>\n</span> Scale Rating",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.options = [
+        {
+          label: "",
+          checked: false
+        }, {
+          label: "",
+          checked: false
+        }
+      ];
+      return attrs;
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          checked_chk_cnt = $el.find('input:checked').length;
+          if ($el.find('input:checked').val() === '__other__') {
+            return $el.find('input:text').val() !== '';
+          }
+          return checked_chk_cnt > 0;
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    },
+    clearFields: function($el, model) {
+      var _this = this;
+      return (function(elem) {
+        var _i, _len, _ref, _results;
+        _ref = $el.find('input:checked');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          elem = _ref[_i];
+          _results.push(elem.checked = false);
+        }
+        return _results;
+      })('');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(el_val, check_result) {
+        el_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
         check_result = eval("'" + elem_val + "' " + condition + " 'true'");
         return check_result;
       })('', false);
@@ -1938,6 +2072,28 @@ __p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 '\' />\n    Include "other"\n  </label>\n';
  } ;
 __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/scale_rating_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label">Starting Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STARTING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'row-fluid\'>\n  <span class="fb-field-label scale_rating_label">Ending Point:</span>\n  <input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.ENDING_POINT_TEXT )) == null ? '' : __t) +
+'" class=\'option-label-input span3\' />\n</div>\n\n<div class=\'option\' data-rv-each-option=\'model.' +
+((__t = ( Formbuilder.options.mappings.OPTIONS )) == null ? '' : __t) +
+'\'>\n  <input type="checkbox" class=\'js-default-updated\' data-rv-checked="option:checked" />\n  <a class="js-add-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Add Option"><i class=\'icon-plus-sign\'></i></a>\n  <a class="js-remove-option ' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'" title="Remove Option"><i class=\'icon-minus-sign\'></i></a>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add option</a>\n</div>\n';
 

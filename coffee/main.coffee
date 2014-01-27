@@ -44,6 +44,8 @@ class Formbuilder
       PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       HTML_DATA: 'field_options.html_data'
+      STARTING_POINT_TEXT: 'field_options.start_point_text'
+      ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
 
     dict:
@@ -104,6 +106,7 @@ class Formbuilder
         'click .js-clear': 'clear'
         'keyup': 'changeStateSource',
         'change': 'changeStateSource'
+        'click #gmap_button': 'openGMap'
 
       initialize: ->
         @current_state = 'show'
@@ -211,6 +214,54 @@ class Formbuilder
       changeStateSource: (ev) ->
         @trigger('change_state')
 
+      openGMap: ->
+        if $('#myModal').length is 0
+          $('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h4 class="modal-title" id="myModalLabel">Google Maps</h4>
+                </div>
+                <div class="modal-body" style="height:560px;">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>
+                </div>
+              </div>
+            </div>
+            </div>
+            ').appendTo('.formbuilder-panel')
+          $('#myModal').modal({
+            show: true,
+            remote: "gmap/show"
+          }) 
+
+        $('#ok').val(this.model.getCid()) 
+        $('#myModal').modal({
+          show: true
+        })
+
+        $("#myModal").on "shown", (e) ->
+            $( "#gmap_address" ).keypress (event) ->
+              if(event.keyCode == 13)
+                codeAddress();
+
+            $( "#gmap_latlng" ).keypress (event) ->
+              if(event.keyCode == 13)
+                codeLatLng();
+                
+            gmap_button_value = $("[name = " + getCid() + "_1]").val()
+            if( gmap_button_value != "")
+              codeLatLng(gmap_button_value);
+
+        $('#ok').on 'click', (e) ->
+            $("[name = " + getCid() + "_1]").val(getLatLong());  
+
+        $('#myModal').on 'hidden.bs.modal', (e) ->
+          $('#myModal').off('shown').on('shown')
+          $(this).removeData "modal"
+       
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)
@@ -289,7 +340,7 @@ class Formbuilder
                   value = 0,
                   elem_value = ''
                 ) =>
-                  value = x.value if @field_type == 'radio'
+                  value = x.value if @field_type == 'radio' || 'scale_rating'
                   name = cid.toString() + "_" + index.toString()
                   if $(x).attr('type') == 'radio' and @model.get('field_values')
                     val = @model.get('field_values')[value]
