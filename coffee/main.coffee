@@ -215,14 +215,14 @@ class Formbuilder
         @trigger('change_state')
 
       openGMap: ->
-        if $('#myModal1').length is 0
+        if $('#gmapModal').length is 0
           @field.addRequiredConditions() if @field.addRequiredConditions
         $('#ok').val(this.model.getCid()) 
-        $('#myModal1').modal({
+        $('#gmapModal').modal({
           show: true
         })
 
-        $("#myModal1").on "shown", (e) ->
+        $("#gmapModal").on "shown", (e) ->
             initialize();
             $( "#gmap_address" ).keypress (event) -> 
               if(event.keyCode == 13)
@@ -239,8 +239,8 @@ class Formbuilder
         $('#ok').on 'click', (e) ->
             $("[name = " + getCid() + "_1]").val(getLatLong());  
 
-        $('#myModal1').on 'hidden.bs.modal', (e) ->
-          $('#myModal1').off('shown').on('shown')
+        $('#gmapModal').on 'hidden.bs.modal', (e) ->
+          $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
        
       isValid: ->

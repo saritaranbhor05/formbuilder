@@ -292,16 +292,16 @@
           return this.trigger('change_state');
         },
         openGMap: function() {
-          if ($('#myModal1').length === 0) {
+          if ($('#gmapModal').length === 0) {
             if (this.field.addRequiredConditions) {
               this.field.addRequiredConditions();
             }
           }
           $('#ok').val(this.model.getCid());
-          $('#myModal1').modal({
+          $('#gmapModal').modal({
             show: true
           });
-          $("#myModal1").on("shown", function(e) {
+          $("#gmapModal").on("shown", function(e) {
             var gmap_button_value;
             initialize();
             $("#gmap_address").keypress(function(event) {
@@ -322,8 +322,8 @@
           $('#ok').on('click', function(e) {
             return $("[name = " + getCid() + "_1]").val(getLatLong());
           });
-          return $('#myModal1').on('hidden.bs.modal', function(e) {
-            $('#myModal1').off('shown').on('shown');
+          return $('#gmapModal').on('hidden.bs.modal', function(e) {
+            $('#gmapModal').off('shown').on('shown');
             return $(this).removeData("modal");
           });
         },
@@ -1468,7 +1468,7 @@
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> google maps",
     addRequiredConditions: function() {
-      return $('<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
         <div class="modal-dialog">\
           <div class="modal-content">\
             <div class="modal-header">\
