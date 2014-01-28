@@ -136,6 +136,22 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/image_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGEWIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGEHEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nImage Link\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGELINK )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/integer_only"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

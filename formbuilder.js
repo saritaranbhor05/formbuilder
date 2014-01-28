@@ -84,6 +84,9 @@
         STEP: 'field_options.step',
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
+        IMAGELINK: 'field_options.image_link',
+        IMAGEWIDTH: 'field_options.image_width',
+        IMAGEHEIGHT: 'field_options.image_height',
         LENGTH_UNITS: 'field_options.min_max_length_units',
         MINAGE: 'field_options.minage',
         DEFAULT_VALUE: 'field_options.default_value',
@@ -91,6 +94,7 @@
         PREV_BUTTON_TEXT: 'field_options.prev_button_text',
         NEXT_BUTTON_TEXT: 'field_options.next_button_text',
         HTML_DATA: 'field_options.html_data',
+        IMAGE_DATA: 'field_options.image_data',
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions'
@@ -1514,6 +1518,24 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('image', {
+    type: 'non_input',
+    view: "<a>\n  <img\n    id='img_<%= rf.getCid() %>'\n    src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n    width='<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>'\n    height='<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>'\n  />\n</a>",
+    edit: "<%= Formbuilder.templates['edit/image_options']() %>\n<input id='<%= rf.getCid() %>' type='file' />\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        readURL(this);\n    });\n  });\n</script>",
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.IMAGEWIDTH)) {
+        el.attr("width", model.get(Formbuilder.options.mappings.IMAGEWIDTH));
+      }
+      if (model.get(Formbuilder.options.mappings.IMAGEHEIGHT)) {
+        return el.attr("height", model.get(Formbuilder.options.mappings.IMAGEHEIGHT));
+      }
+    },
+    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> Image"
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('number', {
     view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
@@ -1970,6 +1992,22 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 '"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
 '"/>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/image_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGEWIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGEHEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nImage Link\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.IMAGELINK )) == null ? '' : __t) +
+'" style="width: 30px" />\n';
 
 }
 return __p
