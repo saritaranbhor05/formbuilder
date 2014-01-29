@@ -68,3 +68,5 @@
 .response-field-time .hours,.response-field-time .minutes,.response-field-time .seconds{width:50px}
 .response-field-checkboxes .fb-option,.response-field-radio .fb-option{margin-bottom:5px;display:inline-block}
 .condition{background:#424e57;margin-bottom:10px}
+.image_link_form{display:block}
+.image_link_form:hover{background-color:#fff}

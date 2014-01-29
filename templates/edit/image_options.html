@@ -10,5 +10,15 @@ Height
 
 &nbsp;&nbsp;
 
-Image Link
-<input type="number" data-rv-input="model.<%= Formbuilder.options.mappings.IMAGELINK %>" style="width: 30px" />
+
+<div class='fb-edit-section-header'>Align</div>
+<select data-rv-value="model.<%= Formbuilder.options.mappings.IMAGEALIGN %>">
+  <option value="left">left</option>
+  <option value="center">center</option>
+  <option value="right">right</option>
+</select>
+
+&nbsp;&nbsp;
+
+<div class='fb-edit-section-header'>Image Link</div>
+<input type='url' pattern="https?://.+" data-rv-input="model.<%= Formbuilder.options.mappings.IMAGELINK %>" placeholder='http://'/>

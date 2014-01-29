@@ -40,6 +40,7 @@ class Formbuilder
       IMAGELINK: 'field_options.image_link'
       IMAGEWIDTH: 'field_options.image_width'
       IMAGEHEIGHT: 'field_options.image_height'
+      IMAGEALIGN: 'field_options.image_align'
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'

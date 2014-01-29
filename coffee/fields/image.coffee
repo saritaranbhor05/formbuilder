@@ -1,26 +1,33 @@
 Formbuilder.registerField 'image',
 
-  type: 'non_input'
-
   view: """
-    <a>
+    <a
+      target='_blank'
+      class='image_link_form'
+      href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'
+      style="
+        text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;
+      "
+    >
       <img
         id='img_<%= rf.getCid() %>'
         src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'
-        width='<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>'
-        height='<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>'
+        style="
+          width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;
+          height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px
+        "
       />
     </a>
   """
 
   edit: """
-    <%= Formbuilder.templates['edit/image_options']() %>
-    <input id='<%= rf.getCid() %>' type='file' />
+    <input id='<%= rf.getCid() %>' type='file' accept="image/gif, image/jpeg, image/png"/>
     <input
       class='hide'
       id='text_<%= rf.getCid() %>'
       data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'
     />
+    <%= Formbuilder.templates['edit/image_options']() %>
     <script>
       $(function() {
         function readURL(input) {
@@ -36,7 +43,12 @@ Formbuilder.registerField 'image',
         }
 
         $('#<%= rf.getCid() %>').change(function(){
-            readURL(this);
+            if(this.files[0].size <= 204800){
+              readURL(this);
+            }
+            else{
+              alert("Please select file size less that 200 KB")
+            }
         });
       });
     </script>
