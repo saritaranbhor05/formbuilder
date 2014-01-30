@@ -1,26 +1,29 @@
 Formbuilder.registerField 'image',
 
   view: """
-    <a
-      target='_blank'
-      class='image_link_form'
-      href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'
+    <div
       style="
         text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;
       "
     >
-      <img
-        id='img_<%= rf.getCid() %>'
-        src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'
-        style="
-          width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;
-          height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px
-        "
-      />
-    </a>
+      <a
+        target='_blank'
+        href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'
+      >
+        <img
+          id='img_<%= rf.getCid() %>'
+          src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'
+          style="
+            width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;
+            height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px
+          "
+        />
+      </a>
+    </div>
   """
 
   edit: """
+    <div class='fb-edit-section-header'>Upload File</div>
     <input id='<%= rf.getCid() %>' type='file' accept="image/gif, image/jpeg, image/png"/>
     <input
       class='hide'
@@ -55,5 +58,5 @@ Formbuilder.registerField 'image',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-cloud-upload"></span></span> Image
+    <span class="symbol"><span class="icon-picture"></span></span> Image
   """

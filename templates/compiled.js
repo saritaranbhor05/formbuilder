@@ -144,9 +144,9 @@ __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\nWidth\n<input typ
 ((__t = ( Formbuilder.options.mappings.IMAGEWIDTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEHEIGHT )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEALIGN )) == null ? '' : __t) +
-'">\n  <option value="left">left</option>\n  <option value="center">center</option>\n  <option value="right">right</option>\n</select>\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Image Link</div>\n<input type=\'url\' pattern="https?://.+" data-rv-input="model.' +
+'">\n  <option value="left">left</option>\n  <option value="center">center</option>\n  <option value="right">right</option>\n</select>\n\n\n<div class=\'fb-edit-section-header\'>Image Link</div>\n<input type=\'url\' pattern="https?://.+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGELINK )) == null ? '' : __t) +
 '" placeholder=\'http://\'/>\n';
 

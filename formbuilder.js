@@ -1520,9 +1520,9 @@
 
 (function() {
   Formbuilder.registerField('image', {
-    view: "<a\n  id=\"aa\"\n  class='image_link_form'\n  href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n  <img\n    id='img_<%= rf.getCid() %>'\n    src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n    style=\"\n      width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n      height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n    \"\n  />\n</a>\n<script>\n  $(function() {\n    $('#aa').click(function(){\n      window.open(\"http://www.google.com\",\"woochat\");\n    });\n  });\n</script>",
-    edit: "<input id='<%= rf.getCid() %>' type='file' accept=\"image/gif, image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 204800){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> Image"
+    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n  <a\n    target='_blank'\n    href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
+    edit: "<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/gif, image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 204800){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-picture\"></span></span> Image"
   });
 
 }).call(this);
@@ -1997,9 +1997,9 @@ __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\nWidth\n<input typ
 ((__t = ( Formbuilder.options.mappings.IMAGEWIDTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEHEIGHT )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEALIGN )) == null ? '' : __t) +
-'">\n  <option value="left">left</option>\n  <option value="center">center</option>\n  <option value="right">right</option>\n</select>\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Image Link</div>\n<input type=\'url\' pattern="https?://.+" data-rv-input="model.' +
+'">\n  <option value="left">left</option>\n  <option value="center">center</option>\n  <option value="right">right</option>\n</select>\n\n\n<div class=\'fb-edit-section-header\'>Image Link</div>\n<input type=\'url\' pattern="https?://.+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGELINK )) == null ? '' : __t) +
 '" placeholder=\'http://\'/>\n';
 
