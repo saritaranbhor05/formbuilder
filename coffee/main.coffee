@@ -19,6 +19,7 @@ class Formbuilder
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
     CKEDITOR_CONFIG: ' '
+    HIERARCHYSELECTORVIEW: ' '
 
     mappings:
       SIZE: 'field_options.size'
@@ -217,32 +218,32 @@ class Formbuilder
       openGMap: ->
         if $('#gmapModal').length is 0
           @field.addRequiredConditions() if @field.addRequiredConditions
-        $('#ok').val(this.model.getCid()) 
+        $('#ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
         })
 
         $("#gmapModal").on "shown", (e) ->
             initialize();
-            $( "#gmap_address" ).keypress (event) -> 
+            $( "#gmap_address" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeAddress();
 
             $( "#gmap_latlng" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeLatLng();
-                
+
             gmap_button_value = $("[name = " + getCid() + "_1]").val()
             if( gmap_button_value != "")
               codeLatLng(gmap_button_value);
 
         $('#ok').on 'click', (e) ->
-            $("[name = " + getCid() + "_1]").val(getLatLong());  
+            $("[name = " + getCid() + "_1]").val(getLatLong());
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
-       
+
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)
@@ -509,6 +510,7 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
+        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')

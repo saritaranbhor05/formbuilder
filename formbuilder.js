@@ -67,6 +67,7 @@
       HTTP_METHOD: 'POST',
       FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
       CKEDITOR_CONFIG: ' ',
+      HIERARCHYSELECTORVIEW: ' ',
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -668,7 +669,8 @@
           if (this.options.autoSave) {
             this.initAutosave();
           }
-          return Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
+          Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
+          return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
         },
         getCurrentView: function() {
           var current_view_state, fieldView;
@@ -1342,6 +1344,15 @@
         return is_true = field.check_date_result(condition, firstValue, secondValue);
       })('', false, '', false);
     }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('document_center_hyperlink', {
+    view: "<div id='<%= rf.getCid() %>'></div>\n<div id=\"open_model_<%= rf.getCid() %>\" class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\"></div>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>",
+    edit: "<div class='fb-edit-section-header'>Add Document</div>\n<button id='button_<%= rf.getCid() %>' class=\"pull-right flip-button  icon-plus-sign\">\n</button>\n<script>\n  $(function() {\n    var geo_doc_hierarchy = [{companies:\"Company\"},{locations:\"Location\"},{divisions:\"Division\"},{documents:\"Document\"}] ;\n    $(\"#button_<%= rf.getCid() %>\").click( function() {\n      $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n      $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n        getHierarchy();\n      });\n      $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n        hierarchy_selector_view.remove();\n        $(\"#modal_body_<%= rf.getCid() %>\").append('<div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\"></div>');\n      });\n    });\n    function getHierarchy() {\n      var that =  this,\n      source_url = '/companies?include_hierarchy=true&include_doc=true&'+\n                   'pagination=false';\n      $.ajax({\n        async: \"false\",\n        url: source_url,\n        type: \"GET\",\n        data: {},\n        dataType: \"json\",\n        success: function (result) {\n          if(result){\n            that.company_hierarchy = result;\n            that.gen_doc_hierarchy = generate_company_hierarchy_tree(\n              that.company_hierarchy, geo_doc_hierarchy);\n            that.hierarchy_selector_view = new Formbuilder.options.HIERARCHYSELECTORVIEW({el: $(\"#doc_hierarchy_tree_<%= rf.getCid() %>\"),\n              generated_hierarchy: that.gen_doc_hierarchy,\n              pre_selected_hierarchy: undefined,\n              hierarchy_mapping: geo_doc_hierarchy\n            });\n          }\n        }\n      });\n    };\n  });\n</script>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-list\"></span></span> Document Center Hyperlink"
   });
 
 }).call(this);
