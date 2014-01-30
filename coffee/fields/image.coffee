@@ -24,7 +24,7 @@ Formbuilder.registerField 'image',
 
   edit: """
     <div class='fb-edit-section-header'>Upload File</div>
-    <input id='<%= rf.getCid() %>' type='file' accept="image/gif, image/jpeg, image/png"/>
+    <input id='<%= rf.getCid() %>' type='file' accept="image/jpeg, image/png"/>
     <input
       class='hide'
       id='text_<%= rf.getCid() %>'
