@@ -67,6 +67,7 @@
       HTTP_METHOD: 'POST',
       FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
       CKEDITOR_CONFIG: ' ',
+      COMPANY_HIERARCHY: [],
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -661,6 +662,7 @@
             this.options.readonly = true;
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
+          Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
           this.render();
           this.collection.reset(this.options.bootstrapData);
           this.saveFormButton = this.$el.find(".js-save-form");
@@ -889,13 +891,28 @@
           return this;
         },
         addAll: function() {
+          var fd_views;
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
+            fd_views = this.fieldViews.filter(function(fd_view) {
+              return fd_view.field_type === "ci-hierarchy";
+            });
+            if (fd_views.length > 0) {
+              this.bindHierarchyEvents(fd_views);
+            }
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
           }
+        },
+        bindHierarchyEvents: function(hierarchyViews) {
+          var _this = this;
+          return (function(cid) {
+            return _.each(hierarchyViews, function(hierarchyView) {
+              return hierarchyView.field.bindChangeEvents(hierarchyView);
+            });
+          })('');
         },
         hideShowNoResponseFields: function() {
           return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 ? 'hide' : 'show']();
@@ -1192,6 +1209,220 @@
         check_result = eval("'" + elem_val + "' " + condition + " 'true'");
         return check_result;
       })('', false);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('ci-hierarchy', {
+    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Company </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
+    edit: "",
+    addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> CI-Hierarchy",
+    selected_comp: null,
+    bindChangeEvents: function(fd_view) {
+      var _this = this;
+      return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
+        cid = fd_view.model.attributes.cid;
+        field_values = fd_view.model.attributes.field_values;
+        $company_id = $("#company_id_" + cid);
+        $location_id = $("#location_id_" + cid);
+        $division_id = $("#division_id_" + cid);
+        $company_id.bind('change', {
+          that: _this,
+          fd_view: fd_view
+        }, _this.populateLocationsByCompanyId);
+        $location_id.bind('change', {
+          that: _this,
+          fd_view: fd_view
+        }, _this.populateDivisionsByLocId);
+        if (field_values) {
+          if ($company_id) {
+            selected_compId = _this.getSelectedFieldVal($company_id, field_values);
+          }
+          if ($location_id) {
+            selected_locId = _this.getSelectedFieldVal($location_id, field_values);
+          }
+          if ($division_id) {
+            selected_divId = _this.getSelectedFieldVal($division_id, field_values);
+          }
+        }
+        return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId);
+      })(null, null, null, null, null, '', '', '');
+    },
+    getSelectedFieldVal: function($ele, fieldValues) {
+      var _this = this;
+      return (function(name, selectedId) {
+        name = $ele.attr('name');
+        selectedId = fieldValues[name];
+        return selectedId;
+      })('', '');
+    },
+    populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId) {
+      var _this = this;
+      if (selected_compId == null) {
+        selected_compId = '';
+      }
+      if (selected_locId == null) {
+        selected_locId = '';
+      }
+      if (selected_divId == null) {
+        selected_divId = '';
+      }
+      return (function(companies, $company_id, cid) {
+        cid = fd_view.model.attributes.cid;
+        $company_id = $("#company_id_" + cid);
+        if ($company_id && companies && companies.length > 0) {
+          $company_id.empty();
+          fd_view.field.clearSelectFields(cid);
+          fd_view.field.addPlaceHolder($company_id, '--- Select ---');
+          fd_view.field.appendData($company_id, companies);
+          if (selected_compId && selected_compId !== '') {
+            $company_id.val(selected_compId);
+            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId);
+          }
+        }
+      })(Formbuilder.options.COMPANY_HIERARCHY, null, null);
+    },
+    populateLocationsByCompanyId: function(e) {
+      var _this = this;
+      return (function(selected_company_id, that, fd_view) {
+        return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
+      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+    },
+    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId) {
+      if (selected_locId == null) {
+        selected_locId = '';
+      }
+      if (selected_divId == null) {
+        selected_divId = '';
+      }
+      this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
+      this.clearSelectFields(fd_view.model.attributes.cid);
+      return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
+    },
+    populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
+      var _this = this;
+      if (selected_locId == null) {
+        selected_locId = '';
+      }
+      if (selected_divId == null) {
+        selected_divId = '';
+      }
+      return (function(locations, $location_id) {
+        $location_id = $("#location_id_" + fd_view.model.attributes.cid);
+        if (selected_comp) {
+          locations = selected_comp.locations;
+        }
+        if ($location_id && locations.length > 0) {
+          _this.addPlaceHolder($location_id, '--- Select ---');
+          _this.appendData($location_id, locations);
+          if (selected_locId && selected_locId !== '') {
+            $location_id.val(selected_locId);
+            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId);
+          }
+        }
+      })([], null);
+    },
+    populateDivisionsByLocId: function(e) {
+      var _this = this;
+      return (function(selected_location_id, that, fd_view, selected_loc) {
+        return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
+      })($(e.currentTarget).val(), e.data.that, e.data.fd_view, null);
+    },
+    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId) {
+      var selected_loc;
+      if (selected_divId == null) {
+        selected_divId = '';
+      }
+      selected_loc = this.selected_comp.locations.getHashObject(selected_locId);
+      return this.populateDivisions(fd_view, selected_loc, selected_divId);
+    },
+    populateDivisions: function(fd_view, selected_loc, selected_divId) {
+      var _this = this;
+      if (selected_divId == null) {
+        selected_divId = '';
+      }
+      return (function(divisions, $division_id) {
+        $division_id = $("#division_id_" + fd_view.model.attributes.cid);
+        if (selected_loc) {
+          divisions = selected_loc.divisions;
+        }
+        $division_id.empty();
+        _this.addPlaceHolder($division_id, '--- Select ---');
+        if ($division_id && divisions.length > 0) {
+          _this.appendData($division_id, divisions);
+          if (selected_divId && selected_divId !== '') {
+            return $division_id.val(selected_divId);
+          }
+        }
+      })([], null);
+    },
+    clearSelectFields: function(cid) {
+      $("#location_id_" + cid).empty();
+      return $("#division_id_" + cid).empty();
+    },
+    appendData: function($element, data) {
+      var _this = this;
+      return (function(appendString) {
+        return _.each(data, function(obj_hash) {
+          appendString = "<option value='" + obj_hash.id + "'>";
+          appendString += obj_hash.name + "</option>";
+          return $element.append(appendString);
+        });
+      })('');
+    },
+    addPlaceHolder: function($element, name) {
+      return $element.html("<option value=''>" + name + "</option>");
+    },
+    clearFields: function($el, model) {
+      var _this = this;
+      return (function(cid) {
+        cid = model.attributes.cid;
+        $el.find("#company_id_" + cid).val("");
+        $el.find("#location_id_" + cid).val("");
+        return $el.find("#division_id_" + cid).val("");
+      })('');
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid, cid) {
+        cid = model.attributes.cid;
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '';
+        })(model.get('required'), 0);
+        return valid;
+      })(false, '');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, set_value_toLowerCase) {
+        var _toLowerCase_set_val;
+        $comp = clicked_element.find("#company_id_" + cid);
+        $loc = clicked_element.find("#location_id_" + cid);
+        $div = clicked_element.find("#division_id_" + cid);
+        comp_id = $comp.val();
+        loc_id = $loc.val();
+        div_id = $div.val();
+        comp_name = $comp.find('option:selected').text();
+        loc_name = $loc.find('option:selected').text();
+        div_name = $div.find('option:selected').text();
+        if (condition === '!=') {
+          check_result = comp_id !== set_value && loc_id !== set_value && div_id !== set_value;
+        } else if (condition === '==') {
+          _toLowerCase_set_val = set_value.toLowerCase();
+          check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
+        }
+        return check_result;
+      })(false, null, null, null, '', '', '', '', '', '', '');
+    },
+    add_remove_require: function(cid, required) {
+      $("#company_id_" + cid).attr("required", required);
+      $("#location_id_" + cid).attr("required", required);
+      return $("#division_id_" + cid).attr("required", required);
     }
   });
 
