@@ -1326,17 +1326,19 @@
     },
     populateDivisionsByLocId: function(e) {
       var _this = this;
-      return (function(selected_location_id, that, fd_view, selected_loc) {
+      return (function(selected_location_id, that, fd_view) {
         return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
-      })($(e.currentTarget).val(), e.data.that, e.data.fd_view, null);
+      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
     setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId) {
-      var selected_loc;
+      var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
       }
-      selected_loc = this.selected_comp.locations.getHashObject(selected_locId);
-      return this.populateDivisions(fd_view, selected_loc, selected_divId);
+      return (function(selected_loc) {
+        selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+        return _this.populateDivisions(fd_view, selected_loc, selected_divId);
+      })(null);
     },
     populateDivisions: function(fd_view, selected_loc, selected_divId) {
       var _this = this;
@@ -1366,9 +1368,9 @@
       var _this = this;
       return (function(appendString) {
         return _.each(data, function(obj_hash) {
-          appendString = "<option value='" + obj_hash.id + "'>";
-          appendString += obj_hash.name + "</option>";
-          return $element.append(appendString);
+          this.appendString = "<option value='" + obj_hash.id + "'>";
+          this.appendString += obj_hash.name + "</option>";
+          return $element.append(this.appendString);
         });
       })('');
     },
@@ -1399,8 +1401,7 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, set_value_toLowerCase) {
-        var _toLowerCase_set_val;
+      return (function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, _toLowerCase_set_val) {
         $comp = clicked_element.find("#company_id_" + cid);
         $loc = clicked_element.find("#location_id_" + cid);
         $div = clicked_element.find("#division_id_" + cid);

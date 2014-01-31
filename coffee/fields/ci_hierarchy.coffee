@@ -55,17 +55,17 @@ Formbuilder.registerField 'ci-hierarchy',
       $company_id = $("#company_id_" + cid)
       $location_id = $("#location_id_" + cid)
       $division_id = $("#division_id_" + cid)
-      $company_id.bind('change', { that: this, fd_view: fd_view },
-                       this.populateLocationsByCompanyId)
-      $location_id.bind('change', { that: this, fd_view: fd_view },
-                       this.populateDivisionsByLocId)
+      $company_id.bind('change', { that: @, fd_view: fd_view },
+                       @populateLocationsByCompanyId)
+      $location_id.bind('change', { that: @, fd_view: fd_view },
+                       @populateDivisionsByLocId)
       if field_values
         if $company_id
-          selected_compId = this.getSelectedFieldVal($company_id, field_values)
+          selected_compId = @getSelectedFieldVal($company_id, field_values)
         if $location_id
-          selected_locId = this.getSelectedFieldVal($location_id, field_values)
+          selected_locId = @getSelectedFieldVal($location_id, field_values)
         if $division_id
-          selected_divId = this.getSelectedFieldVal($division_id, field_values)
+          selected_divId = @getSelectedFieldVal($division_id, field_values)
       @populateCompanies(fd_view, selected_compId,
                          selected_locId, selected_divId)
 
