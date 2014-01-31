@@ -7,8 +7,9 @@ Formbuilder.registerField 'image',
       "
     >
       <a
+        class='image_link_form'
         target='_blank'
-        href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>'
+        href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>/?image_link=image_link'
       >
         <img
           id='img_<%= rf.getCid() %>'
