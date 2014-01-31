@@ -66,8 +66,8 @@ Formbuilder.registerField 'ci-hierarchy',
           selected_locId = this.getSelectedFieldVal($location_id, field_values)
         if $division_id
           selected_divId = this.getSelectedFieldVal($division_id, field_values)
-      this.populateCompanies(fd_view, selected_compId,
-                             selected_locId, selected_divId)
+      @populateCompanies(fd_view, selected_compId,
+                         selected_locId, selected_divId)
 
   getSelectedFieldVal: ($ele, fieldValues) ->
     do(name = '', selectedId='') =>
@@ -89,8 +89,8 @@ Formbuilder.registerField 'ci-hierarchy',
         fd_view.field.appendData($company_id, companies)
         if selected_compId && selected_compId != ''
           $company_id.val selected_compId
-          this.setSelectedCompAndPopulateLocs(fd_view, selected_compId,
-                                              selected_locId, selected_divId)
+          @setSelectedCompAndPopulateLocs(fd_view, selected_compId,
+                                          selected_locId, selected_divId)
 
   populateLocationsByCompanyId: (e) ->
     do(selected_company_id = $(e.currentTarget).val(),
@@ -101,10 +101,10 @@ Formbuilder.registerField 'ci-hierarchy',
 
   setSelectedCompAndPopulateLocs: (fd_view, selected_compId,
                                    selected_locId = '', selected_divId = '') ->
-    this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(
+    @selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(
       selected_compId)
-    this.clearSelectFields(fd_view.model.attributes.cid)
-    this.populateLocations(
+    @clearSelectFields(fd_view.model.attributes.cid)
+    @populateLocations(
       fd_view, this.selected_comp, selected_locId, selected_divId)
 
   populateLocations: (fd_view, selected_comp,
@@ -117,25 +117,25 @@ Formbuilder.registerField 'ci-hierarchy',
         locations = selected_comp.locations
 
       if($location_id && locations.length > 0)
-        this.addPlaceHolder($location_id, '--- Select ---')
-        this.appendData($location_id, locations)
+        @addPlaceHolder($location_id, '--- Select ---')
+        @appendData($location_id, locations)
         if selected_locId && selected_locId != ''
           $location_id.val selected_locId
-          this.setSelectedLocAndPopulateDivs(fd_view, selected_locId,
+          @setSelectedLocAndPopulateDivs(fd_view, selected_locId,
                                              selected_divId)
 
   populateDivisionsByLocId: (e) ->
     do(selected_location_id = $(e.currentTarget).val(),
       that = e.data.that,
-      fd_view = e.data.fd_view,
-      selected_loc = null
+      fd_view = e.data.fd_view
     ) =>
       that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id)
 
   setSelectedLocAndPopulateDivs: (fd_view, selected_locId,
                                   selected_divId = '') ->
-    selected_loc = this.selected_comp.locations.getHashObject(selected_locId)
-    this.populateDivisions(fd_view, selected_loc, selected_divId)
+    do(selected_loc = null)=>
+      selected_loc = @selected_comp.locations.getHashObject(selected_locId)
+      @populateDivisions(fd_view, selected_loc, selected_divId)
 
   populateDivisions: (fd_view, selected_loc, selected_divId = '') ->
     do( divisions = [],
@@ -145,9 +145,9 @@ Formbuilder.registerField 'ci-hierarchy',
       if selected_loc
         divisions = selected_loc.divisions
       $division_id.empty()
-      this.addPlaceHolder($division_id, '--- Select ---')
+      @addPlaceHolder($division_id, '--- Select ---')
       if $division_id && divisions.length > 0
-        this.appendData($division_id, divisions)
+        @appendData($division_id, divisions)
         if selected_divId && selected_divId != ''
           $division_id.val selected_divId
 
@@ -158,9 +158,9 @@ Formbuilder.registerField 'ci-hierarchy',
   appendData: ($element, data) ->
     do(appendString = '') =>
       _.each data, (obj_hash) ->
-        appendString = "<option value='" + obj_hash.id + "'>"
-        appendString += obj_hash.name + "</option>"
-        $element.append appendString
+        @appendString = "<option value='" + obj_hash.id + "'>"
+        @appendString += obj_hash.name + "</option>"
+        $element.append @appendString
 
   addPlaceHolder: ($element, name) ->
     $element.html("<option value=''>"+ name + "</option>")
@@ -185,7 +185,7 @@ Formbuilder.registerField 'ci-hierarchy',
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(check_result = false, $comp = null, $loc = null, $div = null,
        comp_name = '', comp_id = '', loc_id = '', div_id = '',
-       loc_name = '', div_name = '', set_value_toLowerCase = ''
+       loc_name = '', div_name = '', _toLowerCase_set_val = ''
     ) =>
       $comp = clicked_element.find("#company_id_" + cid)
       $loc = clicked_element.find("#location_id_" + cid)
