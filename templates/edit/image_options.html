@@ -1,0 +1,22 @@
+<div class='fb-edit-section-header'>Options</div>
+
+Width
+<input type="number" data-rv-input="model.<%= Formbuilder.options.mappings.IMAGEWIDTH %>" style="width: 30px" />
+
+&nbsp;&nbsp;
+
+Height
+<input type="number" data-rv-input="model.<%= Formbuilder.options.mappings.IMAGEHEIGHT %>" style="width: 30px" />
+
+&nbsp;&nbsp;
+
+<div class='fb-edit-section-header'>Align</div>
+<select data-rv-value="model.<%= Formbuilder.options.mappings.IMAGEALIGN %>">
+  <option value="left">left</option>
+  <option value="center">center</option>
+  <option value="right">right</option>
+</select>
+
+
+<div class='fb-edit-section-header'>Image Link</div>
+<input type='url' pattern="https?://.+" data-rv-input="model.<%= Formbuilder.options.mappings.IMAGELINK %>" placeholder='http://'/>

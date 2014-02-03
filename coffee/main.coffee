@@ -19,6 +19,7 @@ class Formbuilder
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
     CKEDITOR_CONFIG: ' '
+    COMPANY_HIERARCHY: []
 
     mappings:
       SIZE: 'field_options.size'
@@ -37,6 +38,10 @@ class Formbuilder
       STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
+      IMAGELINK: 'field_options.image_link'
+      IMAGEWIDTH: 'field_options.image_width'
+      IMAGEHEIGHT: 'field_options.image_height'
+      IMAGEALIGN: 'field_options.image_align'
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
@@ -44,9 +49,11 @@ class Formbuilder
       PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       HTML_DATA: 'field_options.html_data'
+      IMAGE_DATA: 'field_options.image_data'
       STARTING_POINT_TEXT: 'field_options.start_point_text'
       ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
+
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -219,32 +226,32 @@ class Formbuilder
       openGMap: ->
         if $('#gmapModal').length is 0
           @field.addRequiredConditions() if @field.addRequiredConditions
-        $('#ok').val(this.model.getCid()) 
+        $('#ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
         })
 
         $("#gmapModal").on "shown", (e) ->
             initialize();
-            $( "#gmap_address" ).keypress (event) -> 
+            $( "#gmap_address" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeAddress();
 
             $( "#gmap_latlng" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeLatLng();
-                
+
             gmap_button_value = $("[name = " + getCid() + "_1]").val()
             if( gmap_button_value != "")
               codeLatLng(gmap_button_value);
 
         $('#ok').on 'click', (e) ->
-            $("[name = " + getCid() + "_1]").val(getLatLong());  
+            $("[name = " + getCid() + "_1]").val(getLatLong());
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
-       
+
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)
@@ -465,6 +472,7 @@ class Formbuilder
 
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
+        Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -715,9 +723,18 @@ class Formbuilder
         if @options.live
           @applyEasyWizard()
           @triggerEvent() # triggers event by setting values to respective fields
+          # check for ci-hierarchy type
+          fd_views = @fieldViews.filter (fd_view) ->
+            fd_view.field_type is "ci-hierarchy"
+          @bindHierarchyEvents(fd_views) if fd_views.length > 0
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
+
+      bindHierarchyEvents: (hierarchyViews) ->
+        do(cid='') =>
+          _.each hierarchyViews, (hierarchyView) ->
+            hierarchyView.field.bindChangeEvents(hierarchyView)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
@@ -801,12 +818,13 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}) =>
+            do(source = {}, source_condition = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                unless _.has(source[0].attributes.conditions, condition)
-                  _.extend( source_condition, condition)
-                  source_condition.isSource = false
+                target_condition = _.clone(condition)
+                target_condition.isSource = false
+                unless _.has(source[0].attributes.conditions, target_condition)
+                  _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )
