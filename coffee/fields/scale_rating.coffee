@@ -77,5 +77,5 @@ Formbuilder.registerField 'scale_rating',
       check_result = false
     ) =>
       el_val = clicked_element.find("[value = " + set_value+"]").is(':checked')
-      check_result = eval("'#{elem_val}' #{condition} 'true'")
+      check_result = eval("'#{el_val}' #{condition} 'true'")
       check_result

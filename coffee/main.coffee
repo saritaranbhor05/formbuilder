@@ -782,12 +782,13 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}) =>
+            do(source = {}, source_condition = {}, traget_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                unless _.has(source[0].attributes.conditions, condition)
-                  _.extend( source_condition, condition)
-                  source_condition.isSource = false
+                traget_condition = _.clone(condition)
+                traget_condition.isSource = false
+                unless _.has(source[0].attributes.conditions, traget_condition)
+                  _.extend( source_condition, traget_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )

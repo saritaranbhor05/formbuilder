@@ -1004,19 +1004,20 @@
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               var _this = this;
-              return (function(source, source_condition) {
+              return (function(source, source_condition, traget_condition) {
                 if (!_.isEmpty(condition.source)) {
                   source = model.collection.where({
                     cid: condition.source
                   });
-                  if (!_.has(source[0].attributes.conditions, condition)) {
-                    _.extend(source_condition, condition);
-                    source_condition.isSource = false;
+                  traget_condition = _.clone(condition);
+                  traget_condition.isSource = false;
+                  if (!_.has(source[0].attributes.conditions, traget_condition)) {
+                    _.extend(source_condition, traget_condition);
                     source[0].attributes.conditions.push(source_condition);
                     return source[0].save();
                   }
                 }
-              })({}, {});
+              })({}, {}, {});
             });
           }
         },
@@ -1721,7 +1722,7 @@
       var _this = this;
       return (function(el_val, check_result) {
         el_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        check_result = eval("'" + el_val + "' " + condition + " 'true'");
         return check_result;
       })('', false);
     }

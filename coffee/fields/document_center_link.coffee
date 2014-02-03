@@ -31,7 +31,8 @@ Formbuilder.registerField 'document_center_hyperlink',
             getHierarchy();
           });
           $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
-            hierarchy_selector_view.remove();
+            exesting_view = $("doc_hierarchy_tree_<%= rf.getCid() %>").data('view', hierarchy_selector_view)
+            exesting_view.remove();
             $("#modal_body_<%= rf.getCid() %>").append('<div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>');
           });
         });
