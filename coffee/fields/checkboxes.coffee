@@ -63,5 +63,11 @@ Formbuilder.registerField 'checkboxes',
     ) =>
       elem_val = clicked_element.find("[value = " + set_value+"]").is(':checked')
       check_result = eval("'#{elem_val}' #{condition} 'true'")
-      check_result    
+      check_result
 
+  add_remove_require:(cid,required) ->
+    do (checked_chk_cnt = 0) =>
+      for i, input_elem in $el.find('input:checked').length
+        $("." + cid)
+                .find("[name = "+cid+"_1]")
+                .attr("required", required)    
