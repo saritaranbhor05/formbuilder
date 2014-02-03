@@ -19,6 +19,7 @@ class Formbuilder
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
     CKEDITOR_CONFIG: ' '
+    COMPANY_HIERARCHY: []
 
     mappings:
       SIZE: 'field_options.size'
@@ -334,6 +335,7 @@ class Formbuilder
                   else if @model.get('field_values')
                     val = @model.get('field_values')[name]
                   $(x).attr("name", name)
+
                   @setFieldVal($(x), val) if val
 
                   if(@field_type is "fullname")
@@ -509,6 +511,7 @@ class Formbuilder
 
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
+        Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -700,9 +703,18 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
+          # check for ci-hierarchy type
+          fd_views = @fieldViews.filter (fd_view) ->
+            fd_view.field_type is "ci-hierarchy"
+          @bindHierarchyEvents(fd_views) if fd_views.length > 0
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
+
+      bindHierarchyEvents: (hierarchyViews) ->
+        do(cid='') =>
+          _.each hierarchyViews, (hierarchyView) ->
+            hierarchyView.field.bindChangeEvents(hierarchyView)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
