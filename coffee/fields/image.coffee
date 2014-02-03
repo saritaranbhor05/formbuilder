@@ -7,6 +7,7 @@ Formbuilder.registerField 'image',
       "
     >
       <a
+        dava-rv-show="<%= rf.get(Formbuilder.options.mappings.INCLUDE_IMAGELINK) %>"
         class='image_link_form'
         target='_blank'
         href='<%= rf.get(Formbuilder.options.mappings.IMAGELINK) %>/?image_link=image_link'
