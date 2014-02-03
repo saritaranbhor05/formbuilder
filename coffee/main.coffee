@@ -107,6 +107,10 @@ class Formbuilder
         'keyup': 'changeStateSource',
         'change': 'changeStateSource'
         'click #gmap_button': 'openGMap'
+        'mouseover #can': 'onCanvas'
+        
+      onCanvas: ->
+          reinitializeCanvas(@model.getCid())    
 
       initialize: ->
         @current_state = 'show'
@@ -121,28 +125,30 @@ class Formbuilder
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
-          $("." + @model.getCid())
-          .find("[name = "+@model.getCid()+"_1]")
-          .attr("required", required)
-
+          return true if !@field.add_remove_require
+          @field.add_remove_require(@model.getCid(), required)  
+          
       show_hide_fields: (check_result, set_field) ->
-        do( set_field = set_field)=>
-          if(check_result is true )
-            @$el.addClass(set_field.action)
-            if(set_field.action == 'show')
-              @current_state = set_field.action
-              @add_remove_require(true)
+        do( set_field = set_field) =>
+            if(check_result is true )
+              @$el.addClass(set_field.action)
+              if(set_field.action == 'show')
+                @current_state = set_field.action
+                @add_remove_require(true)
+              else
+                @$el.removeClass('show')
+                @current_state = "hide"
+                @add_remove_require(false)
             else
-              @current_state = "hide"
-              @add_remove_require(false)
-          else
-            @$el.removeClass(set_field.action)
-            if(set_field.action == 'hide')
-              @current_state = set_field.action
-              @add_remove_require(true)
-            else
-              @add_remove_require(false)
-              @current_state = "hide"
+              @$el.removeClass(set_field.action)
+              if(set_field.action == 'hide')
+                @$el.addClass("show")
+                @current_state = set_field.action
+                @add_remove_require(true)
+              else
+                @$el.addClass("hide")
+                @add_remove_require(false)
+                @current_state = "hide"
 
       changeState: ->
         do(
@@ -176,6 +182,7 @@ class Formbuilder
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
                 @clearFields()
+                @changeStateSource()    
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
@@ -186,12 +193,7 @@ class Formbuilder
                   if check_match_condtions.indexOf(true) != -1
                     @show_hide_fields(true, set_field)
                   else
-                    @show_hide_fields('false', set_field)
-
-                for set_field in @model.get("conditions")
-                  do () =>
-                    if set_field.source is @model.getCid()
-                      @changeStateSource()
+                    @show_hide_fields('false', set_field)    
 
         return @
 
@@ -259,7 +261,7 @@ class Formbuilder
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
           do (x = null, count = 0) ->
-            for x in that.$("input, textarea, select")
+            for x in that.$("input, textarea, select, canvas")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
               $(x).attr("name", cid.toString() + "_" + count.toString())
         return @
@@ -268,28 +270,23 @@ class Formbuilder
         do (
           set_field = {}, i =0,
           action = "show",
-          cid = @model.getCid(),set_field_class = false,
+          cid = @model.getCid(),
           base_templ_suff = if @model.is_input() then '' else '_non_input',
+          set_field_class = false
         ) =>
+          
           if @model.attributes.conditions
-            if @model.get('conditions').length > 0
-              while i < @model.get('conditions').length
-                set_field = @model.get('conditions')[i]
-                if set_field
+            for set_field in @model.get('conditions')
+              if set_field
                   .action is 'show' and @model.getCid() is set_field.target
                     set_field_class = true
-                 break
-                i++
 
-          if set_field_class is true
-            @current_state = "hide"
-          else
-            @current_state = "show"
+          @$el.addClass("hide") if set_field_class
 
           if @model.attributes.conditions
             if !@is_section_break
               if @model.get("conditions").length
-                for set_field in this.model.get("conditions")
+                for set_field in @model.get("conditions")
                   do (set_field) =>
                     if set_field.target is @model.getCid()
                       for views_name in @parentView.fieldViews
@@ -311,59 +308,24 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input, textarea, select")
+              for x in @$("input, textarea, select, canvas")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x)
                           .attr('type')) then 1 else 0),
                   name = null,
                   val = null,
-                  value = 0,
-                  elem_value = ''
                 ) =>
-                  value = x.value if @field_type == 'radio' || 'scale_rating'
                   name = cid.toString() + "_" + index.toString()
-                  if $(x).attr('type') == 'radio' and @model.get('field_values')
-                    val = @model.get('field_values')[value]
-                  else if @model.get('field_values')
-                    val = @model.get('field_values')[name]
                   $(x).attr("name", name)
-                  @setFieldVal($(x), val) if val
-
-                  if(@field_type is "fullname")
-                    elem_value = @$el.find("[name = "+@model.getCid()+"_2]").val()
-                  else
-                    elem_value = @$el.find("[name = "+@model.getCid()+"_1]").val()
-
-                  @$el.addClass("hide") if set_field_class is false and @model.get('field_values') and elem_value is ""
-
-                  @$el.addClass("hide") if set_field_class is true and (val is null or elem_value is "" or @$el.find("[name = "+@model.getCid()+"_1]").val() is false)
-
                   @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,
-                  Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1 &&
-                  set_field_class isnt true
+                  Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
                     $(x).attr("required", true)
 
                   index
         return @
-
-      setFieldVal: (elem, val) ->
-        do(setters = null, type = $(elem).attr('type')) =>
-          setters =
-            file: ->
-              $(elem).siblings(".active_link").attr("href",val)
-              $(elem).siblings(".active_link").text(
-                val.split("/").pop().split("?")[0]
-              ) if val
-            checkbox: ->
-              $(elem).attr("checked", true) if val
-            radio: ->
-              $(elem).attr("checked", true) if val
-            default: ->
-              $(elem).val(val) if val
-          (setters[type] || setters['default'])(elem, val)
 
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
@@ -690,10 +652,69 @@ class Formbuilder
         return @
 
 
+      triggerEvent:->
+        do (field_view = null, 
+            fieldViews = @fieldViews
+            model = ""
+        ) =>
+          for field_view in fieldViews
+            do ( # compute values to fields
+              x = null,
+              count = 0,
+              should_incr = (attr) -> attr != 'radio',
+              val_set = false,
+              model = field_view.model
+            ) =>
+              initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
+              for x in field_view.$("input, textarea, select, canvas")
+                count = do( # set element name, value and call setup
+                  x,
+                  index = count + (if should_incr($(x)
+                          .attr('type')) then 1 else 0),
+                  name = null,
+                  val = null,
+                  value = 0,
+                  cid = ''
+                ) =>
+                  cid = model.getCid()
+                  value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                  name = cid.toString() + "_" + index.toString()
+                  if $(x).attr('type') == 'radio' and model.get('field_values')
+                    val = model.get('field_values')[value]
+                  else if model.get('field_values')
+                    val = model.get('field_values')[name]
+                  if val  
+                    val_set = true
+                    @setFieldVal($(x), val)
+                  index
+              if val_set 
+                field_view.trigger('change_state') 
+
+      setFieldVal: (elem, val) ->
+        do(setters = null, type = $(elem).attr('type')) =>
+          setters =
+            esignature: ->
+              $(elem).attr("upload_url", val) if val
+              makeRequest(val,$(elem).attr("name"))
+            file: ->
+              $(elem).siblings(".active_link").attr("href",val)
+              $(elem).siblings(".active_link").text(
+                val.split("/").pop().split("?")[0]
+              ) if val
+            checkbox: ->
+              $(elem).attr("checked", true) if val
+            radio: ->
+              $(elem).attr("checked", true) if val
+            default: ->
+              $(elem).val(val) if val
+          (setters[type] || setters['default'])(elem, val)
+
+
       addAll: ->
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
+          @triggerEvent() # triggers event by setting values to respective fields
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()

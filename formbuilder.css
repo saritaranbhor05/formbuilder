@@ -328,7 +328,7 @@
   width: 40%;
   top: 15px;
 }
-.modal-body {
+#gmapModal .modal-body {
   overflow-y: hidden;
   overflow-x: hidden;
 }

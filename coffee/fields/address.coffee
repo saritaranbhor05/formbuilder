@@ -47,14 +47,29 @@ Formbuilder.registerField 'address',
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
       check_result=false,
-      check_match_condtions=[]
-
+      check_match_condtions=[],
     ) =>
       if(condition is '!=')
-        elem_val = ( clicked_element.find("#address").val() != '' &&
+        check_result = ( clicked_element.find("#address").val() != '' &&
                    clicked_element.find("#suburb").val() != '' &&
                    clicked_element.find("#state").val() != '' &&
                    clicked_element.find("[name="+cid+"_4]") != '' )
       else
-        #do something
-      elem_val  
+        elem_val = clicked_element.find("#address").val()
+        check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result
+
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)
+    $("." + cid)
+            .find("[name = "+cid+"_2]")
+            .attr("required", required)
+    $("." + cid)
+            .find("[name = "+cid+"_3]")
+            .attr("required", required)
+    $("." + cid)
+            .find("[name = "+cid+"_4]")
+            .attr("required", required)                              
+      

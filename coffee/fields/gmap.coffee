@@ -7,7 +7,7 @@ Formbuilder.registerField 'gmap',
   edit: ""
 
   addButton: """
-    <span class="symbol"><span class="icon-map-marker"></span></span> google maps
+    <span class="symbol"><span class="icon-map-marker"></span></span> Google Maps
   """
 
   addRequiredConditions: ->

@@ -60,4 +60,8 @@ Formbuilder.registerField 'dropdown',
         true
       else
         false
-      
+  
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)    
