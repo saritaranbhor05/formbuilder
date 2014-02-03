@@ -31,7 +31,6 @@ class Formbuilder
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'
       INCLUDE_BLANK: 'field_options.include_blank_option'
-      INCLUDE_IMAGELINK: 'field_options.include_imagelink'
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
@@ -787,12 +786,13 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}) =>
+            do(source = {}, source_condition = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                unless _.has(source[0].attributes.conditions, condition)
-                  _.extend( source_condition, condition)
-                  source_condition.isSource = false
+                target_condition = _.clone(condition)
+                target_condition.isSource = false
+                unless _.has(source[0].attributes.conditions, target_condition)
+                  _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )
