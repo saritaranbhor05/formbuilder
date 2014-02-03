@@ -37,6 +37,10 @@ class Formbuilder
       STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
+      IMAGELINK: 'field_options.image_link'
+      IMAGEWIDTH: 'field_options.image_width'
+      IMAGEHEIGHT: 'field_options.image_height'
+      IMAGEALIGN: 'field_options.image_align'
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
       DEFAULT_VALUE: 'field_options.default_value'
@@ -44,9 +48,11 @@ class Formbuilder
       PREV_BUTTON_TEXT: 'field_options.prev_button_text'
       NEXT_BUTTON_TEXT: 'field_options.next_button_text'
       HTML_DATA: 'field_options.html_data'
+      IMAGE_DATA: 'field_options.image_data'
       STARTING_POINT_TEXT: 'field_options.start_point_text'
       ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
+
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -217,32 +223,32 @@ class Formbuilder
       openGMap: ->
         if $('#gmapModal').length is 0
           @field.addRequiredConditions() if @field.addRequiredConditions
-        $('#ok').val(this.model.getCid()) 
+        $('#ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
         })
 
         $("#gmapModal").on "shown", (e) ->
             initialize();
-            $( "#gmap_address" ).keypress (event) -> 
+            $( "#gmap_address" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeAddress();
 
             $( "#gmap_latlng" ).keypress (event) ->
               if(event.keyCode == 13)
                 codeLatLng();
-                
+
             gmap_button_value = $("[name = " + getCid() + "_1]").val()
             if( gmap_button_value != "")
               codeLatLng(gmap_button_value);
 
         $('#ok').on 'click', (e) ->
-            $("[name = " + getCid() + "_1]").val(getLatLong());  
+            $("[name = " + getCid() + "_1]").val(getLatLong());
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
-       
+
       isValid: ->
         return true if !@field.isValid
         @field.isValid(@$el, @model)

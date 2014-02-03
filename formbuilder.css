@@ -342,6 +342,9 @@
   background: #424e57;
   margin-bottom: 10px;
 }
+.image_link_form:hover {
+  background-color: #fff;
+}
 @media (min-width: 768px) {
   #map-canvas {
     height: 400px;
