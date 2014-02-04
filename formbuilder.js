@@ -65,7 +65,7 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
-      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio', 'scale_rating'],
       CKEDITOR_CONFIG: ' ',
       COMPANY_HIERARCHY: [],
       mappings: {
@@ -195,7 +195,7 @@
             if (!this.field.add_remove_require) {
               return true;
             }
-            return this.field.add_remove_require(this.model.getCid(), required, this.$el);
+            return this.field.add_remove_require(this.model.getCid(), required);
           }
         },
         show_hide_fields: function(check_result, set_field) {

@@ -17,7 +17,7 @@ class Formbuilder
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
-    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
     CKEDITOR_CONFIG: ' '
     COMPANY_HIERARCHY: []
 
