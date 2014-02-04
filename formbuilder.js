@@ -65,7 +65,7 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
-      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio', 'scale_rating'],
       CKEDITOR_CONFIG: ' ',
       COMPANY_HIERARCHY: [],
       mappings: {
@@ -921,13 +921,13 @@
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
-            this.triggerEvent();
             fd_views = this.fieldViews.filter(function(fd_view) {
               return fd_view.field_type === "ci-hierarchy";
             });
             if (fd_views.length > 0) {
               this.bindHierarchyEvents(fd_views);
             }
+            this.triggerEvent();
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
@@ -1151,7 +1151,7 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' id='suburb'/>\n    <label>Suburb</label>\n  </span>\n\n  <span>\n    <input type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' id='zipcode'>\n  <span>\n    <input type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Zipcode</label>\n  </span>\n\n  <span>\n    <select class='dropdown_country'><option>United States</option></select>\n    <label>Country</label>\n  </span>\n</div>",
+    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' id='suburb'/>\n    <label>Suburb</label>\n  </span>\n\n  <span>\n    <input type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span>\n    <input id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Zipcode</label>\n  </span>\n\n  <span>\n    <select class='dropdown_country'><option>United States</option></select>\n    <label>Country</label>\n  </span>\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
     clearFields: function($el, model) {
@@ -1162,8 +1162,7 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result, check_match_condtions) {
-        var elem_val;
+      return (function(check_result, check_match_condtions, elem_val) {
         if (condition === '!=') {
           check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
         } else {
@@ -1171,7 +1170,7 @@
           check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         }
         return check_result;
-      })(false, []);
+      })(false, [], '');
     },
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1449,7 +1448,7 @@
         loc_name = $loc.find('option:selected').text();
         div_name = $div.find('option:selected').text();
         if (condition === '!=') {
-          check_result = comp_id !== set_value && loc_id !== set_value && div_id !== set_value;
+          check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
         } else if (condition === '==') {
           _toLowerCase_set_val = set_value.toLowerCase();
           check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
@@ -1701,7 +1700,7 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"clear\" id=\"clr\" style=\"min-width:50px;\"/>\n</div>",
+    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute\"/>\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
