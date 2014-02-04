@@ -25,9 +25,9 @@ Formbuilder.registerField 'scale_rating',
           </div>
         <% } %>
       </div>
-      <div class="span1 scale_rating_text scale_rating">
+      <div class="span1 scale_rating_text">
         <div class="divider"></div>
-        <label class='span1'>
+        <label>
           <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>
         </label>
       </div>
