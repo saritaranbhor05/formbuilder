@@ -20,9 +20,9 @@ Formbuilder.registerField 'address',
       </span>
     </div>
 
-    <div class='input-line' id='zipcode'>
+    <div class='input-line' >
       <span>
-        <input type='text' pattern="[a-zA-Z0-9]+"/>
+        <input id='zipcode' type='text' pattern="[a-zA-Z0-9]+"/>
         <label>Zipcode</label>
       </span>
 
@@ -45,9 +45,10 @@ Formbuilder.registerField 'address',
     $el.find("#zipcode").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false,
       check_match_condtions=[],
+      elem_val = ''
     ) =>
       if(condition is '!=')
         check_result = ( clicked_element.find("#address").val() != '' &&
@@ -71,5 +72,5 @@ Formbuilder.registerField 'address',
             .attr("required", required)
     $("." + cid)
             .find("[name = "+cid+"_4]")
-            .attr("required", required)                              
+            .attr("required", required)
       

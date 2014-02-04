@@ -722,11 +722,11 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          @triggerEvent() # triggers event by setting values to respective fields
           # check for ci-hierarchy type
           fd_views = @fieldViews.filter (fd_view) ->
             fd_view.field_type is "ci-hierarchy"
           @bindHierarchyEvents(fd_views) if fd_views.length > 0
+          @triggerEvent() # triggers event by setting values to respective fields
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()

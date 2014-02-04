@@ -197,13 +197,13 @@ Formbuilder.registerField 'ci-hierarchy',
       loc_name = $loc.find('option:selected').text()
       div_name = $div.find('option:selected').text()
       if condition == '!='
-        check_result = (comp_id != set_value && loc_id != set_value &&
-                        div_id != set_value)
+        check_result = (comp_id != '' && loc_id != '' &&
+                        div_id != '')
       else if condition == '=='
         _toLowerCase_set_val = set_value.toLowerCase()
-        check_result = (comp_name.toLowerCase() == _toLowerCase_set_val ||
-                        loc_name.toLowerCase() == _toLowerCase_set_val ||
-                        div_name.toLowerCase() == _toLowerCase_set_val)
+        check_result = (comp_name.toLowerCase() is _toLowerCase_set_val ||
+                        loc_name.toLowerCase() is _toLowerCase_set_val ||
+                        div_name.toLowerCase() is _toLowerCase_set_val)
       check_result
 
   add_remove_require:(cid, required) ->
