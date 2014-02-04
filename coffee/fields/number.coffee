@@ -34,5 +34,10 @@ Formbuilder.registerField 'number',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_field}'")
-      check_result      
+      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result
+
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)         

@@ -328,7 +328,7 @@
   width: 40%;
   top: 15px;
 }
-.modal-body {
+#gmapModal .modal-body {
   overflow-y: hidden;
   overflow-x: hidden;
 }
@@ -341,6 +341,9 @@
 .condition {
   background: #424e57;
   margin-bottom: 10px;
+}
+.image_link_form:hover {
+  background-color: #fff;
 }
 @media (min-width: 768px) {
   #map-canvas {

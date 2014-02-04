@@ -36,3 +36,11 @@ Formbuilder.registerField 'price',
       secondValue = parseInt set_value
       if(eval "#{firstValue} #{condition} #{secondValue}")
         true
+
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)
+    $("." + cid)
+            .find("[name = "+cid+"_2]")
+            .attr("required", required)                

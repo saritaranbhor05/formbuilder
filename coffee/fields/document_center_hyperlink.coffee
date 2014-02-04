@@ -24,15 +24,33 @@ Formbuilder.registerField 'document_center_hyperlink',
     </button>
     <script>
       $(function() {
-        var geo_doc_hierarchy = [{companies:"Company"},{locations:"Location"},{divisions:"Division"},{documents:"Document"}] ;
+        var geo_doc_hierarchy =
+          [
+            {companies:"Company"},
+            {locations:"Location"},
+            {divisions:"Division"},
+            {documents:"Document"}
+          ];
         $("#button_<%= rf.getCid() %>").click( function() {
           $("#open_model_<%= rf.getCid() %>").modal('show');
           $("#open_model_<%= rf.getCid() %>").on('shown', function() {
             getHierarchy();
           });
           $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
-            exesting_view = $("doc_hierarchy_tree_<%= rf.getCid() %>").data('view', hierarchy_selector_view)
-            exesting_view.remove();
+            var ckecked_documents = {}, document_ids = [];
+            ckecked_documents =
+              $('#doc_hierarchy_tree_<%= rf.getCid() %>').find(
+                'input[level=document]:checked'
+              );
+            _.each(ckecked_documents, function(ckecked_document){
+              var document_id;
+              document_id = ckecked_document.id;
+              document_ids.push(document_id.slice(9,document_id.length));
+            });
+            console.log(document_ids);
+            $(this).unbind('shown');
+            $(this).unbind('hidden');
+            hierarchy_selector_view.remove();
             $("#modal_body_<%= rf.getCid() %>").append('<div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>');
           });
         });

@@ -60,3 +60,9 @@ Formbuilder.registerField 'time',
               if(parseInt(firstValue[0]) == parseInt(secondValue[0]) &&
                  parseInt(firstValue[1]) == parseInt(secondValue[1]))
                   true
+
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)
+                            

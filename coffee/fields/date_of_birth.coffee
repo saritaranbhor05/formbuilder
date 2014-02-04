@@ -86,4 +86,9 @@ Formbuilder.registerField 'date_of_birth',
       firstValue = firstValue.split('/')
       secondValue = set_value.split('/')
       is_true = field.check_date_result(condition,firstValue,secondValue)
+
+  add_remove_require:(cid,required) ->
+    $("." + cid)
+            .find("[name = "+cid+"_1]")
+            .attr("required", required)    
       
