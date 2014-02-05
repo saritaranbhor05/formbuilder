@@ -1,7 +1,14 @@
 Formbuilder.registerField 'document_center_hyperlink',
 
   view: """
-    <div id='<%= rf.getCid() %>'></div>
+    <div id='document_list_<%= rf.getCid() %>'></div>
+    <script>
+      $(function() {
+        var data = "<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>";
+        console.log("data:"+data);
+        $("#document_list_<%= rf.getCid() %>").html(data);
+      });
+    </script>
     <div id="open_model_<%= rf.getCid() %>" class="modal hide fade modal_style" tabindex="-1"
       role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
       <div class="modal-header">
@@ -20,6 +27,14 @@ Formbuilder.registerField 'document_center_hyperlink',
 
   edit: """
     <div class='fb-edit-section-header'>Add Document</div>
+    <textarea
+      id='documents_<%= rf.getCid() %>'
+      data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'
+      style="
+        display:none;
+      "
+    >
+    </textarea>
     <button id='button_<%= rf.getCid() %>' class="pull-right flip-button  icon-plus-sign">
     </button>
     <script>
@@ -30,7 +45,7 @@ Formbuilder.registerField 'document_center_hyperlink',
             {locations:"Location"},
             {divisions:"Division"},
             {documents:"Document"}
-          ];
+          ], document_ids_hash = {documents:[]};
         $("#button_<%= rf.getCid() %>").click( function() {
           $("#open_model_<%= rf.getCid() %>").modal('show');
           $("#open_model_<%= rf.getCid() %>").on('shown', function() {
@@ -45,15 +60,39 @@ Formbuilder.registerField 'document_center_hyperlink',
             _.each(ckecked_documents, function(ckecked_document){
               var document_id;
               document_id = ckecked_document.id;
-              document_ids.push(document_id.slice(9,document_id.length));
+              document_ids_hash['documents'].push(document_id.slice(9,document_id.length));
             });
-            console.log(document_ids);
+            addSelectedDocuments(document_ids_hash['documents']);
             $(this).unbind('shown');
             $(this).unbind('hidden');
             hierarchy_selector_view.remove();
             $("#modal_body_<%= rf.getCid() %>").append('<div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>');
           });
         });
+
+        function addSelectedDocuments(document_ids) {
+          var final = '';
+          _.each(document_ids, function(document_id){
+            var document_url = '/documents/'+document_id;
+            $.ajax({
+              async: "false",
+              url: document_url,
+              type: "GET",
+              data: {},
+              dataType: "json",
+              success: function (result) {
+                if(result){
+                  final = final.concat(
+                    "<a target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
+                  );
+                  $("#documents_<%= rf.getCid() %>").val(final);
+                  $("#documents_<%= rf.getCid() %>").trigger("change");
+                }
+              }
+            });
+          });
+        };
+
         function getHierarchy() {
           var that =  this,
           source_url = '/companies?include_hierarchy=true&include_doc=true&'+
@@ -71,7 +110,7 @@ Formbuilder.registerField 'document_center_hyperlink',
                   that.company_hierarchy, geo_doc_hierarchy);
                 that.hierarchy_selector_view = new Formbuilder.options.HIERARCHYSELECTORVIEW({el: $("#doc_hierarchy_tree_<%= rf.getCid() %>"),
                   generated_hierarchy: that.gen_doc_hierarchy,
-                  pre_selected_hierarchy: undefined,
+                  pre_selected_hierarchy: document_ids_hash,
                   hierarchy_mapping: geo_doc_hierarchy
                 });
               }
