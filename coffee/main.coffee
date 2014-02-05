@@ -232,6 +232,7 @@ class Formbuilder
         })
 
         $("#gmapModal").on "shown", (e) ->
+            gmap_button_value = $("[name = " + getCid() + "_1]").text()
             initialize();
             $( "#gmap_address" ).keypress (event) ->
               if(event.keyCode == 13)
@@ -241,16 +242,14 @@ class Formbuilder
               if(event.keyCode == 13)
                 codeLatLng();
 
-            gmap_button_value = $("[name = " + getCid() + "_1]").val()
-            if( gmap_button_value != "")
-              codeLatLng(gmap_button_value);
-
-        $('#ok').on 'click', (e) ->
-            $("[name = " + getCid() + "_1]").val(getLatLong());
+            if( gmap_button_value != 'Select Your Address')
+              codeAddress(gmap_button_value);
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
+          $( "#gmap_address" ).unbind('keypress')
+          $( "#gmap_latlng" ).unbind('keypress')
 
       isValid: ->
         return true if !@field.isValid
@@ -315,7 +314,7 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input, textarea, select, canvas")
+              for x in @$("input, textarea, select, canvas, a")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x)
@@ -674,7 +673,7 @@ class Formbuilder
               model = field_view.model
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
-              for x in field_view.$("input, textarea, select, canvas")
+              for x in field_view.$("input, textarea, select, canvas, a")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x)
@@ -694,6 +693,13 @@ class Formbuilder
                   if val  
                     val_set = true
                     @setFieldVal($(x), val)
+                  if !val  
+                    if(field_view.field_type == 'gmap')
+                      get_user_location = getCurrentLocation(model.getCid());
+                      if get_user_location
+                        $("[name = " + model.getCid() + "_1]").text(get_user_location)
+                      else
+                        $("[name = " + model.getCid() + "_1]").text('Select Your Address')  
                   index
               if val_set 
                 field_view.trigger('change_state') 
@@ -701,6 +707,8 @@ class Formbuilder
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
+            gmap: ->
+              $(elem).text(val)    
             esignature: ->
               $(elem).attr("upload_url", val) if val
               makeRequest(val,$(elem).attr("name"))
