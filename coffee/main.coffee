@@ -115,9 +115,9 @@ class Formbuilder
         'change': 'changeStateSource'
         'click #gmap_button': 'openGMap'
         'mouseover #can': 'onCanvas'
-        
+
       onCanvas: ->
-          reinitializeCanvas(@model.getCid())    
+          reinitializeCanvas(@model.getCid())
 
       initialize: ->
         @current_state = 'show'
@@ -133,8 +133,8 @@ class Formbuilder
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
           return true if !@field.add_remove_require
-          @field.add_remove_require(@model.getCid(), required)  
-          
+          @field.add_remove_require(@model.getCid(), required)
+
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field) =>
             if(check_result is true )
@@ -189,7 +189,7 @@ class Formbuilder
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
                 @clearFields()
-                @changeStateSource()    
+                @changeStateSource()
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
@@ -200,7 +200,7 @@ class Formbuilder
                   if check_match_condtions.indexOf(true) != -1
                     @show_hide_fields(true, set_field)
                   else
-                    @show_hide_fields('false', set_field)    
+                    @show_hide_fields('false', set_field)
 
         return @
 
@@ -281,7 +281,7 @@ class Formbuilder
           base_templ_suff = if @model.is_input() then '' else '_non_input',
           set_field_class = false
         ) =>
-          
+
           if @model.attributes.conditions
             for set_field in @model.get('conditions')
               if set_field
@@ -661,7 +661,7 @@ class Formbuilder
 
 
       triggerEvent:->
-        do (field_view = null, 
+        do (field_view = null,
             fieldViews = @fieldViews
             model = ""
         ) =>
@@ -691,12 +691,12 @@ class Formbuilder
                     val = model.get('field_values')[value]
                   else if model.get('field_values')
                     val = model.get('field_values')[name]
-                  if val  
+                  if val
                     val_set = true
                     @setFieldVal($(x), val)
                   index
-              if val_set 
-                field_view.trigger('change_state') 
+              if val_set
+                field_view.trigger('change_state')
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
@@ -818,15 +818,16 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}, target_condition = {}) =>
+            do(source = {}, source_conditions = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
                 target_condition = _.clone(condition)
                 target_condition.isSource = false
-                unless _.has(source[0].attributes.conditions, target_condition)
-                  _.extend( source_condition, target_condition)
-                  source[0].attributes.conditions.push(source_condition)
-                  source[0].save()
+                _.each(source[0].attributes.conditions, (source_condition) ->
+                  unless _.isEqual(source_condition,target_condition)
+                    _.extend( source_conditions, target_condition)
+                    source[0].attributes.conditions.push(source_conditions)
+                    source[0].save()
           )
 
       formData: ->
