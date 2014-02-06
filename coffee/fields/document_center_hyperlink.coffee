@@ -8,7 +8,8 @@ Formbuilder.registerField 'document_center_hyperlink',
         $("#document_list_<%= rf.getCid() %>").html(data);
       });
     </script>
-    <div id="open_model_<%= rf.getCid() %>" class="modal hide fade modal_style" tabindex="-1"
+    <div id="open_model_<%= rf.getCid() %>"
+      class="modal hide fade modal_style" tabindex="-1"
       role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"
@@ -16,10 +17,13 @@ Formbuilder.registerField 'document_center_hyperlink',
         <h3>Select Documents</h3>
       </div>
       <div class="modal-body" id="modal_body_<%= rf.getCid() %>">
-        <div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>
+        <div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section">
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">
+          Close
+        </button>
       </div>
     </div>
   """
@@ -35,7 +39,10 @@ Formbuilder.registerField 'document_center_hyperlink',
     >
     </textarea>
     <div class='fb-bottom-add'>
-      <a id='button_<%= rf.getCid() %>' class="js-add-document <%= Formbuilder.options.BUTTON_CLASS %>">Add Documents</a>
+      <a id='button_<%= rf.getCid() %>'
+        class="js-add-document <%= Formbuilder.options.BUTTON_CLASS %>">
+          Add Documents
+      </a>
     </div>
     <script>
       $(function() {
@@ -62,7 +69,8 @@ Formbuilder.registerField 'document_center_hyperlink',
             $(this).unbind('shown');
             $(this).unbind('hidden');
             hierarchy_selector_view.remove();
-            $("#modal_body_<%= rf.getCid() %>").append('<div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>');
+            $("#modal_body_<%= rf.getCid() %>").append('<div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section"></div>'
+            );
           });
         });
 
@@ -74,11 +82,12 @@ Formbuilder.registerField 'document_center_hyperlink',
             $('#'+el).find(
               el_type+'[level=document]'+checked
             );
-          console.log(checked_documents);
           _.each(checked_documents, function(checked_document){
             var document_id;
             document_id = checked_document.id;
-            document_ids_hash['documents'].push(document_id.slice(9,document_id.length));
+            document_ids_hash['documents'].push(
+              document_id.slice(9,document_id.length)
+            );
           });
           return document_ids_hash;
         }
@@ -121,12 +130,14 @@ Formbuilder.registerField 'document_center_hyperlink',
                 that.company_hierarchy = result;
                 that.gen_doc_hierarchy = generate_company_hierarchy_tree(
                   that.company_hierarchy, geo_doc_hierarchy);
-                that.hierarchy_selector_view = new Formbuilder.options.HIERARCHYSELECTORVIEW({el: $("#doc_hierarchy_tree_<%= rf.getCid() %>"),
-                  generated_hierarchy: that.gen_doc_hierarchy,
-                  pre_selected_hierarchy: document_ids_hash,
-                  hierarchy_mapping: geo_doc_hierarchy,
-                  select_level:"Document"
-                });
+                that.hierarchy_selector_view =
+                  new Formbuilder.options.HIERARCHYSELECTORVIEW({
+                    el: $("#doc_hierarchy_tree_<%= rf.getCid() %>"),
+                    generated_hierarchy: that.gen_doc_hierarchy,
+                    pre_selected_hierarchy: document_ids_hash,
+                    hierarchy_mapping: geo_doc_hierarchy,
+                    select_level:"Document"
+                  });
               }
             }
           });
