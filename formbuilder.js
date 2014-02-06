@@ -308,28 +308,30 @@
           });
           $("#gmapModal").on("shown", function(e) {
             var gmap_button_value;
+            gmap_button_value = $("[name = " + getCid() + "_2]").val();
             initialize();
             $("#gmap_address").keypress(function(event) {
+              set_prev_lat_lng($('#gmap_latlng').val());
               if (event.keyCode === 13) {
                 return codeAddress();
               }
             });
             $("#gmap_latlng").keypress(function(event) {
+              set_prev_address($("#gmap_address").val());
               if (event.keyCode === 13) {
                 return codeLatLng();
               }
             });
-            gmap_button_value = $("[name = " + getCid() + "_1]").val();
-            if (gmap_button_value !== "") {
+            if (gmap_button_value !== 'Select Your Address') {
+              set_prev_lat_lng(gmap_button_value);
               return codeLatLng(gmap_button_value);
             }
           });
-          $('#ok').on('click', function(e) {
-            return $("[name = " + getCid() + "_1]").val(getLatLong());
-          });
           return $('#gmapModal').on('hidden.bs.modal', function(e) {
             $('#gmapModal').off('shown').on('shown');
-            return $(this).removeData("modal");
+            $(this).removeData("modal");
+            $("#gmap_address").unbind('keypress');
+            return $("#gmap_latlng").unbind('keypress');
           });
         },
         isValid: function() {
@@ -422,7 +424,7 @@
               }));
               return (function(x, count, should_incr) {
                 var _k, _len2, _ref2, _results;
-                _ref2 = _this.$("input, textarea, select, canvas");
+                _ref2 = _this.$("input, textarea, select, canvas, a");
                 _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   x = _ref2[_k];
@@ -850,10 +852,11 @@
                 if (field_view.field_type === 'esignature') {
                   initializeCanvas(field_view.model.getCid());
                 }
-                _ref = field_view.$("input, textarea, select, canvas");
+                _ref = field_view.$("input, textarea, select, canvas, a");
                 for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                   x = _ref[_j];
                   count = (function(x, index, name, val, value, cid) {
+                    var get_user_location;
                     cid = model.getCid();
                     if (field_view.field_type === 'radio' || 'scale_rating') {
                       value = x.value;
@@ -867,6 +870,16 @@
                     if (val) {
                       val_set = true;
                       _this.setFieldVal($(x), val);
+                    }
+                    if (!val) {
+                      if (field_view.field_type === 'gmap') {
+                        get_user_location = getCurrentLocation(model.getCid());
+                        if (get_user_location) {
+                          $("[name = " + model.getCid() + "_1]").text(get_user_location);
+                        } else {
+                          $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                        }
+                      }
                     }
                     return index;
                   })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
@@ -885,6 +898,9 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
+              gmap: function() {
+                return $(elem).text(val);
+              },
               esignature: function() {
                 if (val) {
                   $(elem).attr("upload_url", val);
@@ -1761,26 +1777,24 @@
 
 (function() {
   Formbuilder.registerField('gmap', {
-    view: "<input type='button' style=\"min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    view: "<a style=\"min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;text-decoration: underline;\" id=\"gmap_button\" type='gmap'>Select Your Address</a>\n<input id='current_user_latlng_points' type='text' class='hidden' value=''>",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Google Maps",
+    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
     addRequiredConditions: function() {
       return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
         <div class="modal-dialog">\
           <div class="modal-content">\
             <div class="modal-header">\
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
-              <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
-            </div>\
-            <div class="modal-body">\
-              <div class="row-fluid panel top-panel1">\
-                <input id="latlng" class="panel1" type="text" value="40.714224,-73.961452"/>\
-                <input type="button" value="Lat,Long" onclick="codeLatLng()"/>\
+              <div class="geo-location-panel top-panel1">\
+                <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>\
+                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>\
               </div>\
-              <div class="row-fluid panel top-panel2">\
-                <input id="gmap_address" class="panel1" type="textbox" value="Sydney, NSW"/>\
+              <div class="geo-location-panel top-panel2">\
+                <input id="gmap_address" class="geo-location-panel1" type="textbox"/>\
                 <input type="button" value="Location" onclick="codeAddress()"/>\
               </div>\
+            </div>\
+            <div class="modal-body">\
               <div id="map-canvas"/>\
             </div>\
             <div class="modal-footer">\
@@ -1798,7 +1812,7 @@
           if (!required_attr) {
             return true;
           }
-          return $el.find("[name = " + model.getCid() + "_1]").val() !== '';
+          return $el.find("[name = " + model.getCid() + "_1]").text() !== '';
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
