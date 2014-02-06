@@ -302,7 +302,7 @@
               this.field.addRequiredConditions();
             }
           }
-          $('#ok').val(this.model.getCid());
+          $('#gmap_ok').val(this.model.getCid());
           $('#gmapModal').modal({
             show: true
           });
@@ -1798,7 +1798,7 @@
               <div id="map-canvas"/>\
             </div>\
             <div class="modal-footer">\
-              <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
+              <button type="button" class="btn btn-default" id="gmap_ok" data-dismiss="modal">Ok</button>\
             </div>\
           </div>\
         </div>\
