@@ -1,13 +1,14 @@
 Formbuilder.registerField 'gmap',
 
   view: """
-    <input type='button' style="min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;" id="gmap_button" value="" />
+    <a style="min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;text-decoration: underline;" id="gmap_button" type='gmap'>Select Your Address</a>
+    <input id='current_user_latlng_points' type='text' class='hidden' value=''>
   """
 
   edit: ""
 
   addButton: """
-    <span class="symbol"><span class="icon-map-marker"></span></span> Google Maps
+    <span class="symbol"><span class="icon-map-marker"></span></span> Geo-Location
   """
 
   addRequiredConditions: ->
@@ -15,22 +16,20 @@ Formbuilder.registerField 'gmap',
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <h4 class="modal-title" id="myModalLabel">Google Maps</h4>
-            </div>
-            <div class="modal-body">
-              <div class="row-fluid panel top-panel1">
-                <input id="latlng" class="panel1" type="text" value="40.714224,-73.961452"/>
-                <input type="button" value="Lat,Long" onclick="codeLatLng()"/>
+              <div class="geo-location-panel top-panel1">
+                <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>
+                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>
               </div>
-              <div class="row-fluid panel top-panel2">
-                <input id="gmap_address" class="panel1" type="textbox" value="Sydney, NSW"/>
+              <div class="geo-location-panel top-panel2">
+                <input id="gmap_address" class="geo-location-panel1" type="textbox"/>
                 <input type="button" value="Location" onclick="codeAddress()"/>
               </div>
+            </div>
+            <div class="modal-body">
               <div id="map-canvas"/>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>
+              <button type="button" class="btn btn-default" id="gmap_ok" data-dismiss="modal">Ok</button>
             </div>
           </div>
         </div>
@@ -41,5 +40,5 @@ Formbuilder.registerField 'gmap',
     do(valid = false) =>
       valid = do (required_attr = $el.find("[name = "+model.getCid()+"_1]").attr("required")) =>
         return true if !required_attr
-        return $el.find("[name = " + model.getCid() + "_1]").val() != ''
+        return $el.find("[name = " + model.getCid() + "_1]").text() != ''
       valid
