@@ -17,7 +17,7 @@ class Formbuilder
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
-    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
@@ -724,11 +724,11 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          @triggerEvent() # triggers event by setting values to respective fields
           # check for ci-hierarchy type
           fd_views = @fieldViews.filter (fd_view) ->
             fd_view.field_type is "ci-hierarchy"
           @bindHierarchyEvents(fd_views) if fd_views.length > 0
+          @triggerEvent() # triggers event by setting values to respective fields
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
