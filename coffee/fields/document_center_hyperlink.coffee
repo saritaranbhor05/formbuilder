@@ -96,7 +96,7 @@ Formbuilder.registerField 'document_center_hyperlink',
               success: function (result) {
                 if(result){
                   final = final.concat(
-                    "<a level='document' id='document_"+document_id+"' target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
+                    "<a class='active_link_doc'level='document' id='document_"+document_id+"' target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
                   );
                   $("#documents_<%= rf.getCid() %>").val(final);
                   $("#documents_<%= rf.getCid() %>").trigger("change");
@@ -124,7 +124,8 @@ Formbuilder.registerField 'document_center_hyperlink',
                 that.hierarchy_selector_view = new Formbuilder.options.HIERARCHYSELECTORVIEW({el: $("#doc_hierarchy_tree_<%= rf.getCid() %>"),
                   generated_hierarchy: that.gen_doc_hierarchy,
                   pre_selected_hierarchy: document_ids_hash,
-                  hierarchy_mapping: geo_doc_hierarchy
+                  hierarchy_mapping: geo_doc_hierarchy,
+                  select_level:"Document"
                 });
               }
             }

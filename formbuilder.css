@@ -160,6 +160,10 @@
   background-color: #fff;
   cursor: text;
 }
+.fb-field-wrapper .subtemplate-wrapper .active_link_doc {
+  position: absolute;
+  z-index: 3;
+}
 .fb-field-wrapper .subtemplate-wrapper .cover {
   position: absolute;
   top: 0;
