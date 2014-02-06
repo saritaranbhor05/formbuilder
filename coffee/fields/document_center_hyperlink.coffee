@@ -105,7 +105,7 @@ Formbuilder.registerField 'document_center_hyperlink',
               success: function (result) {
                 if(result){
                   final = final.concat(
-                    "<a class='active_link_doc'level='document' id='document_"+document_id+"' target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
+                    "<a class='active_link_doc document_link_form'level='document' id='document_"+document_id+"' target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
                   );
                   $("#documents_<%= rf.getCid() %>").val(final);
                   $("#documents_<%= rf.getCid() %>").trigger("change");
