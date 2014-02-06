@@ -5,7 +5,6 @@ Formbuilder.registerField 'document_center_hyperlink',
     <script>
       $(function() {
         var data = "<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>";
-        console.log("data:"+data);
         $("#document_list_<%= rf.getCid() %>").html(data);
       });
     </script>
@@ -26,7 +25,7 @@ Formbuilder.registerField 'document_center_hyperlink',
   """
 
   edit: """
-    <div class='fb-edit-section-header'>Add Document</div>
+    <div class='fb-edit-section-header'>Options</div>
     <textarea
       id='documents_<%= rf.getCid() %>'
       data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'
@@ -35,8 +34,9 @@ Formbuilder.registerField 'document_center_hyperlink',
       "
     >
     </textarea>
-    <button id='button_<%= rf.getCid() %>' class="pull-right flip-button  icon-plus-sign">
-    </button>
+    <div class='fb-bottom-add'>
+      <a id='button_<%= rf.getCid() %>' class="js-add-document <%= Formbuilder.options.BUTTON_CLASS %>">Add Documents</a>
+    </div>
     <script>
       $(function() {
         var geo_doc_hierarchy =
@@ -45,24 +45,20 @@ Formbuilder.registerField 'document_center_hyperlink',
             {locations:"Location"},
             {divisions:"Division"},
             {documents:"Document"}
-          ], document_ids_hash = {documents:[]};
+          ];
         $("#button_<%= rf.getCid() %>").click( function() {
           $("#open_model_<%= rf.getCid() %>").modal('show');
           $("#open_model_<%= rf.getCid() %>").on('shown', function() {
-            getHierarchy();
+            getHierarchy(getListOfPerviousDocuments(
+              'document_list_<%= rf.getCid() %>',
+              'a'
+            ));
           });
           $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
-            var ckecked_documents = {}, document_ids = [];
-            ckecked_documents =
-              $('#doc_hierarchy_tree_<%= rf.getCid() %>').find(
-                'input[level=document]:checked'
-              );
-            _.each(ckecked_documents, function(ckecked_document){
-              var document_id;
-              document_id = ckecked_document.id;
-              document_ids_hash['documents'].push(document_id.slice(9,document_id.length));
-            });
-            addSelectedDocuments(document_ids_hash['documents']);
+            addSelectedDocuments(getListOfPerviousDocuments(
+              'doc_hierarchy_tree_<%= rf.getCid() %>',
+              'input'
+            ));
             $(this).unbind('shown');
             $(this).unbind('hidden');
             hierarchy_selector_view.remove();
@@ -70,9 +66,26 @@ Formbuilder.registerField 'document_center_hyperlink',
           });
         });
 
-        function addSelectedDocuments(document_ids) {
+        function getListOfPerviousDocuments(el,el_type){
+          var checked_documents = {},
+              document_ids_hash = {documents:[]}, checked;
+          checked = el_type === 'a' ? '' : ':checked'
+          checked_documents =
+            $('#'+el).find(
+              el_type+'[level=document]'+checked
+            );
+          console.log(checked_documents);
+          _.each(checked_documents, function(checked_document){
+            var document_id;
+            document_id = checked_document.id;
+            document_ids_hash['documents'].push(document_id.slice(9,document_id.length));
+          });
+          return document_ids_hash;
+        }
+
+        function addSelectedDocuments(document_ids_hash) {
           var final = '';
-          _.each(document_ids, function(document_id){
+          _.each(document_ids_hash['documents'], function(document_id){
             var document_url = '/documents/'+document_id;
             $.ajax({
               async: "false",
@@ -83,7 +96,7 @@ Formbuilder.registerField 'document_center_hyperlink',
               success: function (result) {
                 if(result){
                   final = final.concat(
-                    "<a target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
+                    "<a level='document' id='document_"+document_id+"' target='_blank' href='"+result.document.public_document_url+"'>"+result.document.name+"</a></br>"
                   );
                   $("#documents_<%= rf.getCid() %>").val(final);
                   $("#documents_<%= rf.getCid() %>").trigger("change");
@@ -93,7 +106,7 @@ Formbuilder.registerField 'document_center_hyperlink',
           });
         };
 
-        function getHierarchy() {
+        function getHierarchy(document_ids_hash) {
           var that =  this,
           source_url = '/companies?include_hierarchy=true&include_doc=true&'+
                        'pagination=false';
@@ -122,5 +135,5 @@ Formbuilder.registerField 'document_center_hyperlink',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-list"></span></span> Document Center Hyperlink
+    <span class="symbol"><span class="icon-list"></span></span> Doc. Link
   """

@@ -225,11 +225,13 @@
 .fb-edit-field-wrapper .js-add-option,
 .fb-edit-field-wrapper .js-remove-option,
 .fb-edit-field-wrapper .js-add-condition,
-.fb-edit-field-wrapper .js-remove-condition {
+.fb-edit-field-wrapper .js-remove-condition,
+.fb-edit-field-wrapper .js-add-document {
   padding: 3px 6px;
 }
 .fb-edit-field-wrapper .js-add-option,
-.fb-edit-field-wrapper .js-add-condition {
+.fb-edit-field-wrapper .js-add-condition,
+.fb-edit-field-wrapper .js-add-document {
   background-color: #008000;
 }
 .fb-edit-field-wrapper .js-remove-option,
