@@ -2,6 +2,7 @@ Formbuilder.registerField 'gmap',
 
   view: """
     <a style="min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;text-decoration: underline;" id="gmap_button" type='gmap'>Select Your Address</a>
+    <input id='current_user_latlng_points' type='text' class='hidden' value=''>
   """
 
   edit: ""
@@ -17,7 +18,7 @@ Formbuilder.registerField 'gmap',
             <div class="modal-header">
               <div class="geo-location-panel top-panel1">
                 <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>
-                <input type="button" value="Lat,Long" onclick="codeLatLng()"/>
+                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>
               </div>
               <div class="geo-location-panel top-panel2">
                 <input id="gmap_address" class="geo-location-panel1" type="textbox"/>
