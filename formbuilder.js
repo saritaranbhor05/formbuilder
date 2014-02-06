@@ -311,16 +311,19 @@
             gmap_button_value = $("[name = " + getCid() + "_2]").val();
             initialize();
             $("#gmap_address").keypress(function(event) {
+              set_prev_lat_lng($('#gmap_latlng').val());
               if (event.keyCode === 13) {
                 return codeAddress();
               }
             });
             $("#gmap_latlng").keypress(function(event) {
+              set_prev_address($("#gmap_address").val());
               if (event.keyCode === 13) {
                 return codeLatLng();
               }
             });
             if (gmap_button_value !== 'Select Your Address') {
+              set_prev_lat_lng(gmap_button_value);
               return codeLatLng(gmap_button_value);
             }
           });

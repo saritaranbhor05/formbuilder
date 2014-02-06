@@ -235,15 +235,18 @@ class Formbuilder
             gmap_button_value = $("[name = " + getCid() + "_2]").val()
             initialize();
             $( "#gmap_address" ).keypress (event) ->
+              set_prev_lat_lng($('#gmap_latlng').val())
               if(event.keyCode == 13)
                 codeAddress();
 
             $( "#gmap_latlng" ).keypress (event) ->
+              set_prev_address($("#gmap_address").val())
               if(event.keyCode == 13)
-                codeLatLng();
+                codeLatLng()
 
             if( gmap_button_value != 'Select Your Address')
-              codeLatLng(gmap_button_value);
+              set_prev_lat_lng(gmap_button_value)
+              codeLatLng(gmap_button_value)
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
