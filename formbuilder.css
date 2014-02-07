@@ -160,6 +160,10 @@
   background-color: #fff;
   cursor: text;
 }
+.fb-field-wrapper .subtemplate-wrapper .active_link_doc {
+  position: absolute;
+  z-index: 3;
+}
 .fb-field-wrapper .subtemplate-wrapper .cover {
   position: absolute;
   top: 0;
@@ -225,11 +229,13 @@
 .fb-edit-field-wrapper .js-add-option,
 .fb-edit-field-wrapper .js-remove-option,
 .fb-edit-field-wrapper .js-add-condition,
-.fb-edit-field-wrapper .js-remove-condition {
+.fb-edit-field-wrapper .js-remove-condition,
+.fb-edit-field-wrapper .js-add-document {
   padding: 3px 6px;
 }
 .fb-edit-field-wrapper .js-add-option,
-.fb-edit-field-wrapper .js-add-condition {
+.fb-edit-field-wrapper .js-add-condition,
+.fb-edit-field-wrapper .js-add-document {
   background-color: #008000;
 }
 .fb-edit-field-wrapper .js-remove-option,

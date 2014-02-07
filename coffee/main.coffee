@@ -19,6 +19,7 @@ class Formbuilder
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
     CKEDITOR_CONFIG: ' '
+    HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
 
     mappings:
@@ -115,9 +116,9 @@ class Formbuilder
         'change': 'changeStateSource'
         'click #gmap_button': 'openGMap'
         'mouseover #can': 'onCanvas'
-        
+
       onCanvas: ->
-          reinitializeCanvas(@model.getCid())    
+          reinitializeCanvas(@model.getCid())
 
       initialize: ->
         @current_state = 'show'
@@ -133,8 +134,8 @@ class Formbuilder
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
           return true if !@field.add_remove_require
-          @field.add_remove_require(@model.getCid(), required)  
-          
+          @field.add_remove_require(@model.getCid(), required)
+
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field) =>
             if(check_result is true )
@@ -189,7 +190,7 @@ class Formbuilder
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
                 @clearFields()
-                @changeStateSource()    
+                @changeStateSource()
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
@@ -200,7 +201,7 @@ class Formbuilder
                   if check_match_condtions.indexOf(true) != -1
                     @show_hide_fields(true, set_field)
                   else
-                    @show_hide_fields('false', set_field)    
+                    @show_hide_fields('false', set_field)
 
         return @
 
@@ -283,7 +284,7 @@ class Formbuilder
           base_templ_suff = if @model.is_input() then '' else '_non_input',
           set_field_class = false
         ) =>
-          
+
           if @model.attributes.conditions
             for set_field in @model.get('conditions')
               if set_field
@@ -481,6 +482,7 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
+        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
@@ -663,7 +665,7 @@ class Formbuilder
 
 
       triggerEvent:->
-        do (field_view = null, 
+        do (field_view = null,
             fieldViews = @fieldViews
             model = ""
         ) =>
@@ -693,7 +695,7 @@ class Formbuilder
                     val = model.get('field_values')[value]
                   else if model.get('field_values')
                     val = model.get('field_values')[name]
-                  if val  
+                  if val
                     val_set = true
                     @setFieldVal($(x), val)
                   if !val  
@@ -704,8 +706,8 @@ class Formbuilder
                       else
                         $("[name = " + model.getCid() + "_1]").text('Select Your Address')  
                   index
-              if val_set 
-                field_view.trigger('change_state') 
+              if val_set
+                field_view.trigger('change_state')
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
