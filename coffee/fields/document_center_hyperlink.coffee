@@ -1,10 +1,15 @@
 Formbuilder.registerField 'document_center_hyperlink',
 
   view: """
-    <div id='document_list_<%= rf.getCid() %>'></div>
+    <div id='document_list_<%= rf.getCid() %>'
+      class='document_list_<%= rf.getCid() %>'>
+    </div>
     <script>
       $(function() {
         var data = "<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>";
+        if($(".document_list_<%= rf.getCid() %>").length > 1){
+          $($(".document_list_<%= rf.getCid() %>")[1]).html(data);
+        }
         $("#document_list_<%= rf.getCid() %>").html(data);
       });
     </script>
@@ -17,12 +22,12 @@ Formbuilder.registerField 'document_center_hyperlink',
         <h3>Select Documents</h3>
       </div>
       <div class="modal-body" id="modal_body_<%= rf.getCid() %>">
-        <div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="modal_section">
+        <div id="doc_hierarchy_tree_<%= rf.getCid() %>" class="doc_hierarchy_selection_div modal_section">
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">
-          Close
+          Done
         </button>
       </div>
     </div>
