@@ -7,6 +7,9 @@ Formbuilder.registerField 'time',
     <script>
       $(function() {
         $("#<%= rf.getCid() %>").timepicker();
+        $("#<%= rf.getCid() %>").click(function(){
+          $("#ui-timepicker-div").css( "z-index", 3 );
+        });
       });
     </script>
   """
@@ -29,11 +32,11 @@ Formbuilder.registerField 'time',
         return true if !required_attr
         return $el.find(".hasTimepicker").val() != ''
       valid
-      
+
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
-  evalCondition: (clicked_element, cid, condition, set_value) ->  
+  evalCondition: (clicked_element, cid, condition, set_value) ->
     do(firstDate = new Date(),secondDate = new Date()
           , firstValue = ""
           , secondValue = ""
@@ -65,4 +68,3 @@ Formbuilder.registerField 'time',
     $("." + cid)
             .find("[name = "+cid+"_1]")
             .attr("required", required)
-                            

@@ -7,7 +7,10 @@ Formbuilder.registerField 'date',
     <script>
       $(function() {
         $("#<%= rf.getCid() %>").datepicker({ dateFormat: "dd/mm/yy" });
-      });
+        $("#<%= rf.getCid() %>").click(function(){
+          $("#ui-datepicker-div").css( "z-index", 3 );
+        });
+      })
     </script>
   """
 
@@ -37,43 +40,43 @@ Formbuilder.registerField 'date',
     secondValue[2] = parseInt(secondValue[2])
 
     if (condition == "<")
-      if(firstValue[2] <= secondValue[2] && 
+      if(firstValue[2] <= secondValue[2] &&
          firstValue[1] <= secondValue[1] &&
          firstValue[0] < secondValue[0])
             true
       else
-        false      
+        false
     else if(condition == ">")
       if(firstValue[2] >= secondValue[2] &&
          firstValue[1] >= secondValue[1] &&
          firstValue[0] > secondValue[0])
            true
       else
-        false     
+        false
     else
       if(firstValue[2] is secondValue[2] &&
          firstValue[1] is secondValue[1] &&
          firstValue[0] is secondValue[0])
             true
       else
-        false      
+        false
 
 
 
   evalCondition: (clicked_element, cid, condition, set_value, field) ->
-    do(  
+    do(
        firstValue = '' ,
        check_result = false,
        secondValue = '',
-       is_true = false                  
+       is_true = false
     ) =>
       firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
       firstValue = firstValue.split('/')
       secondValue = set_value.split('/')
       is_true = field.check_date_result(condition,firstValue,secondValue)
-      
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)    
+            .attr("required", required)
