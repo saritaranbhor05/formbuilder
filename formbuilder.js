@@ -327,7 +327,7 @@
                 return codeLatLng();
               }
             });
-            if (gmap_button_value !== 'Select Your Address') {
+            if (gmap_button_value !== '') {
               set_prev_lat_lng(gmap_button_value);
               return codeLatLng(gmap_button_value);
             }
@@ -1867,7 +1867,7 @@
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
     addRequiredConditions: function() {
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/> </div> <div class="geo-location-panel top-panel2"> <input id="gmap_address" class="geo-location-panel1" type="textbox"/> <input type="button" value="Location" onclick="codeAddress()"/> </div> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default" id="gmap_ok" data-dismiss="modal">Ok</button> </div> </div> </div> </div>').appendTo('body');
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/> </div> <div class="geo-location-panel top-panel2"> <input id="gmap_address" class="geo-location-panel1" type="textbox"/> <input type="button" value="Location" onclick="codeAddress()"/> </div> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button> </div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
       return (function(_this) {
