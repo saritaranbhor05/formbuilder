@@ -29,7 +29,7 @@ Formbuilder.registerField 'gmap',
               <div id="map-canvas"/>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="gmap_ok" data-dismiss="modal">Ok</button>
+              <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button>
             </div>
           </div>
         </div>
