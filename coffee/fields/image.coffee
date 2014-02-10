@@ -9,7 +9,7 @@ Formbuilder.registerField 'image',
     <% var image_link = "#" %>
     <% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != "undefined"){ %>
       <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != ""){ %>
-        <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)+'/?image_link=image_link' %>
+        <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>
       <% } %>
     <% } %>
       <a
