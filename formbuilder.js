@@ -622,7 +622,9 @@
             this.initAutosave();
           }
           Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
-          return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
+          if (!_.isUndefined(this.options.hierarchy_selector_view)) {
+            return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
+          }
         },
         getCurrentView: function() {
           var current_view_state, fieldView;
@@ -1497,7 +1499,7 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-datepicker-div\").css( \"z-index\", 3 );\n    });\n  })\n</script>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date",
     isValid: function($el, model) {
@@ -1568,16 +1570,19 @@
       return (function(today, restricted_date) {
         if (model.get(Formbuilder.options.mappings.MINAGE)) {
           restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-          return el.datepicker({
+          el.datepicker({
             dateFormat: "dd/mm/yy",
             maxDate: restricted_date
           });
         } else {
-          return el.datepicker({
+          el.datepicker({
             dateFormat: "dd/mm/yy",
             maxDate: today
           });
         }
+        return $(el).click(function() {
+          return $("#ui-datepicker-div").css("z-index", 3);
+        });
       })(new Date, new Date);
     },
     isValid: function($el, model) {
@@ -1640,8 +1645,8 @@
 
 (function() {
   Formbuilder.registerField('document_center_hyperlink', {
-    view: "<div id='document_list_<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\";\n    $(\"#document_list_<%= rf.getCid() %>\").html(data);\n  });\n</script>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\">\n    </div>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Close\n    </button>\n  </div>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Options</div>\n<textarea\n  id='documents_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n  style=\"\n    display:none;\n  \"\n>\n</textarea>\n<div class='fb-bottom-add'>\n  <a id='button_<%= rf.getCid() %>'\n    class=\"js-add-document <%= Formbuilder.options.BUTTON_CLASS %>\">\n      Add Documents\n  </a>\n</div>\n<script>\n  $(function() {\n    var geo_doc_hierarchy =\n      [\n        {companies:\"Company\"},\n        {locations:\"Location\"},\n        {divisions:\"Division\"},\n        {documents:\"Document\"}\n      ];\n    $(\"#button_<%= rf.getCid() %>\").click( function() {\n      $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n      $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n        getHierarchy(getListOfPerviousDocuments(\n          'document_list_<%= rf.getCid() %>',\n          'a'\n        ));\n      });\n      $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n        addSelectedDocuments(getListOfPerviousDocuments(\n          'doc_hierarchy_tree_<%= rf.getCid() %>',\n          'input'\n        ));\n        $(this).unbind('shown');\n        $(this).unbind('hidden');\n        hierarchy_selector_view.remove();\n        $(\"#modal_body_<%= rf.getCid() %>\").append('<div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\"></div>'\n        );\n      });\n    });\n\n    function getListOfPerviousDocuments(el,el_type){\n      var checked_documents = {},\n          document_ids_hash = {documents:[]}, checked;\n      checked = el_type === 'a' ? '' : ':checked'\n      checked_documents =\n        $('#'+el).find(\n          el_type+'[level=document]'+checked\n        );\n      _.each(checked_documents, function(checked_document){\n        var document_id;\n        document_id = checked_document.id;\n        document_ids_hash['documents'].push(\n          document_id.slice(9,document_id.length)\n        );\n      });\n      return document_ids_hash;\n    }\n\n    function addSelectedDocuments(document_ids_hash) {\n      var final = '';\n      _.each(document_ids_hash['documents'], function(document_id){\n        var document_url = '/documents/'+document_id;\n        $.ajax({\n          async: \"false\",\n          url: document_url,\n          type: \"GET\",\n          data: {},\n          dataType: \"json\",\n          success: function (result) {\n            if(result){\n              final = final.concat(\n                \"<a class='active_link_doc document_link_form'level='document' id='document_\"+document_id+\"' target='_blank' href='\"+result.document.public_document_url+\"'>\"+result.document.name+\"</a></br>\"\n              );\n              $(\"#documents_<%= rf.getCid() %>\").val(final);\n              $(\"#documents_<%= rf.getCid() %>\").trigger(\"change\");\n            }\n          }\n        });\n      });\n    };\n\n    function getHierarchy(document_ids_hash) {\n      var that =  this,\n      source_url = '/companies?include_hierarchy=true&include_doc=true&'+\n                   'pagination=false';\n      $.ajax({\n        async: \"false\",\n        url: source_url,\n        type: \"GET\",\n        data: {},\n        dataType: \"json\",\n        success: function (result) {\n          if(result){\n            that.company_hierarchy = result;\n            that.gen_doc_hierarchy = generate_company_hierarchy_tree(\n              that.company_hierarchy, geo_doc_hierarchy);\n            that.hierarchy_selector_view =\n              new Formbuilder.options.HIERARCHYSELECTORVIEW({\n                el: $(\"#doc_hierarchy_tree_<%= rf.getCid() %>\"),\n                generated_hierarchy: that.gen_doc_hierarchy,\n                pre_selected_hierarchy: document_ids_hash,\n                hierarchy_mapping: geo_doc_hierarchy,\n                select_level:\"Document\"\n              });\n          }\n        }\n      });\n    };\n  });\n</script>",
+    view: "<div id='document_list_<%= rf.getCid() %>'\n  class='document_list_<%= rf.getCid() %>'>\n</div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\";\n    if($(\".document_list_<%= rf.getCid() %>\").length > 1){\n      $($(\".document_list_<%= rf.getCid() %>\")[1]).html(data);\n    }\n    $(\"#document_list_<%= rf.getCid() %>\").html(data);\n  });\n</script>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"doc_hierarchy_selection_div modal_section\">\n    </div>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>",
+    edit: "<div class='fb-edit-section-header'>Options</div>\n<textarea\n  id='documents_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n  style=\"\n    display:none;\n  \"\n>\n</textarea>\n<div class='fb-bottom-add'>\n  <a id='button_<%= rf.getCid() %>'\n    class=\"js-add-document <%= Formbuilder.options.BUTTON_CLASS %>\">\n      Add Documents\n  </a>\n</div>\n<script>\n  $(function() {\n    var geo_doc_hierarchy =\n      [\n        {companies:\"Company\"},\n        {locations:\"Location\"},\n        {divisions:\"Division\"},\n        {documents:\"Document\"}\n      ];\n    $(\"#button_<%= rf.getCid() %>\").click( function() {\n      $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n      $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n        getHierarchy(getListOfPerviousDocuments(\n          'document_list_<%= rf.getCid() %>',\n          'a'\n        ));\n      });\n      $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n        addSelectedDocuments(getListOfPerviousDocuments(\n          'doc_hierarchy_tree_<%= rf.getCid() %>',\n          'input'\n        ));\n        $(this).unbind('shown');\n        $(this).unbind('hidden');\n        hierarchy_selector_view.remove();\n        $(\"#modal_body_<%= rf.getCid() %>\").append('<div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\"></div>'\n        );\n      });\n    });\n\n    function getListOfPerviousDocuments(el,el_type){\n      var checked_documents = {},\n          document_ids_hash = {documents:[]}, checked;\n      checked = el_type === 'a' ? '' : ':checked'\n      checked_documents =\n        $('#'+el).find(\n          el_type+'[level=document]'+checked\n        );\n      _.each(checked_documents, function(checked_document){\n        var document_id;\n        document_id = checked_document.id;\n        document_ids_hash['documents'].push(\n          document_id.slice(9,document_id.length)\n        );\n      });\n      return document_ids_hash;\n    }\n\n    function addSelectedDocuments(document_ids_hash) {\n      var final = '';\n      _.each(document_ids_hash['documents'], function(document_id){\n        var document_url = '/documents/'+document_id;\n        $.ajax({\n          async: \"false\",\n          url: document_url,\n          type: \"GET\",\n          data: {},\n          dataType: \"json\",\n          success: function (result) {\n            if(result){\n              final = final.concat(\n                \"<a class='active_link_doc document_link_form' level='document' id='document_\"+document_id+\"' target='_blank' href='\"+result.document.public_document_url+\"'>\"+result.document.name+\"</a></br>\"\n              );\n              $(\"#documents_<%= rf.getCid() %>\").val(final);\n              $(\"#documents_<%= rf.getCid() %>\").trigger(\"change\");\n            }\n          }\n        });\n      });\n    };\n\n    function getHierarchy(document_ids_hash) {\n      var that =  this,\n      source_url = '/companies?include_hierarchy=true&include_doc=true&'+\n                   'pagination=false';\n      $.ajax({\n        async: \"false\",\n        url: source_url,\n        type: \"GET\",\n        data: {},\n        dataType: \"json\",\n        success: function (result) {\n          if(result){\n            that.company_hierarchy = result;\n            that.gen_doc_hierarchy = generate_company_hierarchy_tree(\n              that.company_hierarchy, geo_doc_hierarchy);\n            that.hierarchy_selector_view =\n              new Formbuilder.options.HIERARCHYSELECTORVIEW({\n                el: $(\"#doc_hierarchy_tree_<%= rf.getCid() %>\"),\n                generated_hierarchy: that.gen_doc_hierarchy,\n                pre_selected_hierarchy: document_ids_hash,\n                hierarchy_mapping: geo_doc_hierarchy,\n                select_level:\"Document\"\n              });\n          }\n        }\n      });\n    };\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-list\"></span></span> Doc. Link"
   });
 
@@ -1848,7 +1853,7 @@
 
 (function() {
   Formbuilder.registerField('image', {
-    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link = \"#\" %>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)+'/?image_link=image_link' %>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form document_link_form'\n    target='_blank'\n    href=\"<%=image_link%>\"\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
+    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link = \"#\" %>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form document_link_form'\n    target='_blank'\n    href=\"<%=image_link%>\"\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
     edit: "<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 204800){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-picture\"></span></span> Image"
   });
@@ -2071,9 +2076,9 @@
 
 (function() {
   Formbuilder.registerField('text', {
-    view: "<input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
+    view: "<input\n  type='text'\n  class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'\n/>",
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
-    addButton: "<span class='symbol'><span class='icon-font'></span></span> Text",
+    addButton: "<span class='symbol'><span class='icon-font'></span></span> Text Box",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
       return attrs;
@@ -2099,12 +2104,11 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result) {
-        var elem_val;
+      return (function(check_result, elem_val) {
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
         check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
-      })(false);
+      })(false, '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2115,7 +2119,7 @@
 
 (function() {
   Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-timepicker-div\").css( \"z-index\", 3 );\n    });\n  });\n</script>",
     edit: "<%= Formbuilder.templates['edit/step']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
     setup: function(el, model, index) {

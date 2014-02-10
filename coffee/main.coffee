@@ -482,7 +482,7 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
-        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view
+        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view unless _.isUndefined(@options.hierarchy_selector_view)
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
@@ -698,13 +698,13 @@ class Formbuilder
                   if val
                     val_set = true
                     @setFieldVal($(x), val)
-                  if !val  
+                  if !val
                     if(field_view.field_type == 'gmap')
                       get_user_location = getCurrentLocation(model.getCid());
                       if get_user_location
                         $("[name = " + model.getCid() + "_1]").text(get_user_location)
                       else
-                        $("[name = " + model.getCid() + "_1]").text('Select Your Address')  
+                        $("[name = " + model.getCid() + "_1]").text('Select Your Address')
                   index
               if val_set
                 field_view.trigger('change_state')
@@ -713,7 +713,7 @@ class Formbuilder
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
             gmap: ->
-              $(elem).text(val)    
+              $(elem).text(val)
             esignature: ->
               $(elem).attr("upload_url", val) if val
               makeRequest(val,$(elem).attr("name"))
