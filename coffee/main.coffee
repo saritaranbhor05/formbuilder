@@ -245,7 +245,7 @@ class Formbuilder
               if(event.keyCode == 13)
                 codeLatLng()
 
-            if( gmap_button_value != 'Select Your Address')
+            if( gmap_button_value != '')
               set_prev_lat_lng(gmap_button_value)
               codeLatLng(gmap_button_value)
 
