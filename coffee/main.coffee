@@ -834,6 +834,7 @@ class Formbuilder
             do(source = {}, source_condition = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
+                condition.target = model.getCid() if condition.target is ''
                 target_condition = _.clone(condition)
                 target_condition.isSource = false
                 unless _.has(source[0].attributes.conditions, target_condition)

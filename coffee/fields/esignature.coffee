@@ -17,3 +17,10 @@ Formbuilder.registerField 'esignature',
     $("." + cid)
             .find("[name = "+cid+"_1]")
             .attr("required", required)
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
+        return true if !required_attr
+        return true if $el.find("[name = "+model.getCid()+"_1]")[0].toDataURL() != ''
+      valid          
