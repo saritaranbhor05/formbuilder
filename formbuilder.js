@@ -893,7 +893,7 @@
                       if (!val) {
                         if (field_view.field_type === 'gmap') {
                           get_user_location = getCurrentLocation(model.getCid());
-                          if (get_user_location) {
+                          if (get_user_location !== 'false') {
                             $("[name = " + model.getCid() + "_1]").text(get_user_location);
                           } else {
                             $("[name = " + model.getCid() + "_1]").text('Select Your Address');
