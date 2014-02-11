@@ -100,7 +100,8 @@
         IMAGE_DATA: 'field_options.image_data',
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
-        MATCH_CONDITIONS: 'field_options.match_conditions'
+        MATCH_CONDITIONS: 'field_options.match_conditions',
+        ALLOWED_FILE_TYPES: 'field_options.allow_file_type'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -1744,8 +1745,8 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input type='file' />",
-    edit: "",
+    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n/>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= <%= rf.get(Formbuilder.options.mappings.MAX) %>){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
+    edit: "\n<div class='fb-edit-section-header'>Options</div>\n\nAllowed File Types\n<input\n  type=\"text\"\n  data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  style=\"width: 40px\"\n/>\n\n&nbsp;&nbsp;\n\nMax File Size\n<input\n  type=\"number\"\n  data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n  style=\"width: 40px\"\n/>\n",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
   });
 
