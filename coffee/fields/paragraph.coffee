@@ -6,7 +6,7 @@ Formbuilder.registerField 'paragraph',
 
   edit: """
     <%= Formbuilder.templates['edit/size']() %>
-    <%= Formbuilder.templates['edit/min_max_length']() %>
+    <%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>
   """
 
   addButton: """
@@ -20,7 +20,7 @@ Formbuilder.registerField 'paragraph',
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
     ) =>
       elem_val = clicked_element
@@ -31,4 +31,4 @@ Formbuilder.registerField 'paragraph',
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)    
+            .attr("required", required)

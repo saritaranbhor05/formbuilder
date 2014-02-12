@@ -1919,7 +1919,7 @@
 (function() {
   Formbuilder.registerField('paragraph', {
     view: "<textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
@@ -2428,17 +2428,15 @@ __p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
 ((__t = (rf.getCid())) == null ? '' : __t) +
-'" type="number" data-rv-min="model.' +
-((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" data-rv-input="model.' +
+'" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'").change(function(){\n      if ($(this).val() < 0){$(this).val(0)}\n    });\n    $("#max_' +
+'").change(function(){\n      if (parseInt($(this).val()) < 0){$(this).val(0)}\n    });\n    $("#max_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'").change(function(){\n      if ($(this).val() < $(\'#min_' +
+'").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'\').val()){$(this).val(\'\')}\n    });\n  });\n</script>';
+'\').val()) || parseInt($(this).val()) < 0){\n        $(this).val(\'\')\n      }\n    });\n  });\n</script>';
 
 }
 return __p
