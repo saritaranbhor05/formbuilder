@@ -209,13 +209,23 @@ this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input type="number" min="0" data-rv-input="model.' +
+__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input id="min_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" min="0" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input type="number" data-rv-min="model.' +
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" data-rv-min="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
 '" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>';
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      if ($(this).val() < 0){$(this).val(0)}\n    });\n    $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      if ($(this).val() < $(\'#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\').val()){$(this).val(\'\')}\n    });\n  });\n</script>';
 
 }
 return __p
