@@ -207,7 +207,9 @@ __p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'").change(function(){\n      if (parseInt($(this).val()) < 0){$(this).val(0)}\n    });\n    $("#max_' +
+'").change(function(){\n      $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").attr(\'min\',$(this).val())\n      if (parseInt($(this).val()) < 0){\n        $(this).val(0)\n      }\n    });\n    $("#max_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
