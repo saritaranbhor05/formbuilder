@@ -183,7 +183,9 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeOther !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;

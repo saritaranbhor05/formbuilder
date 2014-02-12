@@ -100,7 +100,12 @@
         IMAGE_DATA: 'field_options.image_data',
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
-        MATCH_CONDITIONS: 'field_options.match_conditions'
+        MATCH_CONDITIONS: 'field_options.match_conditions',
+        FULLNAME_PREFIX_TEXT: 'field_options.prefix_text',
+        FULLNAME_FIRST_TEXT: 'field_options.first_name_text',
+        FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text',
+        FULLNAME_LAST_TEXT: 'field_options.last_name_text',
+        FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -1775,8 +1780,8 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n  </span>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<div class='fb-common-wrapper'>\n  <div class='fb-label-description span11'>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Prefix </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n          \"model.<%= Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT %>\"\n           value='Prefix' placeholder=\"Prefix\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">First </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n          \"model.<%= Formbuilder.options.mappings.FULLNAME_FIRST_TEXT %>\"\n          value='First' placeholder=\"First\"/>\n      </div>\n    </div>\n    <div class=\"control-group\" id='middle_name_div_<%= rf.getCid() %>'\n      style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' %>' >\n      <label class=\"control-label\">Middle </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n         data-rv-input=\n         \"model.<%= Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT %>\"\n         value='Middle' placeholder=\"Middle\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Last </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n        data-rv-input=\"model.<%= Formbuilder.options.mappings.FULLNAME_LAST_TEXT %>\"\n        value='Last' placeholder=\"Last\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Suffix </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n        data-rv-input=\n         \"model.<%= Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT %>\"\n        value='Suffix' placeholder=\"Suffix\"/>\n      </div>\n    </div>\n  </div>\n</div>\n<script >\n  $(function(){\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e){\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -2408,7 +2413,9 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeOther !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;
