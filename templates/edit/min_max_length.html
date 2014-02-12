@@ -7,7 +7,7 @@
   &nbsp;&nbsp;
 
   Max
-  <input id="max_<%=rf.getCid()%>" type="number" data-rv-min="model.<%= Formbuilder.options.mappings.MINLENGTH %>" data-rv-input="model.<%= Formbuilder.options.mappings.MAXLENGTH %>" style="width: 30px" />
+  <input id="max_<%=rf.getCid()%>" type="number" data-rv-input="model.<%= Formbuilder.options.mappings.MAXLENGTH %>" style="width: 30px" />
 
   &nbsp;&nbsp;
 
@@ -17,10 +17,15 @@
 <script>
   $(function() {
     $("#min_<%= rf.getCid() %>").change(function(){
-      if ($(this).val() < 0){$(this).val(0)}
+      $("#max_<%= rf.getCid() %>").attr('min',$(this).val())
+      if (parseInt($(this).val()) < 0){
+        $(this).val(0)
+      }
     });
     $("#max_<%= rf.getCid() %>").change(function(){
-      if ($(this).val() < $('#min_<%= rf.getCid() %>').val()){$(this).val('')}
+      if (parseInt($(this).val()) < parseInt($('#min_<%= rf.getCid() %>').val()) || parseInt($(this).val()) < 0){
+        $(this).val('')
+      }
     });
   });
 </script>

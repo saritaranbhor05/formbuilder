@@ -1956,11 +1956,21 @@
 (function() {
   Formbuilder.registerField('paragraph', {
     view: "<textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
       return attrs;
+    },
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+        (function(min_length) {
+          return el.attr("pattern", "[a-zA-Z0-9_\\s]{" + min_length + ",}");
+        })(model.get(Formbuilder.options.mappings.MINLENGTH));
+      }
+      if (model.get(Formbuilder.options.mappings.MAXLENGTH)) {
+        return el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
+      }
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
@@ -1977,6 +1987,21 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, textarea_char_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          textarea_char_cnt = $el.find('textarea').val().length;
+          if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+            return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+          }
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
     }
   });
 
@@ -2488,17 +2513,17 @@ __p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
 ((__t = (rf.getCid())) == null ? '' : __t) +
-'" type="number" data-rv-min="model.' +
-((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" data-rv-input="model.' +
+'" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'").change(function(){\n      if ($(this).val() < 0){$(this).val(0)}\n    });\n    $("#max_' +
+'").change(function(){\n      $("#max_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'").change(function(){\n      if ($(this).val() < $(\'#min_' +
+'").attr(\'min\',$(this).val())\n      if (parseInt($(this).val()) < 0){\n        $(this).val(0)\n      }\n    });\n    $("#max_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
-'\').val()){$(this).val(\'\')}\n    });\n  });\n</script>';
+'").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\').val()) || parseInt($(this).val()) < 0){\n        $(this).val(\'\')\n      }\n    });\n  });\n</script>';
 
 }
 return __p
