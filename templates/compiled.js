@@ -136,7 +136,7 @@ this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input=\n      "model.' +
+__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_FIRST_TEXT )) == null ? '' : __t) +
 '"\n      value=\'First\' placeholder="First"/>\n  </div>\n</div>';
 
@@ -212,7 +212,7 @@ this["Formbuilder"]["templates"]["edit/last_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n    data-rv-input="model.' +
+__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
 
@@ -247,7 +247,7 @@ __p += '<div class="control-group" id=\'middle_name_div_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\'\n  style= \'' +
 ((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
-'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n     data-rv-input=\n     "model.' +
+'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n     data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT )) == null ? '' : __t) +
 '"\n     value=\'Middle\' placeholder="Middle"/>\n  </div>\n</div>';
 
@@ -332,7 +332,7 @@ this["Formbuilder"]["templates"]["edit/prefix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input=\n      "model.' +
+__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT )) == null ? '' : __t) +
 '"\n       value=\'Prefix\' placeholder="Prefix"/>\n  </div>\n</div>';
 
@@ -390,7 +390,7 @@ this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n    data-rv-input=\n     "model.' +
+__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
 
