@@ -1781,7 +1781,7 @@
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
     view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<div class='fb-common-wrapper'>\n  <div class='fb-label-description span11'>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Prefix </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n          \"model.<%= Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT %>\"\n           value='Prefix' placeholder=\"Prefix\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">First </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n          \"model.<%= Formbuilder.options.mappings.FULLNAME_FIRST_TEXT %>\"\n          value='First' placeholder=\"First\"/>\n      </div>\n    </div>\n    <div class=\"control-group\" id='middle_name_div_<%= rf.getCid() %>'\n      style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' %>' >\n      <label class=\"control-label\">Middle </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n         data-rv-input=\n         \"model.<%= Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT %>\"\n         value='Middle' placeholder=\"Middle\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Last </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n        data-rv-input=\"model.<%= Formbuilder.options.mappings.FULLNAME_LAST_TEXT %>\"\n        value='Last' placeholder=\"Last\"/>\n      </div>\n    </div>\n    <div class=\"control-group\">\n      <label class=\"control-label\">Suffix </label>\n      <div class=\"controls\">\n        <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\"\n        data-rv-input=\n         \"model.<%= Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT %>\"\n        value='Suffix' placeholder=\"Suffix\"/>\n      </div>\n    </div>\n  </div>\n</div>\n<script >\n  $(function(){\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e){\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -2362,6 +2362,38 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_FIRST_TEXT )) == null ? '' : __t) +
+'"\n      value=\'First\' placeholder="First"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/full_name_label_values"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description span11\'>\n    ' +
+((__t = ( Formbuilder.templates['edit/prefix_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/first_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/middle_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
+'\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/image_options"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2406,6 +2438,18 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/last_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n    data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
@@ -2420,6 +2464,22 @@ __p += '\n  <label>\n    <input id=\'include_middle_name_' +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;
 __p += '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/middle_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'middle_name_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n     data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT )) == null ? '' : __t) +
+'"\n     value=\'Middle\' placeholder="Middle"/>\n  </div>\n</div>';
 
 }
 return __p
@@ -2498,6 +2558,18 @@ __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/prefix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT )) == null ? '' : __t) +
+'"\n       value=\'Prefix\' placeholder="Prefix"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/scale_rating_options"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2539,6 +2611,18 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="[a-zA-Z0-9_\\\\s]+"\n    data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
 
 }
 return __p
