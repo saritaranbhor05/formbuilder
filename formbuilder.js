@@ -83,6 +83,7 @@
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
         MAX: 'field_options.max',
+        DEFAULT_NUM_VALUE: 'field_options.default_num_value',
         STEP: 'field_options.step',
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
@@ -1781,7 +1782,7 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute\"/>\n</div>",
+    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:200px\"/>\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
@@ -1911,8 +1912,8 @@
 
 (function() {
   Formbuilder.registerField('number', {
-    view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
-    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
+    view: "<input type='number' step='any'/>\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
+    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
     setup: function(el, model, index) {
       if (model.get(Formbuilder.options.mappings.MIN)) {
@@ -1922,7 +1923,10 @@
         el.attr("max", model.get(Formbuilder.options.mappings.MAX));
       }
       if (model.get(Formbuilder.options.mappings.STEP)) {
-        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+        el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+      }
+      if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
+        return el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
       }
     },
     clearFields: function($el, model) {
@@ -2383,6 +2387,18 @@ __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/default_number_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_NUM_VALUE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/default_value_hint"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2482,7 +2498,7 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n
 ((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
 

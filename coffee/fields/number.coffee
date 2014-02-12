@@ -1,7 +1,7 @@
 Formbuilder.registerField 'number',
 
   view: """
-    <input type='number' />
+    <input type='number' step='any'/>
     <% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>
       <%= units %>
     <% } %>
@@ -10,6 +10,7 @@ Formbuilder.registerField 'number',
   edit: """
     <%= Formbuilder.templates['edit/min_max_step']() %>
     <%= Formbuilder.templates['edit/units']() %>
+    <%= Formbuilder.templates['edit/default_number_value']() %>
     <%= Formbuilder.templates['edit/integer_only']() %>
   """
 
@@ -24,6 +25,8 @@ Formbuilder.registerField 'number',
       el.attr("max", model.get(Formbuilder.options.mappings.MAX))
     if model.get(Formbuilder.options.mappings.STEP)
       el.attr("step", model.get(Formbuilder.options.mappings.STEP))
+    if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
+      el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")

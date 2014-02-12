@@ -36,6 +36,7 @@ class Formbuilder
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
+      DEFAULT_NUM_VALUE: 'field_options.default_num_value'
       STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
