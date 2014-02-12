@@ -1989,19 +1989,20 @@
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, textarea_char_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          textarea_char_cnt = $el.find('textarea').val().length;
-          if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
-            return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
-          }
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, textarea_char_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            textarea_char_cnt = $el.find('textarea').val().length;
+            if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+              return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+            }
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
