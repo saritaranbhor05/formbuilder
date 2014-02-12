@@ -705,7 +705,7 @@ class Formbuilder
                   if !val
                     if(field_view.field_type == 'gmap')
                       get_user_location = getCurrentLocation(model.getCid());
-                      if get_user_location
+                      if get_user_location != 'false'
                         $("[name = " + model.getCid() + "_1]").text(get_user_location)
                       else
                         $("[name = " + model.getCid() + "_1]").text('Select Your Address')
@@ -838,6 +838,7 @@ class Formbuilder
             do(source = {}, source_condition = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
+                condition.target = model.getCid() if condition.target is ''
                 target_condition = _.clone(condition)
                 target_condition.isSource = false
                 unless _.has(source[0].attributes.conditions, target_condition)
