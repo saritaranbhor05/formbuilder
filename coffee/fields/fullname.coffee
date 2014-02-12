@@ -37,56 +37,10 @@ Formbuilder.registerField 'fullname',
 
   edit: """
     <%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>
-    <div class='fb-common-wrapper'>
-      <div class='fb-label-description span11'>
-        <div class="control-group">
-          <label class="control-label">Prefix </label>
-          <div class="controls">
-            <input type="text" pattern="[a-zA-Z0-9_\\s]+" data-rv-input=
-              "model.<%= Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT %>"
-               value='Prefix' placeholder="Prefix"/>
-          </div>
-        </div>
-        <div class="control-group">
-          <label class="control-label">First </label>
-          <div class="controls">
-            <input type="text" pattern="[a-zA-Z0-9_\\s]+" data-rv-input=
-              "model.<%= Formbuilder.options.mappings.FULLNAME_FIRST_TEXT %>"
-              value='First' placeholder="First"/>
-          </div>
-        </div>
-        <div class="control-group" id='middle_name_div_<%= rf.getCid() %>'
-          style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' %>' >
-          <label class="control-label">Middle </label>
-          <div class="controls">
-            <input type="text" pattern="[a-zA-Z0-9_\\s]+"
-             data-rv-input=
-             "model.<%= Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT %>"
-             value='Middle' placeholder="Middle"/>
-          </div>
-        </div>
-        <div class="control-group">
-          <label class="control-label">Last </label>
-          <div class="controls">
-            <input type="text" pattern="[a-zA-Z0-9_\\s]+"
-            data-rv-input="model.<%= Formbuilder.options.mappings.FULLNAME_LAST_TEXT %>"
-            value='Last' placeholder="Last"/>
-          </div>
-        </div>
-        <div class="control-group">
-          <label class="control-label">Suffix </label>
-          <div class="controls">
-            <input type="text" pattern="[a-zA-Z0-9_\\s]+"
-            data-rv-input=
-             "model.<%= Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT %>"
-            value='Suffix' placeholder="Suffix"/>
-          </div>
-        </div>
-      </div>
-    </div>
+    <%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>
     <script >
-      $(function(){
-        $('#include_middle_name_<%= rf.getCid() %>').click(function(e){
+      $(function() {
+        $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {
           var $target = $(e.currentTarget),
           $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),
           $middle_name_ip = $parent_middle_div.find('input'),
