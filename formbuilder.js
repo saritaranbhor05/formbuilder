@@ -1916,28 +1916,14 @@
 }).call(this);
 
 (function() {
+  var rounded_value;
+
   Formbuilder.registerField('number', {
     view: "<input type='number'/>\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
-    setup: function(el, model, index) {
-      if (model.get(Formbuilder.options.mappings.MIN)) {
-        el.attr("min", model.get(Formbuilder.options.mappings.MIN));
-      }
-      if (model.get(Formbuilder.options.mappings.MAX)) {
-        el.attr("max", model.get(Formbuilder.options.mappings.MAX));
-      }
-      if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY)) {
-        if (model.get(Formbuilder.options.mappings.STEP)) {
-          el.attr("step", model.get(Formbuilder.options.mappings.STEP));
-        } else {
-          el.attr("step", 'any');
-        }
-      }
-      if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
-        return el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
-      }
-    },
+    setup: function(el, model, index) {}
+  }, model.get(Formbuilder.options.mappings.MIN) ? el.attr("min", model.get(Formbuilder.options.mappings.MIN)) : void 0, model.get(Formbuilder.options.mappings.MAX) ? el.attr("max", model.get(Formbuilder.options.mappings.MAX)) : void 0, !model.get(Formbuilder.options.mappings.INTEGER_ONLY) && model.get(Formbuilder.options.mappings.STEP) ? model.get(Formbuilder.options.mappings.STEP) ? el.attr("step", model.get(Formbuilder.options.mappings.STEP)) : el.attr("step", 'any') : !model.get(Formbuilder.options.mappings.INTEGER_ONLY) ? el.attr("step", 'any') : model.get(Formbuilder.options.mappings.STEP) ? (rounded_value = Math.round(model.get(Formbuilder.options.mappings.STEP)), el.attr("step", rounded_value)) : void 0, model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE) ? el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) : void 0, {
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
