@@ -1,0 +1,10 @@
+<div class="control-group" id='middle_name_div_<%= rf.getCid() %>'
+  style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' %>' >
+  <label class="control-label">Middle </label>
+  <div class="controls">
+    <input type="text" pattern="^[\w]+[\w\s ]*"
+     data-rv-input=
+     "model.<%= Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT %>"
+     value='Middle' placeholder="Middle"/>
+  </div>
+</div>
