@@ -101,7 +101,8 @@
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions',
-        ALLOWED_FILE_TYPES: 'field_options.allow_file_type'
+        ALLOWED_FILE_TYPES: 'field_options.allow_file_type',
+        FILE_BUTTON_TEXT: 'field_options.file_button_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -879,7 +880,7 @@
                     if (!val) {
                       if (field_view.field_type === 'gmap') {
                         get_user_location = getCurrentLocation(model.getCid());
-                        if (get_user_location) {
+                        if (get_user_location !== 'false') {
                           $("[name = " + model.getCid() + "_1]").text(get_user_location);
                         } else {
                           $("[name = " + model.getCid() + "_1]").text('Select Your Address');
@@ -1072,6 +1073,9 @@
                   source = model.collection.where({
                     cid: condition.source
                   });
+                  if (condition.target === '') {
+                    condition.target = model.getCid();
+                  }
                   target_condition = _.clone(condition);
                   target_condition.isSource = false;
                   if (!_.has(source[0].attributes.conditions, target_condition)) {
@@ -1738,6 +1742,20 @@
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          if ($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() !== '') {
+            return true;
+          }
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
     }
   });
 
@@ -1745,9 +1763,13 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n/>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= <%= rf.get(Formbuilder.options.mappings.MAX) %>){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
-    edit: "\n<div class='fb-edit-section-header'>Options</div>\n\nAllowed File Types\n<input\n  type=\"text\"\n  data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  style=\"width: 40px\"\n/>\n\n&nbsp;&nbsp;\n\nMax File Size\n<input\n  type=\"number\"\n  data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n  style=\"width: 40px\"\n/>\n",
-    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
+    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").filestyle({\n      input: false,\n      buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n    });\n\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) %>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
+    edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",
+    add_remove_require: function(cid, required) {
+      $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
+    }
   });
 
 }).call(this);
@@ -1899,11 +1921,21 @@
 (function() {
   Formbuilder.registerField('paragraph', {
     view: "<textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
       return attrs;
+    },
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+        (function(min_length) {
+          return el.attr("pattern", "[a-zA-Z0-9_\\s]{" + min_length + ",}");
+        })(model.get(Formbuilder.options.mappings.MINLENGTH));
+      }
+      if (model.get(Formbuilder.options.mappings.MAXLENGTH)) {
+        return el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
+      }
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
@@ -1919,6 +1951,21 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, textarea_char_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          textarea_char_cnt = $el.find('textarea').val().length;
+          if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+            return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+          }
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
     }
   });
 
@@ -2078,7 +2125,7 @@
 (function() {
   Formbuilder.registerField('text', {
     view: "<input\n  type='text'\n  class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'\n/>",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Text Box",
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'small';
@@ -2313,11 +2360,7 @@ __p += '\n            <option value="' +
 ((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <select data-rv-value=\'condition:target\'>\n          <option value="">Select Field</option>\n          <option value="' +
-((__t = ( rf.getCid() )) == null ? '' : __t) +
-'" data-rv-text=\'model.' +
-((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
-'\'></option>\n        </select>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
@@ -2406,13 +2449,23 @@ this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input type="number" min="0" data-rv-input="model.' +
+__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input id="min_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" min="0" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input type="number" data-rv-min="model.' +
-((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" data-rv-input="model.' +
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>';
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").attr(\'min\',$(this).val())\n      if (parseInt($(this).val()) < 0){\n        $(this).val(0)\n      }\n    });\n    $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\').val()) || parseInt($(this).val()) < 0){\n        $(this).val(\'\')\n      }\n    });\n  });\n</script>';
 
 }
 return __p
