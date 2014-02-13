@@ -36,6 +36,7 @@ class Formbuilder
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
+      DEFAULT_NUM_VALUE: 'field_options.default_num_value'
       STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
@@ -56,7 +57,11 @@ class Formbuilder
       MATCH_CONDITIONS: 'field_options.match_conditions'
       ALLOWED_FILE_TYPES: 'field_options.allow_file_type'
       FILE_BUTTON_TEXT: 'field_options.file_button_text'
-
+      FULLNAME_PREFIX_TEXT: 'field_options.prefix_text'
+      FULLNAME_FIRST_TEXT: 'field_options.first_name_text'
+      FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text'
+      FULLNAME_LAST_TEXT: 'field_options.last_name_text'
+      FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'

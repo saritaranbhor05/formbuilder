@@ -83,6 +83,7 @@
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
         MAX: 'field_options.max',
+        DEFAULT_NUM_VALUE: 'field_options.default_num_value',
         STEP: 'field_options.step',
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
@@ -102,7 +103,12 @@
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions',
         ALLOWED_FILE_TYPES: 'field_options.allow_file_type',
-        FILE_BUTTON_TEXT: 'field_options.file_button_text'
+        FILE_BUTTON_TEXT: 'field_options.file_button_text',
+        FULLNAME_PREFIX_TEXT: 'field_options.prefix_text',
+        FULLNAME_FIRST_TEXT: 'field_options.first_name_text',
+        FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text',
+        FULLNAME_LAST_TEXT: 'field_options.last_name_text',
+        FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -1737,7 +1743,7 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute\"/>\n</div>",
+    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:200px\"/>\n</div>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
@@ -1777,8 +1783,8 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n  </span>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -1885,18 +1891,33 @@
 
 (function() {
   Formbuilder.registerField('number', {
-    view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
-    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
+    view: "<input type='number'/>\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
+    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
     setup: function(el, model, index) {
+      var rounded_value;
       if (model.get(Formbuilder.options.mappings.MIN)) {
         el.attr("min", model.get(Formbuilder.options.mappings.MIN));
       }
       if (model.get(Formbuilder.options.mappings.MAX)) {
         el.attr("max", model.get(Formbuilder.options.mappings.MAX));
       }
-      if (model.get(Formbuilder.options.mappings.STEP)) {
-        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+      if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY) && model.get(Formbuilder.options.mappings.STEP)) {
+        if (model.get(Formbuilder.options.mappings.STEP)) {
+          el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+        } else {
+          el.attr("step", 'any');
+        }
+      } else if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY)) {
+        el.attr("step", 'any');
+      } else {
+        if (model.get(Formbuilder.options.mappings.STEP)) {
+          rounded_value = Math.round(model.get(Formbuilder.options.mappings.STEP));
+          el.attr("step", rounded_value);
+        }
+      }
+      if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
+        return el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
       }
     },
     clearFields: function($el, model) {
@@ -2370,6 +2391,18 @@ __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/default_number_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_NUM_VALUE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/default_value_hint"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2379,6 +2412,38 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 '"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
 '"/>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_FIRST_TEXT )) == null ? '' : __t) +
+'"\n      value=\'First\' placeholder="First"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/full_name_label_values"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description span11\'>\n    ' +
+((__t = ( Formbuilder.templates['edit/prefix_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/first_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/middle_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
+'\n  </div>\n</div>';
 
 }
 return __p
@@ -2428,6 +2493,18 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/last_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
@@ -2435,11 +2512,29 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeOther !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;
 __p += '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/middle_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'middle_name_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n     data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT )) == null ? '' : __t) +
+'"\n     value=\'Middle\' placeholder="Middle"/>\n  </div>\n</div>';
 
 }
 return __p
@@ -2479,7 +2574,7 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n
 ((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
 
@@ -2513,6 +2608,18 @@ __p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/prefix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT )) == null ? '' : __t) +
+'"\n       value=\'Prefix\' placeholder="Prefix"/>\n  </div>\n</div>';
 
 }
 return __p
@@ -2559,6 +2666,18 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
 
 }
 return __p
