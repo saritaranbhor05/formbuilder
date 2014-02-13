@@ -1921,17 +1921,25 @@
     edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
     setup: function(el, model, index) {
+      var rounded_value;
       if (model.get(Formbuilder.options.mappings.MIN)) {
         el.attr("min", model.get(Formbuilder.options.mappings.MIN));
       }
       if (model.get(Formbuilder.options.mappings.MAX)) {
         el.attr("max", model.get(Formbuilder.options.mappings.MAX));
       }
-      if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY)) {
+      if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY) && model.get(Formbuilder.options.mappings.STEP)) {
         if (model.get(Formbuilder.options.mappings.STEP)) {
           el.attr("step", model.get(Formbuilder.options.mappings.STEP));
         } else {
           el.attr("step", 'any');
+        }
+      } else if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY)) {
+        el.attr("step", 'any');
+      } else {
+        if (model.get(Formbuilder.options.mappings.STEP)) {
+          rounded_value = Math.round(model.get(Formbuilder.options.mappings.STEP));
+          el.attr("step", rounded_value);
         }
       }
       if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
