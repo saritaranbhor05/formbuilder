@@ -13,6 +13,18 @@ __p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Back Visiblity</div>\n<select data-rv-value=\'model.' +
+((__t = ( Formbuilder.options.mappings.BACK_VISIBLITY )) == null ? '' : __t) +
+'\'>\n    <option value=\'true\'>true</option>\n    <option value=\'false\'>false</option>\n</select>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/base"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -54,6 +66,20 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/canvas_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_WIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_HEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;';
 
 }
 return __p
