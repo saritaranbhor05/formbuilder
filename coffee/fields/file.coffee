@@ -24,7 +24,7 @@ Formbuilder.registerField 'file',
 
         $('#file_<%= rf.getCid() %>').change(function(){
           $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);
-          var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) %>'
+          var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'
           if(this.files[0].size <= max_size){
             return true;
           }
