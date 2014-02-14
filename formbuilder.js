@@ -104,6 +104,8 @@
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
         MATCH_CONDITIONS: 'field_options.match_conditions',
+        ALLOWED_FILE_TYPES: 'field_options.allow_file_type',
+        FILE_BUTTON_TEXT: 'field_options.file_button_text',
         FULLNAME_PREFIX_TEXT: 'field_options.prefix_text',
         FULLNAME_FIRST_TEXT: 'field_options.first_name_text',
         FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text',
@@ -1832,8 +1834,8 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input type='file' />",
-    edit: "",
+    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").filestyle({\n      input: false,\n      buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n    });\n\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) %>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
+    edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);

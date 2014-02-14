@@ -57,6 +57,8 @@ class Formbuilder
       STARTING_POINT_TEXT: 'field_options.start_point_text'
       ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
+      ALLOWED_FILE_TYPES: 'field_options.allow_file_type'
+      FILE_BUTTON_TEXT: 'field_options.file_button_text'
       FULLNAME_PREFIX_TEXT: 'field_options.prefix_text'
       FULLNAME_FIRST_TEXT: 'field_options.first_name_text'
       FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text'

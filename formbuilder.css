@@ -147,6 +147,9 @@
   background-color: #f00;
 }
 .fb-field-wrapper .active_link {
+  color: #000;
+  left: 1%;
+  height: 0px;
   bottom: 0px;
   position: absolute;
   z-index: 3;
@@ -392,4 +395,7 @@
 }
 .fb-clear-min-max {
   margin-bottom: 2%;
+}
+.input-large {
+  margin-bottom: 0px !important;
 }
