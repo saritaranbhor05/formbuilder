@@ -43,6 +43,8 @@ class Formbuilder
       IMAGELINK: 'field_options.image_link'
       IMAGEWIDTH: 'field_options.image_width'
       IMAGEHEIGHT: 'field_options.image_height'
+      CANVAS_WIDTH: 'field_options.canvas_width'
+      CANVAS_HEIGHT: 'field_options.canvas_height'
       IMAGEALIGN: 'field_options.image_align'
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
@@ -62,6 +64,7 @@ class Formbuilder
       FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text'
       FULLNAME_LAST_TEXT: 'field_options.last_name_text'
       FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
+      BACK_VISIBLITY: 'field_options.back_visiblity'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -655,18 +658,18 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
-          $("#formbuilder_form").easyWizard({
-            showSteps: false,
-            submitButton: false,
-            prevButton: prev_btn_text,
-            nextButton: next_btn_text,
-            after: (wizardObj) ->
-              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                 showSubmit
-                wizardObj.parents('.form-panel').find('.update-button').show()
-              else
-                wizardObj.parents('.form-panel').find('.update-button').hide()
-          })
+            $("#formbuilder_form").easyWizard({
+              showSteps: false,
+              submitButton: false,
+              prevButton: prev_btn_text,
+              nextButton: next_btn_text,
+              after: (wizardObj) ->
+                if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                   showSubmit
+                  wizardObj.parents('.form-panel').find('.update-button').show()
+                else
+                  wizardObj.parents('.form-panel').find('.update-button').hide()
+            })  
 
         return @
 
@@ -747,6 +750,17 @@ class Formbuilder
             fd_view.field_type is "ci-hierarchy"
           @bindHierarchyEvents(fd_views) if fd_views.length > 0
           @triggerEvent() # triggers event by setting values to respective fields
+          for field_view in @fieldViews
+            if (field_view.field_type == 'section_break')
+              $('.prev').addClass('hide btn-danger')
+              $('.next').addClass('btn-success')
+              back_visiblity = field_view.model.get(
+                Formbuilder.options.mappings.BACK_VISIBLITY)
+              if back_visiblity is 'false'  
+                $('.next').click( -> 
+                  $('.prev').css("display", "none")
+                )
+              
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
