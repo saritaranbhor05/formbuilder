@@ -54,4 +54,4 @@ Formbuilder.registerField 'number',
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)         
+            .attr("required", required)

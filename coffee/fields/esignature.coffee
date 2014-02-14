@@ -1,13 +1,21 @@
 Formbuilder.registerField 'esignature',
 
   view: """
-    <canvas type='esignature' id="can" width="200" height="100" style="border:1px solid #000000;"></canvas>
+    <canvas 
+        type='esignature' 
+        id="can"
+        width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
+        height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
+        style="border:1px solid #000000;"
+    />
     <div style="display:inline">
-      <input type="button" value="Clear" id="clr" style="min-width:50px;position:absolute;max-width:200px"/>
+      <input type="button" value="Clear" id="clr" style="min-width:50px;position:absolute;max-width:100px"/>
     </div>
   """
 
-  edit: ""
+  edit: """
+    <%= Formbuilder.templates['edit/canvas_options']() %>
+  """
 
   addButton: """
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature 
@@ -20,7 +28,8 @@ Formbuilder.registerField 'esignature',
 
   isValid: ($el, model) ->
     do(valid = false) =>
-      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
+      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0, is_empty='') =>
         return true if !required_attr
-        return true if $el.find("[name = "+model.getCid()+"_1]")[0].toDataURL() != ''
-      valid          
+        is_empty =  !($el.find("[name = "+model.getCid()+"_1]")[0].toDataURL() == getCanvasDrawn()) 
+        return is_empty
+      valid

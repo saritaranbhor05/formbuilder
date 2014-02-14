@@ -90,6 +90,8 @@
         IMAGELINK: 'field_options.image_link',
         IMAGEWIDTH: 'field_options.image_width',
         IMAGEHEIGHT: 'field_options.image_height',
+        CANVAS_WIDTH: 'field_options.canvas_width',
+        CANVAS_HEIGHT: 'field_options.canvas_height',
         IMAGEALIGN: 'field_options.image_align',
         LENGTH_UNITS: 'field_options.min_max_length_units',
         MINAGE: 'field_options.minage',
@@ -106,7 +108,8 @@
         FULLNAME_FIRST_TEXT: 'field_options.first_name_text',
         FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text',
         FULLNAME_LAST_TEXT: 'field_options.last_name_text',
-        FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
+        FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text',
+        BACK_VISIBLITY: 'field_options.back_visiblity'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -816,7 +819,8 @@
         applyEasyWizard: function() {
           (function(_this) {
             return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-              var _i, _len;
+              var _i, _len, _results;
+              _results = [];
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
                 if (field_view.is_section_break) {
@@ -847,20 +851,21 @@
                   _this.$responseFields.append(wizard_view.$el);
                 }
                 cnt += 1;
-              }
-              return $("#formbuilder_form").easyWizard({
-                showSteps: false,
-                submitButton: false,
-                prevButton: prev_btn_text,
-                nextButton: next_btn_text,
-                after: function(wizardObj) {
-                  if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
-                    return wizardObj.parents('.form-panel').find('.update-button').show();
-                  } else {
-                    return wizardObj.parents('.form-panel').find('.update-button').hide();
+                _results.push($("#formbuilder_form").easyWizard({
+                  showSteps: false,
+                  submitButton: false,
+                  prevButton: prev_btn_text,
+                  nextButton: next_btn_text,
+                  after: function(wizardObj) {
+                    if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
+                      return wizardObj.parents('.form-panel').find('.update-button').show();
+                    } else {
+                      return wizardObj.parents('.form-panel').find('.update-button').hide();
+                    }
                   }
-                }
-              });
+                }));
+              }
+              return _results;
             });
           })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
           return this;
@@ -960,7 +965,7 @@
           })(this)(null, $(elem).attr('type'));
         },
         addAll: function() {
-          var fd_views;
+          var back_visiblity, fd_views, field_view, _i, _len, _ref;
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
@@ -971,6 +976,20 @@
               this.bindHierarchyEvents(fd_views);
             }
             this.triggerEvent();
+            _ref = this.fieldViews;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field_view = _ref[_i];
+              if (field_view.field_type === 'section_break') {
+                $('.prev').addClass('hide btn-danger');
+                $('.next').addClass('btn-success');
+                back_visiblity = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
+                if (back_visiblity === 'false') {
+                  $('.next').click(function() {
+                    return $('.prev').css("display", "none");
+                  });
+                }
+              }
+            }
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
@@ -1787,8 +1806,8 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:200px\"/>\n</div>",
-    edit: "",
+    view: "<canvas \n    type='esignature' \n    id=\"can\"\n    width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n    height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n    style=\"border:1px solid #000000;\"\n/>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:100px\"/>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1796,14 +1815,13 @@
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
-          valid = (function(required_attr, checked_chk_cnt) {
+          valid = (function(required_attr, checked_chk_cnt, is_empty) {
             if (!required_attr) {
               return true;
             }
-            if ($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() !== '') {
-              return true;
-            }
-          })(model.get('required'), 0);
+            is_empty = !($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() === getCanvasDrawn());
+            return is_empty;
+          })(model.get('required'), 0, '');
           return valid;
         };
       })(this)(false);
@@ -2171,8 +2189,8 @@
 (function() {
   Formbuilder.registerField('section_break', {
     type: 'non_input',
-    view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <button class=\"prev\">\n    <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n  </button>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>",
+    view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next btn-success\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) != 'false') {\n      rf.set(Formbuilder.options.mappings.BACK_VISIBLITY,'true')\n    } \n  %>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) == 'true'){%>\n    <button class=\"prev btn-danger\">\n      <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n    </button>\n  <% } %>  \n</div>",
+    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>\n\n  <%= Formbuilder.templates['edit/back_visiblity']() %>\n",
     addButton: "<span class='symbol'><span class='icon-minus'></span></span> Section Break"
   });
 
@@ -2325,6 +2343,18 @@ __p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Back Visiblity</div>\n<select data-rv-value=\'model.' +
+((__t = ( Formbuilder.options.mappings.BACK_VISIBLITY )) == null ? '' : __t) +
+'\'>\n    <option value=\'true\'>true</option>\n    <option value=\'false\'>false</option>\n</select>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/base"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2366,6 +2396,20 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/canvas_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_WIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_HEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;';
 
 }
 return __p
