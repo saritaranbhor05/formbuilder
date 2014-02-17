@@ -821,8 +821,7 @@
         applyEasyWizard: function() {
           (function(_this) {
             return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-              var _i, _len, _results;
-              _results = [];
+              var _i, _len;
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
                 if (field_view.is_section_break) {
@@ -853,21 +852,20 @@
                   _this.$responseFields.append(wizard_view.$el);
                 }
                 cnt += 1;
-                _results.push($("#formbuilder_form").easyWizard({
-                  showSteps: false,
-                  submitButton: false,
-                  prevButton: prev_btn_text,
-                  nextButton: next_btn_text,
-                  after: function(wizardObj) {
-                    if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
-                      return wizardObj.parents('.form-panel').find('.update-button').show();
-                    } else {
-                      return wizardObj.parents('.form-panel').find('.update-button').hide();
-                    }
-                  }
-                }));
               }
-              return _results;
+              return $("#formbuilder_form").easyWizard({
+                showSteps: false,
+                submitButton: false,
+                prevButton: prev_btn_text,
+                nextButton: next_btn_text,
+                after: function(wizardObj) {
+                  if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
+                    return wizardObj.parents('.form-panel').find('.update-button').show();
+                  } else {
+                    return wizardObj.parents('.form-panel').find('.update-button').hide();
+                  }
+                }
+              });
             });
           })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
           return this;
@@ -1070,7 +1068,9 @@
             return;
           }
           this.formSaved = false;
-          return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          if (this.saveFormButton) {
+            return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          }
         },
         saveForm: function(e) {
           var payload;
@@ -2031,6 +2031,8 @@
             textarea_char_cnt = $el.find('textarea').val().length;
             if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
               return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+            } else {
+              return true;
             }
           })(model.get('required'), 0);
           return valid;
