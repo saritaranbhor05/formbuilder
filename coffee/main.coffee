@@ -658,18 +658,18 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
-            $("#formbuilder_form").easyWizard({
-              showSteps: false,
-              submitButton: false,
-              prevButton: prev_btn_text,
-              nextButton: next_btn_text,
-              after: (wizardObj) ->
-                if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                   showSubmit
-                  wizardObj.parents('.form-panel').find('.update-button').show()
-                else
-                  wizardObj.parents('.form-panel').find('.update-button').hide()
-            })  
+          $("#formbuilder_form").easyWizard({
+            showSteps: false,
+            submitButton: false,
+            prevButton: prev_btn_text,
+            nextButton: next_btn_text,
+            after: (wizardObj) ->
+              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                 showSubmit
+                wizardObj.parents('.form-panel').find('.update-button').show()
+              else
+                wizardObj.parents('.form-panel').find('.update-button').hide()
+          })
 
         return @
 
@@ -756,11 +756,11 @@ class Formbuilder
               $('.next').addClass('btn-success')
               back_visiblity = field_view.model.get(
                 Formbuilder.options.mappings.BACK_VISIBLITY)
-              if back_visiblity is 'false'  
-                $('.next').click( -> 
+              if back_visiblity is 'false'
+                $('.next').click( ->
                   $('.prev').css("display", "none")
                 )
-              
+
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
@@ -823,7 +823,7 @@ class Formbuilder
       handleFormUpdate: ->
         return if @updatingBatch
         @formSaved = false
-        @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM)
+        @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM) if @saveFormButton
 
       saveForm: (e) ->
         return if @formSaved
