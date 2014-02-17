@@ -65,6 +65,7 @@ class Formbuilder
       FULLNAME_LAST_TEXT: 'field_options.last_name_text'
       FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
       BACK_VISIBLITY: 'field_options.back_visiblity'
+      DEFAULT_COUNTRY: 'field_options.default_country'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
