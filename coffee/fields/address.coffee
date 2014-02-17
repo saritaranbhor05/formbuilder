@@ -4,36 +4,63 @@ Formbuilder.registerField 'address',
     <div class='input-line'>
       <span>
         <input type='text' id='address'/>
-        <label>Address</label>
+        <label>Street Address</label>
       </span>
     </div>
 
     <div class='input-line'>
       <span>
-        <input type='text' id='suburb'/>
-        <label>Suburb</label>
+        <input class="span12" type='text' id='suburb'/>
+        <label>Suburb/City</label>
       </span>
 
       <span>
-        <input type='text' id='state'/>
+        <input class="span12" type='text' id='state'/>
         <label>State / Province / Region</label>
       </span>
     </div>
 
     <div class='input-line' >
       <span>
-        <input id='zipcode' type='text' pattern="[a-zA-Z0-9]+"/>
-        <label>Zipcode</label>
+        <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"/>
+        <label>Postal/Zip Code</label>
       </span>
 
       <span>
-        <select class='dropdown_country'><option>United States</option></select>
+        <select id="file_<%= rf.getCid() %>"
+          data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+          class='span7 dropdown_country bfh-selectbox bfh-countries'
+        ></select>
         <label>Country</label>
       </span>
     </div>
+
+    <script>
+      $(function() {
+        $("#file_<%= rf.getCid() %>").bfhcount();
+      });
+    </script>
   """
 
-  edit: ""
+  edit: """
+    <div class='fb-edit-section-header'>Options</div>
+
+    <div class='input-line span12' >
+      <span class="span11">
+        <label>Select Default Country</label>
+        <select id="dropdown_country_edit_<%= rf.getCid() %>"
+          class='dropdown_country span12 bfh-selectbox bfh-countries'
+          data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+          data-rv-value="model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>"
+        ></select>
+      </span>
+    </div>
+    <script>
+      $(function() {
+        $("#dropdown_country_edit_<%= rf.getCid() %>").bfhcount();
+      });
+    </script>
+  """
 
   addButton: """
     <span class="symbol"><span class="icon-home"></span></span> Address
@@ -73,4 +100,3 @@ Formbuilder.registerField 'address',
     $("." + cid)
             .find("[name = "+cid+"_4]")
             .attr("required", required)
-      
