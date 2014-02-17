@@ -658,18 +658,18 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
-            $("#formbuilder_form").easyWizard({
-              showSteps: false,
-              submitButton: false,
-              prevButton: prev_btn_text,
-              nextButton: next_btn_text,
-              after: (wizardObj) ->
-                if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                   showSubmit
-                  wizardObj.parents('.form-panel').find('.update-button').show()
-                else
-                  wizardObj.parents('.form-panel').find('.update-button').hide()
-            })  
+          $("#formbuilder_form").easyWizard({
+            showSteps: false,
+            submitButton: false,
+            prevButton: prev_btn_text,
+            nextButton: next_btn_text,
+            after: (wizardObj) ->
+              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                 showSubmit
+                wizardObj.parents('.form-panel').find('.update-button').show()
+              else
+                wizardObj.parents('.form-panel').find('.update-button').hide()
+          })  
 
         return @
 

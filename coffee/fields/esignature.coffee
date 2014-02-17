@@ -1,13 +1,26 @@
 Formbuilder.registerField 'esignature',
 
   view: """
-    <canvas 
-        type='esignature' 
-        id="can"
-        width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
-        height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
-        style="border:1px solid #000000;"
-    />
+    <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+    <% console.log('in 1'); %>  
+      <canvas 
+          type='esignature' 
+          id="can"
+          width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
+          height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
+          style="border:1px solid #000000;"
+      />
+      <% } else 
+      if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+      <% console.log('in 2'); %>  
+        <canvas 
+            type='esignature' 
+            id="can"
+            width='250px'
+            height='150px'
+            style="border:1px solid #000000;"
+        />
+      <% } %>
     <div style="display:inline">
       <input type="button" value="Clear" id="clr" style="min-width:50px;position:absolute;max-width:100px"/>
     </div>
