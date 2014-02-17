@@ -79,7 +79,7 @@ class Formbuilder
   @model: Backbone.DeepModel.extend
     sync: -> # noop
     indexInDOM: ->
-      $wrapper = $(".fb-field-wrapper").filter ( (_, el) => $(el).data('cid') == @cid  )
+      $wrapper = $(".fb-field-wrapper").filter ( (_, el) => $(el).data('cid') == @getCid()  )
       $(".fb-field-wrapper").index $wrapper
     is_input: ->
       Formbuilder.inputFields[@get(Formbuilder.options.mappings.FIELD_TYPE)]?
