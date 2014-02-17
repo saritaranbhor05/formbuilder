@@ -1068,7 +1068,9 @@
             return;
           }
           this.formSaved = false;
-          return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          if (this.saveFormButton) {
+            return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          }
         },
         saveForm: function(e) {
           var payload;
@@ -2029,6 +2031,8 @@
             textarea_char_cnt = $el.find('textarea').val().length;
             if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
               return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+            } else {
+              return true;
             }
           })(model.get('required'), 0);
           return valid;
