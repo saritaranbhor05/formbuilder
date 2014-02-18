@@ -670,6 +670,7 @@ class Formbuilder
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()
+              $("#formbuilder_form").easyWizard()
           })
 
         return @

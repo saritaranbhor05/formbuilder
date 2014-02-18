@@ -370,6 +370,9 @@
   #map-canvas {
     height: 400px;
   }
+  .textarea {
+    width: 80%;
+  }
 }
 @media (max-width: 767px) {
   #map-canvas {
@@ -377,6 +380,9 @@
   }
   .modal.fade.in {
     top: 20%;
+  }
+  .textarea {
+    width: 80%;
   }
 }
 @media (max-width: 480px) {
@@ -391,6 +397,9 @@
   }
   .modal.fade.in {
     top: 15%;
+  }
+  .textarea {
+    width: 80%;
   }
 }
 .fb-clear-min-max {
