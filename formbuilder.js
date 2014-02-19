@@ -1960,7 +1960,7 @@
 
 (function() {
   Formbuilder.registerField('paragraph', {
-    view: "<textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
+    view: "<textarea class='textarea rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
@@ -2166,7 +2166,7 @@
 
 (function() {
   Formbuilder.registerField('text', {
-    view: "<input\n  type='text'\n  class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'\n/>",
+    view: "<input\n  type='text'\n  class='textarea rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'\n/>",
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Text Box",
     defaultAttributes: function(attrs) {
