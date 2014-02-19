@@ -366,10 +366,10 @@
 .image_link_form:hover {
   background-color: #fff;
 }
+#map-canvas {
+  height: 400px;
+}
 @media (max-width: 768px) {
-  #map-canvas {
-    height: 400px;
-  }
   .response-field-text input.rf-size-small {
     width: 130px;
   }
