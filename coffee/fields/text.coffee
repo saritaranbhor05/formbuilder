@@ -3,7 +3,7 @@ Formbuilder.registerField 'text',
   view: """
     <input
       type='text'
-      class='textarea rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'
+      class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'
     />
   """
 
