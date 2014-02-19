@@ -366,12 +366,30 @@
 .image_link_form:hover {
   background-color: #fff;
 }
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   #map-canvas {
     height: 400px;
   }
-  .textarea {
-    width: 80%;
+  .response-field-text input.rf-size-small {
+    width: 130px;
+  }
+  .response-field-text input.rf-size-medium {
+    width: 55%;
+  }
+  .response-field-text input.rf-size-large {
+    width: 75%;
+  }
+  .response-field-paragraph textarea.rf-size-small {
+    width: 200px;
+    min-height: 60px;
+  }
+  .response-field-paragraph textarea.rf-size-medium {
+    width: 55%;
+    min-height: 100px;
+  }
+  .response-field-paragraph textarea.rf-size-large {
+    width: 75%;
+    min-height: 200px;
   }
 }
 @media (max-width: 767px) {
@@ -381,8 +399,26 @@
   .modal.fade.in {
     top: 20%;
   }
-  .textarea {
-    width: 80%;
+  .response-field-text input.rf-size-small {
+    width: 130px;
+  }
+  .response-field-text input.rf-size-medium {
+    width: 55%;
+  }
+  .response-field-text input.rf-size-large {
+    width: 75%;
+  }
+  .response-field-paragraph textarea.rf-size-small {
+    width: 200px;
+    min-height: 60px;
+  }
+  .response-field-paragraph textarea.rf-size-medium {
+    width: 55%;
+    min-height: 100px;
+  }
+  .response-field-paragraph textarea.rf-size-large {
+    width: 75%;
+    min-height: 200px;
   }
 }
 @media (max-width: 480px) {
@@ -398,8 +434,26 @@
   .modal.fade.in {
     top: 15%;
   }
-  .textarea {
-    width: 80%;
+  .response-field-text input.rf-size-small {
+    width: 130px;
+  }
+  .response-field-text input.rf-size-medium {
+    width: 55%;
+  }
+  .response-field-text input.rf-size-large {
+    width: 75%;
+  }
+  .response-field-paragraph textarea.rf-size-small {
+    width: 200px;
+    min-height: 60px;
+  }
+  .response-field-paragraph textarea.rf-size-medium {
+    width: 55%;
+    min-height: 100px;
+  }
+  .response-field-paragraph textarea.rf-size-large {
+    width: 75%;
+    min-height: 200px;
   }
 }
 .fb-clear-min-max {
@@ -407,4 +461,7 @@
 }
 .input-large {
   margin-bottom: 0px !important;
+}
+.easyWizardWrapper .fb-tab {
+  margin-right: 5px;
 }
