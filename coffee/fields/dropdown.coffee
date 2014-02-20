@@ -33,7 +33,7 @@ Formbuilder.registerField 'dropdown',
     ]
 
     attrs.field_options.include_blank_option = false
-
+    attrs.field_options.size = 'small'
     attrs
 
   evalCondition: (clicked_element, cid, condition, set_value) ->

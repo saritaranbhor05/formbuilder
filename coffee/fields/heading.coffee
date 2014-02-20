@@ -27,5 +27,5 @@ Formbuilder.registerField 'heading',
   """
 
   defaultAttributes: (attrs) ->
-    attrs.field_options.size = 'small'
+    attrs.field_options.size = 'medium'
     attrs
