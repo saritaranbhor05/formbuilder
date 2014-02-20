@@ -11,6 +11,11 @@ Formbuilder.registerField 'url',
   addButton: """
     <span class="symbol"><span class="icon-link"></span></span> URL
   """
+
+  defaultAttributes: (attrs) ->
+    attrs.field_options.size = 'medium'
+    attrs
+
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
