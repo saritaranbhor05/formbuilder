@@ -134,11 +134,29 @@ __p += '\n            <option value="' +
 ((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
+ if(rf.get('field_type') == 'date_time') { ;
+__p += '\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value1\' type=\'text\'/>\n      ';
+ } else { ;
+__p += '  \n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      ';
+ } ;
+__p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add Condition</a>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
+'\' />\n  only date field\n</label>';
 
 }
 return __p
@@ -412,18 +430,6 @@ __p += '<div class=\'fb-edit-section-header\'>Size</div>\n<select data-rv-value=
 return __p
 };
 
-this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
-obj || (obj = {});
-var __t, __p = '', __e = _.escape;
-with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
-((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
-
-}
-return __p
-};
-
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -431,6 +437,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.TIME_ONLY )) == null ? '' : __t) +
+'\' />\n  only time field\n</label>';
 
 }
 return __p

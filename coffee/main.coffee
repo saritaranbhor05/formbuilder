@@ -66,6 +66,8 @@ class Formbuilder
       FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
       BACK_VISIBLITY: 'field_options.back_visiblity'
       DEFAULT_COUNTRY: 'field_options.default_country'
+      DATE_ONLY: 'field_options.date_only'
+      TIME_ONLY: 'field_options.time_only'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -339,7 +341,6 @@ class Formbuilder
                 ) =>
                   name = cid.toString() + "_" + index.toString()
                   $(x).attr("name", name)
-                  @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -687,6 +688,8 @@ class Formbuilder
               should_incr = (attr) -> attr != 'radio',
               val_set = false,
               model = field_view.model
+              field_type_method_call = '' 
+              field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
               for x in field_view.$("input, textarea, select, canvas, a")
@@ -699,6 +702,9 @@ class Formbuilder
                   value = 0,
                   cid = ''
                 ) =>
+                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                  field_method_call = Formbuilder.fields[field_type_method_call]
+                  field_method_call.setup($(x), model, index) if field_method_call.setup
                   cid = model.getCid()
                   value = x.value if field_view.field_type == 'radio'||'scale_rating'
                   name = cid.toString() + "_" + index.toString()

@@ -112,7 +112,9 @@
         FULLNAME_LAST_TEXT: 'field_options.last_name_text',
         FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text',
         BACK_VISIBLITY: 'field_options.back_visiblity',
-        DEFAULT_COUNTRY: 'field_options.default_country'
+        DEFAULT_COUNTRY: 'field_options.default_country',
+        DATE_ONLY: 'field_options.date_only',
+        TIME_ONLY: 'field_options.time_only'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -130,11 +132,12 @@
     Formbuilder.model = Backbone.DeepModel.extend({
       sync: function() {},
       indexInDOM: function() {
-        var $wrapper,
-          _this = this;
-        $wrapper = $(".fb-field-wrapper").filter((function(_, el) {
-          return $(el).data('cid') === _this.getCid();
-        }));
+        var $wrapper;
+        $wrapper = $(".fb-field-wrapper").filter(((function(_this) {
+          return function(_, el) {
+            return $(el).data('cid') === _this.getCid();
+          };
+        })(this)));
         return $(".fb-field-wrapper").index($wrapper);
       },
       is_input: function() {
@@ -212,93 +215,96 @@
           }
         },
         show_hide_fields: function(check_result, set_field) {
-          var _this = this;
-          return (function(set_field) {
-            if (check_result === true) {
-              _this.$el.addClass(set_field.action);
-              if (set_field.action === 'show') {
-                _this.current_state = set_field.action;
-                return _this.add_remove_require(true);
+          return (function(_this) {
+            return function(set_field) {
+              if (check_result === true) {
+                _this.$el.addClass(set_field.action);
+                if (set_field.action === 'show') {
+                  _this.current_state = set_field.action;
+                  return _this.add_remove_require(true);
+                } else {
+                  _this.$el.removeClass('show');
+                  _this.current_state = "hide";
+                  return _this.add_remove_require(false);
+                }
               } else {
-                _this.$el.removeClass('show');
-                _this.current_state = "hide";
-                return _this.add_remove_require(false);
+                _this.$el.removeClass(set_field.action);
+                if (set_field.action === 'hide') {
+                  _this.$el.addClass("show");
+                  _this.current_state = set_field.action;
+                  return _this.add_remove_require(true);
+                } else {
+                  _this.$el.addClass("hide");
+                  _this.add_remove_require(false);
+                  return _this.current_state = "hide";
+                }
               }
-            } else {
-              _this.$el.removeClass(set_field.action);
-              if (set_field.action === 'hide') {
-                _this.$el.addClass("show");
-                _this.current_state = set_field.action;
-                return _this.add_remove_require(true);
-              } else {
-                _this.$el.addClass("hide");
-                _this.add_remove_require(false);
-                return _this.current_state = "hide";
-              }
-            }
-          })(set_field);
+            };
+          })(this)(set_field);
         },
         changeState: function() {
-          var _this = this;
-          (function(set_field, i, and_flag, check_match_condtions) {
-            var _i, _len, _ref, _results;
-            if (_this.model.get('field_options').match_conditions === 'and') {
-              and_flag = true;
-            }
-            _ref = _this.model.get("conditions");
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              set_field = _ref[_i];
-              _results.push((function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
-                if (set_field.target === _this.model.getCid()) {
-                  source_model = _this.model.collection.where({
-                    cid: set_field.source
-                  })[0];
-                  clicked_element = $("." + source_model.getCid());
-                  field_type = source_model.get('field_type');
-                  if (set_field.condition === "equals") {
-                    condition = '==';
-                  } else if (set_field.condition === "less than") {
-                    condition = '<';
-                  } else if (set_field.condition === "greater than") {
-                    condition = '>';
-                  } else {
-                    condition = "!=";
-                  }
-                  check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
-                  check_match_condtions.push(check_result);
-                  _this.clearFields();
-                  _this.changeStateSource();
-                  if (and_flag === true) {
-                    if (check_match_condtions.indexOf(false) === -1) {
-                      return _this.show_hide_fields(true, set_field);
+          (function(_this) {
+            return (function(set_field, i, and_flag, check_match_condtions) {
+              var _i, _len, _ref, _results;
+              if (_this.model.get('field_options').match_conditions === 'and') {
+                and_flag = true;
+              }
+              _ref = _this.model.get("conditions");
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                set_field = _ref[_i];
+                _results.push((function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
+                  if (set_field.target === _this.model.getCid()) {
+                    source_model = _this.model.collection.where({
+                      cid: set_field.source
+                    })[0];
+                    clicked_element = $("." + source_model.getCid());
+                    field_type = source_model.get('field_type');
+                    if (set_field.condition === "equals") {
+                      condition = '==';
+                    } else if (set_field.condition === "less than") {
+                      condition = '<';
+                    } else if (set_field.condition === "greater than") {
+                      condition = '>';
                     } else {
-                      return _this.show_hide_fields('false', set_field);
+                      condition = "!=";
                     }
-                  } else {
-                    if (check_match_condtions.indexOf(true) !== -1) {
-                      return _this.show_hide_fields(true, set_field);
+                    check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
+                    check_match_condtions.push(check_result);
+                    _this.clearFields();
+                    _this.changeStateSource();
+                    if (and_flag === true) {
+                      if (check_match_condtions.indexOf(false) === -1) {
+                        return _this.show_hide_fields(true, set_field);
+                      } else {
+                        return _this.show_hide_fields('false', set_field);
+                      }
                     } else {
-                      return _this.show_hide_fields('false', set_field);
+                      if (check_match_condtions.indexOf(true) !== -1) {
+                        return _this.show_hide_fields(true, set_field);
+                      } else {
+                        return _this.show_hide_fields('false', set_field);
+                      }
                     }
                   }
-                }
-              })({}, [], {}, "equals", '', false));
-            }
-            return _results;
-          })({}, 0, false, new Array());
+                })({}, [], {}, "equals", '', false));
+              }
+              return _results;
+            });
+          })(this)({}, 0, false, new Array());
           return this;
         },
         evalCondition: function(clicked_element, source_model, condition, value) {
-          var _this = this;
-          return (function(field_type, field, check_result) {
-            field = Formbuilder.fields[field_type];
-            if (!field.evalCondition) {
-              return true;
-            }
-            check_result = field.evalCondition(clicked_element, source_model.getCid(), condition, value, field);
-            return check_result;
-          })(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '', 'false');
+          return (function(_this) {
+            return function(field_type, field, check_result) {
+              field = Formbuilder.fields[field_type];
+              if (!field.evalCondition) {
+                return true;
+              }
+              check_result = field.evalCondition(clicked_element, source_model.getCid(), condition, value, field);
+              return check_result;
+            };
+          })(this)(source_model.get(Formbuilder.options.mappings.FIELD_TYPE), '', 'false');
         },
         clearFields: function() {
           if (!this.field.clearFields) {
@@ -385,80 +391,78 @@
           return this;
         },
         live_render: function() {
-          var _this = this;
-          (function(set_field, i, action, cid, base_templ_suff, set_field_class) {
-            var _fn, _i, _j, _len, _len1, _ref, _ref1;
-            if (_this.model.attributes.conditions) {
-              _ref = _this.model.get('conditions');
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                set_field = _ref[_i];
-                if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
-                  set_field_class = true;
-                }
-              }
-            }
-            if (set_field_class) {
-              _this.$el.addClass("hide");
-            }
-            if (_this.model.attributes.conditions) {
-              if (!_this.is_section_break) {
-                if (_this.model.get("conditions").length) {
-                  _ref1 = _this.model.get("conditions");
-                  _fn = function(set_field) {
-                    var views_name, _k, _len2, _ref2, _results;
-                    if (set_field.target === _this.model.getCid()) {
-                      _ref2 = _this.parentView.fieldViews;
-                      _results = [];
-                      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-                        views_name = _ref2[_k];
-                        _results.push((function(views_name, set_field) {
-                          if (views_name.model.get('cid') === set_field.source) {
-                            return _this.listenTo(views_name, 'change_state', _this.changeState);
-                          }
-                        })(views_name, set_field));
-                      }
-                      return _results;
-                    }
-                  };
-                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                    set_field = _ref1[_j];
-                    _fn(set_field);
+          (function(_this) {
+            return (function(set_field, i, action, cid, base_templ_suff, set_field_class) {
+              var _fn, _i, _j, _len, _len1, _ref, _ref1;
+              if (_this.model.attributes.conditions) {
+                _ref = _this.model.get('conditions');
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  set_field = _ref[_i];
+                  if (set_field.action === 'show' && _this.model.getCid() === set_field.target) {
+                    set_field_class = true;
                   }
                 }
               }
-            }
-            if (!_this.is_section_break) {
-              if (_this.model.get("field_options").state === "readonly") {
-                _this.$el.addClass('readonly');
+              if (set_field_class) {
+                _this.$el.addClass("hide");
               }
-              _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
-                rf: _this.model,
-                opts: _this.options
-              }));
-              return (function(x, count, should_incr) {
-                var _k, _len2, _ref2, _results;
-                _ref2 = _this.$("input, textarea, select, canvas, a");
-                _results = [];
-                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-                  x = _ref2[_k];
-                  _results.push(count = (function(x, index, name, val) {
-                    name = cid.toString() + "_" + index.toString();
-                    $(x).attr("name", name);
-                    if (_this.field.setup) {
-                      _this.field.setup($(x), _this.model, index);
+              if (_this.model.attributes.conditions) {
+                if (!_this.is_section_break) {
+                  if (_this.model.get("conditions").length) {
+                    _ref1 = _this.model.get("conditions");
+                    _fn = function(set_field) {
+                      var views_name, _k, _len2, _ref2, _results;
+                      if (set_field.target === _this.model.getCid()) {
+                        _ref2 = _this.parentView.fieldViews;
+                        _results = [];
+                        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                          views_name = _ref2[_k];
+                          _results.push((function(views_name, set_field) {
+                            if (views_name.model.get('cid') === set_field.source) {
+                              return _this.listenTo(views_name, 'change_state', _this.changeState);
+                            }
+                          })(views_name, set_field));
+                        }
+                        return _results;
+                      }
+                    };
+                    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                      set_field = _ref1[_j];
+                      _fn(set_field);
                     }
-                    if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
-                      $(x).attr("required", true);
-                    }
-                    return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                  }
                 }
-                return _results;
-              })(null, 0, function(attr) {
-                return attr !== 'radio';
-              });
-            }
-          })({}, 0, "show", this.model.getCid(), this.model.is_input() ? '' : '_non_input', false);
+              }
+              if (!_this.is_section_break) {
+                if (_this.model.get("field_options").state === "readonly") {
+                  _this.$el.addClass('readonly');
+                }
+                _this.$el.addClass('response-field-' + _this.field_type + ' ' + _this.model.getCid()).data('cid', cid).html(Formbuilder.templates["view/base" + base_templ_suff]({
+                  rf: _this.model,
+                  opts: _this.options
+                }));
+                return (function(x, count, should_incr) {
+                  var _k, _len2, _ref2, _results;
+                  _ref2 = _this.$("input, textarea, select, canvas, a");
+                  _results = [];
+                  for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                    x = _ref2[_k];
+                    _results.push(count = (function(x, index, name, val) {
+                      name = cid.toString() + "_" + index.toString();
+                      $(x).attr("name", name);
+                      if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
+                        $(x).attr("required", true);
+                      }
+                      return index;
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null));
+                  }
+                  return _results;
+                })(null, 0, function(attr) {
+                  return attr !== 'radio';
+                });
+              }
+            });
+          })(this)({}, 0, "show", this.model.getCid(), this.model.is_input() ? '' : '_non_input', false);
           return this;
         },
         focusEditView: function() {
@@ -481,16 +485,17 @@
         },
         clearConditions: function(cid, fieldViews) {
           return _.each(fieldViews, function(fieldView) {
-            var _this = this;
-            return (function(updated_conditions) {
-              if (!_.isEmpty(fieldView.model.attributes.conditions)) {
-                updated_conditions = _.reject(fieldView.model.attributes.conditions, function(condition) {
-                  return _.isEqual(condition.source, cid);
-                });
-                fieldView.model.attributes.conditions = [];
-                return fieldView.model.attributes.conditions = updated_conditions;
-              }
-            })({});
+            return (function(_this) {
+              return function(updated_conditions) {
+                if (!_.isEmpty(fieldView.model.attributes.conditions)) {
+                  updated_conditions = _.reject(fieldView.model.attributes.conditions, function(condition) {
+                    return _.isEqual(condition.source, cid);
+                  });
+                  fieldView.model.attributes.conditions = [];
+                  return fieldView.model.attributes.conditions = updated_conditions;
+                }
+              };
+            })(this)({});
           });
         },
         duplicate: function() {
@@ -655,18 +660,21 @@
           return current_view_state;
         },
         initAutosave: function() {
-          var _this = this;
           this.formSaved = true;
-          setInterval(function() {
-            return _this.saveForm.call(_this);
-          }, 5000);
-          return $(window).bind('beforeunload', function() {
-            if (_this.formSaved) {
-              return void 0;
-            } else {
-              return Formbuilder.options.dict.UNSAVED_CHANGES;
-            }
-          });
+          setInterval((function(_this) {
+            return function() {
+              return _this.saveForm.call(_this);
+            };
+          })(this), 5000);
+          return $(window).bind('beforeunload', (function(_this) {
+            return function() {
+              if (_this.formSaved) {
+                return void 0;
+              } else {
+                return Formbuilder.options.dict.UNSAVED_CHANGES;
+              }
+            };
+          })(this));
         },
         reset: function() {
           this.$responseFields.html('');
@@ -703,18 +711,19 @@
           return this;
         },
         bindWindowScrollEvent: function() {
-          var _this = this;
-          return $(window).on('scroll', function() {
-            var maxMargin, newMargin;
-            if (_this.$fbLeft.data('locked') === true) {
-              return;
-            }
-            newMargin = Math.max(0, $(window).scrollTop());
-            maxMargin = _this.$responseFields.height();
-            return _this.$fbLeft.css({
-              'margin-top': Math.min(maxMargin, newMargin)
-            });
-          });
+          return $(window).on('scroll', (function(_this) {
+            return function() {
+              var maxMargin, newMargin;
+              if (_this.$fbLeft.data('locked') === true) {
+                return;
+              }
+              newMargin = Math.max(0, $(window).scrollTop());
+              maxMargin = _this.$responseFields.height();
+              return _this.$fbLeft.css({
+                'margin-top': Math.min(maxMargin, newMargin)
+              });
+            };
+          })(this));
         },
         showTab: function(e) {
           var $el, first_model, target;
@@ -754,47 +763,51 @@
           }
         },
         setSortable: function() {
-          var _this = this;
           if (this.$responseFields.hasClass('ui-sortable')) {
             this.$responseFields.sortable('destroy');
           }
           this.$responseFields.sortable({
             forcePlaceholderSize: true,
             placeholder: 'sortable-placeholder',
-            stop: function(e, ui) {
-              var rf;
-              if (ui.item.data('field-type')) {
-                rf = _this.collection.create(Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {
-                  $replaceEl: ui.item
-                });
-                _this.createAndShowEditView(rf);
-              }
-              _this.handleFormUpdate();
-              return true;
-            },
-            update: function(e, ui) {
-              if (!ui.item.data('field-type')) {
-                return _this.ensureEditViewScrolled();
-              }
-            }
+            stop: (function(_this) {
+              return function(e, ui) {
+                var rf;
+                if (ui.item.data('field-type')) {
+                  rf = _this.collection.create(Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {
+                    $replaceEl: ui.item
+                  });
+                  _this.createAndShowEditView(rf);
+                }
+                _this.handleFormUpdate();
+                return true;
+              };
+            })(this),
+            update: (function(_this) {
+              return function(e, ui) {
+                if (!ui.item.data('field-type')) {
+                  return _this.ensureEditViewScrolled();
+                }
+              };
+            })(this)
           });
           return this.setDraggable();
         },
         setDraggable: function() {
-          var $addFieldButtons,
-            _this = this;
+          var $addFieldButtons;
           $addFieldButtons = this.$el.find("[data-field-type]");
           return $addFieldButtons.draggable({
             connectToSortable: this.$responseFields,
-            helper: function() {
-              var $helper;
-              $helper = $("<div class='response-field-draggable-helper' />");
-              $helper.css({
-                width: _this.$responseFields.width(),
-                height: '80px'
-              });
-              return $helper;
-            }
+            helper: (function(_this) {
+              return function() {
+                var $helper;
+                $helper = $("<div class='response-field-draggable-helper' />");
+                $helper.css({
+                  width: _this.$responseFields.width(),
+                  height: '80px'
+                });
+                return $helper;
+              };
+            })(this)
           });
         },
         addSectionBreak: function(obj_view, cnt) {
@@ -806,147 +819,155 @@
           }
         },
         applyEasyWizard: function() {
-          var _this = this;
-          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-            var _i, _len;
-            for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
-              field_view = fieldViews[_i];
-              if (field_view.is_section_break) {
-                add_break_to_next = true;
-                prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
-                next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
-              }
-              if (cnt === 1) {
-                wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _this
-                });
-                _this.addSectionBreak(wizard_view, wiz_cnt);
-              } else if (add_break_to_next && !field_view.is_section_break) {
-                _this.$responseFields.append(wizard_view.$el);
-                wizard_view = new Formbuilder.views.wizard_tab({
-                  parentView: _this
-                });
-                wiz_cnt += 1;
-                if (add_break_to_next) {
-                  add_break_to_next = false;
+          (function(_this) {
+            return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
+              var _i, _len;
+              for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
+                field_view = fieldViews[_i];
+                if (field_view.is_section_break) {
+                  add_break_to_next = true;
+                  prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
+                  next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
                 }
-                _this.addSectionBreak(wizard_view, wiz_cnt);
-              }
-              if (wizard_view && field_view && !field_view.is_section_break) {
-                wizard_view.$el.append(field_view.render().el);
-              }
-              if (cnt === fieldViews.length && wizard_view) {
-                _this.$responseFields.append(wizard_view.$el);
-              }
-              cnt += 1;
-            }
-            return $("#formbuilder_form").easyWizard({
-              showSteps: false,
-              submitButton: false,
-              prevButton: prev_btn_text,
-              nextButton: next_btn_text,
-              after: function(wizardObj) {
-                if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
-                  return wizardObj.parents('.form-panel').find('.update-button').show();
-                } else {
-                  return wizardObj.parents('.form-panel').find('.update-button').hide();
+                if (cnt === 1) {
+                  wizard_view = new Formbuilder.views.wizard_tab({
+                    parentView: _this
+                  });
+                  _this.addSectionBreak(wizard_view, wiz_cnt);
+                } else if (add_break_to_next && !field_view.is_section_break) {
+                  _this.$responseFields.append(wizard_view.$el);
+                  wizard_view = new Formbuilder.views.wizard_tab({
+                    parentView: _this
+                  });
+                  wiz_cnt += 1;
+                  if (add_break_to_next) {
+                    add_break_to_next = false;
+                  }
+                  _this.addSectionBreak(wizard_view, wiz_cnt);
                 }
+                if (wizard_view && field_view && !field_view.is_section_break) {
+                  wizard_view.$el.append(field_view.render().el);
+                }
+                if (cnt === fieldViews.length && wizard_view) {
+                  _this.$responseFields.append(wizard_view.$el);
+                }
+                cnt += 1;
               }
+              return $("#formbuilder_form").easyWizard({
+                showSteps: false,
+                submitButton: false,
+                prevButton: prev_btn_text,
+                nextButton: next_btn_text,
+                after: function(wizardObj) {
+                  if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
+                    return wizardObj.parents('.form-panel').find('.update-button').show();
+                  } else {
+                    return wizardObj.parents('.form-panel').find('.update-button').hide();
+                  }
+                }
+              });
             });
-          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
+          })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
           return this;
         },
         triggerEvent: function() {
-          var _this = this;
-          return (function(field_view, fieldViews, model) {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
-              field_view = fieldViews[_i];
-              _results.push((function(x, count, should_incr, val_set, model) {
-                var _j, _len1, _ref;
-                if (field_view.field_type === 'esignature') {
-                  initializeCanvas(field_view.model.getCid());
-                }
-                _ref = field_view.$("input, textarea, select, canvas, a");
-                for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                  x = _ref[_j];
-                  count = (function(x, index, name, val, value, cid) {
-                    var get_user_location;
-                    cid = model.getCid();
-                    if (field_view.field_type === 'radio' || 'scale_rating') {
-                      value = x.value;
-                    }
-                    name = cid.toString() + "_" + index.toString();
-                    if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                      val = model.get('field_values')[value];
-                    } else if (model.get('field_values')) {
-                      val = model.get('field_values')[name];
-                    }
-                    if (val) {
-                      val_set = true;
-                      _this.setFieldVal($(x), val);
-                    }
-                    if (!val) {
-                      if (field_view.field_type === 'gmap') {
-                        get_user_location = getCurrentLocation(model.getCid());
-                        if (get_user_location !== 'false') {
-                          $("[name = " + model.getCid() + "_1]").text(get_user_location);
-                        } else {
-                          $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+          return (function(_this) {
+            return function(field_view, fieldViews, model) {
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
+                field_view = fieldViews[_i];
+                _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
+                  var _j, _len1, _ref;
+                  if (field_view.field_type === 'esignature') {
+                    initializeCanvas(field_view.model.getCid());
+                  }
+                  _ref = field_view.$("input, textarea, select, canvas, a");
+                  for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                    x = _ref[_j];
+                    count = (function(x, index, name, val, value, cid) {
+                      var get_user_location;
+                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                      field_method_call = Formbuilder.fields[field_type_method_call];
+                      if (field_method_call.setup) {
+                        field_method_call.setup($(x), model, index);
+                      }
+                      cid = model.getCid();
+                      if (field_view.field_type === 'radio' || 'scale_rating') {
+                        value = x.value;
+                      }
+                      name = cid.toString() + "_" + index.toString();
+                      if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                        val = model.get('field_values')[value];
+                      } else if (model.get('field_values')) {
+                        val = model.get('field_values')[name];
+                      }
+                      if (val) {
+                        val_set = true;
+                        _this.setFieldVal($(x), val);
+                      }
+                      if (!val) {
+                        if (field_view.field_type === 'gmap') {
+                          get_user_location = getCurrentLocation(model.getCid());
+                          if (get_user_location !== 'false') {
+                            $("[name = " + model.getCid() + "_1]").text(get_user_location);
+                          } else {
+                            $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                          }
                         }
                       }
-                    }
-                    return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
-                }
-                if (val_set) {
-                  return field_view.trigger('change_state');
-                }
-              })(null, 0, function(attr) {
-                return attr !== 'radio';
-              }, false, field_view.model));
-            }
-            return _results;
-          })(null, this.fieldViews, "");
+                      return index;
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
+                  }
+                  if (val_set) {
+                    return field_view.trigger('change_state');
+                  }
+                })(null, 0, function(attr) {
+                  return attr !== 'radio';
+                }, false, field_view.model, '', ''));
+              }
+              return _results;
+            };
+          })(this)(null, this.fieldViews, "");
         },
         setFieldVal: function(elem, val) {
-          var _this = this;
-          return (function(setters, type) {
-            setters = {
-              gmap: function() {
-                return $(elem).text(val);
-              },
-              esignature: function() {
-                if (val) {
-                  $(elem).attr("upload_url", val);
+          return (function(_this) {
+            return function(setters, type) {
+              setters = {
+                gmap: function() {
+                  return $(elem).text(val);
+                },
+                esignature: function() {
+                  if (val) {
+                    $(elem).attr("upload_url", val);
+                  }
+                  return makeRequest(val, $(elem).attr("name"));
+                },
+                file: function() {
+                  $(elem).siblings(".active_link").attr("href", val);
+                  if (val) {
+                    return $(elem).siblings(".active_link").text(val.split("/").pop().split("?")[0]);
+                  }
+                },
+                checkbox: function() {
+                  if (val) {
+                    return $(elem).attr("checked", true);
+                  }
+                },
+                radio: function() {
+                  if (val) {
+                    return $(elem).attr("checked", true);
+                  }
+                },
+                "default": function() {
+                  if (val) {
+                    return $(elem).val(val);
+                  }
                 }
-                return makeRequest(val, $(elem).attr("name"));
-              },
-              file: function() {
-                $(elem).siblings(".active_link").attr("href", val);
-                if (val) {
-                  return $(elem).siblings(".active_link").text(val.split("/").pop().split("?")[0]);
-                }
-              },
-              checkbox: function() {
-                if (val) {
-                  return $(elem).attr("checked", true);
-                }
-              },
-              radio: function() {
-                if (val) {
-                  return $(elem).attr("checked", true);
-                }
-              },
-              "default": function() {
-                if (val) {
-                  return $(elem).val(val);
-                }
-              }
+              };
+              return (setters[type] || setters['default'])(elem, val);
             };
-            return (setters[type] || setters['default'])(elem, val);
-          })(null, $(elem).attr('type'));
+          })(this)(null, $(elem).attr('type'));
         },
         addAll: function() {
           var back_visiblity, fd_views, field_view, _i, _len, _ref;
@@ -980,12 +1001,13 @@
           }
         },
         bindHierarchyEvents: function(hierarchyViews) {
-          var _this = this;
-          return (function(cid) {
-            return _.each(hierarchyViews, function(hierarchyView) {
-              return hierarchyView.field.bindChangeEvents(hierarchyView);
-            });
-          })('');
+          return (function(_this) {
+            return function(cid) {
+              return _.each(hierarchyViews, function(hierarchyView) {
+                return hierarchyView.field.bindChangeEvents(hierarchyView);
+              });
+            };
+          })(this)('');
         },
         hideShowNoResponseFields: function() {
           return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 ? 'hide' : 'show']();
@@ -1033,11 +1055,12 @@
           return this.scrollLeftWrapper($(".fb-field-wrapper.editing"));
         },
         scrollLeftWrapper: function($responseFieldEl) {
-          var _this = this;
           this.unlockLeftWrapper();
-          return $.scrollWindowTo($responseFieldEl.offset().top - this.$responseFields.offset().top, 200, function() {
-            return _this.lockLeftWrapper();
-          });
+          return $.scrollWindowTo($responseFieldEl.offset().top - this.$responseFields.offset().top, 200, (function(_this) {
+            return function() {
+              return _this.lockLeftWrapper();
+            };
+          })(this));
         },
         lockLeftWrapper: function() {
           return this.$fbLeft.data('locked', true);
@@ -1075,42 +1098,44 @@
         removeSourceConditions: function(model) {
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
-              var _this = this;
-              return (function(index) {
-                if (!_.isEmpty(condition.source)) {
-                  if (condition.source === model.getCid()) {
-                    index = model.attributes.conditions.indexOf(condition);
-                    if (index > -1) {
-                      model.attributes.conditions.splice(index, 1);
+              return (function(_this) {
+                return function(index) {
+                  if (!_.isEmpty(condition.source)) {
+                    if (condition.source === model.getCid()) {
+                      index = model.attributes.conditions.indexOf(condition);
+                      if (index > -1) {
+                        model.attributes.conditions.splice(index, 1);
+                      }
+                      return model.save();
                     }
-                    return model.save();
                   }
-                }
-              })(0);
+                };
+              })(this)(0);
             });
           }
         },
         addConditions: function(model) {
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
-              var _this = this;
-              return (function(source, source_condition, target_condition) {
-                if (!_.isEmpty(condition.source)) {
-                  source = model.collection.where({
-                    cid: condition.source
-                  });
-                  if (condition.target === '') {
-                    condition.target = model.getCid();
+              return (function(_this) {
+                return function(source, source_condition, target_condition) {
+                  if (!_.isEmpty(condition.source)) {
+                    source = model.collection.where({
+                      cid: condition.source
+                    });
+                    if (condition.target === '') {
+                      condition.target = model.getCid();
+                    }
+                    target_condition = _.clone(condition);
+                    target_condition.isSource = false;
+                    if (!_.has(source[0].attributes.conditions, target_condition)) {
+                      _.extend(source_condition, target_condition);
+                      source[0].attributes.conditions.push(source_condition);
+                      return source[0].save();
+                    }
                   }
-                  target_condition = _.clone(condition);
-                  target_condition.isSource = false;
-                  if (!_.has(source[0].attributes.conditions, target_condition)) {
-                    _.extend(source_condition, target_condition);
-                    source[0].attributes.conditions.push(source_condition);
-                    return source[0].save();
-                  }
-                }
-              })({}, {}, {});
+                };
+              })(this)({}, {}, {});
             });
           }
         },
@@ -1118,49 +1143,51 @@
           return this.$('#formbuilder_form').serializeArray();
         },
         formValid: function() {
-          var _this = this;
-          return (function(valid) {
-            valid = (function(el) {
-              return !el.checkValidity || el.checkValidity();
-            })(_this.$('#formbuilder_form')[0]);
-            if (!valid) {
-              return false;
-            }
-            return (function(field, i) {
-              while (i < _this.fieldViews.length) {
-                field = _this.fieldViews[i];
-                if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
-                  if (field.isValid && !field.isValid()) {
-                    return false;
-                  }
-                }
-                i++;
+          return (function(_this) {
+            return function(valid) {
+              valid = (function(el) {
+                return !el.checkValidity || el.checkValidity();
+              })(_this.$('#formbuilder_form')[0]);
+              if (!valid) {
+                return false;
               }
-              return true;
-            })(null, 0);
-          })(false);
+              return (function(field, i) {
+                while (i < _this.fieldViews.length) {
+                  field = _this.fieldViews[i];
+                  if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
+                    if (field.isValid && !field.isValid()) {
+                      return false;
+                    }
+                  }
+                  i++;
+                }
+                return true;
+              })(null, 0);
+            };
+          })(this)(false);
         },
         doAjaxSave: function(payload) {
-          var _this = this;
           return $.ajax({
             url: Formbuilder.options.HTTP_ENDPOINT,
             type: Formbuilder.options.HTTP_METHOD,
             data: payload,
             contentType: "application/json",
-            success: function(data) {
-              var datum, _i, _len, _ref;
-              _this.updatingBatch = true;
-              for (_i = 0, _len = data.length; _i < _len; _i++) {
-                datum = data[_i];
-                if ((_ref = _this.collection.get(datum.cid)) != null) {
-                  _ref.set({
-                    id: datum.id
-                  });
+            success: (function(_this) {
+              return function(data) {
+                var datum, _i, _len, _ref;
+                _this.updatingBatch = true;
+                for (_i = 0, _len = data.length; _i < _len; _i++) {
+                  datum = data[_i];
+                  if ((_ref = _this.collection.get(datum.cid)) != null) {
+                    _ref.set({
+                      id: datum.id
+                    });
+                  }
+                  _this.collection.trigger('sync');
                 }
-                _this.collection.trigger('sync');
-              }
-              return _this.updatingBatch = void 0;
-            }
+                return _this.updatingBatch = void 0;
+              };
+            })(this)
           });
         }
       })
@@ -1212,16 +1239,17 @@
       return $el.find("#zipcode").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result, check_match_condtions, elem_val) {
-        if (condition === '!=') {
-          check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
-        } else {
-          elem_val = clicked_element.find("#address").val();
-          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        }
-        return check_result;
-      })(false, [], '');
+      return (function(_this) {
+        return function(check_result, check_match_condtions, elem_val) {
+          if (condition === '!=') {
+            check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
+          } else {
+            elem_val = clicked_element.find("#address").val();
+            check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          }
+          return check_result;
+        };
+      })(this)(false, [], '');
     },
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1251,20 +1279,21 @@
       return attrs;
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, checked_chk_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          checked_chk_cnt = $el.find('input:checked').length;
-          if ($($el.find('input:checked').last()).val() === '__other__') {
-            return $el.find('input:text').val() !== '';
-          }
-          return checked_chk_cnt > 0;
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            checked_chk_cnt = $el.find('input:checked').length;
+            if ($($el.find('input:checked').last()).val() === '__other__') {
+              return $el.find('input:text').val() !== '';
+            }
+            return checked_chk_cnt > 0;
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       var elem, _i, _len, _ref, _results;
@@ -1277,25 +1306,27 @@
       return _results;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
-        return check_result;
-      })('', false);
+      return (function(_this) {
+        return function(elem_val, check_result) {
+          elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+          check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+          return check_result;
+        };
+      })(this)('', false);
     },
     add_remove_require: function(cid, required) {
-      var _this = this;
-      return (function(checked_chk_cnt) {
-        var i, input_elem, _i, _len, _ref, _results;
-        _ref = $el.find('input:checked').length;
-        _results = [];
-        for (input_elem = _i = 0, _len = _ref.length; _i < _len; input_elem = ++_i) {
-          i = _ref[input_elem];
-          _results.push($("." + cid).find("[name = " + cid + "_1]").attr("required", required));
-        }
-        return _results;
-      })(0);
+      return (function(_this) {
+        return function(checked_chk_cnt) {
+          var i, input_elem, _i, _len, _ref, _results;
+          _ref = $el.find('input:checked').length;
+          _results = [];
+          for (input_elem = _i = 0, _len = _ref.length; _i < _len; input_elem = ++_i) {
+            i = _ref[input_elem];
+            _results.push($("." + cid).find("[name = " + cid + "_1]").attr("required", required));
+          }
+          return _results;
+        };
+      })(this)(0);
     }
   });
 
@@ -1308,45 +1339,46 @@
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> CI-Hierarchy",
     selected_comp: null,
     bindChangeEvents: function(fd_view) {
-      var _this = this;
-      return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
-        cid = fd_view.model.attributes.cid;
-        field_values = fd_view.model.attributes.field_values;
-        $company_id = $("#company_id_" + cid);
-        $location_id = $("#location_id_" + cid);
-        $division_id = $("#division_id_" + cid);
-        $company_id.bind('change', {
-          that: _this,
-          fd_view: fd_view
-        }, _this.populateLocationsByCompanyId);
-        $location_id.bind('change', {
-          that: _this,
-          fd_view: fd_view
-        }, _this.populateDivisionsByLocId);
-        if (field_values) {
-          if ($company_id) {
-            selected_compId = _this.getSelectedFieldVal($company_id, field_values);
+      return (function(_this) {
+        return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
+          cid = fd_view.model.attributes.cid;
+          field_values = fd_view.model.attributes.field_values;
+          $company_id = $("#company_id_" + cid);
+          $location_id = $("#location_id_" + cid);
+          $division_id = $("#division_id_" + cid);
+          $company_id.bind('change', {
+            that: _this,
+            fd_view: fd_view
+          }, _this.populateLocationsByCompanyId);
+          $location_id.bind('change', {
+            that: _this,
+            fd_view: fd_view
+          }, _this.populateDivisionsByLocId);
+          if (field_values) {
+            if ($company_id) {
+              selected_compId = _this.getSelectedFieldVal($company_id, field_values);
+            }
+            if ($location_id) {
+              selected_locId = _this.getSelectedFieldVal($location_id, field_values);
+            }
+            if ($division_id) {
+              selected_divId = _this.getSelectedFieldVal($division_id, field_values);
+            }
           }
-          if ($location_id) {
-            selected_locId = _this.getSelectedFieldVal($location_id, field_values);
-          }
-          if ($division_id) {
-            selected_divId = _this.getSelectedFieldVal($division_id, field_values);
-          }
-        }
-        return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId);
-      })(null, null, null, null, null, '', '', '');
+          return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId);
+        };
+      })(this)(null, null, null, null, null, '', '', '');
     },
     getSelectedFieldVal: function($ele, fieldValues) {
-      var _this = this;
-      return (function(name, selectedId) {
-        name = $ele.attr('name');
-        selectedId = fieldValues[name];
-        return selectedId;
-      })('', '');
+      return (function(_this) {
+        return function(name, selectedId) {
+          name = $ele.attr('name');
+          selectedId = fieldValues[name];
+          return selectedId;
+        };
+      })(this)('', '');
     },
     populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId) {
-      var _this = this;
       if (selected_compId == null) {
         selected_compId = '';
       }
@@ -1356,26 +1388,29 @@
       if (selected_divId == null) {
         selected_divId = '';
       }
-      return (function(companies, $company_id, cid) {
-        cid = fd_view.model.attributes.cid;
-        $company_id = $("#company_id_" + cid);
-        if ($company_id && companies && companies.length > 0) {
-          $company_id.empty();
-          fd_view.field.clearSelectFields(cid);
-          fd_view.field.addPlaceHolder($company_id, '--- Select ---');
-          fd_view.field.appendData($company_id, companies);
-          if (selected_compId && selected_compId !== '') {
-            $company_id.val(selected_compId);
-            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId);
+      return (function(_this) {
+        return function(companies, $company_id, cid) {
+          cid = fd_view.model.attributes.cid;
+          $company_id = $("#company_id_" + cid);
+          if ($company_id && companies && companies.length > 0) {
+            $company_id.empty();
+            fd_view.field.clearSelectFields(cid);
+            fd_view.field.addPlaceHolder($company_id, '--- Select ---');
+            fd_view.field.appendData($company_id, companies);
+            if (selected_compId && selected_compId !== '') {
+              $company_id.val(selected_compId);
+              return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId);
+            }
           }
-        }
-      })(Formbuilder.options.COMPANY_HIERARCHY, null, null);
+        };
+      })(this)(Formbuilder.options.COMPANY_HIERARCHY, null, null);
     },
     populateLocationsByCompanyId: function(e) {
-      var _this = this;
-      return (function(selected_company_id, that, fd_view) {
-        return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
-      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+      return (function(_this) {
+        return function(selected_company_id, that, fd_view) {
+          return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
+        };
+      })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
     setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId) {
       if (selected_locId == null) {
@@ -1389,123 +1424,131 @@
       return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
     },
     populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
-      var _this = this;
       if (selected_locId == null) {
         selected_locId = '';
       }
       if (selected_divId == null) {
         selected_divId = '';
       }
-      return (function(locations, $location_id) {
-        $location_id = $("#location_id_" + fd_view.model.attributes.cid);
-        if (selected_comp) {
-          locations = selected_comp.locations;
-        }
-        if ($location_id && locations.length > 0) {
-          _this.addPlaceHolder($location_id, '--- Select ---');
-          _this.appendData($location_id, locations);
-          if (selected_locId && selected_locId !== '') {
-            $location_id.val(selected_locId);
-            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId);
+      return (function(_this) {
+        return function(locations, $location_id) {
+          $location_id = $("#location_id_" + fd_view.model.attributes.cid);
+          if (selected_comp) {
+            locations = selected_comp.locations;
           }
-        }
-      })([], null);
+          if ($location_id && locations.length > 0) {
+            _this.addPlaceHolder($location_id, '--- Select ---');
+            _this.appendData($location_id, locations);
+            if (selected_locId && selected_locId !== '') {
+              $location_id.val(selected_locId);
+              return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId);
+            }
+          }
+        };
+      })(this)([], null);
     },
     populateDivisionsByLocId: function(e) {
-      var _this = this;
-      return (function(selected_location_id, that, fd_view) {
-        return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
-      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+      return (function(_this) {
+        return function(selected_location_id, that, fd_view) {
+          return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
+        };
+      })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
     setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId) {
-      var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
       }
-      return (function(selected_loc) {
-        selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
-        return _this.populateDivisions(fd_view, selected_loc, selected_divId);
-      })(null);
+      return (function(_this) {
+        return function(selected_loc) {
+          selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+          return _this.populateDivisions(fd_view, selected_loc, selected_divId);
+        };
+      })(this)(null);
     },
     populateDivisions: function(fd_view, selected_loc, selected_divId) {
-      var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
       }
-      return (function(divisions, $division_id) {
-        $division_id = $("#division_id_" + fd_view.model.attributes.cid);
-        if (selected_loc) {
-          divisions = selected_loc.divisions;
-        }
-        $division_id.empty();
-        _this.addPlaceHolder($division_id, '--- Select ---');
-        if ($division_id && divisions.length > 0) {
-          _this.appendData($division_id, divisions);
-          if (selected_divId && selected_divId !== '') {
-            return $division_id.val(selected_divId);
+      return (function(_this) {
+        return function(divisions, $division_id) {
+          $division_id = $("#division_id_" + fd_view.model.attributes.cid);
+          if (selected_loc) {
+            divisions = selected_loc.divisions;
           }
-        }
-      })([], null);
+          $division_id.empty();
+          _this.addPlaceHolder($division_id, '--- Select ---');
+          if ($division_id && divisions.length > 0) {
+            _this.appendData($division_id, divisions);
+            if (selected_divId && selected_divId !== '') {
+              return $division_id.val(selected_divId);
+            }
+          }
+        };
+      })(this)([], null);
     },
     clearSelectFields: function(cid) {
       $("#location_id_" + cid).empty();
       return $("#division_id_" + cid).empty();
     },
     appendData: function($element, data) {
-      var _this = this;
-      return (function(appendString) {
-        return _.each(data, function(obj_hash) {
-          this.appendString = "<option value='" + obj_hash.id + "'>";
-          this.appendString += obj_hash.name + "</option>";
-          return $element.append(this.appendString);
-        });
-      })('');
+      return (function(_this) {
+        return function(appendString) {
+          return _.each(data, function(obj_hash) {
+            this.appendString = "<option value='" + obj_hash.id + "'>";
+            this.appendString += obj_hash.name + "</option>";
+            return $element.append(this.appendString);
+          });
+        };
+      })(this)('');
     },
     addPlaceHolder: function($element, name) {
       return $element.html("<option value=''>" + name + "</option>");
     },
     clearFields: function($el, model) {
-      var _this = this;
-      return (function(cid) {
-        cid = model.attributes.cid;
-        $el.find("#company_id_" + cid).val("");
-        $el.find("#location_id_" + cid).val("");
-        return $el.find("#division_id_" + cid).val("");
-      })('');
+      return (function(_this) {
+        return function(cid) {
+          cid = model.attributes.cid;
+          $el.find("#company_id_" + cid).val("");
+          $el.find("#location_id_" + cid).val("");
+          return $el.find("#division_id_" + cid).val("");
+        };
+      })(this)('');
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid, cid) {
-        cid = model.attributes.cid;
-        valid = (function(required_attr, checked_chk_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '';
-        })(model.get('required'), 0);
-        return valid;
-      })(false, '');
+      return (function(_this) {
+        return function(valid, cid) {
+          cid = model.attributes.cid;
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '';
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false, '');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, _toLowerCase_set_val) {
-        $comp = clicked_element.find("#company_id_" + cid);
-        $loc = clicked_element.find("#location_id_" + cid);
-        $div = clicked_element.find("#division_id_" + cid);
-        comp_id = $comp.val();
-        loc_id = $loc.val();
-        div_id = $div.val();
-        comp_name = $comp.find('option:selected').text();
-        loc_name = $loc.find('option:selected').text();
-        div_name = $div.find('option:selected').text();
-        if (condition === '!=') {
-          check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
-        } else if (condition === '==') {
-          _toLowerCase_set_val = set_value.toLowerCase();
-          check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
-        }
-        return check_result;
-      })(false, null, null, null, '', '', '', '', '', '', '');
+      return (function(_this) {
+        return function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, _toLowerCase_set_val) {
+          $comp = clicked_element.find("#company_id_" + cid);
+          $loc = clicked_element.find("#location_id_" + cid);
+          $div = clicked_element.find("#division_id_" + cid);
+          comp_id = $comp.val();
+          loc_id = $loc.val();
+          div_id = $div.val();
+          comp_name = $comp.find('option:selected').text();
+          loc_name = $loc.find('option:selected').text();
+          div_name = $div.find('option:selected').text();
+          if (condition === '!=') {
+            check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
+          } else if (condition === '==') {
+            _toLowerCase_set_val = set_value.toLowerCase();
+            check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
+          }
+          return check_result;
+        };
+      })(this)(false, null, null, null, '', '', '', '', '', '', '');
     },
     add_remove_require: function(cid, required) {
       $("#company_id_" + cid).attr("required", required);
@@ -1534,16 +1577,17 @@
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date",
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find(".hasDatepicker").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find(".hasDatepicker").val() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
@@ -1576,13 +1620,14 @@
       }
     },
     evalCondition: function(clicked_element, cid, condition, set_value, field) {
-      var _this = this;
-      return (function(firstValue, check_result, secondValue, is_true) {
-        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = firstValue.split('/');
-        secondValue = set_value.split('/');
-        return is_true = field.check_date_result(condition, firstValue, secondValue);
-      })('', false, '', false);
+      return (function(_this) {
+        return function(firstValue, check_result, secondValue, is_true) {
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = firstValue.split('/');
+          secondValue = set_value.split('/');
+          return is_true = field.check_date_result(condition, firstValue, secondValue);
+        };
+      })(this)('', false, '', false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1597,36 +1642,38 @@
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
     setup: function(el, model, index) {
-      var _this = this;
-      return (function(today, restricted_date) {
-        if (model.get(Formbuilder.options.mappings.MINAGE)) {
-          restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-          el.datepicker({
-            dateFormat: "dd/mm/yy",
-            maxDate: restricted_date
+      return (function(_this) {
+        return function(today, restricted_date) {
+          if (model.get(Formbuilder.options.mappings.MINAGE)) {
+            restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
+            el.datepicker({
+              dateFormat: "dd/mm/yy",
+              maxDate: restricted_date
+            });
+          } else {
+            el.datepicker({
+              dateFormat: "dd/mm/yy",
+              maxDate: today
+            });
+          }
+          return $(el).click(function() {
+            return $("#ui-datepicker-div").css("z-index", 3);
           });
-        } else {
-          el.datepicker({
-            dateFormat: "dd/mm/yy",
-            maxDate: today
-          });
-        }
-        return $(el).click(function() {
-          return $("#ui-datepicker-div").css("z-index", 3);
-        });
-      })(new Date, new Date);
+        };
+      })(this)(new Date, new Date);
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find(".hasDatepicker").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find(".hasDatepicker").val() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
@@ -1659,13 +1706,150 @@
       }
     },
     evalCondition: function(clicked_element, cid, condition, set_value, field) {
-      var _this = this;
-      return (function(firstValue, check_result, secondValue, is_true) {
-        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = firstValue.split('/');
-        secondValue = set_value.split('/');
-        return is_true = field.check_date_result(condition, firstValue, secondValue);
-      })('', false, '', false);
+      return (function(_this) {
+        return function(firstValue, check_result, secondValue, is_true) {
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = firstValue.split('/');
+          secondValue = set_value.split('/');
+          return is_true = field.check_date_result(condition, firstValue, secondValue);
+        };
+      })(this)('', false, '', false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('date_time', {
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\").datetimepicker({ dateFormat: \"dd/mm/yy\" });\n    })\n  </script>\n<% } %>\n<% if(rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\").timepicker();\n    })\n  </script>\n<% } %>\n<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    })\n  </script>\n<% } %>  ",
+    edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
+    setup: function(el, model, index) {
+      return (function(_this) {
+        return function(today) {
+          if (el.attr('id') === model.getCid() + '_datetime') {
+            el.datetimepicker('setDate', new Date());
+          } else if (el.attr('id') === model.getCid() + '_date') {
+            el.datepicker('setDate', new Date());
+          } else {
+            el.timepicker('setTime', new Date());
+          }
+          return $(el).click(function() {
+            return $("#ui-datepicker-div").css("z-index", 3);
+          });
+        };
+      })(this)(new Date);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find(".hasDatepicker").val() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    check_date_result: function(condition, firstValue, secondValue) {
+      firstValue[0] = parseInt(firstValue[0]);
+      firstValue[1] = parseInt(firstValue[1]);
+      firstValue[2] = parseInt(firstValue[2]);
+      secondValue[0] = parseInt(secondValue[0]);
+      secondValue[1] = parseInt(secondValue[1]);
+      secondValue[2] = parseInt(secondValue[2]);
+      if (condition === "<") {
+        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (condition === ">") {
+        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
+    check_time_retult: function(clicked_element, cid, condition, set_value, split_string) {
+      return (function(_this) {
+        return function(firstDate, secondDate, firstValue, secondValue, combinedValue) {
+          if (split_string) {
+            combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
+            combinedValue = combinedValue.split(' ');
+            firstValue = combinedValue[1];
+          } else {
+            firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          }
+          firstValue = firstValue.split(':');
+          secondValue = set_value.split(':');
+          firstDate.setHours(firstValue[0]);
+          firstDate.setMinutes(firstValue[1]);
+          secondDate.setHours(secondValue[0]);
+          secondDate.setMinutes(secondValue[1]);
+          if (condition === "<") {
+            if (firstDate < secondDate) {
+              return true;
+            } else {
+              return false;
+            }
+          } else if (condition === ">") {
+            if (firstDate > secondDate) {
+              return true;
+            } else {
+              return false;
+            }
+          } else if (condition === "==") {
+            if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+              return true;
+            }
+          }
+        };
+      })(this)(new Date(), new Date(), "", "", '');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value, field) {
+      return (function(_this) {
+        return function(combinedValue, firstValue, check_result, secondValue, is_date_true, is_time_true, split_string) {
+          var check_field_id;
+          check_field_id = clicked_element.find("[name = " + cid + "_1]").attr('id');
+          if (check_field_id === cid + '_datetime') {
+            combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
+            combinedValue = combinedValue.split(' ');
+            firstValue = combinedValue[0];
+            firstValue = firstValue.split('/');
+            set_value = set_value.split(' ');
+            secondValue = set_value[0].split('/');
+            is_date_true = field.check_date_result(condition, firstValue, secondValue);
+            split_string = true;
+            is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
+            if (is_date_true && is_time_true) {
+              return true;
+            }
+          } else if (check_field_id === cid + '_date') {
+            firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+            firstValue = firstValue.split('/');
+            secondValue = set_value.split('/');
+            return is_date_true = field.check_date_result(condition, firstValue, secondValue);
+          } else {
+            return is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value, split_string);
+          }
+        };
+      })(this)('', '', false, '', false, false, false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1702,9 +1886,10 @@
       return attrs;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var elem_val,
-        _this = this;
-      (function(check_result) {})(false);
+      var elem_val;
+      (function(_this) {
+        return (function(check_result) {});
+      })(this)(false);
       elem_val = clicked_element.find("[name = " + cid + "_1]").val();
       if (typeof elem_val === 'number') {
         elem_val = parseInt(elem_val);
@@ -1746,13 +1931,14 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result) {
-        var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        return check_result;
-      })(false);
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1763,24 +1949,25 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n<% console.log('in 1'); %>  \n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <% console.log('in 2'); %>  \n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:100px\"/>\n</div>",
+    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:100px\"/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, checked_chk_cnt, is_empty) {
-          if (!required_attr) {
-            return true;
-          }
-          is_empty = !($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() === getCanvasDrawn());
-          return is_empty;
-        })(model.get('required'), 0, '');
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt, is_empty) {
+            if (!required_attr) {
+              return true;
+            }
+            is_empty = !($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() === getCanvasDrawn());
+            return is_empty;
+          })(model.get('required'), 0, '');
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
@@ -1806,16 +1993,17 @@
     edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, checked_chk_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find("#first_name").val() !== '' && $el.find("#last_name").val() !== '';
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       $el.find("#first_name").val("");
@@ -1823,9 +2011,10 @@
       return $el.find("#suffix").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var check_result, elem_val,
-        _this = this;
-      (function(elem_val, check_result) {})('', false);
+      var check_result, elem_val;
+      (function(_this) {
+        return (function(elem_val, check_result) {});
+      })(this)('', false);
       elem_val = clicked_element.find("#first_name").val();
       check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
       return check_result;
@@ -1845,41 +2034,20 @@
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
     addRequiredConditions: function() {
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
-        <div class="modal-dialog">\
-          <div class="modal-content">\
-            <div class="modal-header">\
-              <div class="geo-location-panel top-panel1">\
-                <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>\
-                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>\
-              </div>\
-              <div class="geo-location-panel top-panel2">\
-                <input id="gmap_address" class="geo-location-panel1" type="textbox"/>\
-                <input type="button" value="Location" onclick="codeAddress()"/>\
-              </div>\
-            </div>\
-            <div class="modal-body">\
-              <div id="map-canvas"/>\
-            </div>\
-            <div class="modal-footer">\
-              <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button>\
-            </div>\
-          </div>\
-        </div>\
-      </div>\
-  ').appendTo('body');
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/> </div> <div class="geo-location-panel top-panel2"> <input id="gmap_address" class="geo-location-panel1" type="textbox"/> <input type="button" value="Location" onclick="codeAddress()"/> </div> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button> </div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find("[name = " + model.getCid() + "_1]").text() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find("[name = " + model.getCid() + "_1]").text() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
@@ -1943,13 +2111,14 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result) {
-        var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        return check_result;
-      })(false);
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1981,33 +2150,35 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result) {
-        var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        return check_result;
-      })(false);
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, textarea_char_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          textarea_char_cnt = $el.find('textarea').val().length;
-          if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
-            return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
-          } else {
-            return true;
-          }
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, textarea_char_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            textarea_char_cnt = $el.find('textarea').val().length;
+            if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+              return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+            } else {
+              return true;
+            }
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
@@ -2022,16 +2193,17 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(firstValue, check_result, secondValue, is_true) {
-        var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = parseInt(elem_val);
-        secondValue = parseInt(set_value);
-        if (eval("" + firstValue + " " + condition + " " + secondValue)) {
-          return true;
-        }
-      })('', false, '', false);
+      return (function(_this) {
+        return function(firstValue, check_result, secondValue, is_true) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = parseInt(elem_val);
+          secondValue = parseInt(set_value);
+          if (eval("" + firstValue + " " + condition + " " + secondValue)) {
+            return true;
+          }
+        };
+      })(this)('', false, '', false);
     },
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2059,20 +2231,21 @@
       return attrs;
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, checked_chk_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          checked_chk_cnt = $el.find('input:checked').length;
-          if ($el.find('input:checked').val() === '__other__') {
-            return $el.find('input:text').val() !== '';
-          }
-          return checked_chk_cnt > 0;
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            checked_chk_cnt = $el.find('input:checked').length;
+            if ($el.find('input:checked').val() === '__other__') {
+              return $el.find('input:text').val() !== '';
+            }
+            return checked_chk_cnt > 0;
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       var elem, _i, _len, _ref, _results;
@@ -2085,12 +2258,13 @@
       return _results;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
-        return check_result;
-      })('', false);
+      return (function(_this) {
+        return function(elem_val, check_result) {
+          elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+          check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+          return check_result;
+        };
+      })(this)('', false);
     }
   });
 
@@ -2114,41 +2288,44 @@
       return attrs;
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr, checked_chk_cnt) {
-          if (!required_attr) {
-            return true;
-          }
-          checked_chk_cnt = $el.find('input:checked').length;
-          if ($el.find('input:checked').val() === '__other__') {
-            return $el.find('input:text').val() !== '';
-          }
-          return checked_chk_cnt > 0;
-        })(model.get('required'), 0);
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            checked_chk_cnt = $el.find('input:checked').length;
+            if ($el.find('input:checked').val() === '__other__') {
+              return $el.find('input:text').val() !== '';
+            }
+            return checked_chk_cnt > 0;
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
-      var _this = this;
-      return (function(elem) {
-        var _i, _len, _ref, _results;
-        _ref = $el.find('input:checked');
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          elem = _ref[_i];
-          _results.push(elem.checked = false);
-        }
-        return _results;
-      })('');
+      return (function(_this) {
+        return function(elem) {
+          var _i, _len, _ref, _results;
+          _ref = $el.find('input:checked');
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            elem = _ref[_i];
+            _results.push(elem.checked = false);
+          }
+          return _results;
+        };
+      })(this)('');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
-        return check_result;
-      })('', false);
+      return (function(_this) {
+        return function(elem_val, check_result) {
+          elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+          check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+          return check_result;
+        };
+      })(this)('', false);
     }
   });
 
@@ -2193,12 +2370,13 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result, elem_val) {
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        return check_result;
-      })(false, '');
+      return (function(_this) {
+        return function(check_result, elem_val) {
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false, '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2218,48 +2396,50 @@
       }
     },
     isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find(".hasTimepicker").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find(".hasTimepicker").val() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(firstDate, secondDate, firstValue, secondValue) {
-        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = firstValue.split(':');
-        secondValue = set_value.split(':');
-        firstDate.setHours(firstValue[0]);
-        firstDate.setMinutes(firstValue[1]);
-        secondDate.setHours(secondValue[0]);
-        secondDate.setMinutes(secondValue[1]);
-        if (condition === "<") {
-          if (firstDate < secondDate) {
-            return true;
-          } else {
-            return false;
+      return (function(_this) {
+        return function(firstDate, secondDate, firstValue, secondValue) {
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = firstValue.split(':');
+          secondValue = set_value.split(':');
+          firstDate.setHours(firstValue[0]);
+          firstDate.setMinutes(firstValue[1]);
+          secondDate.setHours(secondValue[0]);
+          secondDate.setMinutes(secondValue[1]);
+          if (condition === "<") {
+            if (firstDate < secondDate) {
+              return true;
+            } else {
+              return false;
+            }
+          } else if (condition === ">") {
+            if (firstDate > secondDate) {
+              return true;
+            } else {
+              return false;
+            }
+          } else if (condition === "==") {
+            if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+              return true;
+            }
           }
-        } else if (condition === ">") {
-          if (firstDate > secondDate) {
-            return true;
-          } else {
-            return false;
-          }
-        } else if (condition === "==") {
-          if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-            return true;
-          }
-        }
-      })(new Date(), new Date(), "", "");
+        };
+      })(this)(new Date(), new Date(), "", "");
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2277,13 +2457,14 @@
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(check_result) {
-        var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-        return check_result;
-      })(false);
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2428,11 +2609,29 @@ __p += '\n            <option value="' +
 ((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
+ if(rf.get('field_type') == 'date_time') { ;
+__p += '\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value1\' type=\'text\'/>\n      ';
+ } else { ;
+__p += '  \n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      ';
+ } ;
+__p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add Condition</a>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
+'\' />\n  only date field\n</label>';
 
 }
 return __p
@@ -2706,18 +2905,6 @@ __p += '<div class=\'fb-edit-section-header\'>Size</div>\n<select data-rv-value=
 return __p
 };
 
-this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
-obj || (obj = {});
-var __t, __p = '', __e = _.escape;
-with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
-((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
-
-}
-return __p
-};
-
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2725,6 +2912,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.TIME_ONLY )) == null ? '' : __t) +
+'\' />\n  only time field\n</label>';
 
 }
 return __p

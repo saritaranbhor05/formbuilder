@@ -2,7 +2,6 @@ Formbuilder.registerField 'esignature',
 
   view: """
     <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
-    <% console.log('in 1'); %>  
       <canvas 
           type='esignature' 
           id="can"
@@ -12,7 +11,6 @@ Formbuilder.registerField 'esignature',
       />
       <% } else 
       if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
-      <% console.log('in 2'); %>  
         <canvas 
             type='esignature' 
             id="can"
