@@ -2905,6 +2905,18 @@ __p += '<div class=\'fb-edit-section-header\'>Size</div>\n<select data-rv-value=
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
+'" style="width: 40px" />\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
