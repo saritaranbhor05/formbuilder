@@ -3,31 +3,39 @@ Formbuilder.registerField 'date_time',
   view: """
     <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
       <div class='input-line'>
-        <input id='<%= rf.getCid()%>_datetime' type='text' readonly/>
+        <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
       </div>
       <script>
         $(function() {
-          $("#<%= rf.getCid() %>_datetime").datetimepicker({ dateFormat: "dd/mm/yy" });
+          $("#<%= rf.getCid() %>_datetime")
+              .datetimepicker({ 
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', 
+                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
+                });
         })
       </script>
-    <% } %>
-    <% if(rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
+    <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>
       <div class='input-line'>
-        <input id='<%= rf.getCid() %>_time' type='text' readonly/>
+        <input id='<%= rf.getCid() %>_time' type='text' readonly />
       </div>
       <script>
         $(function() {
-          $("#<%= rf.getCid() %>_time").timepicker();
+          $("#<%= rf.getCid() %>_time")
+                .timepicker({
+                    stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
+                  });
         })
       </script>
-    <% } %>
-    <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
+    <% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
       <div class='input-line'>
-        <input id='<%= rf.getCid() %>_date' type='text' readonly/>
+        <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />
       </div>
       <script>
         $(function() {
-          $("#<%= rf.getCid() %>_date").datepicker({ dateFormat: "dd/mm/yy" });
+          $("#<%= rf.getCid() %>_date")
+              .datepicker({ 
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' 
+                });
         })
       </script>
     <% } %>  
@@ -36,6 +44,8 @@ Formbuilder.registerField 'date_time',
   edit: """
     <%= Formbuilder.templates['edit/date_only']() %>
     <%= Formbuilder.templates['edit/time_only']() %>
+    <%= Formbuilder.templates['edit/step']() %>
+    <%= Formbuilder.templates['edit/date_format']() %>
   """
 
   addButton: """
@@ -138,9 +148,12 @@ Formbuilder.registerField 'date_time',
        secondValue = '',
        is_date_true = false,
        is_time_true = false,
-       split_string = false
+       split_string = false,
+       hold_date = ''
+       check_field_date_format = ''
     ) =>
       check_field_id = clicked_element.find("[name = "+cid+"_1]").attr('id')
+      check_field_date_format = clicked_element.find("[name = "+cid+"_1]").attr('date_format')
       
       if check_field_id is cid+'_datetime'
         combinedValue = clicked_element
@@ -148,6 +161,10 @@ Formbuilder.registerField 'date_time',
         combinedValue = combinedValue.split(' ')
         firstValue = combinedValue[0]
         firstValue = firstValue.split('/')
+        if(check_field_date_format is 'mm/dd/yy')
+          hold_date = firstValue[0]
+          firstValue[0] = firstValue[1]
+          firstValue[1] = hold_date
         set_value = set_value.split(' ')
         secondValue = set_value[0].split('/')
         is_date_true = field.check_date_result(condition,firstValue,secondValue)
@@ -159,6 +176,10 @@ Formbuilder.registerField 'date_time',
         firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
         firstValue = firstValue.split('/')
+        if(check_field_date_format is 'mm/dd/yy')
+          hold_date = firstValue[0]
+          firstValue[0] = firstValue[1]
+          firstValue[1] = hold_date
         secondValue = set_value.split('/')
         is_date_true = field.check_date_result(condition,firstValue,secondValue)
       else

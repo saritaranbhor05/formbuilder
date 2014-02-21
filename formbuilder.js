@@ -114,7 +114,8 @@
         BACK_VISIBLITY: 'field_options.back_visiblity',
         DEFAULT_COUNTRY: 'field_options.default_country',
         DATE_ONLY: 'field_options.date_only',
-        TIME_ONLY: 'field_options.time_only'
+        TIME_ONLY: 'field_options.time_only',
+        DATE_FORMAT: 'field_options.date_format'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -1572,71 +1573,6 @@
 }).call(this);
 
 (function() {
-  Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-datepicker-div\").css( \"z-index\", 3 );\n    });\n  })\n</script>",
-    edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date",
-    isValid: function($el, model) {
-      return (function(_this) {
-        return function(valid) {
-          valid = (function(required_attr) {
-            if (!required_attr) {
-              return true;
-            }
-            return $el.find(".hasDatepicker").val() !== '';
-          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-          return valid;
-        };
-      })(this)(false);
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    check_date_result: function(condition, firstValue, secondValue) {
-      firstValue[0] = parseInt(firstValue[0]);
-      firstValue[1] = parseInt(firstValue[1]);
-      firstValue[2] = parseInt(firstValue[2]);
-      secondValue[0] = parseInt(secondValue[0]);
-      secondValue[1] = parseInt(secondValue[1]);
-      secondValue[2] = parseInt(secondValue[2]);
-      if (condition === "<") {
-        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (condition === ">") {
-        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value, field) {
-      return (function(_this) {
-        return function(firstValue, check_result, secondValue, is_true) {
-          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-          firstValue = firstValue.split('/');
-          secondValue = set_value.split('/');
-          return is_true = field.check_date_result(condition, firstValue, secondValue);
-        };
-      })(this)('', false, '', false);
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-    }
-  });
-
-}).call(this);
-
-(function() {
   Formbuilder.registerField('date_of_birth', {
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
@@ -1724,8 +1660,8 @@
 
 (function() {
   Formbuilder.registerField('date_time', {
-    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\").datetimepicker({ dateFormat: \"dd/mm/yy\" });\n    })\n  </script>\n<% } %>\n<% if(rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\").timepicker();\n    })\n  </script>\n<% } %>\n<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    })\n  </script>\n<% } %>  ",
-    edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>",
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
+    edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
     setup: function(el, model, index) {
       return (function(_this) {
@@ -1824,14 +1760,20 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value, field) {
       return (function(_this) {
-        return function(combinedValue, firstValue, check_result, secondValue, is_date_true, is_time_true, split_string) {
+        return function(combinedValue, firstValue, check_result, secondValue, is_date_true, is_time_true, split_string, hold_date, check_field_date_format) {
           var check_field_id;
           check_field_id = clicked_element.find("[name = " + cid + "_1]").attr('id');
+          check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
           if (check_field_id === cid + '_datetime') {
             combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
             combinedValue = combinedValue.split(' ');
             firstValue = combinedValue[0];
             firstValue = firstValue.split('/');
+            if (check_field_date_format === 'mm/dd/yy') {
+              hold_date = firstValue[0];
+              firstValue[0] = firstValue[1];
+              firstValue[1] = hold_date;
+            }
             set_value = set_value.split(' ');
             secondValue = set_value[0].split('/');
             is_date_true = field.check_date_result(condition, firstValue, secondValue);
@@ -1843,13 +1785,18 @@
           } else if (check_field_id === cid + '_date') {
             firstValue = clicked_element.find("[name = " + cid + "_1]").val();
             firstValue = firstValue.split('/');
+            if (check_field_date_format === 'mm/dd/yy') {
+              hold_date = firstValue[0];
+              firstValue[0] = firstValue[1];
+              firstValue[1] = hold_date;
+            }
             secondValue = set_value.split('/');
             return is_date_true = field.check_date_result(condition, firstValue, secondValue);
           } else {
             return is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value, split_string);
           }
         };
-      })(this)('', '', false, '', false, false, false);
+      })(this)('', '', false, '', false, false, false, '', '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2386,69 +2333,6 @@
 }).call(this);
 
 (function() {
-  Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-timepicker-div\").css( \"z-index\", 3 );\n    });\n  });\n</script>",
-    edit: "<%= Formbuilder.templates['edit/step']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
-    setup: function(el, model, index) {
-      if (model.get(Formbuilder.options.mappings.STEP)) {
-        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
-      }
-    },
-    isValid: function($el, model) {
-      return (function(_this) {
-        return function(valid) {
-          valid = (function(required_attr) {
-            if (!required_attr) {
-              return true;
-            }
-            return $el.find(".hasTimepicker").val() !== '';
-          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-          return valid;
-        };
-      })(this)(false);
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value) {
-      return (function(_this) {
-        return function(firstDate, secondDate, firstValue, secondValue) {
-          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-          firstValue = firstValue.split(':');
-          secondValue = set_value.split(':');
-          firstDate.setHours(firstValue[0]);
-          firstDate.setMinutes(firstValue[1]);
-          secondDate.setHours(secondValue[0]);
-          secondDate.setMinutes(secondValue[1]);
-          if (condition === "<") {
-            if (firstDate < secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === ">") {
-            if (firstDate > secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === "==") {
-            if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-              return true;
-            }
-          }
-        };
-      })(this)(new Date(), new Date(), "", "");
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-    }
-  });
-
-}).call(this);
-
-(function() {
   Formbuilder.registerField('url', {
     view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
@@ -2620,6 +2504,18 @@ __p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'>
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add Condition</a>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
 
 }
 return __p
@@ -2909,9 +2805,9 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'1\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
+'" style="width: 40px" /> Stepping for minute\n';
 
 }
 return __p
@@ -2924,6 +2820,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.TIME_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="HH:mm">HH:mm</option>\n  <option value="HH:mm:ss">HH:mm:ss</option>\n</select>';
 
 }
 return __p

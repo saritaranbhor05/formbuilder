@@ -68,6 +68,7 @@ class Formbuilder
       DEFAULT_COUNTRY: 'field_options.default_country'
       DATE_ONLY: 'field_options.date_only'
       TIME_ONLY: 'field_options.time_only'
+      DATE_FORMAT: 'field_options.date_format'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'

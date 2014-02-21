@@ -150,6 +150,18 @@ __p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'>
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/date_only"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -434,9 +446,9 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'1\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
+'" style="width: 40px" /> Stepping for minute\n';
 
 }
 return __p
@@ -449,6 +461,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.TIME_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="HH:mm">HH:mm</option>\n  <option value="HH:mm:ss">HH:mm:ss</option>\n</select>';
 
 }
 return __p
