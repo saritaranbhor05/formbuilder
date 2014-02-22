@@ -62,6 +62,7 @@ Formbuilder.registerField 'date_time',
         el.timepicker('setTime', (new Date()) ) 
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
+      $('#ui-datepicker-div').css('display','none')  
 
   isValid: ($el, model) ->
     do(valid = false) =>

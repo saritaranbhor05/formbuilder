@@ -1679,9 +1679,10 @@
           } else {
             el.timepicker('setTime', new Date());
           }
-          return $(el).click(function() {
+          $(el).click(function() {
             return $("#ui-datepicker-div").css("z-index", 3);
           });
+          return $('#ui-datepicker-div').css('display', 'none');
         };
       })(this)(new Date);
     },
