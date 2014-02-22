@@ -208,6 +208,9 @@
           return this.listenTo(this.model, "destroy", this.remove);
         },
         add_remove_require: function(required) {
+          if (!required) {
+            this.clearFields() && this.changeStateSource();
+          }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             if (!this.field.add_remove_require) {
               return true;
@@ -272,8 +275,6 @@
                     }
                     check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
                     check_match_condtions.push(check_result);
-                    _this.clearFields();
-                    _this.changeStateSource();
                     if (and_flag === true) {
                       if (check_match_condtions.indexOf(false) === -1) {
                         return _this.show_hide_fields(true, set_field);
@@ -879,20 +880,18 @@
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
                 _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
-                  var _j, _len1, _ref;
+                  var _j, _len1, _ref, _results1;
                   if (field_view.field_type === 'esignature') {
                     initializeCanvas(field_view.model.getCid());
                   }
                   _ref = field_view.$("input, textarea, select, canvas, a");
+                  _results1 = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                     x = _ref[_j];
-                    count = (function(x, index, name, val, value, cid) {
+                    _results1.push(count = (function(x, index, name, val, value, cid) {
                       var get_user_location;
                       field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                       field_method_call = Formbuilder.fields[field_type_method_call];
-                      if (field_method_call.setup) {
-                        field_method_call.setup($(x), model, index);
-                      }
                       cid = model.getCid();
                       if (field_view.field_type === 'radio' || 'scale_rating') {
                         value = x.value;
@@ -902,6 +901,12 @@
                         val = model.get('field_values')[value];
                       } else if (model.get('field_values')) {
                         val = model.get('field_values')[name];
+                      }
+                      if (field_method_call.setup && !val) {
+                        field_method_call.setup($(x), model, index);
+                      }
+                      if ($(x).val()) {
+                        val_set = true;
                       }
                       if (val) {
                         val_set = true;
@@ -917,12 +922,13 @@
                           }
                         }
                       }
+                      if (val_set) {
+                        field_view.trigger('change_state');
+                      }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
                   }
-                  if (val_set) {
-                    return field_view.trigger('change_state');
-                  }
+                  return _results1;
                 })(null, 0, function(attr) {
                   return attr !== 'radio';
                 }, false, field_view.model, '', ''));
