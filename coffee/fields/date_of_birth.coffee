@@ -2,12 +2,13 @@ Formbuilder.registerField 'date_of_birth',
 
   view: """
     <div class='input-line'>
-      <input id='<%= rf.getCid() %>' type='text' readonly/>
+      <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
     </div>
   """
 
   edit: """
     <%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>
+    <%= Formbuilder.templates['edit/date_format']() %>
   """
 
   addButton: """
@@ -22,12 +23,12 @@ Formbuilder.registerField 'date_of_birth',
           model.get(Formbuilder.options.mappings.MINAGE)
         )
         el.datepicker({
-          dateFormat: "dd/mm/yy",
+          dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
           maxDate: restricted_date
         });
       else
         el.datepicker({
-          dateFormat: "dd/mm/yy",
+          dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
           maxDate: today
         });
       $(el).click ->
@@ -81,11 +82,17 @@ Formbuilder.registerField 'date_of_birth',
        firstValue = '' ,
        check_result = false,
        secondValue = '',
-       is_true = false
+       is_true = false,
+       check_field_date_format = ''
     ) =>
+      check_field_date_format = clicked_element.find("[name = "+cid+"_1]").attr('date_format')
       firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
       firstValue = firstValue.split('/')
+      if(check_field_date_format is 'mm/dd/yy')
+        hold_date = firstValue[0]
+        firstValue[0] = firstValue[1]
+        firstValue[1] = hold_date
       secondValue = set_value.split('/')
       is_true = field.check_date_result(condition,firstValue,secondValue)
 
