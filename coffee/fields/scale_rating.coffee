@@ -3,8 +3,7 @@ Formbuilder.registerField 'scale_rating',
   view: """
     <%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>
     <div class='row-fluid mobile-device'>
-      <div class="span1 scale_rating_text">
-        <div class="divider"></div>
+      <div class="scale_rating_min">
         <label>
           <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>
         </label>
@@ -13,7 +12,6 @@ Formbuilder.registerField 'scale_rating',
         <% for ( var i = 0 ; i < field_options.length ; i++) { %>
           <div class="span1 scale_rating">
             <%= i+1 %>
-            <div class="divider"></div>
             <label class='fb-option'>
               <input type='radio' value='<%= i+1 %>'
                 <%=
@@ -25,8 +23,7 @@ Formbuilder.registerField 'scale_rating',
           </div>
         <% } %>
       </div>
-      <div class="span1 scale_rating_text">
-        <div class="divider"></div>
+      <div class="scale_rating_max">
         <label>
           <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>
         </label>
