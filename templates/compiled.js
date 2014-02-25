@@ -7,7 +7,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
-'" style="width: 30px" />\n';
+'" min=\'0\' style="width: 30px" />\n';
 
 }
 return __p
@@ -446,7 +446,7 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'1\' placeholder="1" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'0\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" /> Stepping for minute\n';
 
