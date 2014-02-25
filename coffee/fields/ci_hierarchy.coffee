@@ -44,6 +44,10 @@ Formbuilder.registerField 'ci-hierarchy',
   """
   selected_comp: null
 
+  defaultAttributes: (attrs) ->
+    attrs.field_options.size = 'small'
+    attrs
+
   bindChangeEvents: (fd_view)->
     do(cid = null, $company_id = null,
       $location_id = null, $division_id = null,

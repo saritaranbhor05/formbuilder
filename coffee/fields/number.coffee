@@ -18,6 +18,10 @@ Formbuilder.registerField 'number',
     <span class="symbol"><span class="icon-number">123</span></span> Number
   """
 
+  defaultAttributes: (attrs) ->
+    attrs.field_options.size = 'small'
+    attrs
+
   setup: (el, model, index) ->
     if model.get(Formbuilder.options.mappings.MIN)
       el.attr("min", model.get(Formbuilder.options.mappings.MIN))

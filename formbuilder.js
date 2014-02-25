@@ -1345,6 +1345,10 @@
     edit: "",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> CI-Hierarchy",
     selected_comp: null,
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
+    },
     bindChangeEvents: function(fd_view) {
       return (function(_this) {
         return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
@@ -1580,8 +1584,8 @@
 
 (function() {
   Formbuilder.registerField('date_of_birth', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
     setup: function(el, model, index) {
       return (function(_this) {
@@ -1589,12 +1593,12 @@
           if (model.get(Formbuilder.options.mappings.MINAGE)) {
             restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
             el.datepicker({
-              dateFormat: "dd/mm/yy",
+              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
               maxDate: restricted_date
             });
           } else {
             el.datepicker({
-              dateFormat: "dd/mm/yy",
+              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
               maxDate: today
             });
           }
@@ -1649,13 +1653,20 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value, field) {
       return (function(_this) {
-        return function(firstValue, check_result, secondValue, is_true) {
+        return function(firstValue, check_result, secondValue, is_true, check_field_date_format) {
+          var hold_date;
+          check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
           firstValue = clicked_element.find("[name = " + cid + "_1]").val();
           firstValue = firstValue.split('/');
+          if (check_field_date_format === 'mm/dd/yy') {
+            hold_date = firstValue[0];
+            firstValue[0] = firstValue[1];
+            firstValue[1] = hold_date;
+          }
           secondValue = set_value.split('/');
           return is_true = field.check_date_result(condition, firstValue, secondValue);
         };
-      })(this)('', false, '', false);
+      })(this)('', false, '', false, '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1837,6 +1848,7 @@
         }
       ];
       attrs.field_options.include_blank_option = false;
+      attrs.field_options.size = 'small';
       return attrs;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
@@ -1881,6 +1893,10 @@
     view: "<input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'medium';
+      return attrs;
+    },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
@@ -1903,7 +1919,7 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"Clear\" id=\"clr\" style=\"min-width:50px;position:absolute;max-width:100px\"/>\n</div>",
+    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\">\n</div>",
     edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
@@ -2014,7 +2030,7 @@
     edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
     }
   });
@@ -2035,6 +2051,10 @@
     view: "<input type='number'/>\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
+    },
     setup: function(el, model, index) {
       var rounded_value;
       if (model.get(Formbuilder.options.mappings.MIN)) {
@@ -2087,7 +2107,7 @@
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
     },
     setup: function(el, model, index) {
@@ -2226,7 +2246,7 @@
 
 (function() {
   Formbuilder.registerField('scale_rating', {
-    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid mobile-device'>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
+    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid mobile-device'>\n  <div class=\"scale_rating_min\">\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"scale_rating_max\">\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
     edit: "<%= Formbuilder.templates['edit/scale_rating_options']() %>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-circle-blank\"></span>\n</span> Scale Rating",
     defaultAttributes: function(attrs) {
@@ -2301,7 +2321,7 @@
     edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Text Box",
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
     },
     setup: function(el, model, index) {
@@ -2344,6 +2364,10 @@
     view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'medium';
+      return attrs;
+    },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
@@ -2371,7 +2395,7 @@ this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
 '" min=\'0\' style="width: 30px" />\n';
 

@@ -369,10 +369,36 @@
 .image_link_form:hover
   background-color:#fff
 
-@media (min-width: 768px)
-    #map-canvas
-      height:400px
 
+#map-canvas
+  height:400px
+
+@media (max-width: 768px)
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
 
 @media (max-width: 767px)
 
@@ -381,6 +407,32 @@
 
     .modal.fade.in
       top: 20%;
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
+
 
 @media (max-width: 480px)
 
@@ -395,6 +447,31 @@
 
     .modal.fade.in
       top: 15%;
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
 
 .fb-clear-min-max
   margin-bottom: 2%

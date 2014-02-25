@@ -19,8 +19,8 @@ Formbuilder.registerField 'esignature',
             style="border:1px solid #000000;"
         />
       <% } %>
-    <div style="display:inline">
-      <input type="button" value="Clear" id="clr" style="min-width:50px;position:absolute;max-width:100px"/>
+    <div>
+      <input class="clear-button" id="clr" type="button" value="Clear">
     </div>
   """
 
