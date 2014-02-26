@@ -13,11 +13,12 @@
       <div class="span8">
         <select data-rv-value='condition:source'>
           <option value="">Select Field</option>
-          <% for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){%>
-            <% if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ %>
+          <% opts.parentView.collection.sort();%>
+          <% for( var i=0 ; i < opts.parentView.collection.length ; i++){%>
+            <% if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ %>
               <% break %>
             <% } %>
-            <option value="<%= opts.parentView.fieldViews[i].model.getCid() %>"><%= opts.parentView.fieldViews[i].model.attributes.label %></option>
+            <option value="<%= opts.parentView.collection.toJSON()[i].cid %>"><%= opts.parentView.collection.toJSON()[i].label %></option>
           <%}%>
         </select>
       </div>
