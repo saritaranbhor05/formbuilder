@@ -1583,6 +1583,17 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('date', {
+    view: "<label>\n  Unsupported field. Please replace this with the new DateTime field.\n</label>",
+    edit: "",
+    getFieldType: function() {
+      return 'date';
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('date_of_birth', {
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
@@ -2159,6 +2170,34 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('phone_number', {
+    view: "<input id='phone' type='tel'/>",
+    edit: "",
+    addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
+    setup: function(el, model, index) {
+      return el.mask('(00) 0000-0000');
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('price', {
     view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
@@ -2354,6 +2393,17 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('time', {
+    view: "<label>\n  Unsupported field. Please replace this with the new DateTime field.\n</label>",
+    edit: "",
+    getFieldType: function() {
+      return 'time';
     }
   });
 
@@ -2923,15 +2973,16 @@ var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.inputFields) { ;
-__p += '\n        <a data-field-type="' +
+ for (i in Formbuilder.inputFields) { 
+         if(Formbuilder.inputFields[i].getFieldType) { } else { ;
+__p += '\n              <a data-field-type="' +
 ((__t = ( i )) == null ? '' : __t) +
 '" class="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
-'">\n          ' +
+'">\n                ' +
 ((__t = ( Formbuilder.inputFields[i].addButton )) == null ? '' : __t) +
-'\n        </a>\n      ';
- } ;
+'\n              </a>\n            \n      ';
+ } };
 __p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.nonInputFields) { ;
 __p += '\n        <a data-field-type="' +
