@@ -2079,7 +2079,7 @@
 (function() {
   Formbuilder.registerField('phone_number', {
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
-    edit: "<%= Formbuilder.templates['edit/country_code']() %>\n<%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput(); \n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
     setup: function(el, model, index) {
       return (function(_this) {
@@ -2091,8 +2091,8 @@
             $('#' + model.getCid() + 'phone').val(country_code + ')');
           } else {
             $('#' + model.getCid() + 'phone').val(country_code);
-            country_code_set = $('#' + model.getCid() + 'phone').val();
           }
+          country_code_set = $('#' + model.getCid() + 'phone').val();
           area_code = model.get(Formbuilder.options.mappings.AREA_CODE);
           if (area_code && mask_value) {
             $('#' + model.getCid() + 'phone').val(country_code_set + area_code + ')');
@@ -2580,9 +2580,11 @@ this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input type="text" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
-'" style="width: 30px" />';
+'"/>';
 
 }
 return __p
@@ -2720,7 +2722,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
-'" palceholder=\'(00) 0000-0000\'/>';
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
 
 }
 return __p

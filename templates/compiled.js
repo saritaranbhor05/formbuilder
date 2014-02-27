@@ -160,9 +160,11 @@ this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input type="text" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
-'" style="width: 30px" />';
+'"/>';
 
 }
 return __p
@@ -300,7 +302,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
-'" palceholder=\'(00) 0000-0000\'/>';
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
 
 }
 return __p

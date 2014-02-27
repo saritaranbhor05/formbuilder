@@ -5,8 +5,17 @@ Formbuilder.registerField 'phone_number',
   """
 
   edit: """
-  	<%= Formbuilder.templates['edit/country_code']() %>
-  	<%= Formbuilder.templates['edit/area_code']() %>
+  	<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>
+    <script>
+      $(function() {
+        $('#<%= rf.getCid() %>_country_code').intlTelInput(); 
+        $('#<%= rf.getCid() %>_country_code').intlTelInput({
+            autoHideDialCode: false
+        });
+        $("#<%= rf.getCid() %>_country_code").val();
+      });
+    </script>
+    <%= Formbuilder.templates['edit/area_code']() %>
   	<%= Formbuilder.templates['edit/mask_value']() %>
   """
 
@@ -22,7 +31,7 @@ Formbuilder.registerField 'phone_number',
 		  	$('#'+model.getCid()+'phone').val(country_code+')')
 		  else
 		  	$('#'+model.getCid()+'phone').val(country_code)	
-		  	country_code_set = $('#'+model.getCid()+'phone').val()
+		  country_code_set = $('#'+model.getCid()+'phone').val()
 		  area_code = model.get(Formbuilder.options.mappings.AREA_CODE)
 		  if area_code and mask_value
 		  	$('#'+model.getCid()+'phone').val(country_code_set+area_code+')')
