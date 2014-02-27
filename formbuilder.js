@@ -2170,34 +2170,6 @@
 }).call(this);
 
 (function() {
-  Formbuilder.registerField('phone_number', {
-    view: "<input id='phone' type='tel'/>",
-    edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
-    setup: function(el, model, index) {
-      return el.mask('(00) 0000-0000');
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value) {
-      return (function(_this) {
-        return function(check_result) {
-          var elem_val;
-          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
-          return check_result;
-        };
-      })(this)(false);
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-    }
-  });
-
-}).call(this);
-
-(function() {
   Formbuilder.registerField('price', {
     view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
