@@ -2561,17 +2561,19 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
 '">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\' data-rv-show="condition:isSource">\n      <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n          ';
- for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+ opts.parentView.collection.sort();;
+__p += '\n          ';
+ for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+ if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
 __p += '\n              ';
  break ;
 __p += '\n            ';
  } ;
 __p += '\n            <option value="' +
-((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
-((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
 __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
