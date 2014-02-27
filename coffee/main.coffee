@@ -67,6 +67,9 @@ class Formbuilder
       BACK_VISIBLITY: 'field_options.back_visiblity'
       DEFAULT_COUNTRY: 'field_options.default_country'
       DATE_FORMAT: 'field_options.date_format'
+      MASK_VALUE: 'field_options.mask_value'
+      COUNTRY_CODE: 'field_options.country_code'
+      AREA_CODE: 'field_options.area_code'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -142,6 +145,7 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       add_remove_require:(required) ->
+        @clearFields() and @changeStateSource() if !required
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -201,9 +205,7 @@ class Formbuilder
                 check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
-                @clearFields()
-                @changeStateSource()
-
+                
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
                     @show_hide_fields(true, set_field)
@@ -340,7 +342,6 @@ class Formbuilder
                 ) =>
                   name = cid.toString() + "_" + index.toString()
                   $(x).attr("name", name)
-                  @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -688,6 +689,8 @@ class Formbuilder
               should_incr = (attr) -> attr != 'radio',
               val_set = false,
               model = field_view.model
+              field_type_method_call = '' 
+              field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
               for x in field_view.$("input, textarea, select, canvas, a")
@@ -700,6 +703,8 @@ class Formbuilder
                   value = 0,
                   cid = ''
                 ) =>
+                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                  field_method_call = Formbuilder.fields[field_type_method_call]
                   cid = model.getCid()
                   value = x.value if field_view.field_type == 'radio'||'scale_rating'
                   name = cid.toString() + "_" + index.toString()
@@ -707,6 +712,8 @@ class Formbuilder
                     val = model.get('field_values')[value]
                   else if model.get('field_values')
                     val = model.get('field_values')[name]
+                  field_method_call.setup($(x), model, index) if field_method_call.setup and !val
+                  val_set = true if $(x).val()
                   if val
                     val_set = true
                     @setFieldVal($(x), val)
@@ -717,9 +724,9 @@ class Formbuilder
                         $("[name = " + model.getCid() + "_1]").text(get_user_location)
                       else
                         $("[name = " + model.getCid() + "_1]").text('Select Your Address')
-                  index
-              if val_set
-                field_view.trigger('change_state')
+                  if val_set
+                    field_view.trigger('change_state')
+                  index  
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>

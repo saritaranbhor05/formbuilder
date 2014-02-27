@@ -113,7 +113,10 @@
         FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text',
         BACK_VISIBLITY: 'field_options.back_visiblity',
         DEFAULT_COUNTRY: 'field_options.default_country',
-        DATE_FORMAT: 'field_options.date_format'
+        DATE_FORMAT: 'field_options.date_format',
+        MASK_VALUE: 'field_options.mask_value',
+        COUNTRY_CODE: 'field_options.country_code',
+        AREA_CODE: 'field_options.area_code'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -206,6 +209,9 @@
           return this.listenTo(this.model, "destroy", this.remove);
         },
         add_remove_require: function(required) {
+          if (!required) {
+            this.clearFields() && this.changeStateSource();
+          }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             if (!this.field.add_remove_require) {
               return true;
@@ -270,8 +276,6 @@
                     }
                     check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
                     check_match_condtions.push(check_result);
-                    _this.clearFields();
-                    _this.changeStateSource();
                     if (and_flag === true) {
                       if (check_match_condtions.indexOf(false) === -1) {
                         return _this.show_hide_fields(true, set_field);
@@ -449,9 +453,6 @@
                     _results.push(count = (function(x, index, name, val) {
                       name = cid.toString() + "_" + index.toString();
                       $(x).attr("name", name);
-                      if (_this.field.setup) {
-                        _this.field.setup($(x), _this.model, index);
-                      }
                       if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
                         $(x).attr("required", true);
                       }
@@ -879,16 +880,19 @@
               _results = [];
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
-                _results.push((function(x, count, should_incr, val_set, model) {
-                  var _j, _len1, _ref;
+                _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
+                  var _j, _len1, _ref, _results1;
                   if (field_view.field_type === 'esignature') {
                     initializeCanvas(field_view.model.getCid());
                   }
                   _ref = field_view.$("input, textarea, select, canvas, a");
+                  _results1 = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                     x = _ref[_j];
-                    count = (function(x, index, name, val, value, cid) {
+                    _results1.push(count = (function(x, index, name, val, value, cid) {
                       var get_user_location;
+                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                      field_method_call = Formbuilder.fields[field_type_method_call];
                       cid = model.getCid();
                       if (field_view.field_type === 'radio' || 'scale_rating') {
                         value = x.value;
@@ -898,6 +902,12 @@
                         val = model.get('field_values')[value];
                       } else if (model.get('field_values')) {
                         val = model.get('field_values')[name];
+                      }
+                      if (field_method_call.setup && !val) {
+                        field_method_call.setup($(x), model, index);
+                      }
+                      if ($(x).val()) {
+                        val_set = true;
                       }
                       if (val) {
                         val_set = true;
@@ -913,15 +923,16 @@
                           }
                         }
                       }
+                      if (val_set) {
+                        field_view.trigger('change_state');
+                      }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
                   }
-                  if (val_set) {
-                    return field_view.trigger('change_state');
-                  }
+                  return _results1;
                 })(null, 0, function(attr) {
                   return attr !== 'radio';
-                }, false, field_view.model));
+                }, false, field_view.model, '', ''));
               }
               return _results;
             };
@@ -2066,6 +2077,55 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('phone_number', {
+    view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
+    edit: "<%= Formbuilder.templates['edit/country_code']() %>\n<%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
+    setup: function(el, model, index) {
+      return (function(_this) {
+        return function(mask_value, country_code, country_code_set) {
+          var area_code;
+          country_code = model.get(Formbuilder.options.mappings.COUNTRY_CODE);
+          mask_value = model.get(Formbuilder.options.mappings.MASK_VALUE);
+          if (country_code && mask_value) {
+            $('#' + model.getCid() + 'phone').val(country_code + ')');
+          } else {
+            $('#' + model.getCid() + 'phone').val(country_code);
+            country_code_set = $('#' + model.getCid() + 'phone').val();
+          }
+          area_code = model.get(Formbuilder.options.mappings.AREA_CODE);
+          if (area_code && mask_value) {
+            $('#' + model.getCid() + 'phone').val(country_code_set + area_code + ')');
+          } else {
+            $('#' + model.getCid() + 'phone').val(country_code_set + area_code);
+          }
+          if (mask_value) {
+            return $('#' + model.getCid() + 'phone').mask(mask_value);
+          }
+        };
+      })(this)(false, false, '');
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('price', {
     view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
@@ -2373,6 +2433,18 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2504,6 +2576,18 @@ __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2625,6 +2709,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" palceholder=\'(00) 0000-0000\'/>';
 
 }
 return __p

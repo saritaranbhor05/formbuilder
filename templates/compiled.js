@@ -13,6 +13,18 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -144,6 +156,18 @@ __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -265,6 +289,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" palceholder=\'(00) 0000-0000\'/>';
 
 }
 return __p
