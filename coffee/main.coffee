@@ -32,6 +32,7 @@ class Formbuilder
       OPTIONS: 'field_options.options'
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'
+      INCLUDE_SUFFIX: 'field_options.include_suffix'
       INCLUDE_BLANK: 'field_options.include_blank_option'
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
