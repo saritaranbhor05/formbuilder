@@ -2089,14 +2089,14 @@
           mask_value = model.get(Formbuilder.options.mappings.MASK_VALUE);
           if (country_code && mask_value) {
             $('#' + model.getCid() + 'phone').val(country_code + ')');
-          } else {
+          } else if (country_code) {
             $('#' + model.getCid() + 'phone').val(country_code);
           }
           country_code_set = $('#' + model.getCid() + 'phone').val();
           area_code = model.get(Formbuilder.options.mappings.AREA_CODE);
           if (area_code && mask_value) {
             $('#' + model.getCid() + 'phone').val(country_code_set + area_code + ')');
-          } else {
+          } else if (area_code) {
             $('#' + model.getCid() + 'phone').val(country_code_set + area_code);
           }
           if (mask_value) {
