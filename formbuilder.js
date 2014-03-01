@@ -946,7 +946,7 @@
                         } else if (model.get('field_values')) {
                           val = model.get('field_values')[name];
                         }
-                        if (field_method_call.setup && !val) {
+                        if (field_method_call.setup) {
                           field_method_call.setup($(x), model, index);
                         }
                         if ($(x).val()) {

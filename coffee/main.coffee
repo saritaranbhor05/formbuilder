@@ -739,7 +739,7 @@ class Formbuilder
                       val = model.get('field_values')[value]
                     else if model.get('field_values')
                       val = model.get('field_values')[name]
-                    field_method_call.setup($(x), model, index) if field_method_call.setup and !val
+                    field_method_call.setup($(x), model, index) if field_method_call.setup
                     val_set = true if $(x).val()
                     val_set = true if val or has_heading_field
                     @setFieldVal($(x), val) if val
