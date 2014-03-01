@@ -920,7 +920,20 @@
                     for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
                       x = _ref1[_k];
                       _results2.push(count = (function(x, index, name, val, value, cid) {
-                        var get_user_location;
+                        var get_user_location, has_heading_field, model_in_collection, model_in_conditions, _l, _len3, _len4, _m, _ref2, _ref3;
+                        _ref2 = field_view.model.collection.where({
+                          'field_type': 'heading'
+                        });
+                        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                          model_in_collection = _ref2[_l];
+                          _ref3 = field_view.model.get('conditions');
+                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                            model_in_conditions = _ref3[_m];
+                            if (model_in_collection.getCid() === model_in_conditions.target) {
+                              has_heading_field = true;
+                            }
+                          }
+                        }
                         field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                         field_method_call = Formbuilder.fields[field_type_method_call];
                         cid = model.getCid();
@@ -939,8 +952,10 @@
                         if ($(x).val()) {
                           val_set = true;
                         }
-                        if (val) {
+                        if (val || has_heading_field) {
                           val_set = true;
+                        }
+                        if (val) {
                           _this.setFieldVal($(x), val);
                         }
                         if (!val) {

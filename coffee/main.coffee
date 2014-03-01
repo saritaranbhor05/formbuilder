@@ -726,6 +726,10 @@ class Formbuilder
                     value = 0,
                     cid = ''
                   ) =>
+                    for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                      for model_in_conditions in field_view.model.get('conditions')
+                        if(model_in_collection.getCid() is model_in_conditions.target)
+                          has_heading_field = true
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                     field_method_call = Formbuilder.fields[field_type_method_call]
                     cid = model.getCid()
@@ -737,9 +741,8 @@ class Formbuilder
                       val = model.get('field_values')[name]
                     field_method_call.setup($(x), model, index) if field_method_call.setup and !val
                     val_set = true if $(x).val()
-                    if val
-                      val_set = true
-                      @setFieldVal($(x), val)
+                    val_set = true if val or has_heading_field
+                    @setFieldVal($(x), val) if val
                     if !val
                       if(field_view.field_type == 'gmap')
                         get_user_location = getCurrentLocation(model.getCid());
