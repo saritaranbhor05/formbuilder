@@ -79,6 +79,7 @@
         OPTIONS: 'field_options.options',
         DESCRIPTION: 'field_options.description',
         INCLUDE_OTHER: 'field_options.include_other_option',
+        INCLUDE_SUFFIX: 'field_options.include_suffix',
         INCLUDE_BLANK: 'field_options.include_blank_option',
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
@@ -1907,8 +1908,8 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n    <span>\n      <input id='suffix' type='text'/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n    </span>\n  <% } %>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/suffix']({ includeSuffix: false, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       return (function(_this) {
@@ -2710,8 +2711,8 @@ __p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description s
 '\n    ' +
 ((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
 '\n    ' +
-((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
-'\n  </div>\n</div>';
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -2951,13 +2952,36 @@ __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number"
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
-'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p

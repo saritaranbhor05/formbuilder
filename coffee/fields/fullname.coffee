@@ -28,15 +28,18 @@ Formbuilder.registerField 'fullname',
         <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>
       </span>
 
-      <span>
-        <input id='suffix' type='text'/>
-        <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>
-      </span>
+      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
+        <span>
+          <input id='suffix' type='text'/>
+          <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>
+        </span>
+      <% } %>
     </div>
   """
 
   edit: """
     <%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>
+    <%= Formbuilder.templates['edit/suffix']({ includeSuffix: false, rf:rf }) %>
     <%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>
     <script >
       $(function() {
