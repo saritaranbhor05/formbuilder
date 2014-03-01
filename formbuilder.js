@@ -213,6 +213,9 @@
           if (!required) {
             this.clearFields() && this.changeStateSource();
           }
+          if (required && this.field_type === 'heading') {
+            this.changeStateSource();
+          }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             if (!this.field.add_remove_require) {
               return true;
@@ -226,6 +229,9 @@
               if (check_result === true) {
                 _this.$el.addClass(set_field.action);
                 if (set_field.action === 'show') {
+                  if (_this.field_type === 'heading') {
+                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                  }
                   _this.current_state = set_field.action;
                   return _this.add_remove_require(true);
                 } else {
@@ -237,6 +243,9 @@
                 _this.$el.removeClass(set_field.action);
                 if (set_field.action === 'hide') {
                   _this.$el.addClass("show");
+                  if (_this.field_type === 'heading') {
+                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                  }
                   _this.current_state = set_field.action;
                   return _this.add_remove_require(true);
                 } else {
@@ -882,55 +891,91 @@
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
                 _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
-                  var _j, _len1, _ref, _results1;
+                  var _j, _k, _len1, _len2, _ref, _ref1, _results1, _results2;
                   if (field_view.field_type === 'esignature') {
                     initializeCanvas(field_view.model.getCid());
                   }
-                  _ref = field_view.$("input, textarea, select, canvas, a");
-                  _results1 = [];
-                  for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                    x = _ref[_j];
-                    _results1.push(count = (function(x, index, name, val, value, cid) {
-                      var get_user_location;
-                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                      field_method_call = Formbuilder.fields[field_type_method_call];
-                      cid = model.getCid();
-                      if (field_view.field_type === 'radio' || 'scale_rating') {
-                        value = x.value;
-                      }
-                      name = cid.toString() + "_" + index.toString();
-                      if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                        val = model.get('field_values')[value];
-                      } else if (model.get('field_values')) {
-                        val = model.get('field_values')[name];
-                      }
-                      if (field_method_call.setup && !val) {
-                        field_method_call.setup($(x), model, index);
-                      }
-                      if ($(x).val()) {
-                        val_set = true;
-                      }
-                      if (val) {
-                        val_set = true;
-                        _this.setFieldVal($(x), val);
-                      }
-                      if (!val) {
-                        if (field_view.field_type === 'gmap') {
-                          get_user_location = getCurrentLocation(model.getCid());
-                          if (get_user_location !== 'false') {
-                            $("[name = " + model.getCid() + "_1]").text(get_user_location);
-                          } else {
-                            $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                  if (field_view.model.get('field_type') === 'heading') {
+                    _ref = field_view.$("label");
+                    _results1 = [];
+                    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                      x = _ref[_j];
+                      _results1.push(count = (function(x, index, name, val, value, cid) {
+                        field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                        field_method_call = Formbuilder.fields[field_type_method_call];
+                        cid = model.getCid();
+                        if ($(x).text()) {
+                          val_set = true;
+                        }
+                        if (val_set) {
+                          field_view.trigger('change_state');
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    }
+                    return _results1;
+                  } else {
+                    _ref1 = field_view.$("input, textarea, select, canvas, a");
+                    _results2 = [];
+                    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                      x = _ref1[_k];
+                      _results2.push(count = (function(x, index, name, val, value, cid) {
+                        var get_user_location, has_heading_field, model_in_collection, model_in_conditions, _l, _len3, _len4, _m, _ref2, _ref3;
+                        _ref2 = field_view.model.collection.where({
+                          'field_type': 'heading'
+                        });
+                        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                          model_in_collection = _ref2[_l];
+                          _ref3 = field_view.model.get('conditions');
+                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                            model_in_conditions = _ref3[_m];
+                            if (model_in_collection.getCid() === model_in_conditions.target) {
+                              has_heading_field = true;
+                            }
                           }
                         }
-                      }
-                      if (val_set) {
-                        field_view.trigger('change_state');
-                      }
-                      return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                        field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                        field_method_call = Formbuilder.fields[field_type_method_call];
+                        cid = model.getCid();
+                        if (field_view.field_type === 'radio' || 'scale_rating') {
+                          value = x.value;
+                        }
+                        name = cid.toString() + "_" + index.toString();
+                        if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                          val = model.get('field_values')[value];
+                        } else if (model.get('field_values')) {
+                          val = model.get('field_values')[name];
+                        }
+                        if (field_method_call.setup && !val) {
+                          field_method_call.setup($(x), model, index);
+                        }
+                        if ($(x).val()) {
+                          val_set = true;
+                        }
+                        if (val || has_heading_field) {
+                          val_set = true;
+                        }
+                        if (val) {
+                          _this.setFieldVal($(x), val);
+                        }
+                        if (!val) {
+                          if (field_view.field_type === 'gmap') {
+                            get_user_location = getCurrentLocation(model.getCid());
+                            if (get_user_location !== 'false') {
+                              $("[name = " + model.getCid() + "_1]").text(get_user_location);
+                            } else {
+                              $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                            }
+                          }
+                        }
+                        if (val_set) {
+                          field_view.trigger('change_state');
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    }
+                    return _results2;
                   }
-                  return _results1;
                 })(null, 0, function(attr) {
                   return attr !== 'radio';
                 }, false, field_view.model, '', ''));
@@ -1945,9 +1990,27 @@
 (function() {
   Formbuilder.registerField('heading', {
     type: 'non_input',
-    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
+    view: "<label id='<%= rf.getCid() %>' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
     edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
+    clearFields: function($el, model) {
+      return $el.find('#' + model.getCid()).text('');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("#" + cid).text();
+          elem_val = elem_val.replace(/(\r\n|\n|\r)/gm, '');
+          elem_val = elem_val.trimLeft();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("#" + cid).attr("required", required);
+    },
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'medium';
       return attrs;
@@ -2492,13 +2555,20 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
 
 }
 return __p
