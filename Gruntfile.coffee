@@ -1,4 +1,4 @@
-ALL_TASKS = ['jst:all', 'coffee:all', 'concat:all', 'stylus:all']
+ALL_TASKS = ['jst:all', 'coffee:all', 'concat:all', 'stylus:all', 'shell:multiple']
 
 module.exports = (grunt) ->
 
@@ -12,6 +12,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-stylus')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-watch')
+  grunt.loadNpmTasks('grunt-shell')
 
   grunt.initConfig
 
@@ -58,6 +59,14 @@ module.exports = (grunt) ->
       all:
         files: ['./coffee/**/*.coffee', 'templates/**/*.html', './styl/**/*.styl']
         tasks: ALL_TASKS
+
+    shell:
+      multiple:
+        command: ['cp formbuilder.js /home/tanmay/Documents/bri/bri-rails/public/js/lib/',
+                  'cp formbuilder.js /home/tanmay/Documents/bri/bri-rails/lib/form_submissions_template/src/javascripts/'].join('&&')
+        options:
+          stdout: true
+          stderr: true
 
   grunt.registerTask 'default', ALL_TASKS
   grunt.registerTask 'dist', ['cssmin:dist', 'uglify:dist']
