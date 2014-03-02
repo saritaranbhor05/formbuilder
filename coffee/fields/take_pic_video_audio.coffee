@@ -8,7 +8,8 @@ Formbuilder.registerField 'take_pic_video_audio',
       <a
         target="_blank" class="active_link"
         id="record_link_<%= rf.getCid() %>" href=""
-      >picture</a>
+        style="margin-bottom:12px;"
+      ></a>
     </div>
     <div id="open_model_<%= rf.getCid() %>"
       class="modal hide fade modal_style" tabindex="-1"
@@ -41,6 +42,7 @@ Formbuilder.registerField 'take_pic_video_audio',
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();
           $("#record_link_<%= rf.getCid() %>").attr('href',data);
+          $("#record_link_<%= rf.getCid() %>").text('File');
         },100);
 
       $("#btn_picture_<%= rf.getCid() %>").click( function() {
