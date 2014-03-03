@@ -21,6 +21,7 @@ class Formbuilder
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
+    PRINTVIEW: false
 
     mappings:
       SIZE: 'field_options.size'
@@ -493,6 +494,8 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        if @options.print_view
+          Formbuilder.options.PRINTVIEW = @options.print_view
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -569,33 +572,35 @@ class Formbuilder
           live: @options.live
           readonly: @options.readonly
           seedData: responseField.seedData
+        if (Formbuilder.options.PRINTVIEW &&
+            responseField.attributes.field_type != 'section_break') ||
+            !Formbuilder.options.PRINTVIEW
+          # Append view to @fieldViews
+          @fieldViews.push(view)
 
-        # Append view to @fieldViews
-        @fieldViews.push(view)
+          if !@options.live
+            #####
+            # Calculates where to place this new field.
+            #
+            # Are we replacing a temporarily drag placeholder?
+            if options.$replaceEl?
+              options.$replaceEl.replaceWith(view.render().el)
 
-        if !@options.live
-          #####
-          # Calculates where to place this new field.
-          #
-          # Are we replacing a temporarily drag placeholder?
-          if options.$replaceEl?
-            options.$replaceEl.replaceWith(view.render().el)
+            # Are we adding to the bottom?
+            else if !options.position? || options.position == -1
+              @$responseFields.append view.render().el
 
-          # Are we adding to the bottom?
-          else if !options.position? || options.position == -1
-            @$responseFields.append view.render().el
+            # Are we adding to the top?
+            else if options.position == 0
+              @$responseFields.prepend view.render().el
 
-          # Are we adding to the top?
-          else if options.position == 0
-            @$responseFields.prepend view.render().el
+            # Are we adding below an existing field?
+            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+              $replacePosition.before view.render().el
 
-          # Are we adding below an existing field?
-          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-            $replacePosition.before view.render().el
-
-          # Catch-all: add to bottom
-          else
-            @$responseFields.append view.render().el
+            # Catch-all: add to bottom
+            else
+              @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
