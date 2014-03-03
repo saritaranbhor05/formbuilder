@@ -810,7 +810,7 @@
         applyEasyWizard: function() {
           var _this = this;
           (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-            var _i, _len;
+            var fd_views, _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
               if (field_view.is_section_break) {
@@ -842,6 +842,13 @@
               }
               cnt += 1;
             }
+            fd_views = _this.fieldViews.filter(function(fd_view) {
+              return fd_view.field_type === "ci-hierarchy";
+            });
+            if (fd_views.length > 0) {
+              _this.bindHierarchyEvents(fd_views);
+            }
+            _this.triggerEvent();
             return $("#formbuilder_form").easyWizard({
               showSteps: false,
               submitButton: false,
@@ -879,7 +886,7 @@
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                     field_method_call = Formbuilder.fields[field_type_method_call];
                     cid = model.getCid();
-                    if (field_view.field_type === 'radio' || 'scale_rating') {
+                    if (field_view.field_type === 'radio' || field_view.field_type === 'scale_rating') {
                       value = x.value;
                     }
                     name = cid.toString() + "_" + index.toString();
@@ -953,7 +960,13 @@
               },
               "default": function() {
                 if (val) {
-                  return $(elem).val(val);
+                  $(elem).val(val);
+                }
+                if ($(elem).attr("capture")) {
+                  $(elem).attr("href", val);
+                  if (val) {
+                    return $(elem).text(val.split("/").pop().split("?")[0]);
+                  }
                 }
               }
             };
@@ -961,17 +974,10 @@
           })(null, $(elem).attr('type'));
         },
         addAll: function() {
-          var back_visiblity, fd_views, field_view, _i, _len, _ref;
+          var back_visiblity, field_view, _i, _len, _ref;
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
-            fd_views = this.fieldViews.filter(function(fd_view) {
-              return fd_view.field_type === "ci-hierarchy";
-            });
-            if (fd_views.length > 0) {
-              this.bindHierarchyEvents(fd_views);
-            }
-            this.triggerEvent();
             _ref = this.fieldViews;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               field_view = _ref[_i];
@@ -2245,19 +2251,18 @@
 
 (function() {
   Formbuilder.registerField('take_pic_video_audio', {
-    view: "<div class='input-line'>\n  <button id=\"btn_picture_<%= rf.getCid() %>\">Picture</button>\n  <button id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    target=\"_blank\" class=\"active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  setTimeout(function(){\n      var data = $(\"#snapshot_<%= rf.getCid() %>\").val();\n      $(\"#record_link_<%= rf.getCid() %>\").attr('href',data);\n      $(\"#record_link_<%= rf.getCid() %>\").text('File');\n    },100);\n\n  $(\"#btn_picture_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").val(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\");\n  var canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\");\n  var ctx = canvas.getContext('2d');\n  var localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  video.addEventListener('click', snapshot, false);\n</script>",
+    view: "<div class='input-line'>\n  <button class='image' id=\"btn_image_<%= rf.getCid() %>\">Picture</button>\n  <button class='video' id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button class='audio' id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  setTimeout(function(){\n      var data = $(\"#snapshot_<%= rf.getCid() %>\").val();\n      $(\"#record_link_<%= rf.getCid() %>\").attr('href',data);\n      $(\"#record_link_<%= rf.getCid() %>\").text('File');\n    },100);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").val(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
     edit: "  ",
-    addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Record",
+    addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
     clearFields: function($el, model) {
-      $el.find("#picture").val("");
-      $el.find("#video").val("");
-      return $el.find("#audio").val("");
+      $el.find(".image").val("");
+      $el.find(".video").val("");
+      return $el.find(".audio").val("");
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {},
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-      $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
-      return $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
     }
   });
 

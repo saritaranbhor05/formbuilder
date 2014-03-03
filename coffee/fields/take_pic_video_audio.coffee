@@ -2,11 +2,11 @@ Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
-      <button id="btn_picture_<%= rf.getCid() %>">Picture</button>
-      <button id="btn_video_<%= rf.getCid() %>">Video</button>
-      <button id="btn_audio_<%= rf.getCid() %>">Audio</button>
+      <button class='image' id="btn_image_<%= rf.getCid() %>">Picture</button>
+      <button class='video' id="btn_video_<%= rf.getCid() %>">Video</button>
+      <button class='audio' id="btn_audio_<%= rf.getCid() %>">Audio</button>
       <a
-        target="_blank" class="active_link"
+        target="_blank" capture='capture' class="capture active_link"
         id="record_link_<%= rf.getCid() %>" href=""
         style="margin-bottom:12px;"
       ></a>
@@ -24,6 +24,9 @@ Formbuilder.registerField 'take_pic_video_audio',
         <canvas id="canvas_<%= rf.getCid() %>" style="display:none;"></canvas>
       </div>
       <div class="modal-footer">
+        <button id="take_picture_<%= rf.getCid() %>" class="btn" aria-hidden="true">
+          Take Picture
+        </button>
         <button class="btn" data-dismiss="modal" aria-hidden="true">
           Done
         </button>
@@ -45,7 +48,7 @@ Formbuilder.registerField 'take_pic_video_audio',
           $("#record_link_<%= rf.getCid() %>").text('File');
         },100);
 
-      $("#btn_picture_<%= rf.getCid() %>").click( function() {
+      $("#btn_image_<%= rf.getCid() %>").click( function() {
         $("#open_model_<%= rf.getCid() %>").modal('show');
         $("#open_model_<%= rf.getCid() %>").on('shown', function() {
           startCamera();
@@ -61,10 +64,10 @@ Formbuilder.registerField 'take_pic_video_audio',
           $(this).unbind('hidden');
         });
       });
-      var video = document.querySelector("#video_<%= rf.getCid() %>");
-      var canvas = document.querySelector("#canvas_<%= rf.getCid() %>");
-      var ctx = canvas.getContext('2d');
-      var localMediaStream = null;
+      var video = document.querySelector("#video_<%= rf.getCid() %>"),
+          take_picture = document.querySelector("#take_picture_<%= rf.getCid() %>")
+          canvas = document.querySelector("#canvas_<%= rf.getCid() %>"),
+          ctx = canvas.getContext('2d'), localMediaStream = null;
       navigator.getUserMedia = navigator.getUserMedia ||
         navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
@@ -98,20 +101,21 @@ Formbuilder.registerField 'take_pic_video_audio',
         );
       }
 
-      video.addEventListener('click', snapshot, false);
+      take_picture.addEventListener('click', snapshot, false);
     </script>
   """
 
   edit: "
+
   "
 
   addButton: """
-    <span class="symbol"><span class="icon-home"></span></span> Record
+    <span class="symbol"><span class="icon-camera"></span></span> Capture
   """
   clearFields: ($el, model) ->
-    $el.find("#picture").val("")
-    $el.find("#video").val("")
-    $el.find("#audio").val("")
+    $el.find(".image").val("")
+    $el.find(".video").val("")
+    $el.find(".audio").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
 
@@ -121,7 +125,4 @@ Formbuilder.registerField 'take_pic_video_audio',
             .attr("required", required)
     $("." + cid)
             .find("[name = "+cid+"_2]")
-            .attr("required", required)
-    $("." + cid)
-            .find("[name = "+cid+"_3]")
             .attr("required", required)
