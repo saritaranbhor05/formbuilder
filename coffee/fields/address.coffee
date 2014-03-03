@@ -2,31 +2,31 @@ Formbuilder.registerField 'address',
 
   view: """
     <div class='input-line'>
-      <span>
+      <span class="span6">
         <input type='text' id='address'/>
         <label>Street Address</label>
       </span>
     </div>
 
     <div class='input-line'>
-      <span>
+      <span class="span3">
         <input class="span12" type='text' id='suburb'/>
         <label>Suburb/City</label>
       </span>
 
-      <span>
+      <span class="span3">
         <input class="span12" type='text' id='state'/>
         <label>State / Province / Region</label>
       </span>
     </div>
 
     <div class='input-line' >
-      <span>
+      <span class="span3">
         <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"/>
         <label>Postal/Zip Code</label>
       </span>
 
-      <span>
+      <span class="span3">
         <select id="file_<%= rf.getCid() %>"
           data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
           class='span7 dropdown_country bfh-selectbox bfh-countries'
