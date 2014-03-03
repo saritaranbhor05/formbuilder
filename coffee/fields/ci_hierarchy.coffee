@@ -56,9 +56,9 @@ Formbuilder.registerField 'ci-hierarchy',
     ) =>
       cid = fd_view.model.attributes.cid
       field_values = fd_view.model.attributes.field_values
-      $company_id = $("#company_id_" + cid)
-      $location_id = $("#location_id_" + cid)
-      $division_id = $("#division_id_" + cid)
+      $company_id = fd_view.$("#company_id_" + cid)
+      $location_id = fd_view.$("#location_id_" + cid)
+      $division_id = fd_view.$("#division_id_" + cid)
       $company_id.bind('change', { that: @, fd_view: fd_view },
                        @populateLocationsByCompanyId)
       $location_id.bind('change', { that: @, fd_view: fd_view },
@@ -85,10 +85,10 @@ Formbuilder.registerField 'ci-hierarchy',
       $company_id = null, cid = null
     ) =>
       cid = fd_view.model.attributes.cid
-      $company_id = $("#company_id_" + cid)
+      $company_id = fd_view.$("#company_id_" + cid)
       if($company_id && companies && companies.length > 0)
         $company_id.empty()
-        fd_view.field.clearSelectFields(cid)
+        fd_view.field.clearSelectFields(fd_view, cid)
         fd_view.field.addPlaceHolder($company_id, '--- Select ---')
         fd_view.field.appendData($company_id, companies)
         if selected_compId && selected_compId != ''
@@ -107,7 +107,7 @@ Formbuilder.registerField 'ci-hierarchy',
                                    selected_locId = '', selected_divId = '') ->
     @selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(
       selected_compId)
-    @clearSelectFields(fd_view.model.attributes.cid)
+    @clearSelectFields(fd_view, fd_view.model.attributes.cid)
     @populateLocations(
       fd_view, this.selected_comp, selected_locId, selected_divId)
 
@@ -116,7 +116,7 @@ Formbuilder.registerField 'ci-hierarchy',
     do(locations = [],
        $location_id = null
     ) =>
-      $location_id = $("#location_id_" + fd_view.model.attributes.cid)
+      $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid)
       if selected_comp
         locations = selected_comp.locations
 
@@ -145,7 +145,7 @@ Formbuilder.registerField 'ci-hierarchy',
     do( divisions = [],
         $division_id = null
     ) =>
-      $division_id = $("#division_id_" + fd_view.model.attributes.cid)
+      $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid)
       if selected_loc
         divisions = selected_loc.divisions
       $division_id.empty()
@@ -155,9 +155,9 @@ Formbuilder.registerField 'ci-hierarchy',
         if selected_divId && selected_divId != ''
           $division_id.val selected_divId
 
-  clearSelectFields: (cid) ->
-    $("#location_id_"+ cid).empty()
-    $("#division_id_"+ cid).empty()
+  clearSelectFields: (fd_view, cid) ->
+    fd_view.$("#location_id_"+ cid).empty()
+    fd_view.$("#division_id_"+ cid).empty()
 
   appendData: ($element, data) ->
     do(appendString = '') =>

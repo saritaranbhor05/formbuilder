@@ -71,13 +71,20 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
 
 }
 return __p
@@ -235,8 +242,8 @@ __p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description s
 '\n    ' +
 ((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
 '\n    ' +
-((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
-'\n  </div>\n</div>';
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -476,13 +483,36 @@ __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number"
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
-'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p
