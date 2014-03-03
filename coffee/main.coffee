@@ -210,7 +210,7 @@ class Formbuilder
                 check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
-                
+
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
                     @show_hide_fields(true, set_field)
@@ -336,7 +336,7 @@ class Formbuilder
               x = null,
               count = 0,
               should_incr = (attr) -> attr != 'radio'
-            ) =>              
+            ) =>
               for x in @$("input, textarea, select, canvas, a")
                 count = do( # set element name, value and call setup
                   x,
@@ -352,7 +352,7 @@ class Formbuilder
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
                     $(x).attr("required", true)
 
-                  index      
+                  index
         return @
 
       focusEditView: ->
@@ -670,6 +670,12 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
+          # check for ci-hierarchy type
+          fd_views = @fieldViews.filter (fd_view) ->
+            fd_view.field_type is "ci-hierarchy"
+          @bindHierarchyEvents(fd_views) if fd_views.length > 0
+          @triggerEvent() # triggers event by setting values to respective fields
+
           $("#formbuilder_form").easyWizard({
             showSteps: false,
             submitButton: false,
@@ -698,7 +704,7 @@ class Formbuilder
               should_incr = (attr) -> attr != 'radio',
               val_set = false,
               model = field_view.model
-              field_type_method_call = '' 
+              field_type_method_call = ''
               field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
@@ -719,7 +725,7 @@ class Formbuilder
                     val_set = true if $(x).text()
                     if val_set
                       field_view.trigger('change_state')
-                    index  
+                    index
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
                   count = do( # set element name, value and call setup
@@ -757,7 +763,7 @@ class Formbuilder
                           $("[name = " + model.getCid() + "_1]").text('Select Your Address')
                     if val_set
                       field_view.trigger('change_state')
-                    index  
+                    index
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
@@ -778,6 +784,11 @@ class Formbuilder
               $(elem).attr("checked", true) if val
             default: ->
               $(elem).val(val) if val
+              if $(elem).attr("capture")
+                $(elem).attr("href",val)
+                $(elem).text(
+                  val.split("/").pop().split("?")[0]
+                ) if val
           (setters[type] || setters['default'])(elem, val)
 
 
@@ -785,11 +796,6 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          # check for ci-hierarchy type
-          fd_views = @fieldViews.filter (fd_view) ->
-            fd_view.field_type is "ci-hierarchy"
-          @bindHierarchyEvents(fd_views) if fd_views.length > 0
-          @triggerEvent() # triggers event by setting values to respective fields
           for field_view in @fieldViews
             if (field_view.field_type == 'section_break')
               $('.prev').addClass('hide btn-danger')
