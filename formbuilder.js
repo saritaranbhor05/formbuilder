@@ -65,9 +65,11 @@
       BUTTON_CLASS: 'fb-button',
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
-      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio'],
+      FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio', 'scale_rating'],
       CKEDITOR_CONFIG: ' ',
+      HIERARCHYSELECTORVIEW: ' ',
       COMPANY_HIERARCHY: [],
+      PRINTVIEW: false,
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -78,16 +80,20 @@
         OPTIONS: 'field_options.options',
         DESCRIPTION: 'field_options.description',
         INCLUDE_OTHER: 'field_options.include_other_option',
+        INCLUDE_SUFFIX: 'field_options.include_suffix',
         INCLUDE_BLANK: 'field_options.include_blank_option',
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
         MAX: 'field_options.max',
+        DEFAULT_NUM_VALUE: 'field_options.default_num_value',
         STEP: 'field_options.step',
         MINLENGTH: 'field_options.minlength',
         MAXLENGTH: 'field_options.maxlength',
         IMAGELINK: 'field_options.image_link',
         IMAGEWIDTH: 'field_options.image_width',
         IMAGEHEIGHT: 'field_options.image_height',
+        CANVAS_WIDTH: 'field_options.canvas_width',
+        CANVAS_HEIGHT: 'field_options.canvas_height',
         IMAGEALIGN: 'field_options.image_align',
         LENGTH_UNITS: 'field_options.min_max_length_units',
         MINAGE: 'field_options.minage',
@@ -99,7 +105,20 @@
         IMAGE_DATA: 'field_options.image_data',
         STARTING_POINT_TEXT: 'field_options.start_point_text',
         ENDING_POINT_TEXT: 'field_options.ending_point_text',
-        MATCH_CONDITIONS: 'field_options.match_conditions'
+        MATCH_CONDITIONS: 'field_options.match_conditions',
+        ALLOWED_FILE_TYPES: 'field_options.allow_file_type',
+        FILE_BUTTON_TEXT: 'field_options.file_button_text',
+        FULLNAME_PREFIX_TEXT: 'field_options.prefix_text',
+        FULLNAME_FIRST_TEXT: 'field_options.first_name_text',
+        FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text',
+        FULLNAME_LAST_TEXT: 'field_options.last_name_text',
+        FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text',
+        BACK_VISIBLITY: 'field_options.back_visiblity',
+        DEFAULT_COUNTRY: 'field_options.default_country',
+        DATE_FORMAT: 'field_options.date_format',
+        MASK_VALUE: 'field_options.mask_value',
+        COUNTRY_CODE: 'field_options.country_code',
+        AREA_CODE: 'field_options.area_code'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -120,7 +139,7 @@
         var $wrapper,
           _this = this;
         $wrapper = $(".fb-field-wrapper").filter((function(_, el) {
-          return $(el).data('cid') === _this.cid;
+          return $(el).data('cid') === _this.getCid();
         }));
         return $(".fb-field-wrapper").index($wrapper);
       },
@@ -191,6 +210,12 @@
           return this.listenTo(this.model, "destroy", this.remove);
         },
         add_remove_require: function(required) {
+          if (!required) {
+            this.clearFields() && this.changeStateSource();
+          }
+          if (required && this.field_type === 'heading') {
+            this.changeStateSource();
+          }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             if (!this.field.add_remove_require) {
               return true;
@@ -204,6 +229,9 @@
             if (check_result === true) {
               _this.$el.addClass(set_field.action);
               if (set_field.action === 'show') {
+                if (_this.field_type === 'heading') {
+                  $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
               } else {
@@ -215,6 +243,9 @@
               _this.$el.removeClass(set_field.action);
               if (set_field.action === 'hide') {
                 _this.$el.addClass("show");
+                if (_this.field_type === 'heading') {
+                  $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
               } else {
@@ -254,8 +285,6 @@
                   }
                   check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
                   check_match_condtions.push(check_result);
-                  _this.clearFields();
-                  _this.changeStateSource();
                   if (and_flag === true) {
                     if (check_match_condtions.indexOf(false) === -1) {
                       return _this.show_hide_fields(true, set_field);
@@ -302,34 +331,36 @@
               this.field.addRequiredConditions();
             }
           }
-          $('#ok').val(this.model.getCid());
+          $('#gmap_ok').val(this.model.getCid());
           $('#gmapModal').modal({
             show: true
           });
           $("#gmapModal").on("shown", function(e) {
             var gmap_button_value;
+            gmap_button_value = $("[name = " + getCid() + "_2]").val();
             initialize();
             $("#gmap_address").keypress(function(event) {
+              set_prev_lat_lng($('#gmap_latlng').val());
               if (event.keyCode === 13) {
                 return codeAddress();
               }
             });
             $("#gmap_latlng").keypress(function(event) {
+              set_prev_address($("#gmap_address").val());
               if (event.keyCode === 13) {
                 return codeLatLng();
               }
             });
-            gmap_button_value = $("[name = " + getCid() + "_1]").val();
-            if (gmap_button_value !== "") {
+            if (gmap_button_value !== '') {
+              set_prev_lat_lng(gmap_button_value);
               return codeLatLng(gmap_button_value);
             }
           });
-          $('#ok').on('click', function(e) {
-            return $("[name = " + getCid() + "_1]").val(getLatLong());
-          });
           return $('#gmapModal').on('hidden.bs.modal', function(e) {
             $('#gmapModal').off('shown').on('shown');
-            return $(this).removeData("modal");
+            $(this).removeData("modal");
+            $("#gmap_address").unbind('keypress');
+            return $("#gmap_latlng").unbind('keypress');
           });
         },
         isValid: function() {
@@ -422,16 +453,13 @@
               }));
               return (function(x, count, should_incr) {
                 var _k, _len2, _ref2, _results;
-                _ref2 = _this.$("input, textarea, select, canvas");
+                _ref2 = _this.$("input, textarea, select, canvas, a");
                 _results = [];
                 for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                   x = _ref2[_k];
                   _results.push(count = (function(x, index, name, val) {
                     name = cid.toString() + "_" + index.toString();
                     $(x).attr("name", name);
-                    if (_this.field.setup) {
-                      _this.field.setup($(x), _this.model, index);
-                    }
                     if (_this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(_this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
                       $(x).attr("required", true);
                     }
@@ -611,6 +639,9 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          if (this.options.print_view) {
+            Formbuilder.options.PRINTVIEW = this.options.print_view;
+          }
           this.render();
           this.collection.reset(this.options.bootstrapData);
           this.saveFormButton = this.$el.find(".js-save-form");
@@ -618,7 +649,10 @@
           if (this.options.autoSave) {
             this.initAutosave();
           }
-          return Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
+          Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
+          if (!_.isUndefined(this.options.hierarchy_selector_view)) {
+            return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
+          }
         },
         getCurrentView: function() {
           var current_view_state, fieldView;
@@ -720,18 +754,20 @@
             readonly: this.options.readonly,
             seedData: responseField.seedData
           });
-          this.fieldViews.push(view);
-          if (!this.options.live) {
-            if (options.$replaceEl != null) {
-              return options.$replaceEl.replaceWith(view.render().el);
-            } else if ((options.position == null) || options.position === -1) {
-              return this.$responseFields.append(view.render().el);
-            } else if (options.position === 0) {
-              return this.$responseFields.prepend(view.render().el);
-            } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
-              return $replacePosition.before(view.render().el);
-            } else {
-              return this.$responseFields.append(view.render().el);
+          if ((Formbuilder.options.PRINTVIEW && responseField.attributes.field_type !== 'section_break') || !Formbuilder.options.PRINTVIEW) {
+            this.fieldViews.push(view);
+            if (!this.options.live) {
+              if (options.$replaceEl != null) {
+                return options.$replaceEl.replaceWith(view.render().el);
+              } else if ((options.position == null) || options.position === -1) {
+                return this.$responseFields.append(view.render().el);
+              } else if (options.position === 0) {
+                return this.$responseFields.prepend(view.render().el);
+              } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
+                return $replacePosition.before(view.render().el);
+              } else {
+                return this.$responseFields.append(view.render().el);
+              }
             }
           }
         },
@@ -790,7 +826,7 @@
         applyEasyWizard: function() {
           var _this = this;
           (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-            var _i, _len;
+            var fd_views, _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
               if (field_view.is_section_break) {
@@ -822,6 +858,13 @@
               }
               cnt += 1;
             }
+            fd_views = _this.fieldViews.filter(function(fd_view) {
+              return fd_view.field_type === "ci-hierarchy";
+            });
+            if (fd_views.length > 0) {
+              _this.bindHierarchyEvents(fd_views);
+            }
+            _this.triggerEvent();
             return $("#formbuilder_form").easyWizard({
               showSteps: false,
               submitButton: false,
@@ -845,38 +888,95 @@
             _results = [];
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
-              _results.push((function(x, count, should_incr, val_set, model) {
-                var _j, _len1, _ref;
+              _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
+                var _j, _k, _len1, _len2, _ref, _ref1, _results1, _results2;
                 if (field_view.field_type === 'esignature') {
                   initializeCanvas(field_view.model.getCid());
                 }
-                _ref = field_view.$("input, textarea, select, canvas");
-                for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                  x = _ref[_j];
-                  count = (function(x, index, name, val, value, cid) {
-                    cid = model.getCid();
-                    if (field_view.field_type === 'radio' || 'scale_rating') {
-                      value = x.value;
-                    }
-                    name = cid.toString() + "_" + index.toString();
-                    if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                      val = model.get('field_values')[value];
-                    } else if (model.get('field_values')) {
-                      val = model.get('field_values')[name];
-                    }
-                    if (val) {
-                      val_set = true;
-                      _this.setFieldVal($(x), val);
-                    }
-                    return index;
-                  })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '');
-                }
-                if (val_set) {
-                  return field_view.trigger('change_state');
+                if (field_view.model.get('field_type') === 'heading') {
+                  _ref = field_view.$("label");
+                  _results1 = [];
+                  for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                    x = _ref[_j];
+                    _results1.push(count = (function(x, index, name, val, value, cid) {
+                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                      field_method_call = Formbuilder.fields[field_type_method_call];
+                      cid = model.getCid();
+                      if ($(x).text()) {
+                        val_set = true;
+                      }
+                      if (val_set) {
+                        field_view.trigger('change_state');
+                      }
+                      return index;
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                  }
+                  return _results1;
+                } else {
+                  _ref1 = field_view.$("input, textarea, select, canvas, a");
+                  _results2 = [];
+                  for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                    x = _ref1[_k];
+                    _results2.push(count = (function(x, index, name, val, value, cid) {
+                      var get_user_location, has_heading_field, model_in_collection, model_in_conditions, _l, _len3, _len4, _m, _ref2, _ref3;
+                      _ref2 = field_view.model.collection.where({
+                        'field_type': 'heading'
+                      });
+                      for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                        model_in_collection = _ref2[_l];
+                        _ref3 = field_view.model.get('conditions');
+                        for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                          model_in_conditions = _ref3[_m];
+                          if (model_in_collection.getCid() === model_in_conditions.target) {
+                            has_heading_field = true;
+                          }
+                        }
+                      }
+                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                      field_method_call = Formbuilder.fields[field_type_method_call];
+                      cid = model.getCid();
+                      if (field_view.field_type === 'radio' || 'scale_rating') {
+                        value = x.value;
+                      }
+                      name = cid.toString() + "_" + index.toString();
+                      if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                        val = model.get('field_values')[value];
+                      } else if (model.get('field_values')) {
+                        val = model.get('field_values')[name];
+                      }
+                      if (field_method_call.setup) {
+                        field_method_call.setup($(x), model, index);
+                      }
+                      if ($(x).val()) {
+                        val_set = true;
+                      }
+                      if (val || has_heading_field) {
+                        val_set = true;
+                      }
+                      if (val) {
+                        _this.setFieldVal($(x), val);
+                      }
+                      if (!val) {
+                        if (field_view.field_type === 'gmap') {
+                          get_user_location = getCurrentLocation(model.getCid());
+                          if (get_user_location !== 'false') {
+                            $("[name = " + model.getCid() + "_1]").text(get_user_location);
+                          } else {
+                            $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                          }
+                        }
+                      }
+                      if (val_set) {
+                        field_view.trigger('change_state');
+                      }
+                      return index;
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                  }
+                  return _results2;
                 }
               })(null, 0, function(attr) {
                 return attr !== 'radio';
-              }, false, field_view.model));
+              }, false, field_view.model, '', ''));
             }
             return _results;
           })(null, this.fieldViews, "");
@@ -885,6 +985,9 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
+              gmap: function() {
+                return $(elem).text(val);
+              },
               esignature: function() {
                 if (val) {
                   $(elem).attr("upload_url", val);
@@ -909,7 +1012,13 @@
               },
               "default": function() {
                 if (val) {
-                  return $(elem).val(val);
+                  $(elem).val(val);
+                }
+                if ($(elem).attr("capture")) {
+                  $(elem).attr("href", val);
+                  if (val) {
+                    return $(elem).text(val.split("/").pop().split("?")[0]);
+                  }
                 }
               }
             };
@@ -917,16 +1026,23 @@
           })(null, $(elem).attr('type'));
         },
         addAll: function() {
-          var fd_views;
+          var back_visiblity, field_view, _i, _len, _ref;
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
-            this.triggerEvent();
-            fd_views = this.fieldViews.filter(function(fd_view) {
-              return fd_view.field_type === "ci-hierarchy";
-            });
-            if (fd_views.length > 0) {
-              this.bindHierarchyEvents(fd_views);
+            _ref = this.fieldViews;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              field_view = _ref[_i];
+              if (field_view.field_type === 'section_break') {
+                $('.prev').addClass('hide btn-danger');
+                $('.next').addClass('btn-success');
+                back_visiblity = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
+                if (back_visiblity === 'false') {
+                  $('.next').click(function() {
+                    return $('.prev').css("display", "none");
+                  });
+                }
+              }
             }
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
@@ -1004,7 +1120,9 @@
             return;
           }
           this.formSaved = false;
-          return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          if (this.saveFormButton) {
+            return this.saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM);
+          }
         },
         saveForm: function(e) {
           var payload;
@@ -1051,6 +1169,9 @@
                   source = model.collection.where({
                     cid: condition.source
                   });
+                  if (condition.target === '') {
+                    condition.target = model.getCid();
+                  }
                   target_condition = _.clone(condition);
                   target_condition.isSource = false;
                   if (!_.has(source[0].attributes.conditions, target_condition)) {
@@ -1151,8 +1272,8 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input type='text' id='suburb'/>\n    <label>Suburb</label>\n  </span>\n\n  <span>\n    <input type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' id='zipcode'>\n  <span>\n    <input type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Zipcode</label>\n  </span>\n\n  <span>\n    <select class='dropdown_country'><option>United States</option></select>\n    <label>Country</label>\n  </span>\n</div>",
-    edit: "",
+    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input class=\"span12\" type='text' id='suburb'/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span>\n    <input class=\"span12\" type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span>\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span>\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
+    edit: "<div class='fb-edit-section-header'>Options</div>\n\n<div class='input-line span12' >\n  <span class=\"span11\">\n    <label>Select Default Country</label>\n    <select id=\"dropdown_country_edit_<%= rf.getCid() %>\"\n      class='dropdown_country span12 bfh-selectbox bfh-countries'\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      data-rv-value=\"model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>\"\n    ></select>\n  </span>\n</div>\n<script>\n  $(function() {\n    $(\"#dropdown_country_edit_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
     clearFields: function($el, model) {
       $el.find("#address").val("");
@@ -1162,8 +1283,7 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result, check_match_condtions) {
-        var elem_val;
+      return (function(check_result, check_match_condtions, elem_val) {
         if (condition === '!=') {
           check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
         } else {
@@ -1171,7 +1291,7 @@
           check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         }
         return check_result;
-      })(false, []);
+      })(false, [], '');
     },
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1257,14 +1377,18 @@
     edit: "",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> CI-Hierarchy",
     selected_comp: null,
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
+    },
     bindChangeEvents: function(fd_view) {
       var _this = this;
       return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
         cid = fd_view.model.attributes.cid;
         field_values = fd_view.model.attributes.field_values;
-        $company_id = $("#company_id_" + cid);
-        $location_id = $("#location_id_" + cid);
-        $division_id = $("#division_id_" + cid);
+        $company_id = fd_view.$("#company_id_" + cid);
+        $location_id = fd_view.$("#location_id_" + cid);
+        $division_id = fd_view.$("#division_id_" + cid);
         $company_id.bind('change', {
           that: _this,
           fd_view: fd_view
@@ -1308,10 +1432,10 @@
       }
       return (function(companies, $company_id, cid) {
         cid = fd_view.model.attributes.cid;
-        $company_id = $("#company_id_" + cid);
+        $company_id = fd_view.$("#company_id_" + cid);
         if ($company_id && companies && companies.length > 0) {
           $company_id.empty();
-          fd_view.field.clearSelectFields(cid);
+          fd_view.field.clearSelectFields(fd_view, cid);
           fd_view.field.addPlaceHolder($company_id, '--- Select ---');
           fd_view.field.appendData($company_id, companies);
           if (selected_compId && selected_compId !== '') {
@@ -1335,7 +1459,7 @@
         selected_divId = '';
       }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
-      this.clearSelectFields(fd_view.model.attributes.cid);
+      this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
       return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
     },
     populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
@@ -1347,7 +1471,7 @@
         selected_divId = '';
       }
       return (function(locations, $location_id) {
-        $location_id = $("#location_id_" + fd_view.model.attributes.cid);
+        $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid);
         if (selected_comp) {
           locations = selected_comp.locations;
         }
@@ -1383,7 +1507,7 @@
         selected_divId = '';
       }
       return (function(divisions, $division_id) {
-        $division_id = $("#division_id_" + fd_view.model.attributes.cid);
+        $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid);
         if (selected_loc) {
           divisions = selected_loc.divisions;
         }
@@ -1397,9 +1521,9 @@
         }
       })([], null);
     },
-    clearSelectFields: function(cid) {
-      $("#location_id_" + cid).empty();
-      return $("#division_id_" + cid).empty();
+    clearSelectFields: function(fd_view, cid) {
+      fd_view.$("#location_id_" + cid).empty();
+      return fd_view.$("#division_id_" + cid).empty();
     },
     appendData: function($element, data) {
       var _this = this;
@@ -1449,7 +1573,7 @@
         loc_name = $loc.find('option:selected').text();
         div_name = $div.find('option:selected').text();
         if (condition === '!=') {
-          check_result = comp_id !== set_value && loc_id !== set_value && div_id !== set_value;
+          check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
         } else if (condition === '==') {
           _toLowerCase_set_val = set_value.toLowerCase();
           check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
@@ -1480,7 +1604,7 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-datepicker-div\").css( \"z-index\", 3 );\n    });\n  })\n</script>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date",
     isValid: function($el, model) {
@@ -1543,24 +1667,27 @@
 
 (function() {
   Formbuilder.registerField('date_of_birth', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
     setup: function(el, model, index) {
       var _this = this;
       return (function(today, restricted_date) {
         if (model.get(Formbuilder.options.mappings.MINAGE)) {
           restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-          return el.datepicker({
-            dateFormat: "dd/mm/yy",
+          el.datepicker({
+            dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
             maxDate: restricted_date
           });
         } else {
-          return el.datepicker({
-            dateFormat: "dd/mm/yy",
+          el.datepicker({
+            dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
             maxDate: today
           });
         }
+        return $(el).click(function() {
+          return $("#ui-datepicker-div").css("z-index", 3);
+        });
       })(new Date, new Date);
     },
     isValid: function($el, model) {
@@ -1607,16 +1734,32 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value, field) {
       var _this = this;
-      return (function(firstValue, check_result, secondValue, is_true) {
+      return (function(firstValue, check_result, secondValue, is_true, check_field_date_format) {
+        var hold_date;
+        check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
         firstValue = clicked_element.find("[name = " + cid + "_1]").val();
         firstValue = firstValue.split('/');
+        if (check_field_date_format === 'mm/dd/yy') {
+          hold_date = firstValue[0];
+          firstValue[0] = firstValue[1];
+          firstValue[1] = hold_date;
+        }
         secondValue = set_value.split('/');
         return is_true = field.check_date_result(condition, firstValue, secondValue);
-      })('', false, '', false);
+      })('', false, '', false, '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('document_center_hyperlink', {
+    view: "<div id='document_list_<%= rf.getCid() %>'\n  class='document_list_<%= rf.getCid() %>'>\n</div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\";\n    if($(\".document_list_<%= rf.getCid() %>\").length > 1){\n      $($(\".document_list_<%= rf.getCid() %>\")[1]).html(data);\n    }\n    $(\"#document_list_<%= rf.getCid() %>\").html(data);\n  });\n</script>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"doc_hierarchy_selection_div modal_section\">\n    </div>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>",
+    edit: "<div class='fb-edit-section-header'>Options</div>\n<textarea\n  id='documents_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n  style=\"\n    display:none;\n  \"\n>\n</textarea>\n<div class='fb-bottom-add'>\n  <a id='button_<%= rf.getCid() %>'\n    class=\"js-add-document <%= Formbuilder.options.BUTTON_CLASS %>\">\n      Add Documents\n  </a>\n</div>\n<script>\n  $(function() {\n    var geo_doc_hierarchy =\n      [\n        {companies:\"Company\"},\n        {locations:\"Location\"},\n        {divisions:\"Division\"},\n        {documents:\"Document\"}\n      ];\n    $(\"#button_<%= rf.getCid() %>\").click( function() {\n      $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n      $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n        getHierarchy(getListOfPerviousDocuments(\n          'document_list_<%= rf.getCid() %>',\n          'a'\n        ));\n      });\n      $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n        addSelectedDocuments(getListOfPerviousDocuments(\n          'doc_hierarchy_tree_<%= rf.getCid() %>',\n          'input'\n        ));\n        $(this).unbind('shown');\n        $(this).unbind('hidden');\n        hierarchy_selector_view.remove();\n        $(\"#modal_body_<%= rf.getCid() %>\").append('<div id=\"doc_hierarchy_tree_<%= rf.getCid() %>\" class=\"modal_section\"></div>'\n        );\n      });\n    });\n\n    function getListOfPerviousDocuments(el,el_type){\n      var checked_documents = {},\n          document_ids_hash = {documents:[]}, checked;\n      checked = el_type === 'a' ? '' : ':checked'\n      checked_documents =\n        $('#'+el).find(\n          el_type+'[level=document]'+checked\n        );\n      _.each(checked_documents, function(checked_document){\n        var document_id;\n        document_id = checked_document.id;\n        document_ids_hash['documents'].push(\n          document_id.slice(9,document_id.length)\n        );\n      });\n      return document_ids_hash;\n    }\n\n    function addSelectedDocuments(document_ids_hash) {\n      var final = '';\n      _.each(document_ids_hash['documents'], function(document_id){\n        var document_url = '/documents/'+document_id;\n        $.ajax({\n          async: \"false\",\n          url: document_url,\n          type: \"GET\",\n          data: {},\n          dataType: \"json\",\n          success: function (result) {\n            if(result){\n              final = final.concat(\n                \"<a class='active_link_doc document_link_form' level='document' id='document_\"+document_id+\"' target='_blank' href='\"+result.document.public_document_url+\"'>\"+result.document.name+\"</a></br>\"\n              );\n              $(\"#documents_<%= rf.getCid() %>\").val(final);\n              $(\"#documents_<%= rf.getCid() %>\").trigger(\"change\");\n            }\n          }\n        });\n      });\n    };\n\n    function getHierarchy(document_ids_hash) {\n      var that =  this,\n      source_url = '/companies?include_hierarchy=true&include_doc=true&'+\n                   'pagination=false';\n      $.ajax({\n        async: \"false\",\n        url: source_url,\n        type: \"GET\",\n        data: {},\n        dataType: \"json\",\n        success: function (result) {\n          if(result){\n            that.company_hierarchy = result;\n            that.gen_doc_hierarchy = generate_company_hierarchy_tree(\n              that.company_hierarchy, geo_doc_hierarchy);\n            that.hierarchy_selector_view =\n              new Formbuilder.options.HIERARCHYSELECTORVIEW({\n                el: $(\"#doc_hierarchy_tree_<%= rf.getCid() %>\"),\n                generated_hierarchy: that.gen_doc_hierarchy,\n                pre_selected_hierarchy: document_ids_hash,\n                hierarchy_mapping: geo_doc_hierarchy,\n                select_level:\"Document\"\n              });\n          }\n        }\n      });\n    };\n  });\n</script>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-list\"></span></span> Doc. Link"
   });
 
 }).call(this);
@@ -1637,6 +1780,7 @@
         }
       ];
       attrs.field_options.include_blank_option = false;
+      attrs.field_options.size = 'small';
       return attrs;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
@@ -1680,6 +1824,10 @@
     view: "<input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'medium';
+      return attrs;
+    },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
@@ -1701,11 +1849,24 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<canvas type='esignature' id=\"can\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\"></canvas>\n<div style=\"display:inline\">\n  <input type=\"button\" value=\"clear\" id=\"clr\" style=\"min-width:50px;\"/>\n</div>",
-    edit: "",
+    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n<% console.log('in 1'); %>  \n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <% console.log('in 2'); %>  \n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\">\n</div>",
+    edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, checked_chk_cnt, is_empty) {
+          if (!required_attr) {
+            return true;
+          }
+          is_empty = !($el.find("[name = " + model.getCid() + "_1]")[0].toDataURL() === getCanvasDrawn());
+          return is_empty;
+        })(model.get('required'), 0, '');
+        return valid;
+      })(false);
     }
   });
 
@@ -1713,9 +1874,13 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<a target=\"_blank\" class=\"active_link\"></a>\n<input type='file' />",
-    edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File"
+    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").filestyle({\n      input: false,\n      buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n    });\n\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
+    edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",
+    add_remove_require: function(cid, required) {
+      $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
+    }
   });
 
 }).call(this);
@@ -1723,8 +1888,8 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label>Prefix</label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>First</label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label>Middle</label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label>Last</label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label>Suffix</label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true }) %>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n    <span>\n      <input id='suffix' type='text'/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n    </span>\n  <% } %>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/suffix']({ includeSuffix: false, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       var _this = this;
@@ -1762,30 +1927,28 @@
 
 (function() {
   Formbuilder.registerField('gmap', {
-    view: "<input type='button' style=\"min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;\" id=\"gmap_button\" value=\"\" />",
+    view: "<a style=\"min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;text-decoration: underline;\" id=\"gmap_button\" type='gmap'>Select Your Address</a>\n<input id='current_user_latlng_points' type='text' class='hidden' value=''>",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Google Maps",
+    addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
     addRequiredConditions: function() {
       return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
         <div class="modal-dialog">\
           <div class="modal-content">\
             <div class="modal-header">\
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
-              <h4 class="modal-title" id="myModalLabel">Google Maps</h4>\
-            </div>\
-            <div class="modal-body">\
-              <div class="row-fluid panel top-panel1">\
-                <input id="latlng" class="panel1" type="text" value="40.714224,-73.961452"/>\
-                <input type="button" value="Lat,Long" onclick="codeLatLng()"/>\
+              <div class="geo-location-panel top-panel1">\
+                <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>\
+                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>\
               </div>\
-              <div class="row-fluid panel top-panel2">\
-                <input id="gmap_address" class="panel1" type="textbox" value="Sydney, NSW"/>\
+              <div class="geo-location-panel top-panel2">\
+                <input id="gmap_address" class="geo-location-panel1" type="textbox"/>\
                 <input type="button" value="Location" onclick="codeAddress()"/>\
               </div>\
+            </div>\
+            <div class="modal-body">\
               <div id="map-canvas"/>\
             </div>\
             <div class="modal-footer">\
-              <button type="button" class="btn btn-default" id="ok" data-dismiss="modal">Ok</button>\
+              <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button>\
             </div>\
           </div>\
         </div>\
@@ -1799,7 +1962,7 @@
           if (!required_attr) {
             return true;
           }
-          return $el.find("[name = " + model.getCid() + "_1]").val() !== '';
+          return $el.find("[name = " + model.getCid() + "_1]").text() !== '';
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
@@ -1811,11 +1974,28 @@
 (function() {
   Formbuilder.registerField('heading', {
     type: 'non_input',
-    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
+    view: "<label id='<%= rf.getCid() %>' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
     edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
+    clearFields: function($el, model) {
+      return $el.find('#' + model.getCid()).text('');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("#" + cid).text();
+        elem_val = elem_val.replace(/(\r\n|\n|\r)/gm, '');
+        elem_val = elem_val.trimLeft();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        return check_result;
+      })(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("#" + cid).attr("required", required);
+    },
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
     }
   });
@@ -1824,7 +2004,7 @@
 
 (function() {
   Formbuilder.registerField('image', {
-    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link = \"#\" %>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)+'/?image_link=image_link' %>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form'\n    target='_blank'\n    href=\"<%=image_link%>\"\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
+    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link = \"#\" %>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form document_link_form'\n    target='_blank'\n    href=\"<%=image_link%>\"\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
     edit: "<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 204800){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 200 KB\")\n        }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-picture\"></span></span> Image"
   });
@@ -1833,18 +2013,37 @@
 
 (function() {
   Formbuilder.registerField('number', {
-    view: "<input type='number' />\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
-    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
+    view: "<input type='number'/>\n<% if (units = rf.get(Formbuilder.options.mappings.UNITS)) { %>\n  <%= units %>\n<% } %>",
+    edit: "<%= Formbuilder.templates['edit/min_max_step']() %>\n<%= Formbuilder.templates['edit/units']() %>\n<%= Formbuilder.templates['edit/default_number_value']() %>\n<%= Formbuilder.templates['edit/integer_only']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-number\">123</span></span> Number",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'small';
+      return attrs;
+    },
     setup: function(el, model, index) {
+      var rounded_value;
       if (model.get(Formbuilder.options.mappings.MIN)) {
         el.attr("min", model.get(Formbuilder.options.mappings.MIN));
       }
       if (model.get(Formbuilder.options.mappings.MAX)) {
         el.attr("max", model.get(Formbuilder.options.mappings.MAX));
       }
-      if (model.get(Formbuilder.options.mappings.STEP)) {
-        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+      if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY) && model.get(Formbuilder.options.mappings.STEP)) {
+        if (model.get(Formbuilder.options.mappings.STEP)) {
+          el.attr("step", model.get(Formbuilder.options.mappings.STEP));
+        } else {
+          el.attr("step", 'any');
+        }
+      } else if (!model.get(Formbuilder.options.mappings.INTEGER_ONLY)) {
+        el.attr("step", 'any');
+      } else {
+        if (model.get(Formbuilder.options.mappings.STEP)) {
+          rounded_value = Math.round(model.get(Formbuilder.options.mappings.STEP));
+          el.attr("step", rounded_value);
+        }
+      }
+      if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
+        return el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
       }
     },
     clearFields: function($el, model) {
@@ -1869,11 +2068,85 @@
 (function() {
   Formbuilder.registerField('paragraph', {
     view: "<textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>",
     addButton: "<span class=\"symbol\">&#182;</span> Paragraph",
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
+    },
+    setup: function(el, model, index) {
+      if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+        (function(min_length) {
+          return el.attr("pattern", "[a-zA-Z0-9_\\s]{" + min_length + ",}");
+        })(model.get(Formbuilder.options.mappings.MINLENGTH));
+      }
+      if (model.get(Formbuilder.options.mappings.MAXLENGTH)) {
+        return el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
+      }
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var _this = this;
+      return (function(check_result) {
+        var elem_val;
+        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        return check_result;
+      })(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr, textarea_char_cnt) {
+          if (!required_attr) {
+            return true;
+          }
+          textarea_char_cnt = $el.find('textarea').val().length;
+          if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
+            return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
+          } else {
+            return true;
+          }
+        })(model.get('required'), 0);
+        return valid;
+      })(false);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('phone_number', {
+    view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput(); \n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
+    setup: function(el, model, index) {
+      var _this = this;
+      return (function(mask_value, country_code, country_code_set) {
+        var area_code;
+        country_code = model.get(Formbuilder.options.mappings.COUNTRY_CODE);
+        mask_value = model.get(Formbuilder.options.mappings.MASK_VALUE);
+        if (country_code && mask_value) {
+          $('#' + model.getCid() + 'phone').val(country_code + ')');
+        } else if (country_code) {
+          $('#' + model.getCid() + 'phone').val(country_code);
+        }
+        country_code_set = $('#' + model.getCid() + 'phone').val();
+        area_code = model.get(Formbuilder.options.mappings.AREA_CODE);
+        if (area_code && mask_value) {
+          $('#' + model.getCid() + 'phone').val(country_code_set + area_code + ')');
+        } else if (area_code) {
+          $('#' + model.getCid() + 'phone').val(country_code_set + area_code);
+        }
+        if (mask_value) {
+          return $('#' + model.getCid() + 'phone').mask(mask_value);
+        }
+      })(false, false, '');
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
@@ -1926,7 +2199,7 @@
   Formbuilder.registerField('radio', {
     view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<% for ( var i = 0 ; i < field_options.length ; i++) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='radio' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Multiple Choice",
+    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Radio Button",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
         {
@@ -1979,7 +2252,7 @@
 
 (function() {
   Formbuilder.registerField('scale_rating', {
-    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid mobile-device'>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <div class=\"divider\"></div>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"span1 scale_rating_text\">\n    <div class=\"divider\"></div>\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
+    view: "<%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>\n<div class='row-fluid mobile-device'>\n  <div class=\"scale_rating_min\">\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.STARTING_POINT_TEXT) %>\n    </label>\n  </div>\n  <div>\n    <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n      <div class=\"span1 scale_rating\">\n        <%= i+1 %>\n        <label class='fb-option'>\n          <input type='radio' value='<%= i+1 %>'\n            <%=\n              rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked &&\n              'checked'\n            %>\n          />\n        </label>\n      </div>\n    <% } %>\n  </div>\n  <div class=\"scale_rating_max\">\n    <label>\n      <%= rf.get(Formbuilder.options.mappings.ENDING_POINT_TEXT) %>\n    </label>\n  </div>\n</div>",
     edit: "<%= Formbuilder.templates['edit/scale_rating_options']() %>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-circle-blank\"></span>\n</span> Scale Rating",
     defaultAttributes: function(attrs) {
@@ -2038,20 +2311,39 @@
 (function() {
   Formbuilder.registerField('section_break', {
     type: 'non_input',
-    view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <button class=\"prev\">\n    <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n  </button>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>",
+    view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next btn-success\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) != 'false') {\n      rf.set(Formbuilder.options.mappings.BACK_VISIBLITY,'true')\n    } \n  %>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) == 'true'){%>\n    <button class=\"prev btn-danger\">\n      <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n    </button>\n  <% } %>  \n</div>",
+    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>\n\n  <%= Formbuilder.templates['edit/back_visiblity']() %>\n",
     addButton: "<span class='symbol'><span class='icon-minus'></span></span> Section Break"
   });
 
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('take_pic_video_audio', {
+    view: "<div class='input-line'>\n  <button class='image' id=\"btn_image_<%= rf.getCid() %>\">Picture</button>\n  <button class='video' id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button class='audio' id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  setTimeout(function(){\n      var data = $(\"#snapshot_<%= rf.getCid() %>\").val();\n      $(\"#record_link_<%= rf.getCid() %>\").attr('href',data);\n      $(\"#record_link_<%= rf.getCid() %>\").text('File');\n    },100);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").val(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
+    edit: "  ",
+    addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
+    clearFields: function($el, model) {
+      $el.find(".image").val("");
+      $el.find(".video").val("");
+      return $el.find(".audio").val("");
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {},
+    add_remove_require: function(cid, required) {
+      $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('text', {
-    view: "<input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
-    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']() %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
-    addButton: "<span class='symbol'><span class='icon-font'></span></span> Text",
+    view: "<input\n  type='text'\n  class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'\n/>",
+    edit: "<%= Formbuilder.templates['edit/size']() %>\n<%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>\n<%= Formbuilder.templates['edit/default_value_hint']() %>",
+    addButton: "<span class='symbol'><span class='icon-font'></span></span> Text Box",
     defaultAttributes: function(attrs) {
-      attrs.field_options.size = 'small';
+      attrs.field_options.size = 'medium';
       return attrs;
     },
     setup: function(el, model, index) {
@@ -2075,12 +2367,11 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result) {
-        var elem_val;
+      return (function(check_result, elem_val) {
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
         check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
         return check_result;
-      })(false);
+      })(false, '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2091,7 +2382,7 @@
 
 (function() {
   Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-timepicker-div\").css( \"z-index\", 3 );\n    });\n  });\n</script>",
     edit: "<%= Formbuilder.templates['edit/step']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
     setup: function(el, model, index) {
@@ -2155,6 +2446,10 @@
     view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL",
+    defaultAttributes: function(attrs) {
+      attrs.field_options.size = 'medium';
+      return attrs;
+    },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");
     },
@@ -2181,9 +2476,33 @@ this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Back Visiblity</div>\n<select data-rv-value=\'model.' +
+((__t = ( Formbuilder.options.mappings.BACK_VISIBLITY )) == null ? '' : __t) +
+'\'>\n    <option value=\'true\'>true</option>\n    <option value=\'false\'>false</option>\n</select>';
 
 }
 return __p
@@ -2223,13 +2542,34 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/canvas_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_WIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_HEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;';
 
 }
 return __p
@@ -2271,28 +2611,64 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
 '">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\' data-rv-show="condition:isSource">\n      <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n          ';
- for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+ opts.parentView.collection.sort();;
+__p += '\n          ';
+ for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+ if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
 __p += '\n              ';
  break ;
 __p += '\n            ';
  } ;
 __p += '\n            <option value="' +
-((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
-((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <select data-rv-value=\'condition:target\'>\n          <option value="">Select Field</option>\n          <option value="' +
-((__t = ( rf.getCid() )) == null ? '' : __t) +
-'" data-rv-text=\'model.' +
-((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
-'\'></option>\n        </select>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add Condition</a>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'"/>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/default_number_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_NUM_VALUE )) == null ? '' : __t) +
+'" style="width: 30px" />';
 
 }
 return __p
@@ -2307,6 +2683,38 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 '"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
 '"/>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_FIRST_TEXT )) == null ? '' : __t) +
+'"\n      value=\'First\' placeholder="First"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/full_name_label_values"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description span11\'>\n    ' +
+((__t = ( Formbuilder.templates['edit/prefix_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/first_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/middle_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -2356,6 +2764,30 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/last_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
@@ -2363,7 +2795,9 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeOther !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;
@@ -2373,15 +2807,43 @@ __p += '\n';
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/middle_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'middle_name_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n     data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT )) == null ? '' : __t) +
+'"\n     value=\'Middle\' placeholder="Middle"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="number" data-rv-input="model.' +
+__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input id="min_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" min="0" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<label class="fb-field-label-length-unit">Characters</label>\n';
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").attr(\'min\',$(this).val())\n      if (parseInt($(this).val()) < 0){\n        $(this).val(0)\n      }\n    });\n    $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\').val()) || parseInt($(this).val()) < 0){\n        $(this).val(\'\')\n      }\n    });\n  });\n</script>';
 
 }
 return __p
@@ -2395,7 +2857,7 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n
 ((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
 
@@ -2429,6 +2891,18 @@ __p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/prefix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT )) == null ? '' : __t) +
+'"\n       value=\'Prefix\' placeholder="Prefix"/>\n  </div>\n</div>';
 
 }
 return __p
@@ -2475,6 +2949,41 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p

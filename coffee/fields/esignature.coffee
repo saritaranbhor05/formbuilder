@@ -1,13 +1,34 @@
 Formbuilder.registerField 'esignature',
 
   view: """
-    <canvas type='esignature' id="can" width="200" height="100" style="border:1px solid #000000;"></canvas>
-    <div style="display:inline">
-      <input type="button" value="clear" id="clr" style="min-width:50px;"/>
+    <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+    <% console.log('in 1'); %>  
+      <canvas 
+          type='esignature' 
+          id="can"
+          width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
+          height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
+          style="border:1px solid #000000;"
+      />
+      <% } else 
+      if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+      <% console.log('in 2'); %>  
+        <canvas 
+            type='esignature' 
+            id="can"
+            width='250px'
+            height='150px'
+            style="border:1px solid #000000;"
+        />
+      <% } %>
+    <div>
+      <input class="clear-button" id="clr" type="button" value="Clear">
     </div>
   """
 
-  edit: ""
+  edit: """
+    <%= Formbuilder.templates['edit/canvas_options']() %>
+  """
 
   addButton: """
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature 
@@ -17,3 +38,11 @@ Formbuilder.registerField 'esignature',
     $("." + cid)
             .find("[name = "+cid+"_1]")
             .attr("required", required)
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0, is_empty='') =>
+        return true if !required_attr
+        is_empty =  !($el.find("[name = "+model.getCid()+"_1]")[0].toDataURL() == getCanvasDrawn()) 
+        return is_empty
+      valid

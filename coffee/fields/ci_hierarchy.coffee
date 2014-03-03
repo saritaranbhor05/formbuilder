@@ -44,6 +44,10 @@ Formbuilder.registerField 'ci-hierarchy',
   """
   selected_comp: null
 
+  defaultAttributes: (attrs) ->
+    attrs.field_options.size = 'small'
+    attrs
+
   bindChangeEvents: (fd_view)->
     do(cid = null, $company_id = null,
       $location_id = null, $division_id = null,
@@ -52,9 +56,9 @@ Formbuilder.registerField 'ci-hierarchy',
     ) =>
       cid = fd_view.model.attributes.cid
       field_values = fd_view.model.attributes.field_values
-      $company_id = $("#company_id_" + cid)
-      $location_id = $("#location_id_" + cid)
-      $division_id = $("#division_id_" + cid)
+      $company_id = fd_view.$("#company_id_" + cid)
+      $location_id = fd_view.$("#location_id_" + cid)
+      $division_id = fd_view.$("#division_id_" + cid)
       $company_id.bind('change', { that: @, fd_view: fd_view },
                        @populateLocationsByCompanyId)
       $location_id.bind('change', { that: @, fd_view: fd_view },
@@ -81,10 +85,10 @@ Formbuilder.registerField 'ci-hierarchy',
       $company_id = null, cid = null
     ) =>
       cid = fd_view.model.attributes.cid
-      $company_id = $("#company_id_" + cid)
+      $company_id = fd_view.$("#company_id_" + cid)
       if($company_id && companies && companies.length > 0)
         $company_id.empty()
-        fd_view.field.clearSelectFields(cid)
+        fd_view.field.clearSelectFields(fd_view, cid)
         fd_view.field.addPlaceHolder($company_id, '--- Select ---')
         fd_view.field.appendData($company_id, companies)
         if selected_compId && selected_compId != ''
@@ -103,7 +107,7 @@ Formbuilder.registerField 'ci-hierarchy',
                                    selected_locId = '', selected_divId = '') ->
     @selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(
       selected_compId)
-    @clearSelectFields(fd_view.model.attributes.cid)
+    @clearSelectFields(fd_view, fd_view.model.attributes.cid)
     @populateLocations(
       fd_view, this.selected_comp, selected_locId, selected_divId)
 
@@ -112,7 +116,7 @@ Formbuilder.registerField 'ci-hierarchy',
     do(locations = [],
        $location_id = null
     ) =>
-      $location_id = $("#location_id_" + fd_view.model.attributes.cid)
+      $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid)
       if selected_comp
         locations = selected_comp.locations
 
@@ -141,7 +145,7 @@ Formbuilder.registerField 'ci-hierarchy',
     do( divisions = [],
         $division_id = null
     ) =>
-      $division_id = $("#division_id_" + fd_view.model.attributes.cid)
+      $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid)
       if selected_loc
         divisions = selected_loc.divisions
       $division_id.empty()
@@ -151,9 +155,9 @@ Formbuilder.registerField 'ci-hierarchy',
         if selected_divId && selected_divId != ''
           $division_id.val selected_divId
 
-  clearSelectFields: (cid) ->
-    $("#location_id_"+ cid).empty()
-    $("#division_id_"+ cid).empty()
+  clearSelectFields: (fd_view, cid) ->
+    fd_view.$("#location_id_"+ cid).empty()
+    fd_view.$("#division_id_"+ cid).empty()
 
   appendData: ($element, data) ->
     do(appendString = '') =>
@@ -197,13 +201,13 @@ Formbuilder.registerField 'ci-hierarchy',
       loc_name = $loc.find('option:selected').text()
       div_name = $div.find('option:selected').text()
       if condition == '!='
-        check_result = (comp_id != set_value && loc_id != set_value &&
-                        div_id != set_value)
+        check_result = (comp_id != '' && loc_id != '' &&
+                        div_id != '')
       else if condition == '=='
         _toLowerCase_set_val = set_value.toLowerCase()
-        check_result = (comp_name.toLowerCase() == _toLowerCase_set_val ||
-                        loc_name.toLowerCase() == _toLowerCase_set_val ||
-                        div_name.toLowerCase() == _toLowerCase_set_val)
+        check_result = (comp_name.toLowerCase() is _toLowerCase_set_val ||
+                        loc_name.toLowerCase() is _toLowerCase_set_val ||
+                        div_name.toLowerCase() is _toLowerCase_set_val)
       check_result
 
   add_remove_require:(cid, required) ->

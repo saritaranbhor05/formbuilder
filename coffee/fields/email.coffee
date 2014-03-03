@@ -10,6 +10,10 @@ Formbuilder.registerField 'email',
     <span class="symbol"><span class="icon-envelope-alt"></span></span> Email
   """
 
+  defaultAttributes: (attrs) ->
+    attrs.field_options.size = 'medium'
+    attrs
+
   clearFields: ($el, model) ->
   		$el.find("[name = " + model.getCid() + "_1]").val("")
 

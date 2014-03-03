@@ -5,9 +5,33 @@ this["Formbuilder"]["templates"]["edit/age_restriction"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Back Visiblity</div>\n<select data-rv-value=\'model.' +
+((__t = ( Formbuilder.options.mappings.BACK_VISIBLITY )) == null ? '' : __t) +
+'\'>\n    <option value=\'true\'>true</option>\n    <option value=\'false\'>false</option>\n</select>';
 
 }
 return __p
@@ -47,13 +71,34 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/canvas_options"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_WIDTH )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.CANVAS_HEIGHT )) == null ? '' : __t) +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;';
 
 }
 return __p
@@ -95,28 +140,64 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
 '">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\' data-rv-show="condition:isSource">\n      <span class=\'fb-field-label fb-field-condition-label span1\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n          ';
- for( var i=0 ; i < opts.parentView.fieldViews.length ; i++){;
+ opts.parentView.collection.sort();;
+__p += '\n          ';
+ for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.fieldViews[i].model.attributes.label == rf.attributes.label){ ;
+ if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
 __p += '\n              ';
  break ;
 __p += '\n            ';
  } ;
 __p += '\n            <option value="' +
-((__t = ( opts.parentView.fieldViews[i].model.getCid() )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
-((__t = ( opts.parentView.fieldViews[i].model.attributes.label )) == null ? '' : __t) +
+((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <select data-rv-value=\'condition:target\'>\n          <option value="">Select Field</option>\n          <option value="' +
-((__t = ( rf.getCid() )) == null ? '' : __t) +
-'" data-rv-text=\'model.' +
-((__t = ( Formbuilder.options.mappings.LABEL )) == null ? '' : __t) +
-'\'></option>\n        </select>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add Condition</a>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'"/>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/default_number_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_NUM_VALUE )) == null ? '' : __t) +
+'" style="width: 30px" />';
 
 }
 return __p
@@ -131,6 +212,38 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 '"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
 '"/>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">First </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_FIRST_TEXT )) == null ? '' : __t) +
+'"\n      value=\'First\' placeholder="First"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/full_name_label_values"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description span11\'>\n    ' +
+((__t = ( Formbuilder.templates['edit/prefix_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/first_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/middle_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
+'\n    ' +
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -180,6 +293,30 @@ __p += '<input type=\'text\' data-rv-input=\'model.' +
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/last_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/middle"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
@@ -187,7 +324,9 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeOther !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_OTHER )) == null ? '' : __t) +
 '\' />\n    Include "Middle Name"\n  </label>\n';
  } ;
@@ -197,15 +336,43 @@ __p += '\n';
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/middle_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'middle_name_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_OTHER) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Middle </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n     data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT )) == null ? '' : __t) +
+'"\n     value=\'Middle\' placeholder="Middle"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/min_max_length"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Length Limit</div>\n\nMin\n<input type="number" data-rv-input="model.' +
+__p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n\n  Min\n  <input id="min_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" min="0" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nMax\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
+((__t = (rf.getCid())) == null ? '' : __t) +
+'" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<label class="fb-field-label-length-unit">Characters</label>\n';
+'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").attr(\'min\',$(this).val())\n      if (parseInt($(this).val()) < 0){\n        $(this).val(0)\n      }\n    });\n    $("#max_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").change(function(){\n      if (parseInt($(this).val()) < parseInt($(\'#min_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\').val()) || parseInt($(this).val()) < 0){\n        $(this).val(\'\')\n      }\n    });\n  });\n</script>';
 
 }
 return __p
@@ -219,7 +386,7 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n
 ((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
 '" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" data-rv-input="model.' +
+'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 30px" />\n';
 
@@ -253,6 +420,18 @@ __p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 __p += '\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-option ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">Add option</a>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/prefix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group">\n  <label class="control-label">Prefix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT )) == null ? '' : __t) +
+'"\n       value=\'Prefix\' placeholder="Prefix"/>\n  </div>\n</div>';
 
 }
 return __p
@@ -299,6 +478,41 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" />\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p

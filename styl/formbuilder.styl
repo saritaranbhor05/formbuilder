@@ -150,6 +150,9 @@
         background-color red
 
   .active_link
+    color: #000
+    left: 1%
+    height: 0px
     bottom: 0px
     position: absolute
     z-index: 3
@@ -162,6 +165,10 @@
     input[readonly]
       background-color: #FFFFFF
       cursor: text;
+
+    .active_link_doc
+      position: absolute
+      z-index: 3
 
     .cover
       position: absolute
@@ -225,10 +232,10 @@
     margin-bottom: 5px
     clear: both
 
-  .js-add-option, .js-remove-option, .js-add-condition, .js-remove-condition
+  .js-add-option, .js-remove-option, .js-add-condition, .js-remove-condition, .js-add-document
     padding: 3px 6px
 
-  .js-add-option, .js-add-condition
+  .js-add-option, .js-add-condition, .js-add-document
     background-color green
 
   .js-remove-option, .js-remove-condition
@@ -323,25 +330,37 @@
     margin-bottom: 5px
     display: inline-block
 
-.panel
+.geo-location-panel
     text-align: center
     position: absolute
     z-index:1
 
-.panel1
+.geo-location-panel1
     width: 40%
     top: 15px
 
 #gmapModal
   .modal-body
     overflow-y: hidden;
-    overflow-x: hidden;  
+    overflow-x: hidden;
+
+  .modal-header
+    border-bottom: 0px;
+    padding: 26px 15px;
+
+  .modal-footer
+    background-color: #FFFFFF;
+    border-radius: 0 0 0px 0px;
+    border-top: 0px;
+    padding:5px;
 
 .top-panel1
-  top:15px
+  margin-left:20%
+  top:1%
 
 .top-panel2
-  top:50px
+  margin-left:20%
+  top:7%
 
 .condition
   background: #424E57
@@ -350,18 +369,122 @@
 .image_link_form:hover
   background-color:#fff
 
-@media (min-width: 768px)
-    #map-canvas
-      height:400px
 
+#map-canvas
+  height:400px
+
+@media (max-width: 768px)
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
 
 @media (max-width: 767px)
+
     #map-canvas
-      height:300px
+      height: 350px;
+
+    .modal.fade.in
+      top: 20%;
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
 
 
 @media (max-width: 480px)
+
+    .top-panel2
+      margin-left:20%
+      top:10%
+
     #map-canvas
       height: 200px
       margin: 0px
       padding: 0px
+
+    .modal.fade.in
+      top: 15%;
+
+    .response-field-text
+      input
+        &.rf-size-small
+          width: 130px
+
+        &.rf-size-medium
+          width: 55%
+
+        &.rf-size-large
+          width: 75%
+
+    .response-field-paragraph
+      textarea
+        &.rf-size-small
+          width: 200px
+          min-height: 60px
+
+        &.rf-size-medium
+          width: 55%
+          min-height: 100px
+
+        &.rf-size-large
+          width: 75%
+          min-height: 200px
+
+.fb-clear-min-max
+  margin-bottom: 2%
+
+.input-large
+  margin-bottom: 0px !important
+
+
+#create-form-container
+  .country-name
+      color: black
+
+  .intl-tel-input.pretty
+    .flag-dropdown
+      .country-list 
+        width: 275px

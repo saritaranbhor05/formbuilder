@@ -1,0 +1,10 @@
+<div class="control-group" id='suffix_div_<%= rf.getCid() %>'
+  style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' %>' >
+  <label class="control-label">Suffix </label>
+  <div class="controls">
+    <input type="text" pattern="^[\w]+[\w\s ]*"
+    data-rv-input=
+     "model.<%= Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT %>"
+    value='Suffix' placeholder="Suffix"/>
+  </div>
+</div>

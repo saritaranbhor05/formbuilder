@@ -17,9 +17,11 @@ class Formbuilder
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
-    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio']
+    FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
     CKEDITOR_CONFIG: ' '
+    HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
+    PRINTVIEW: false
 
     mappings:
       SIZE: 'field_options.size'
@@ -31,16 +33,20 @@ class Formbuilder
       OPTIONS: 'field_options.options'
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'
+      INCLUDE_SUFFIX: 'field_options.include_suffix'
       INCLUDE_BLANK: 'field_options.include_blank_option'
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
       MAX: 'field_options.max'
+      DEFAULT_NUM_VALUE: 'field_options.default_num_value'
       STEP: 'field_options.step'
       MINLENGTH: 'field_options.minlength'
       MAXLENGTH: 'field_options.maxlength'
       IMAGELINK: 'field_options.image_link'
       IMAGEWIDTH: 'field_options.image_width'
       IMAGEHEIGHT: 'field_options.image_height'
+      CANVAS_WIDTH: 'field_options.canvas_width'
+      CANVAS_HEIGHT: 'field_options.canvas_height'
       IMAGEALIGN: 'field_options.image_align'
       LENGTH_UNITS: 'field_options.min_max_length_units'
       MINAGE: 'field_options.minage'
@@ -53,7 +59,19 @@ class Formbuilder
       STARTING_POINT_TEXT: 'field_options.start_point_text'
       ENDING_POINT_TEXT: 'field_options.ending_point_text'
       MATCH_CONDITIONS: 'field_options.match_conditions'
-
+      ALLOWED_FILE_TYPES: 'field_options.allow_file_type'
+      FILE_BUTTON_TEXT: 'field_options.file_button_text'
+      FULLNAME_PREFIX_TEXT: 'field_options.prefix_text'
+      FULLNAME_FIRST_TEXT: 'field_options.first_name_text'
+      FULLNAME_MIDDLE_TEXT: 'field_options.middle_name_text'
+      FULLNAME_LAST_TEXT: 'field_options.last_name_text'
+      FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
+      BACK_VISIBLITY: 'field_options.back_visiblity'
+      DEFAULT_COUNTRY: 'field_options.default_country'
+      DATE_FORMAT: 'field_options.date_format'
+      MASK_VALUE: 'field_options.mask_value'
+      COUNTRY_CODE: 'field_options.country_code'
+      AREA_CODE: 'field_options.area_code'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -67,7 +85,7 @@ class Formbuilder
   @model: Backbone.DeepModel.extend
     sync: -> # noop
     indexInDOM: ->
-      $wrapper = $(".fb-field-wrapper").filter ( (_, el) => $(el).data('cid') == @cid  )
+      $wrapper = $(".fb-field-wrapper").filter ( (_, el) => $(el).data('cid') == @getCid()  )
       $(".fb-field-wrapper").index $wrapper
     is_input: ->
       Formbuilder.inputFields[@get(Formbuilder.options.mappings.FIELD_TYPE)]?
@@ -129,6 +147,8 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       add_remove_require:(required) ->
+        @clearFields() and @changeStateSource() if !required
+        @changeStateSource() if required and @field_type is 'heading'
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -140,6 +160,7 @@ class Formbuilder
             if(check_result is true )
               @$el.addClass(set_field.action)
               if(set_field.action == 'show')
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -150,6 +171,7 @@ class Formbuilder
               @$el.removeClass(set_field.action)
               if(set_field.action == 'hide')
                 @$el.addClass("show")
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -188,8 +210,6 @@ class Formbuilder
                 check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
-                @clearFields()
-                @changeStateSource()
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
@@ -226,31 +246,33 @@ class Formbuilder
       openGMap: ->
         if $('#gmapModal').length is 0
           @field.addRequiredConditions() if @field.addRequiredConditions
-        $('#ok').val(this.model.getCid())
+        $('#gmap_ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
         })
 
         $("#gmapModal").on "shown", (e) ->
+            gmap_button_value = $("[name = " + getCid() + "_2]").val()
             initialize();
             $( "#gmap_address" ).keypress (event) ->
+              set_prev_lat_lng($('#gmap_latlng').val())
               if(event.keyCode == 13)
                 codeAddress();
 
             $( "#gmap_latlng" ).keypress (event) ->
+              set_prev_address($("#gmap_address").val())
               if(event.keyCode == 13)
-                codeLatLng();
+                codeLatLng()
 
-            gmap_button_value = $("[name = " + getCid() + "_1]").val()
-            if( gmap_button_value != "")
-              codeLatLng(gmap_button_value);
-
-        $('#ok').on 'click', (e) ->
-            $("[name = " + getCid() + "_1]").val(getLatLong());
+            if( gmap_button_value != '')
+              set_prev_lat_lng(gmap_button_value)
+              codeLatLng(gmap_button_value)
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
           $(this).removeData "modal"
+          $( "#gmap_address" ).unbind('keypress')
+          $( "#gmap_latlng" ).unbind('keypress')
 
       isValid: ->
         return true if !@field.isValid
@@ -315,7 +337,7 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input, textarea, select, canvas")
+              for x in @$("input, textarea, select, canvas, a")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x)
@@ -325,7 +347,6 @@ class Formbuilder
                 ) =>
                   name = cid.toString() + "_" + index.toString()
                   $(x).attr("name", name)
-                  @field.setup($(x), @model, index) if @field.setup
                   if @model.get(Formbuilder.options.mappings.REQUIRED) &&
                   $.inArray(@field_type,
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -473,12 +494,15 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        if @options.print_view
+          Formbuilder.options.PRINTVIEW = @options.print_view
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
+        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view unless _.isUndefined(@options.hierarchy_selector_view)
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')
@@ -548,33 +572,35 @@ class Formbuilder
           live: @options.live
           readonly: @options.readonly
           seedData: responseField.seedData
+        if (Formbuilder.options.PRINTVIEW &&
+            responseField.attributes.field_type != 'section_break') ||
+            !Formbuilder.options.PRINTVIEW
+          # Append view to @fieldViews
+          @fieldViews.push(view)
 
-        # Append view to @fieldViews
-        @fieldViews.push(view)
+          if !@options.live
+            #####
+            # Calculates where to place this new field.
+            #
+            # Are we replacing a temporarily drag placeholder?
+            if options.$replaceEl?
+              options.$replaceEl.replaceWith(view.render().el)
 
-        if !@options.live
-          #####
-          # Calculates where to place this new field.
-          #
-          # Are we replacing a temporarily drag placeholder?
-          if options.$replaceEl?
-            options.$replaceEl.replaceWith(view.render().el)
+            # Are we adding to the bottom?
+            else if !options.position? || options.position == -1
+              @$responseFields.append view.render().el
 
-          # Are we adding to the bottom?
-          else if !options.position? || options.position == -1
-            @$responseFields.append view.render().el
+            # Are we adding to the top?
+            else if options.position == 0
+              @$responseFields.prepend view.render().el
 
-          # Are we adding to the top?
-          else if options.position == 0
-            @$responseFields.prepend view.render().el
+            # Are we adding below an existing field?
+            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+              $replacePosition.before view.render().el
 
-          # Are we adding below an existing field?
-          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-            $replacePosition.before view.render().el
-
-          # Catch-all: add to bottom
-          else
-            @$responseFields.append view.render().el
+            # Catch-all: add to bottom
+            else
+              @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -644,6 +670,12 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
+          # check for ci-hierarchy type
+          fd_views = @fieldViews.filter (fd_view) ->
+            fd_view.field_type is "ci-hierarchy"
+          @bindHierarchyEvents(fd_views) if fd_views.length > 0
+          @triggerEvent() # triggers event by setting values to respective fields
+
           $("#formbuilder_form").easyWizard({
             showSteps: false,
             submitButton: false,
@@ -672,35 +704,72 @@ class Formbuilder
               should_incr = (attr) -> attr != 'radio',
               val_set = false,
               model = field_view.model
+              field_type_method_call = ''
+              field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
-              for x in field_view.$("input, textarea, select, canvas")
-                count = do( # set element name, value and call setup
-                  x,
-                  index = count + (if should_incr($(x)
-                          .attr('type')) then 1 else 0),
-                  name = null,
-                  val = null,
-                  value = 0,
-                  cid = ''
-                ) =>
-                  cid = model.getCid()
-                  value = x.value if field_view.field_type == 'radio'||'scale_rating'
-                  name = cid.toString() + "_" + index.toString()
-                  if $(x).attr('type') == 'radio' and model.get('field_values')
-                    val = model.get('field_values')[value]
-                  else if model.get('field_values')
-                    val = model.get('field_values')[name]
-                  if val
-                    val_set = true
-                    @setFieldVal($(x), val)
-                  index
-              if val_set
-                field_view.trigger('change_state')
+              if(field_view.model.get('field_type') is 'heading')
+                for x in field_view.$("label")
+                  count = do( # set element name, value and call setup
+                    x,
+                    index = count + (if should_incr($(x)
+                            .attr('type')) then 1 else 0),
+                    name = null,
+                    val = null,
+                    value = 0,
+                    cid = ''
+                  ) =>
+                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                    field_method_call = Formbuilder.fields[field_type_method_call]
+                    cid = model.getCid()
+                    val_set = true if $(x).text()
+                    if val_set
+                      field_view.trigger('change_state')
+                    index
+              else
+                for x in field_view.$("input, textarea, select, canvas, a")
+                  count = do( # set element name, value and call setup
+                    x,
+                    index = count + (if should_incr($(x)
+                            .attr('type')) then 1 else 0),
+                    name = null,
+                    val = null,
+                    value = 0,
+                    cid = ''
+                  ) =>
+                    for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                      for model_in_conditions in field_view.model.get('conditions')
+                        if(model_in_collection.getCid() is model_in_conditions.target)
+                          has_heading_field = true
+                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                    field_method_call = Formbuilder.fields[field_type_method_call]
+                    cid = model.getCid()
+                    value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                    name = cid.toString() + "_" + index.toString()
+                    if $(x).attr('type') == 'radio' and model.get('field_values')
+                      val = model.get('field_values')[value]
+                    else if model.get('field_values')
+                      val = model.get('field_values')[name]
+                    field_method_call.setup($(x), model, index) if field_method_call.setup
+                    val_set = true if $(x).val()
+                    val_set = true if val or has_heading_field
+                    @setFieldVal($(x), val) if val
+                    if !val
+                      if(field_view.field_type == 'gmap')
+                        get_user_location = getCurrentLocation(model.getCid());
+                        if get_user_location != 'false'
+                          $("[name = " + model.getCid() + "_1]").text(get_user_location)
+                        else
+                          $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+                    if val_set
+                      field_view.trigger('change_state')
+                    index
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
+            gmap: ->
+              $(elem).text(val)
             esignature: ->
               $(elem).attr("upload_url", val) if val
               makeRequest(val,$(elem).attr("name"))
@@ -715,6 +784,11 @@ class Formbuilder
               $(elem).attr("checked", true) if val
             default: ->
               $(elem).val(val) if val
+              if $(elem).attr("capture")
+                $(elem).attr("href",val)
+                $(elem).text(
+                  val.split("/").pop().split("?")[0]
+                ) if val
           (setters[type] || setters['default'])(elem, val)
 
 
@@ -722,11 +796,17 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          @triggerEvent() # triggers event by setting values to respective fields
-          # check for ci-hierarchy type
-          fd_views = @fieldViews.filter (fd_view) ->
-            fd_view.field_type is "ci-hierarchy"
-          @bindHierarchyEvents(fd_views) if fd_views.length > 0
+          for field_view in @fieldViews
+            if (field_view.field_type == 'section_break')
+              $('.prev').addClass('hide btn-danger')
+              $('.next').addClass('btn-success')
+              back_visiblity = field_view.model.get(
+                Formbuilder.options.mappings.BACK_VISIBLITY)
+              if back_visiblity is 'false'
+                $('.next').click( ->
+                  $('.prev').css("display", "none")
+                )
+
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
@@ -789,7 +869,7 @@ class Formbuilder
       handleFormUpdate: ->
         return if @updatingBatch
         @formSaved = false
-        @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM)
+        @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM) if @saveFormButton
 
       saveForm: (e) ->
         return if @formSaved
@@ -821,6 +901,7 @@ class Formbuilder
             do(source = {}, source_conditions = {}, target_condition = {}) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
+                condition.target = model.getCid() if condition.target is ''
                 target_condition = _.clone(condition)
                 target_condition.isSource = false
                 _.each(source[0].attributes.conditions, (source_condition) ->

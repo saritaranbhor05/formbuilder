@@ -1,21 +1,24 @@
 Formbuilder.registerField 'text',
 
   view: """
-    <input type='text' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />
+    <input
+      type='text'
+      class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'
+    />
   """
 
   edit: """
     <%= Formbuilder.templates['edit/size']() %>
-    <%= Formbuilder.templates['edit/min_max_length']() %>
+    <%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>
     <%= Formbuilder.templates['edit/default_value_hint']() %>
   """
 
   addButton: """
-    <span class='symbol'><span class='icon-font'></span></span> Text
+    <span class='symbol'><span class='icon-font'></span></span> Text Box
   """
 
   defaultAttributes: (attrs) ->
-    attrs.field_options.size = 'small'
+    attrs.field_options.size = 'medium'
     attrs
 
   setup: (el, model, index) ->
@@ -33,8 +36,9 @@ Formbuilder.registerField 'text',
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
+      elem_val = ''
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
@@ -44,4 +48,4 @@ Formbuilder.registerField 'text',
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)      
+            .attr("required", required)
