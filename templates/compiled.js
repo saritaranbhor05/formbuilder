@@ -13,6 +13,18 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -59,13 +71,20 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
 
 }
 return __p
@@ -152,6 +171,20 @@ __p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'>
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'"/>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -227,8 +260,8 @@ __p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description s
 '\n    ' +
 ((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
 '\n    ' +
-((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
-'\n  </div>\n</div>';
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -285,6 +318,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
 
 }
 return __p
@@ -456,13 +501,36 @@ __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number"
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
-'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p

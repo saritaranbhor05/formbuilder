@@ -21,6 +21,7 @@ class Formbuilder
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
+    PRINTVIEW: false
 
     mappings:
       SIZE: 'field_options.size'
@@ -32,6 +33,7 @@ class Formbuilder
       OPTIONS: 'field_options.options'
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'
+      INCLUDE_SUFFIX: 'field_options.include_suffix'
       INCLUDE_BLANK: 'field_options.include_blank_option'
       INTEGER_ONLY: 'field_options.integer_only'
       MIN: 'field_options.min'
@@ -69,6 +71,9 @@ class Formbuilder
       DATE_ONLY: 'field_options.date_only'
       TIME_ONLY: 'field_options.time_only'
       DATE_FORMAT: 'field_options.date_format'
+      MASK_VALUE: 'field_options.mask_value'
+      COUNTRY_CODE: 'field_options.country_code'
+      AREA_CODE: 'field_options.area_code'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -145,6 +150,7 @@ class Formbuilder
 
       add_remove_require:(required) ->
         @clearFields() and @changeStateSource() if !required
+        @changeStateSource() if required and @field_type is 'heading'
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -156,6 +162,7 @@ class Formbuilder
             if(check_result is true )
               @$el.addClass(set_field.action)
               if(set_field.action == 'show')
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -166,6 +173,7 @@ class Formbuilder
               @$el.removeClass(set_field.action)
               if(set_field.action == 'hide')
                 @$el.addClass("show")
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -204,7 +212,6 @@ class Formbuilder
                 check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
-                #@changeStateSource()
 
                 if and_flag is true
                   if check_match_condtions.indexOf(false) == -1
@@ -331,7 +338,7 @@ class Formbuilder
               x = null,
               count = 0,
               should_incr = (attr) -> attr != 'radio'
-            ) =>
+            ) =>              
               for x in @$("input, textarea, select, canvas, a")
                 count = do( # set element name, value and call setup
                   x,
@@ -347,7 +354,7 @@ class Formbuilder
                   Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
                     $(x).attr("required", true)
 
-                  index
+                  index      
         return @
 
       focusEditView: ->
@@ -489,6 +496,8 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        if @options.print_view
+          Formbuilder.options.PRINTVIEW = @options.print_view
         @render()
         @collection.reset(@options.bootstrapData)
         @saveFormButton = @$el.find(".js-save-form")
@@ -565,33 +574,35 @@ class Formbuilder
           live: @options.live
           readonly: @options.readonly
           seedData: responseField.seedData
+        if (Formbuilder.options.PRINTVIEW &&
+            responseField.attributes.field_type != 'section_break') ||
+            !Formbuilder.options.PRINTVIEW
+          # Append view to @fieldViews
+          @fieldViews.push(view)
 
-        # Append view to @fieldViews
-        @fieldViews.push(view)
+          if !@options.live
+            #####
+            # Calculates where to place this new field.
+            #
+            # Are we replacing a temporarily drag placeholder?
+            if options.$replaceEl?
+              options.$replaceEl.replaceWith(view.render().el)
 
-        if !@options.live
-          #####
-          # Calculates where to place this new field.
-          #
-          # Are we replacing a temporarily drag placeholder?
-          if options.$replaceEl?
-            options.$replaceEl.replaceWith(view.render().el)
+            # Are we adding to the bottom?
+            else if !options.position? || options.position == -1
+              @$responseFields.append view.render().el
 
-          # Are we adding to the bottom?
-          else if !options.position? || options.position == -1
-            @$responseFields.append view.render().el
+            # Are we adding to the top?
+            else if options.position == 0
+              @$responseFields.prepend view.render().el
 
-          # Are we adding to the top?
-          else if options.position == 0
-            @$responseFields.prepend view.render().el
+            # Are we adding below an existing field?
+            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+              $replacePosition.before view.render().el
 
-          # Are we adding below an existing field?
-          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-            $replacePosition.before view.render().el
-
-          # Catch-all: add to bottom
-          else
-            @$responseFields.append view.render().el
+            # Catch-all: add to bottom
+            else
+              @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -693,40 +704,62 @@ class Formbuilder
               field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
-              for x in field_view.$("input, textarea, select, canvas, a")
-                count = do( # set element name, value and call setup
-                  x,
-                  index = count + (if should_incr($(x)
-                          .attr('type')) then 1 else 0),
-                  name = null,
-                  val = null,
-                  value = 0,
-                  cid = ''
-                ) =>
-                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
-                  field_method_call = Formbuilder.fields[field_type_method_call]
-                  cid = model.getCid()
-                  value = x.value if field_view.field_type == 'radio'||'scale_rating'
-                  name = cid.toString() + "_" + index.toString()
-                  if $(x).attr('type') == 'radio' and model.get('field_values')
-                    val = model.get('field_values')[value]
-                  else if model.get('field_values')
-                    val = model.get('field_values')[name]
-                  field_method_call.setup($(x), model, index) if field_method_call.setup and !val
-                  val_set = true if $(x).val()
-                  if val
-                    val_set = true
-                    @setFieldVal($(x), val)
-                  if !val
-                    if(field_view.field_type == 'gmap')
-                      get_user_location = getCurrentLocation(model.getCid());
-                      if get_user_location != 'false'
-                        $("[name = " + model.getCid() + "_1]").text(get_user_location)
-                      else
-                        $("[name = " + model.getCid() + "_1]").text('Select Your Address')
-                  if val_set
-                    field_view.trigger('change_state')
-                  index  
+              if(field_view.model.get('field_type') is 'heading')
+                for x in field_view.$("label")
+                  count = do( # set element name, value and call setup
+                    x,
+                    index = count + (if should_incr($(x)
+                            .attr('type')) then 1 else 0),
+                    name = null,
+                    val = null,
+                    value = 0,
+                    cid = ''
+                  ) =>
+                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                    field_method_call = Formbuilder.fields[field_type_method_call]
+                    cid = model.getCid()
+                    val_set = true if $(x).text()
+                    if val_set
+                      field_view.trigger('change_state')
+                    index  
+              else
+                for x in field_view.$("input, textarea, select, canvas, a")
+                  count = do( # set element name, value and call setup
+                    x,
+                    index = count + (if should_incr($(x)
+                            .attr('type')) then 1 else 0),
+                    name = null,
+                    val = null,
+                    value = 0,
+                    cid = ''
+                  ) =>
+                    for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                      for model_in_conditions in field_view.model.get('conditions')
+                        if(model_in_collection.getCid() is model_in_conditions.target)
+                          has_heading_field = true
+                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                    field_method_call = Formbuilder.fields[field_type_method_call]
+                    cid = model.getCid()
+                    value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                    name = cid.toString() + "_" + index.toString()
+                    if $(x).attr('type') == 'radio' and model.get('field_values')
+                      val = model.get('field_values')[value]
+                    else if model.get('field_values')
+                      val = model.get('field_values')[name]
+                    field_method_call.setup($(x), model, index) if field_method_call.setup
+                    val_set = true if $(x).val()
+                    val_set = true if val or has_heading_field
+                    @setFieldVal($(x), val) if val
+                    if !val
+                      if(field_view.field_type == 'gmap')
+                        get_user_location = getCurrentLocation(model.getCid());
+                        if get_user_location != 'false'
+                          $("[name = " + model.getCid() + "_1]").text(get_user_location)
+                        else
+                          $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+                    if val_set
+                      field_view.trigger('change_state')
+                    index  
 
       setFieldVal: (elem, val) ->
         do(setters = null, type = $(elem).attr('type')) =>

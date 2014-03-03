@@ -69,6 +69,7 @@
       CKEDITOR_CONFIG: ' ',
       HIERARCHYSELECTORVIEW: ' ',
       COMPANY_HIERARCHY: [],
+      PRINTVIEW: false,
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -79,6 +80,7 @@
         OPTIONS: 'field_options.options',
         DESCRIPTION: 'field_options.description',
         INCLUDE_OTHER: 'field_options.include_other_option',
+        INCLUDE_SUFFIX: 'field_options.include_suffix',
         INCLUDE_BLANK: 'field_options.include_blank_option',
         INTEGER_ONLY: 'field_options.integer_only',
         MIN: 'field_options.min',
@@ -115,7 +117,10 @@
         DEFAULT_COUNTRY: 'field_options.default_country',
         DATE_ONLY: 'field_options.date_only',
         TIME_ONLY: 'field_options.time_only',
-        DATE_FORMAT: 'field_options.date_format'
+        DATE_FORMAT: 'field_options.date_format',
+        MASK_VALUE: 'field_options.mask_value',
+        COUNTRY_CODE: 'field_options.country_code',
+        AREA_CODE: 'field_options.area_code'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -211,6 +216,9 @@
           if (!required) {
             this.clearFields() && this.changeStateSource();
           }
+          if (required && this.field_type === 'heading') {
+            this.changeStateSource();
+          }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
             if (!this.field.add_remove_require) {
               return true;
@@ -224,6 +232,9 @@
               if (check_result === true) {
                 _this.$el.addClass(set_field.action);
                 if (set_field.action === 'show') {
+                  if (_this.field_type === 'heading') {
+                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                  }
                   _this.current_state = set_field.action;
                   return _this.add_remove_require(true);
                 } else {
@@ -235,6 +246,9 @@
                 _this.$el.removeClass(set_field.action);
                 if (set_field.action === 'hide') {
                   _this.$el.addClass("show");
+                  if (_this.field_type === 'heading') {
+                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                  }
                   _this.current_state = set_field.action;
                   return _this.add_remove_require(true);
                 } else {
@@ -633,6 +647,9 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          if (this.options.print_view) {
+            Formbuilder.options.PRINTVIEW = this.options.print_view;
+          }
           this.render();
           this.collection.reset(this.options.bootstrapData);
           this.saveFormButton = this.$el.find(".js-save-form");
@@ -749,18 +766,20 @@
             readonly: this.options.readonly,
             seedData: responseField.seedData
           });
-          this.fieldViews.push(view);
-          if (!this.options.live) {
-            if (options.$replaceEl != null) {
-              return options.$replaceEl.replaceWith(view.render().el);
-            } else if ((options.position == null) || options.position === -1) {
-              return this.$responseFields.append(view.render().el);
-            } else if (options.position === 0) {
-              return this.$responseFields.prepend(view.render().el);
-            } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
-              return $replacePosition.before(view.render().el);
-            } else {
-              return this.$responseFields.append(view.render().el);
+          if ((Formbuilder.options.PRINTVIEW && responseField.attributes.field_type !== 'section_break') || !Formbuilder.options.PRINTVIEW) {
+            this.fieldViews.push(view);
+            if (!this.options.live) {
+              if (options.$replaceEl != null) {
+                return options.$replaceEl.replaceWith(view.render().el);
+              } else if ((options.position == null) || options.position === -1) {
+                return this.$responseFields.append(view.render().el);
+              } else if (options.position === 0) {
+                return this.$responseFields.prepend(view.render().el);
+              } else if (($replacePosition = this.$responseFields.find(".fb-field-wrapper").eq(options.position))[0]) {
+                return $replacePosition.before(view.render().el);
+              } else {
+                return this.$responseFields.append(view.render().el);
+              }
             }
           }
         },
@@ -880,55 +899,91 @@
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
                 _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
-                  var _j, _len1, _ref, _results1;
+                  var _j, _k, _len1, _len2, _ref, _ref1, _results1, _results2;
                   if (field_view.field_type === 'esignature') {
                     initializeCanvas(field_view.model.getCid());
                   }
-                  _ref = field_view.$("input, textarea, select, canvas, a");
-                  _results1 = [];
-                  for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                    x = _ref[_j];
-                    _results1.push(count = (function(x, index, name, val, value, cid) {
-                      var get_user_location;
-                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                      field_method_call = Formbuilder.fields[field_type_method_call];
-                      cid = model.getCid();
-                      if (field_view.field_type === 'radio' || 'scale_rating') {
-                        value = x.value;
-                      }
-                      name = cid.toString() + "_" + index.toString();
-                      if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                        val = model.get('field_values')[value];
-                      } else if (model.get('field_values')) {
-                        val = model.get('field_values')[name];
-                      }
-                      if (field_method_call.setup && !val) {
-                        field_method_call.setup($(x), model, index);
-                      }
-                      if ($(x).val()) {
-                        val_set = true;
-                      }
-                      if (val) {
-                        val_set = true;
-                        _this.setFieldVal($(x), val);
-                      }
-                      if (!val) {
-                        if (field_view.field_type === 'gmap') {
-                          get_user_location = getCurrentLocation(model.getCid());
-                          if (get_user_location !== 'false') {
-                            $("[name = " + model.getCid() + "_1]").text(get_user_location);
-                          } else {
-                            $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                  if (field_view.model.get('field_type') === 'heading') {
+                    _ref = field_view.$("label");
+                    _results1 = [];
+                    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                      x = _ref[_j];
+                      _results1.push(count = (function(x, index, name, val, value, cid) {
+                        field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                        field_method_call = Formbuilder.fields[field_type_method_call];
+                        cid = model.getCid();
+                        if ($(x).text()) {
+                          val_set = true;
+                        }
+                        if (val_set) {
+                          field_view.trigger('change_state');
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    }
+                    return _results1;
+                  } else {
+                    _ref1 = field_view.$("input, textarea, select, canvas, a");
+                    _results2 = [];
+                    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                      x = _ref1[_k];
+                      _results2.push(count = (function(x, index, name, val, value, cid) {
+                        var get_user_location, has_heading_field, model_in_collection, model_in_conditions, _l, _len3, _len4, _m, _ref2, _ref3;
+                        _ref2 = field_view.model.collection.where({
+                          'field_type': 'heading'
+                        });
+                        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                          model_in_collection = _ref2[_l];
+                          _ref3 = field_view.model.get('conditions');
+                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                            model_in_conditions = _ref3[_m];
+                            if (model_in_collection.getCid() === model_in_conditions.target) {
+                              has_heading_field = true;
+                            }
                           }
                         }
-                      }
-                      if (val_set) {
-                        field_view.trigger('change_state');
-                      }
-                      return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                        field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                        field_method_call = Formbuilder.fields[field_type_method_call];
+                        cid = model.getCid();
+                        if (field_view.field_type === 'radio' || 'scale_rating') {
+                          value = x.value;
+                        }
+                        name = cid.toString() + "_" + index.toString();
+                        if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                          val = model.get('field_values')[value];
+                        } else if (model.get('field_values')) {
+                          val = model.get('field_values')[name];
+                        }
+                        if (field_method_call.setup) {
+                          field_method_call.setup($(x), model, index);
+                        }
+                        if ($(x).val()) {
+                          val_set = true;
+                        }
+                        if (val || has_heading_field) {
+                          val_set = true;
+                        }
+                        if (val) {
+                          _this.setFieldVal($(x), val);
+                        }
+                        if (!val) {
+                          if (field_view.field_type === 'gmap') {
+                            get_user_location = getCurrentLocation(model.getCid());
+                            if (get_user_location !== 'false') {
+                              $("[name = " + model.getCid() + "_1]").text(get_user_location);
+                            } else {
+                              $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+                            }
+                          }
+                        }
+                        if (val_set) {
+                          field_view.trigger('change_state');
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    }
+                    return _results2;
                   }
-                  return _results1;
                 })(null, 0, function(attr) {
                   return attr !== 'radio';
                 }, false, field_view.model, '', ''));
@@ -1354,9 +1409,9 @@
         return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
           cid = fd_view.model.attributes.cid;
           field_values = fd_view.model.attributes.field_values;
-          $company_id = $("#company_id_" + cid);
-          $location_id = $("#location_id_" + cid);
-          $division_id = $("#division_id_" + cid);
+          $company_id = fd_view.$("#company_id_" + cid);
+          $location_id = fd_view.$("#location_id_" + cid);
+          $division_id = fd_view.$("#division_id_" + cid);
           $company_id.bind('change', {
             that: _this,
             fd_view: fd_view
@@ -1402,10 +1457,10 @@
       return (function(_this) {
         return function(companies, $company_id, cid) {
           cid = fd_view.model.attributes.cid;
-          $company_id = $("#company_id_" + cid);
+          $company_id = fd_view.$("#company_id_" + cid);
           if ($company_id && companies && companies.length > 0) {
             $company_id.empty();
-            fd_view.field.clearSelectFields(cid);
+            fd_view.field.clearSelectFields(fd_view, cid);
             fd_view.field.addPlaceHolder($company_id, '--- Select ---');
             fd_view.field.appendData($company_id, companies);
             if (selected_compId && selected_compId !== '') {
@@ -1431,7 +1486,7 @@
         selected_divId = '';
       }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
-      this.clearSelectFields(fd_view.model.attributes.cid);
+      this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
       return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
     },
     populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
@@ -1443,7 +1498,7 @@
       }
       return (function(_this) {
         return function(locations, $location_id) {
-          $location_id = $("#location_id_" + fd_view.model.attributes.cid);
+          $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid);
           if (selected_comp) {
             locations = selected_comp.locations;
           }
@@ -1482,7 +1537,7 @@
       }
       return (function(_this) {
         return function(divisions, $division_id) {
-          $division_id = $("#division_id_" + fd_view.model.attributes.cid);
+          $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid);
           if (selected_loc) {
             divisions = selected_loc.divisions;
           }
@@ -1497,9 +1552,9 @@
         };
       })(this)([], null);
     },
-    clearSelectFields: function(cid) {
-      $("#location_id_" + cid).empty();
-      return $("#division_id_" + cid).empty();
+    clearSelectFields: function(fd_view, cid) {
+      fd_view.$("#location_id_" + cid).empty();
+      return fd_view.$("#division_id_" + cid).empty();
     },
     appendData: function($element, data) {
       return (function(_this) {
@@ -1970,8 +2025,8 @@
 (function() {
   Formbuilder.registerField('fullname', {
     perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <span>\n    <input id='suffix' type='text'/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n  </span>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
+    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n    <span>\n      <input id='suffix' type='text'/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n    </span>\n  <% } %>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/suffix']({ includeSuffix: false, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
     isValid: function($el, model) {
       return (function(_this) {
@@ -2037,9 +2092,27 @@
 (function() {
   Formbuilder.registerField('heading', {
     type: 'non_input',
-    view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
+    view: "<label id='<%= rf.getCid() %>' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>\n</p>",
     edit: "<div class=''>Heading Title</div>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n<textarea\n  data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n  placeholder='Add a longer description to this field'>\n</textarea>\n<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class='symbol'><span class='icon-font'></span></span> Heading",
+    clearFields: function($el, model) {
+      return $el.find('#' + model.getCid()).text('');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("#" + cid).text();
+          elem_val = elem_val.replace(/(\r\n|\n|\r)/gm, '');
+          elem_val = elem_val.trimLeft();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("#" + cid).attr("required", required);
+    },
     defaultAttributes: function(attrs) {
       attrs.field_options.size = 'medium';
       return attrs;
@@ -2170,6 +2243,55 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('phone_number', {
+    view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput(); \n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
+    setup: function(el, model, index) {
+      return (function(_this) {
+        return function(mask_value, country_code, country_code_set) {
+          var area_code;
+          country_code = model.get(Formbuilder.options.mappings.COUNTRY_CODE);
+          mask_value = model.get(Formbuilder.options.mappings.MASK_VALUE);
+          if (country_code && mask_value) {
+            $('#' + model.getCid() + 'phone').val(country_code + ')');
+          } else if (country_code) {
+            $('#' + model.getCid() + 'phone').val(country_code);
+          }
+          country_code_set = $('#' + model.getCid() + 'phone').val();
+          area_code = model.get(Formbuilder.options.mappings.AREA_CODE);
+          if (area_code && mask_value) {
+            $('#' + model.getCid() + 'phone').val(country_code_set + area_code + ')');
+          } else if (area_code) {
+            $('#' + model.getCid() + 'phone').val(country_code_set + area_code);
+          }
+          if (mask_value) {
+            return $('#' + model.getCid() + 'phone').mask(mask_value);
+          }
+        };
+      })(this)(false, false, '');
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("[name = " + cid + "_1]").val();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        };
+      })(this)(false);
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('price', {
     view: "<div class='input-line'>\n  <span class='above-line'>$</span>\n  <span class='dolars'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Dollars</label>\n  </span>\n  <span class='above-line'>.</span>\n  <span class='cents'>\n    <input type='text' pattern=\"[0-9]+\" />\n    <label>Cents</label>\n  </span>\n</div>",
     edit: "",
@@ -2202,7 +2324,7 @@
   Formbuilder.registerField('radio', {
     view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<% for ( var i = 0 ; i < field_options.length ; i++) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='radio' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Multiple Choice",
+    addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Radio Button",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
         {
@@ -2425,6 +2547,18 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n 
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/area_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
+'" style="width: 30px" />';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/back_visiblity"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2471,13 +2605,20 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/base_non_input"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p +=
 ((__t = ( Formbuilder.templates['edit/base_header']() )) == null ? '' : __t) +
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
+ if(rf.get('field_type') == 'heading' ) { ;
+__p += '\n' +
+((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
+'\n';
+ } ;
+
 
 }
 return __p
@@ -2564,6 +2705,20 @@ __p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'>
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/country_code"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Country Code</div>\n\n<input id=\'' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'_country_code\' type="text" data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.COUNTRY_CODE )) == null ? '' : __t) +
+'"/>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/date_format"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -2639,8 +2794,8 @@ __p += '<div class=\'fb-common-wrapper\'>\n  <div class=\'fb-label-description s
 '\n    ' +
 ((__t = ( Formbuilder.templates['edit/last_label_value']() )) == null ? '' : __t) +
 '\n    ' +
-((__t = ( Formbuilder.templates['edit/suffix_label_value']() )) == null ? '' : __t) +
-'\n  </div>\n</div>';
+((__t = ( Formbuilder.templates['edit/suffix_label_value']({ rf: rf }) )) == null ? '' : __t) +
+'\n  </div>\n</div>\n';
 
 }
 return __p
@@ -2697,6 +2852,18 @@ with (obj) {
 __p += '<div class="control-group">\n  <label class="control-label">Last </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_LAST_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Last\' placeholder="Last"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/mask_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Mask Value</div>\n\n<input type="text" data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.MASK_VALUE )) == null ? '' : __t) +
+'" placeholder="(00) 0000-0000"/>\n<label>0: numbers only</label>\n<label>A: alphanumeric</label>';
 
 }
 return __p
@@ -2868,13 +3035,36 @@ __p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number"
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/suffix"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if (typeof includeSuffix !== 'undefined'){ ;
+__p += '\n  <label>\n    <input id=\'include_suffix_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_SUFFIX )) == null ? '' : __t) +
+'\' />\n    Include "Suffix"\n  </label>\n';
+ } ;
+__p += '\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/suffix_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class="control-group">\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
+__p += '<div class="control-group" id=\'suffix_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n  style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
-'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>';
+'"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
 
 }
 return __p
