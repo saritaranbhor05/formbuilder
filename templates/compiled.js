@@ -7,7 +7,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
-'" style="width: 30px" />\n';
+'" min=\'0\' style="width: 30px" />\n';
 
 }
 return __p
@@ -186,6 +186,18 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
 '">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
+'\' />\n  only date field\n</label>';
 
 }
 return __p
@@ -475,9 +487,9 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'0\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
+'" style="width: 40px" /> Stepping for minute\n';
 
 }
 return __p
@@ -513,6 +525,30 @@ __p += '<div class="control-group" id=\'suffix_div_' +
 '\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.TIME_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="HH:mm">HH:mm</option>\n  <option value="HH:mm:ss">HH:mm:ss</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.TIME_ONLY )) == null ? '' : __t) +
+'\' />\n  only time field\n</label>';
 
 }
 return __p
@@ -561,15 +597,16 @@ var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.inputFields) { ;
-__p += '\n        <a data-field-type="' +
+ for (i in Formbuilder.inputFields) { 
+         if(Formbuilder.inputFields[i].getFieldType) { } else { ;
+__p += '\n              <a data-field-type="' +
 ((__t = ( i )) == null ? '' : __t) +
 '" class="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
-'">\n          ' +
+'">\n                ' +
 ((__t = ( Formbuilder.inputFields[i].addButton )) == null ? '' : __t) +
-'\n        </a>\n      ';
- } ;
+'\n              </a>\n            \n      ';
+ } };
 __p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.nonInputFields) { ;
 __p += '\n        <a data-field-type="' +
