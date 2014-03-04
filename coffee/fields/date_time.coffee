@@ -1,17 +1,24 @@
 Formbuilder.registerField 'date_time',
 
   view: """
+
     <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
       <div class='input-line'>
         <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
       </div>
       <script>
+  
         $(function() {
           $("#<%= rf.getCid() %>_datetime")
               .datetimepicker({ 
                   dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', 
                   stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
                 });
+          $("#<%= rf.getCid() %>_datetime")
+              .datetimepicker( 
+                  'setDate', (new Date())
+                );
+          $('#ui-datepicker-div').css('display','none')      
         })
       </script>
     <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>
@@ -24,6 +31,11 @@ Formbuilder.registerField 'date_time',
                 .timepicker({
                     stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
                   });
+          $("#<%= rf.getCid() %>_time")
+              .timepicker( 
+                  'setTime', (new Date())
+                );
+          $('#ui-datepicker-div').css('display','none')      
         })
       </script>
     <% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
@@ -36,9 +48,14 @@ Formbuilder.registerField 'date_time',
               .datepicker({ 
                   dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' 
                 });
+          $("#<%= rf.getCid() %>_date")
+              .datepicker( 
+                  'setDate', (new Date())
+                );
+          $('#ui-datepicker-div').css('display','none')                
         })
       </script>
-    <% } %>  
+    <% } %>
   """
 
   edit: """
@@ -54,12 +71,6 @@ Formbuilder.registerField 'date_time',
 
   setup: (el, model, index) ->
     do(today = new Date) =>
-      if el.attr('id') is model.getCid()+'_datetime'
-        el.datetimepicker('setDate', (new Date()) )
-      else if el.attr('id') is model.getCid()+'_date'
-        el.datepicker('setDate', (new Date()) )
-      else
-        el.timepicker('setTime', (new Date()) ) 
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
       $('#ui-datepicker-div').css('display','none')  
