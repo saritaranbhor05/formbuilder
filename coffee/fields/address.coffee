@@ -100,3 +100,6 @@ Formbuilder.registerField 'address',
     $("." + cid)
             .find("[name = "+cid+"_4]")
             .attr("required", required)
+    $("." + cid)
+            .find("[name = "+cid+"_5]")
+            .attr("required", required)        
