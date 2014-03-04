@@ -68,6 +68,8 @@ class Formbuilder
       FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text'
       BACK_VISIBLITY: 'field_options.back_visiblity'
       DEFAULT_COUNTRY: 'field_options.default_country'
+      DATE_ONLY: 'field_options.date_only'
+      TIME_ONLY: 'field_options.time_only'
       DATE_FORMAT: 'field_options.date_format'
       MASK_VALUE: 'field_options.mask_value'
       COUNTRY_CODE: 'field_options.country_code'

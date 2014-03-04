@@ -115,6 +115,8 @@
         FULLNAME_SUFFIX_TEXT: 'field_options.suffix_text',
         BACK_VISIBLITY: 'field_options.back_visiblity',
         DEFAULT_COUNTRY: 'field_options.default_country',
+        DATE_ONLY: 'field_options.date_only',
+        TIME_ONLY: 'field_options.time_only',
         DATE_FORMAT: 'field_options.date_format',
         MASK_VALUE: 'field_options.mask_value',
         COUNTRY_CODE: 'field_options.country_code',
@@ -1606,62 +1608,10 @@
 
 (function() {
   Formbuilder.registerField('date', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").datepicker({ dateFormat: \"dd/mm/yy\" });\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-datepicker-div\").css( \"z-index\", 3 );\n    });\n  })\n</script>",
+    view: "<label>\n  Unsupported field. Please replace this with the new DateTime field.\n</label>",
     edit: "",
-    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date",
-    isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find(".hasDatepicker").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    check_date_result: function(condition, firstValue, secondValue) {
-      firstValue[0] = parseInt(firstValue[0]);
-      firstValue[1] = parseInt(firstValue[1]);
-      firstValue[2] = parseInt(firstValue[2]);
-      secondValue[0] = parseInt(secondValue[0]);
-      secondValue[1] = parseInt(secondValue[1]);
-      secondValue[2] = parseInt(secondValue[2]);
-      if (condition === "<") {
-        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (condition === ">") {
-        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value, field) {
-      var _this = this;
-      return (function(firstValue, check_result, secondValue, is_true) {
-        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = firstValue.split('/');
-        secondValue = set_value.split('/');
-        return is_true = field.check_date_result(condition, firstValue, secondValue);
-      })('', false, '', false);
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    getFieldType: function() {
+      return 'date';
     }
   });
 
@@ -1749,6 +1699,150 @@
         secondValue = set_value.split('/');
         return is_true = field.check_date_result(condition, firstValue, secondValue);
       })('', false, '', false, '');
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('date_time', {
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
+    edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
+    setup: function(el, model, index) {
+      var _this = this;
+      return (function(today) {
+        if (el.attr('id') === model.getCid() + '_datetime') {
+          el.datetimepicker('setDate', new Date());
+        } else if (el.attr('id') === model.getCid() + '_date') {
+          el.datepicker('setDate', new Date());
+        } else {
+          el.timepicker('setTime', new Date());
+        }
+        $(el).click(function() {
+          return $("#ui-datepicker-div").css("z-index", 3);
+        });
+        return $('#ui-datepicker-div').css('display', 'none');
+      })(new Date);
+    },
+    isValid: function($el, model) {
+      var _this = this;
+      return (function(valid) {
+        valid = (function(required_attr) {
+          if (!required_attr) {
+            return true;
+          }
+          return $el.find(".hasDatepicker").val() !== '';
+        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+        return valid;
+      })(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    check_date_result: function(condition, firstValue, secondValue) {
+      firstValue[0] = parseInt(firstValue[0]);
+      firstValue[1] = parseInt(firstValue[1]);
+      firstValue[2] = parseInt(firstValue[2]);
+      secondValue[0] = parseInt(secondValue[0]);
+      secondValue[1] = parseInt(secondValue[1]);
+      secondValue[2] = parseInt(secondValue[2]);
+      if (condition === "<") {
+        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (condition === ">") {
+        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
+    check_time_retult: function(clicked_element, cid, condition, set_value, split_string) {
+      var _this = this;
+      return (function(firstDate, secondDate, firstValue, secondValue, combinedValue) {
+        if (split_string) {
+          combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
+          combinedValue = combinedValue.split(' ');
+          firstValue = combinedValue[1];
+        } else {
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+        }
+        firstValue = firstValue.split(':');
+        secondValue = set_value.split(':');
+        firstDate.setHours(firstValue[0]);
+        firstDate.setMinutes(firstValue[1]);
+        secondDate.setHours(secondValue[0]);
+        secondDate.setMinutes(secondValue[1]);
+        if (condition === "<") {
+          if (firstDate < secondDate) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (condition === ">") {
+          if (firstDate > secondDate) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (condition === "==") {
+          if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+            return true;
+          }
+        }
+      })(new Date(), new Date(), "", "", '');
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value, field) {
+      var _this = this;
+      return (function(combinedValue, firstValue, check_result, secondValue, is_date_true, is_time_true, split_string, hold_date, check_field_date_format) {
+        var check_field_id;
+        check_field_id = clicked_element.find("[name = " + cid + "_1]").attr('id');
+        check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
+        if (check_field_id === cid + '_datetime') {
+          combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
+          combinedValue = combinedValue.split(' ');
+          firstValue = combinedValue[0];
+          firstValue = firstValue.split('/');
+          if (check_field_date_format === 'mm/dd/yy') {
+            hold_date = firstValue[0];
+            firstValue[0] = firstValue[1];
+            firstValue[1] = hold_date;
+          }
+          set_value = set_value.split(' ');
+          secondValue = set_value[0].split('/');
+          is_date_true = field.check_date_result(condition, firstValue, secondValue);
+          split_string = true;
+          is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
+          if (is_date_true && is_time_true) {
+            return true;
+          }
+        } else if (check_field_id === cid + '_date') {
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = firstValue.split('/');
+          if (check_field_date_format === 'mm/dd/yy') {
+            hold_date = firstValue[0];
+            firstValue[0] = firstValue[1];
+            firstValue[1] = hold_date;
+          }
+          secondValue = set_value.split('/');
+          return is_date_true = field.check_date_result(condition, firstValue, secondValue);
+        } else {
+          return is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value, split_string);
+        }
+      })('', '', false, '', false, false, false, '', '');
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -1851,7 +1945,7 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n<% console.log('in 1'); %>  \n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <% console.log('in 2'); %>  \n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\">\n</div>",
+    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\">\n</div>",
     edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
     add_remove_require: function(cid, required) {
@@ -2384,60 +2478,10 @@
 
 (function() {
   Formbuilder.registerField('time', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type=\"text\" readonly/>\n</div>\n<script>\n  $(function() {\n    $(\"#<%= rf.getCid() %>\").timepicker();\n    $(\"#<%= rf.getCid() %>\").click(function(){\n      $(\"#ui-timepicker-div\").css( \"z-index\", 3 );\n    });\n  });\n</script>",
-    edit: "<%= Formbuilder.templates['edit/step']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-time\"></span></span> Time",
-    setup: function(el, model, index) {
-      if (model.get(Formbuilder.options.mappings.STEP)) {
-        return el.attr("step", model.get(Formbuilder.options.mappings.STEP));
-      }
-    },
-    isValid: function($el, model) {
-      var _this = this;
-      return (function(valid) {
-        valid = (function(required_attr) {
-          if (!required_attr) {
-            return true;
-          }
-          return $el.find(".hasTimepicker").val() !== '';
-        })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-        return valid;
-      })(false);
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value) {
-      var _this = this;
-      return (function(firstDate, secondDate, firstValue, secondValue) {
-        firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-        firstValue = firstValue.split(':');
-        secondValue = set_value.split(':');
-        firstDate.setHours(firstValue[0]);
-        firstDate.setMinutes(firstValue[1]);
-        secondDate.setHours(secondValue[0]);
-        secondDate.setMinutes(secondValue[1]);
-        if (condition === "<") {
-          if (firstDate < secondDate) {
-            return true;
-          } else {
-            return false;
-          }
-        } else if (condition === ">") {
-          if (firstDate > secondDate) {
-            return true;
-          } else {
-            return false;
-          }
-        } else if (condition === "==") {
-          if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-            return true;
-          }
-        }
-      })(new Date(), new Date(), "", "");
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    view: "<label>\n  Unsupported field. Please replace this with the new DateTime field.\n</label>",
+    edit: "",
+    getFieldType: function() {
+      return 'time';
     }
   });
 
@@ -2480,7 +2524,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
-'" style="width: 30px" />\n';
+'" min=\'0\' style="width: 30px" />\n';
 
 }
 return __p
@@ -2628,7 +2672,13 @@ __p += '\n            <option value="' +
 ((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
+ if(rf.get('field_type') == 'date_time') { ;
+__p += '\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value1\' type=\'text\'/>\n      ';
+ } else { ;
+__p += '  \n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      ';
+ } ;
+__p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
@@ -2659,6 +2709,18 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
 '">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/date_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
+'\' />\n  only date field\n</label>';
 
 }
 return __p
@@ -2948,9 +3010,9 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" placeholder="step" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'0\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 40px" />\n';
+'" style="width: 40px" /> Stepping for minute\n';
 
 }
 return __p
@@ -2986,6 +3048,30 @@ __p += '<div class="control-group" id=\'suffix_div_' +
 '\' >\n  <label class="control-label">Suffix </label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n    data-rv-input=\n     "model.' +
 ((__t = ( Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT )) == null ? '' : __t) +
 '"\n    value=\'Suffix\' placeholder="Suffix"/>\n  </div>\n</div>\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_format"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Format</div>\n\n<select data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.TIME_FORMAT )) == null ? '' : __t) +
+'">\n  <option value="HH:mm">HH:mm</option>\n  <option value="HH:mm:ss">HH:mm:ss</option>\n</select>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/time_only"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Time Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.TIME_ONLY )) == null ? '' : __t) +
+'\' />\n  only time field\n</label>';
 
 }
 return __p
@@ -3034,15 +3120,16 @@ var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.inputFields) { ;
-__p += '\n        <a data-field-type="' +
+ for (i in Formbuilder.inputFields) { 
+         if(Formbuilder.inputFields[i].getFieldType) { } else { ;
+__p += '\n              <a data-field-type="' +
 ((__t = ( i )) == null ? '' : __t) +
 '" class="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
-'">\n          ' +
+'">\n                ' +
 ((__t = ( Formbuilder.inputFields[i].addButton )) == null ? '' : __t) +
-'\n        </a>\n      ';
- } ;
+'\n              </a>\n            \n      ';
+ } };
 __p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.nonInputFields) { ;
 __p += '\n        <a data-field-type="' +
