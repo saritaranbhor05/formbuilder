@@ -1164,7 +1164,7 @@
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               var _this = this;
-              return (function(source, source_condition, target_condition) {
+              return (function(source, source_conditions, target_condition) {
                 if (!_.isEmpty(condition.source)) {
                   source = model.collection.where({
                     cid: condition.source
@@ -1174,11 +1174,13 @@
                   }
                   target_condition = _.clone(condition);
                   target_condition.isSource = false;
-                  if (!_.has(source[0].attributes.conditions, target_condition)) {
-                    _.extend(source_condition, target_condition);
-                    source[0].attributes.conditions.push(source_condition);
-                    return source[0].save();
-                  }
+                  return _.each(source[0].attributes.conditions, function(source_condition) {
+                    if (!_.isEqual(source_condition, target_condition)) {
+                      _.extend(source_conditions, target_condition);
+                      source[0].attributes.conditions.push(source_conditions);
+                      return source[0].save();
+                    }
+                  });
                 }
               })({}, {}, {});
             });

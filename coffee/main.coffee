@@ -909,6 +909,7 @@ class Formbuilder
                     _.extend( source_conditions, target_condition)
                     source[0].attributes.conditions.push(source_conditions)
                     source[0].save()
+                )
           )
 
       formData: ->
