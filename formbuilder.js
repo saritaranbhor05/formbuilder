@@ -2753,7 +2753,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
-'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+'">\n  <option value="dd/mm/yyyy">dd/mm/yy</option>\n  <option value="mm/dd/yyyy">mm/dd/yy</option>\n  <option value="yy/mm/dd">yy/mm/dd</option>\n  <option value="yy/dd/mm">yy/dd/mm</option>\n</select>\n';
 
 }
 return __p
