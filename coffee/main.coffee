@@ -380,9 +380,11 @@ class Formbuilder
         )
 
       duplicate: ->
-        attrs = _.clone(@model.attributes)
+        attrs = jQuery.extend(true, {}, @model.attributes)
         delete attrs['id']
         attrs['label'] += ' Copy'
+        for condition in attrs['conditions']
+          condition.target = '' if condition.target is @model.getCid() 
         @parentView.createField attrs, { position: @model.indexInDOM() + 1 }
 
     edit_field: Backbone.View.extend
@@ -895,6 +897,7 @@ class Formbuilder
                 target_condition.isSource = false
                 unless _.has(source[0].attributes.conditions, target_condition)
                   _.extend( source_condition, target_condition)
+                  source[0].attributes.conditions = []
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )
