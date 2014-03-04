@@ -515,10 +515,17 @@
           });
         },
         duplicate: function() {
-          var attrs;
-          attrs = _.clone(this.model.attributes);
+          var attrs, condition, _i, _len, _ref;
+          attrs = jQuery.extend(true, {}, this.model.attributes);
           delete attrs['id'];
           attrs['label'] += ' Copy';
+          _ref = attrs['conditions'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            condition = _ref[_i];
+            if (condition.target === this.model.getCid()) {
+              condition.target = '';
+            }
+          }
           return this.parentView.createField(attrs, {
             position: this.model.indexInDOM() + 1
           });
