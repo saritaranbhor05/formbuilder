@@ -1669,11 +1669,17 @@
             restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
             el.datepicker({
               dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '-100y:c+nn',
               maxDate: restricted_date
             });
           } else {
             el.datepicker({
               dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '-100y:c+nn',
               maxDate: today
             });
           }
