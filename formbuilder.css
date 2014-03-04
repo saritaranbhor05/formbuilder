@@ -187,6 +187,7 @@
 .fb-field-wrapper .input-line {
   clear: both;
   margin-bottom: 10px;
+  overflow: hidden;
 }
 .fb-field-wrapper .input-line .above-line {
   margin-top: 7px;
