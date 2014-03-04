@@ -1333,7 +1333,8 @@
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
-      return $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
+      $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_5]").attr("required", required);
     }
   });
 
