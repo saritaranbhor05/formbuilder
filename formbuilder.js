@@ -1166,7 +1166,7 @@
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               var _this = this;
-              return (function(source, source_condition, target_condition) {
+              return (function(source, source_conditions, target_condition) {
                 if (!_.isEmpty(condition.source)) {
                   source = model.collection.where({
                     cid: condition.source
@@ -1176,11 +1176,13 @@
                   }
                   target_condition = _.clone(condition);
                   target_condition.isSource = false;
-                  if (!_.has(source[0].attributes.conditions, target_condition)) {
-                    _.extend(source_condition, target_condition);
-                    source[0].attributes.conditions.push(source_condition);
-                    return source[0].save();
-                  }
+                  return _.each(source[0].attributes.conditions, function(source_condition) {
+                    if (!_.isEqual(source_condition, target_condition)) {
+                      _.extend(source_conditions, target_condition);
+                      source[0].attributes.conditions.push(source_conditions);
+                      return source[0].save();
+                    }
+                  });
                 }
               })({}, {}, {});
             });
@@ -2413,7 +2415,7 @@
 }).call(this);
 
 (function() {
-  Formbuilder.registerField('take_pic_video_audio', {
+  ({
     view: "<div class='input-line'>\n  <button class='image' id=\"btn_image_<%= rf.getCid() %>\">Picture</button>\n  <button class='video' id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button class='audio' id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  setTimeout(function(){\n      var data = $(\"#snapshot_<%= rf.getCid() %>\").val();\n      $(\"#record_link_<%= rf.getCid() %>\").attr('href',data);\n      $(\"#record_link_<%= rf.getCid() %>\").text('File');\n    },100);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").val(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
     edit: "  ",
     addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
