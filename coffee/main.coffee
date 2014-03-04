@@ -909,6 +909,7 @@ class Formbuilder
                 _.each(source[0].attributes.conditions, (source_condition) ->
                   unless _.isEqual(source_condition,target_condition)
                     _.extend( source_conditions, target_condition)
+                    source[0].attributes.conditions = []
                     source[0].attributes.conditions.push(source_conditions)
                     source[0].save()
                 )
