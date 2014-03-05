@@ -48,8 +48,10 @@ Formbuilder.registerField 'take_pic_video_audio',
 
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();
-          $("#record_link_<%= rf.getCid() %>").attr('href',data);
-          $("#record_link_<%= rf.getCid() %>").text('File');
+          if (data){
+            $("#record_link_<%= rf.getCid() %>").attr('href',data);
+            $("#record_link_<%= rf.getCid() %>").text('File');
+          }
         },100);
 
       $("#btn_image_<%= rf.getCid() %>").click( function() {
