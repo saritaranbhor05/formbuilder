@@ -742,9 +742,10 @@ class Formbuilder
                     cid = ''
                   ) =>
                     for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
-                      for model_in_conditions in field_view.model.get('conditions')
-                        if(model_in_collection.getCid() is model_in_conditions.target)
-                          has_heading_field = true
+                      if field_view.model.get('conditions')
+                        for model_in_conditions in field_view.model.get('conditions')
+                          if(model_in_collection.getCid() is model_in_conditions.target)
+                            has_heading_field = true
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                     field_method_call = Formbuilder.fields[field_type_method_call]
                     cid = model.getCid()

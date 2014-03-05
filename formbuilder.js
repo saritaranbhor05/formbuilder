@@ -948,11 +948,13 @@
                         });
                         for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
                           model_in_collection = _ref2[_l];
-                          _ref3 = field_view.model.get('conditions');
-                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-                            model_in_conditions = _ref3[_m];
-                            if (model_in_collection.getCid() === model_in_conditions.target) {
-                              has_heading_field = true;
+                          if (field_view.model.get('conditions')) {
+                            _ref3 = field_view.model.get('conditions');
+                            for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                              model_in_conditions = _ref3[_m];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_heading_field = true;
+                              }
                             }
                           }
                         }
@@ -1774,16 +1776,26 @@
 
 (function() {
   Formbuilder.registerField('date_time', {
-    view: "\n  <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n    </div>\n    <script>\n\n      $(function() {\n        $(\"#<%= rf.getCid() %>_datetime\")\n            .datetimepicker({ \n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n        $(\"#<%= rf.getCid() %>_datetime\")\n            .datetimepicker( \n                'setDate', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')      \n      })\n    </script>\n  <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid() %>_time' type='text' readonly />\n    </div>\n    <script>\n      $(function() {\n        $(\"#<%= rf.getCid() %>_time\")\n              .timepicker({\n                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n                });\n        $(\"#<%= rf.getCid() %>_time\")\n            .timepicker( \n                'setTime', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')      \n      })\n    </script>\n  <% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n    </div>\n    <script>\n      $(function() {\n        $(\"#<%= rf.getCid() %>_date\")\n            .datepicker({ \n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n              });\n        $(\"#<%= rf.getCid() %>_date\")\n            .datepicker( \n                'setDate', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')                \n      })\n    </script>\n  <% } %>",
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
     edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
     setup: function(el, model, index) {
       return (function(_this) {
         return function(today) {
+          if (!model.get('field_values')) {
+            if (el.attr('id') === model.getCid() + '_datetime') {
+              el.datetimepicker('setDate', new Date());
+            } else if (el.attr('id') === model.getCid() + '_date') {
+              el.datepicker('setDate', new Date());
+            } else {
+              el.timepicker('setTime', new Date());
+            }
+          }
           $(el).click(function() {
             return $("#ui-datepicker-div").css("z-index", 3);
           });
-          return $('#ui-datepicker-div').css('display', 'none');
+          $('#ui-datepicker-div').css('display', 'none');
+          return el.blur();
         };
       })(this)(new Date);
     },
@@ -3060,7 +3072,7 @@ this["Formbuilder"]["templates"]["edit/step"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'0\' placeholder="1" data-rv-input="model.' +
+__p += '<div class=\'fb-edit-section-header\'>Step</div>\n\n<input type="number" min=\'1\' placeholder="1" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
 '" style="width: 40px" /> Stepping for minute\n';
 
