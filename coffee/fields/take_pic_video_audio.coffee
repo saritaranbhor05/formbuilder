@@ -25,7 +25,7 @@ Formbuilder.registerField 'take_pic_video_audio',
         <canvas id="canvas_<%= rf.getCid() %>" style="display:none;"></canvas>
       </div>
       <div class="modal-footer">
-        <button id="take_picture_<%= rf.getCid() %>" class="btn" aria-hidden="true">
+        <button id="take_picture_<%= rf.getCid() %>" class="btn" data-dismiss="modal" aria-hidden="true">
           Take Picture
         </button>
         <button class="btn btn-default btn-success" data-dismiss="modal" aria-hidden="true">
@@ -48,7 +48,7 @@ Formbuilder.registerField 'take_pic_video_audio',
 
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();
-          if (data){
+          if (!$("#record_link_<%= rf.getCid() %>").text()){
             $("#record_link_<%= rf.getCid() %>").attr('href',data);
             $("#record_link_<%= rf.getCid() %>").text('File');
           }
