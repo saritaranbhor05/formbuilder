@@ -1,4 +1,4 @@
-#Formbuilder.registerField 'take_pic_video_audio',
+Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
@@ -6,6 +6,7 @@
       <button class='video' id="btn_video_<%= rf.getCid() %>">Video</button>
       <button class='audio' id="btn_audio_<%= rf.getCid() %>">Audio</button>
       <a
+        type='take_pic_video_audio'
         target="_blank" capture='capture' class="capture active_link"
         id="record_link_<%= rf.getCid() %>" href=""
         style="margin-bottom:12px;"
@@ -24,11 +25,11 @@
         <canvas id="canvas_<%= rf.getCid() %>" style="display:none;"></canvas>
       </div>
       <div class="modal-footer">
-        <button id="take_picture_<%= rf.getCid() %>" class="btn" aria-hidden="true">
+        <button id="take_picture_<%= rf.getCid() %>" class="btn" data-dismiss="modal" aria-hidden="true">
           Take Picture
         </button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">
-          Done
+        <button class="btn btn-default btn-success" data-dismiss="modal" aria-hidden="true">
+          Ok
         </button>
       </div>
     </div>
@@ -42,10 +43,15 @@
 
     <script>
 
+      $('#snapshot_<%= rf.getCid() %>').attr("required", false);
+      $('#canvas_<%= rf.getCid() %>').attr("required", false);
+
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();
-          $("#record_link_<%= rf.getCid() %>").attr('href',data);
-          $("#record_link_<%= rf.getCid() %>").text('File');
+          if (!$("#record_link_<%= rf.getCid() %>").text()){
+            $("#record_link_<%= rf.getCid() %>").attr('href',data);
+            $("#record_link_<%= rf.getCid() %>").text('File');
+          }
         },100);
 
       $("#btn_image_<%= rf.getCid() %>").click( function() {
@@ -113,16 +119,9 @@
     <span class="symbol"><span class="icon-camera"></span></span> Capture
   """
   clearFields: ($el, model) ->
-    $el.find(".image").val("")
-    $el.find(".video").val("")
-    $el.find(".audio").val("")
-
-  evalCondition: (clicked_element, cid, condition, set_value) ->
+    $el.find(".capture").text("")
 
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)
-    $("." + cid)
-            .find("[name = "+cid+"_2]")
             .attr("required", required)
