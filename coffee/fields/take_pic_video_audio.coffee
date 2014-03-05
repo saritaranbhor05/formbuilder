@@ -44,6 +44,7 @@ Formbuilder.registerField 'take_pic_video_audio',
     <script>
 
       $('#snapshot_<%= rf.getCid() %>').attr("required", false);
+      $('#canvas_<%= rf.getCid() %>').attr("required", false);
 
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();
@@ -116,16 +117,9 @@ Formbuilder.registerField 'take_pic_video_audio',
     <span class="symbol"><span class="icon-camera"></span></span> Capture
   """
   clearFields: ($el, model) ->
-    $el.find(".image").val("")
-    $el.find(".video").val("")
-    $el.find(".audio").val("")
-
-  evalCondition: (clicked_element, cid, condition, set_value) ->
+    $el.find(".capture").text("")
 
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)
-    $("." + cid)
-            .find("[name = "+cid+"_2]")
             .attr("required", required)
