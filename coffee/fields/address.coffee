@@ -3,7 +3,7 @@ Formbuilder.registerField 'address',
   view: """
     <div class='input-line'>
       <span class="span6">
-        <input type='text' id='address'/>
+        <input type='text' id='address' class='span12'/>
         <label>Street Address</label>
       </span>
     </div>
@@ -102,4 +102,4 @@ Formbuilder.registerField 'address',
             .attr("required", required)
     $("." + cid)
             .find("[name = "+cid+"_5]")
-            .attr("required", required)        
+            .attr("required", required)
