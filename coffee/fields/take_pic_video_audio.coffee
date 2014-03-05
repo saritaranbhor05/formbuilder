@@ -1,4 +1,4 @@
-#Formbuilder.registerField 'take_pic_video_audio',
+Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
@@ -6,6 +6,7 @@
       <button class='video' id="btn_video_<%= rf.getCid() %>">Video</button>
       <button class='audio' id="btn_audio_<%= rf.getCid() %>">Audio</button>
       <a
+        type='take_pic_video_audio'
         target="_blank" capture='capture' class="capture active_link"
         id="record_link_<%= rf.getCid() %>" href=""
         style="margin-bottom:12px;"
@@ -27,8 +28,8 @@
         <button id="take_picture_<%= rf.getCid() %>" class="btn" aria-hidden="true">
           Take Picture
         </button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">
-          Done
+        <button class="btn btn-default btn-success" data-dismiss="modal" aria-hidden="true">
+          Ok
         </button>
       </div>
     </div>
@@ -41,6 +42,8 @@
     </textarea>
 
     <script>
+
+      $('#snapshot_<%= rf.getCid() %>').attr("required", false);
 
       setTimeout(function(){
           var data = $("#snapshot_<%= rf.getCid() %>").val();

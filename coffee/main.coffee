@@ -780,17 +780,18 @@ class Formbuilder
               $(elem).siblings(".active_link").text(
                 val.split("/").pop().split("?")[0]
               ) if val
+            take_pic_video_audio: ->
+              $(elem).attr("href",val)
+              $(elem).text(
+                val.split("/").pop().split("?")[0]
+              ) if val
             checkbox: ->
               $(elem).attr("checked", true) if val
             radio: ->
               $(elem).attr("checked", true) if val
             default: ->
               $(elem).val(val) if val
-              if $(elem).attr("capture")
-                $(elem).attr("href",val)
-                $(elem).text(
-                  val.split("/").pop().split("?")[0]
-                ) if val
+
           (setters[type] || setters['default'])(elem, val)
 
 
