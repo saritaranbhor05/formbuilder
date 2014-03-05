@@ -4,7 +4,7 @@
   <% } %>
   <%= Formbuilder.templates['view/label']({rf: rf}) %>
 
-  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) %>
+  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
 
   <%= Formbuilder.templates['view/description']({rf: rf}) %>
   <% if(!opts.live){ %>

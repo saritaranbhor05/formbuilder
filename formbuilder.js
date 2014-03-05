@@ -509,10 +509,17 @@
           });
         },
         duplicate: function() {
-          var attrs;
-          attrs = _.clone(this.model.attributes);
+          var attrs, condition, _i, _len, _ref;
+          attrs = jQuery.extend(true, {}, this.model.attributes);
           delete attrs['id'];
           attrs['label'] += ' Copy';
+          _ref = attrs['conditions'];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            condition = _ref[_i];
+            if (condition.target === this.model.getCid()) {
+              condition.target = '';
+            }
+          }
           return this.parentView.createField(attrs, {
             position: this.model.indexInDOM() + 1
           });
@@ -1179,6 +1186,7 @@
                   return _.each(source[0].attributes.conditions, function(source_condition) {
                     if (!_.isEqual(source_condition, target_condition)) {
                       _.extend(source_conditions, target_condition);
+                      source[0].attributes.conditions = [];
                       source[0].attributes.conditions.push(source_conditions);
                       return source[0].save();
                     }
@@ -1276,7 +1284,7 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span>\n    <input type='text' id='address'/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span>\n    <input class=\"span12\" type='text' id='suburb'/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span>\n    <input class=\"span12\" type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span>\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span>\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <span class=\"span6\">\n    <input type='text' id='address'/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='suburb'/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span class=\"span3\">\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span class=\"span3\">\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
     edit: "<div class='fb-edit-section-header'>Options</div>\n\n<div class='input-line span12' >\n  <span class=\"span11\">\n    <label>Select Default Country</label>\n    <select id=\"dropdown_country_edit_<%= rf.getCid() %>\"\n      class='dropdown_country span12 bfh-selectbox bfh-countries'\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      data-rv-value=\"model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>\"\n    ></select>\n  </span>\n</div>\n<script>\n  $(function() {\n    $(\"#dropdown_country_edit_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
     clearFields: function($el, model) {
@@ -1301,7 +1309,8 @@
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
-      return $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
+      $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_5]").attr("required", required);
     }
   });
 
@@ -1629,11 +1638,17 @@
           restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
           el.datepicker({
             dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            yearRange: '-100y:c+nn',
             maxDate: restricted_date
           });
         } else {
           el.datepicker({
             dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            yearRange: '-100y:c+nn',
             maxDate: today
           });
         }
@@ -1709,19 +1724,12 @@
 
 (function() {
   Formbuilder.registerField('date_time', {
-    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
+    view: "\n  <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n    </div>\n    <script>\n\n      $(function() {\n        $(\"#<%= rf.getCid() %>_datetime\")\n            .datetimepicker({ \n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n        $(\"#<%= rf.getCid() %>_datetime\")\n            .datetimepicker( \n                'setDate', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')      \n      })\n    </script>\n  <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid() %>_time' type='text' readonly />\n    </div>\n    <script>\n      $(function() {\n        $(\"#<%= rf.getCid() %>_time\")\n              .timepicker({\n                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n                });\n        $(\"#<%= rf.getCid() %>_time\")\n            .timepicker( \n                'setTime', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')      \n      })\n    </script>\n  <% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n    <div class='input-line'>\n      <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n    </div>\n    <script>\n      $(function() {\n        $(\"#<%= rf.getCid() %>_date\")\n            .datepicker({ \n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n              });\n        $(\"#<%= rf.getCid() %>_date\")\n            .datepicker( \n                'setDate', (new Date())\n              );\n        $('#ui-datepicker-div').css('display','none')                \n      })\n    </script>\n  <% } %>",
     edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
     setup: function(el, model, index) {
       var _this = this;
       return (function(today) {
-        if (el.attr('id') === model.getCid() + '_datetime') {
-          el.datetimepicker('setDate', new Date());
-        } else if (el.attr('id') === model.getCid() + '_date') {
-          el.datepicker('setDate', new Date());
-        } else {
-          el.timepicker('setTime', new Date());
-        }
         $(el).click(function() {
           return $("#ui-datepicker-div").css("z-index", 3);
         });
@@ -2672,13 +2680,7 @@ __p += '\n            <option value="' +
 ((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
- if(rf.get('field_type') == 'date_time') { ;
-__p += '\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value1\' type=\'text\'/>\n      ';
- } else { ;
-__p += '  \n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      ';
- } ;
-__p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
@@ -2708,7 +2710,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Format</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_FORMAT )) == null ? '' : __t) +
-'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>';
+'">\n  <option value="dd/mm/yy">dd/mm/yy</option>\n  <option value="mm/dd/yy">mm/dd/yy</option>\n</select>\n';
 
 }
 return __p
@@ -3235,7 +3237,7 @@ __p += '\n  <div class=\'cover\'></div>\n  ';
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
 '\n\n  ' +
-((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) )) == null ? '' : __t) +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
 '\n\n  ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
 '\n  ';

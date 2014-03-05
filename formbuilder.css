@@ -158,6 +158,7 @@
   border: 1px dashed transparent;
   padding: 10px 10px 0px 10px;
   position: relative;
+  clear: both;
 }
 .fb-field-wrapper .subtemplate-wrapper input[readonly] {
   background-color: #fff;
@@ -186,6 +187,7 @@
 .fb-field-wrapper .input-line {
   clear: both;
   margin-bottom: 10px;
+  overflow: hidden;
 }
 .fb-field-wrapper .input-line .above-line {
   margin-top: 7px;
@@ -196,11 +198,18 @@
 }
 .fb-field-wrapper .input-line > span input {
   width: 100%;
+  margin-bottom: 0px;
+}
+.fb-field-wrapper .input-line > span select {
+  width: 100%;
+  margin-bottom: 0px;
 }
 .fb-field-wrapper .input-line > span > label {
   display: block;
   font-size: 13px;
   margin-left: 3px;
+  color: #999;
+  padding-bottom: 5px;
 }
 .fb-field-wrapper .help-block {
   display: block;
