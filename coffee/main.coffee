@@ -903,19 +903,23 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_conditions = {}, target_condition = {}) =>
+            do(source = {}, source_condition = {}, target_condition = {}, is_equal = false) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
                 condition.target = model.getCid() if condition.target is ''
-                target_condition = _.clone(condition)
+                target_condition = $.extend(true, {}, condition)
                 target_condition.isSource = false
+                source_condition = target_condition if source[0].attributes.conditions.length < 1
                 _.each(source[0].attributes.conditions, (source_condition) ->
-                  unless _.isEqual(source_condition,target_condition)
-                    _.extend( source_conditions, target_condition)
-                    source[0].attributes.conditions = []
-                    source[0].attributes.conditions.push(source_conditions)
-                    source[0].save()
+                  delete source[0].attributes.conditions[source_condition] if source_condition.target is model.getCid()
+                  if _.isEqual(source_condition,target_condition)
+                    is_equal = true
                 )
+                if !is_equal
+                  _.extend( source_condition, target_condition)
+                  source[0].attributes.conditions.push(source_condition)
+                  source[0].save()
+                
           )
 
       formData: ->
