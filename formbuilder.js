@@ -948,11 +948,13 @@
                         });
                         for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
                           model_in_collection = _ref2[_l];
-                          _ref3 = field_view.model.get('conditions');
-                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-                            model_in_conditions = _ref3[_m];
-                            if (model_in_collection.getCid() === model_in_conditions.target) {
-                              has_heading_field = true;
+                          if (field_view.model.get('conditions')) {
+                            _ref3 = field_view.model.get('conditions');
+                            for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                              model_in_conditions = _ref3[_m];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_heading_field = true;
+                              }
                             }
                           }
                         }
