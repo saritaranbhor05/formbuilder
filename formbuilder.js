@@ -1195,7 +1195,7 @@
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               return (function(_this) {
-                return function(source, source_conditions, target_condition) {
+                return function(source, source_condition, target_condition, is_equal) {
                   if (!_.isEmpty(condition.source)) {
                     source = model.collection.where({
                       cid: condition.source
@@ -1203,19 +1203,27 @@
                     if (condition.target === '') {
                       condition.target = model.getCid();
                     }
-                    target_condition = _.clone(condition);
+                    target_condition = $.extend(true, {}, condition);
                     target_condition.isSource = false;
-                    return _.each(source[0].attributes.conditions, function(source_condition) {
-                      if (!_.isEqual(source_condition, target_condition)) {
-                        _.extend(source_conditions, target_condition);
-                        source[0].attributes.conditions = [];
-                        source[0].attributes.conditions.push(source_conditions);
-                        return source[0].save();
+                    if (source[0].attributes.conditions.length < 1) {
+                      source_condition = target_condition;
+                    }
+                    _.each(source[0].attributes.conditions, function(source_condition) {
+                      if (source_condition.target === model.getCid()) {
+                        delete source[0].attributes.conditions[source_condition];
+                      }
+                      if (_.isEqual(source_condition, target_condition)) {
+                        return is_equal = true;
                       }
                     });
+                    if (!is_equal) {
+                      _.extend(source_condition, target_condition);
+                      source[0].attributes.conditions.push(source_condition);
+                      return source[0].save();
+                    }
                   }
                 };
-              })(this)({}, {}, {});
+              })(this)({}, {}, {}, false);
             });
           }
         },
