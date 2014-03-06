@@ -8,10 +8,10 @@ Formbuilder.registerField 'date_time',
       <script>
         $(function() {
           $("#<%= rf.getCid() %>_datetime")
-              .datetimepicker({ 
-                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', 
-                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
-                });
+              .datetimepicker({
+                addSliderAccess: true, 
+                sliderAccessArgs: { touchonly: false }
+          })
         })
       </script>
     <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>
@@ -122,26 +122,27 @@ Formbuilder.registerField 'date_time',
       else  
         firstValue = clicked_element
                     .find("[name = "+cid+"_1]").val()
-      firstValue = firstValue.split(':')
-      secondValue = set_value.split(':')
-      firstDate.setHours(firstValue[0])
-      firstDate.setMinutes(firstValue[1])
-      secondDate.setHours(secondValue[0])
-      secondDate.setMinutes(secondValue[1])
-      if (condition == "<")
-        if(firstDate < secondDate)
-          true
-        else
-          false
-      else if(condition == ">")
-        if(firstDate > secondDate)
-          true
-        else
-          false
-      else if(condition == "==")
-        if(parseInt(firstValue[0]) == parseInt(secondValue[0]) &&
-           parseInt(firstValue[1]) == parseInt(secondValue[1]))
+      if firstValue
+        firstValue = firstValue.split(':')
+        secondValue = set_value.split(':')
+        firstDate.setHours(firstValue[0])
+        firstDate.setMinutes(firstValue[1])
+        secondDate.setHours(secondValue[0])
+        secondDate.setMinutes(secondValue[1])
+        if (condition == "<")
+          if(firstDate < secondDate)
             true
+          else
+            false
+        else if(condition == ">")
+          if(firstDate > secondDate)
+            true
+          else
+            false
+        else if(condition == "==")
+          if(parseInt(firstValue[0]) == parseInt(secondValue[0]) &&
+             parseInt(firstValue[1]) == parseInt(secondValue[1]))
+              true
 
   evalCondition: (clicked_element, cid, condition, set_value, field) ->
     do(
@@ -163,28 +164,30 @@ Formbuilder.registerField 'date_time',
                           .find("[name = "+cid+"_1]").val()
         combinedValue = combinedValue.split(' ')
         firstValue = combinedValue[0]
-        firstValue = firstValue.split('/')
-        if(check_field_date_format is 'mm/dd/yy')
-          hold_date = firstValue[0]
-          firstValue[0] = firstValue[1]
-          firstValue[1] = hold_date
-        set_value = set_value.split(' ')
-        secondValue = set_value[0].split('/')
-        is_date_true = field.check_date_result(condition,firstValue,secondValue)
-        split_string = true
-        is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1],split_string)
-        if is_date_true and is_time_true
-          true 
+        if firstValue
+          firstValue = firstValue.split('/')
+          if(check_field_date_format is 'mm/dd/yy')
+            hold_date = firstValue[0]
+            firstValue[0] = firstValue[1]
+            firstValue[1] = hold_date
+          set_value = set_value.split(' ')
+          secondValue = set_value[0].split('/')
+          is_date_true = field.check_date_result(condition,firstValue,secondValue)
+          split_string = true
+          is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1],split_string)
+          if is_date_true and is_time_true
+            true 
       else if check_field_id is cid+'_date'
         firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
-        firstValue = firstValue.split('/')
-        if(check_field_date_format is 'mm/dd/yy')
-          hold_date = firstValue[0]
-          firstValue[0] = firstValue[1]
-          firstValue[1] = hold_date
-        secondValue = set_value.split('/')
-        is_date_true = field.check_date_result(condition,firstValue,secondValue)
+        if firstValue
+          firstValue = firstValue.split('/')
+          if(check_field_date_format is 'mm/dd/yy')
+            hold_date = firstValue[0]
+            firstValue[0] = firstValue[1]
+            firstValue[1] = hold_date
+          secondValue = set_value.split('/')
+          is_date_true = field.check_date_result(condition,firstValue,secondValue)
       else
         is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value , split_string)
           
