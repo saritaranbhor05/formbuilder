@@ -50,7 +50,7 @@ Formbuilder.registerField 'take_pic_video_audio',
           var data = $("#snapshot_<%= rf.getCid() %>").val();
           if (!$("#record_link_<%= rf.getCid() %>").text()){
             $("#record_link_<%= rf.getCid() %>").attr('href',data);
-            $("#record_link_<%= rf.getCid() %>").text('File');
+            $("#record_link_<%= rf.getCid() %>").text('View File');
           }
         },100);
 
