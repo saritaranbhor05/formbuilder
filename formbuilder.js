@@ -1776,7 +1776,7 @@
 
 (function() {
   Formbuilder.registerField('date_time', {
-    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n           });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
     edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
     setup: function(el, model, index) {
@@ -1845,6 +1845,7 @@
     check_time_retult: function(clicked_element, cid, condition, set_value, split_string) {
       return (function(_this) {
         return function(firstDate, secondDate, firstValue, secondValue, combinedValue) {
+          var _base, _base1;
           if (split_string) {
             combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
             combinedValue = combinedValue.split(' ');
@@ -1852,27 +1853,25 @@
           } else {
             firstValue = clicked_element.find("[name = " + cid + "_1]").val();
           }
-          firstValue = firstValue.split(':');
-          secondValue = set_value.split(':');
-          firstDate.setHours(firstValue[0]);
-          firstDate.setMinutes(firstValue[1]);
-          secondDate.setHours(secondValue[0]);
-          secondDate.setMinutes(secondValue[1]);
-          if (condition === "<") {
-            if (firstDate < secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === ">") {
-            if (firstDate > secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === "==") {
-            if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-              return true;
+          if (firstValue) {
+            firstValue = firstValue.split(':');
+            secondValue = set_value.split(':');
+            firstDate.setHours(firstValue[0]);
+            firstDate.setMinutes(firstValue[1]);
+            secondDate.setHours(secondValue[0]);
+            secondDate.setMinutes(secondValue[1]);
+            if (condition === "<") {
+              return typeof (_base = firstDate < secondDate) === "function" ? _base({
+                "true": false
+              }) : void 0;
+            } else if (condition === ">") {
+              return typeof (_base1 = firstDate > secondDate) === "function" ? _base1({
+                "true": false
+              }) : void 0;
+            } else if (condition === "==") {
+              if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+                return true;
+              }
             }
           }
         };
@@ -1888,30 +1887,34 @@
             combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
             combinedValue = combinedValue.split(' ');
             firstValue = combinedValue[0];
-            firstValue = firstValue.split('/');
-            if (check_field_date_format === 'mm/dd/yy') {
-              hold_date = firstValue[0];
-              firstValue[0] = firstValue[1];
-              firstValue[1] = hold_date;
-            }
-            set_value = set_value.split(' ');
-            secondValue = set_value[0].split('/');
-            is_date_true = field.check_date_result(condition, firstValue, secondValue);
-            split_string = true;
-            is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
-            if (is_date_true && is_time_true) {
-              return true;
+            if (firstValue) {
+              firstValue = firstValue.split('/');
+              if (check_field_date_format === 'mm/dd/yy') {
+                hold_date = firstValue[0];
+                firstValue[0] = firstValue[1];
+                firstValue[1] = hold_date;
+              }
+              set_value = set_value.split(' ');
+              secondValue = set_value[0].split('/');
+              is_date_true = field.check_date_result(condition, firstValue, secondValue);
+              split_string = true;
+              is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
+              if (is_date_true && is_time_true) {
+                return true;
+              }
             }
           } else if (check_field_id === cid + '_date') {
             firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-            firstValue = firstValue.split('/');
-            if (check_field_date_format === 'mm/dd/yy') {
-              hold_date = firstValue[0];
-              firstValue[0] = firstValue[1];
-              firstValue[1] = hold_date;
+            if (firstValue) {
+              firstValue = firstValue.split('/');
+              if (check_field_date_format === 'mm/dd/yy') {
+                hold_date = firstValue[0];
+                firstValue[0] = firstValue[1];
+                firstValue[1] = hold_date;
+              }
+              secondValue = set_value.split('/');
+              return is_date_true = field.check_date_result(condition, firstValue, secondValue);
             }
-            secondValue = set_value.split('/');
-            return is_date_true = field.check_date_result(condition, firstValue, secondValue);
           } else {
             return is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value, split_string);
           }

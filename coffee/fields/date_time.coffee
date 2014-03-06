@@ -8,10 +8,10 @@ Formbuilder.registerField 'date_time',
       <script>
         $(function() {
           $("#<%= rf.getCid() %>_datetime")
-              .datetimepicker({
-                addSliderAccess: true, 
-                sliderAccessArgs: { touchonly: false }
-          })
+              .datetimepicker({ 
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', 
+                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
+               });
         })
       </script>
     <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>
@@ -130,15 +130,9 @@ Formbuilder.registerField 'date_time',
         secondDate.setHours(secondValue[0])
         secondDate.setMinutes(secondValue[1])
         if (condition == "<")
-          if(firstDate < secondDate)
-            true
-          else
-            false
+          (firstDate < secondDate)? true: false
         else if(condition == ">")
-          if(firstDate > secondDate)
-            true
-          else
-            false
+          (firstDate > secondDate)? true: false
         else if(condition == "==")
           if(parseInt(firstValue[0]) == parseInt(secondValue[0]) &&
              parseInt(firstValue[1]) == parseInt(secondValue[1]))
