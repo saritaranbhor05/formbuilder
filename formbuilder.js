@@ -2250,7 +2250,7 @@
 (function() {
   Formbuilder.registerField('phone_number', {
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
-    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput(); \n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: [\"au\", \"gb\", \"us\"]\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
     setup: function(el, model, index) {
       var _this = this;
