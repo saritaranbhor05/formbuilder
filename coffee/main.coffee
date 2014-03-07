@@ -387,7 +387,7 @@ class Formbuilder
         delete attrs['id']
         attrs['label'] += ' Copy'
         for condition in attrs['conditions']
-          condition.target = '' if condition.target is @model.getCid() 
+          condition.target = '' if condition.target is @model.getCid()
         @parentView.createField attrs, { position: @model.indexInDOM() + 1 }
 
     edit_field: Backbone.View.extend
@@ -730,6 +730,13 @@ class Formbuilder
                     if val_set
                       field_view.trigger('change_state')
                     index
+              else if (field_view.model.get('field_type') is 'take_pic_video_audio')
+                _.each(model.get('field_values'), (value, key) ->
+                  do(index=0) =>
+                    $('#capture_link_'+field_view.model.getCid()).append(
+                      "<a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></br>"
+                    ) if $('#capture_link_'+field_view.model.getCid())
+                )
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
                   count = do( # set element name, value and call setup
@@ -920,7 +927,7 @@ class Formbuilder
                   _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
-                
+
           )
 
       formData: ->

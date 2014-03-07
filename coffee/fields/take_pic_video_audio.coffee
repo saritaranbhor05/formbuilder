@@ -11,6 +11,7 @@ Formbuilder.registerField 'take_pic_video_audio',
         id="record_link_<%= rf.getCid() %>" href=""
         style="margin-bottom:12px;"
       ></a>
+      <div id="capture_link_<%= rf.getCid() %>"></div>
     </div>
     <div id="open_model_<%= rf.getCid() %>"
       class="modal hide fade modal_style" tabindex="-1"
