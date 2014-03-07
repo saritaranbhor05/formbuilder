@@ -203,6 +203,48 @@ __p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <inp
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/default_address"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Address</div>\n\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Street Address</label>\n    <input type="text" id="address_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-address="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_ADDRESS )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Suburb/City</label>\n    <input type="text" id="city_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-city="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_CITY))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_CITY )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>State / Provience / Region</label>\n    <input type="text" id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-state="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_STATE))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_STATE )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Postal/Zip Code</label>\n    <input type="text" id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\' pattern="[a-zA-Z0-9]+"\n      data-zipcode="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_ZIPCODE )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Select Default Country</label>\n    <select id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'dropdown_country span12 bfh-selectbox bfh-countries\'\n      data-country="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY))) == null ? '' : __t) +
+'"\n      data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_COUNTRY )) == null ? '' : __t) +
+'"\n    ></select>\n  </span>\n</div>\n<script>\n  $(function() {\n    $("#dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").bfhcount();\n  });\n</script>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/default_number_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

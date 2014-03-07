@@ -3,26 +3,27 @@ Formbuilder.registerField 'address',
   view: """
     <div class='input-line'>
       <span class="span6">
-        <input type='text' id='address' class='span12'/>
+        <input type='text' id='address' class='span12' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>"/>
         <label>Street Address</label>
       </span>
     </div>
 
     <div class='input-line'>
       <span class="span3">
-        <input class="span12" type='text' id='suburb'/>
+        <input class="span12" type='text' id='suburb' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>"/>
         <label>Suburb/City</label>
       </span>
 
       <span class="span3">
-        <input class="span12" type='text' id='state'/>
+        <input class="span12" type='text' id='state' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>"/>
         <label>State / Province / Region</label>
       </span>
     </div>
 
     <div class='input-line' >
       <span class="span3">
-        <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"/>
+        <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"
+         value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
         <label>Postal/Zip Code</label>
       </span>
 
@@ -43,33 +44,24 @@ Formbuilder.registerField 'address',
   """
 
   edit: """
-    <div class='fb-edit-section-header'>Options</div>
-
-    <div class='input-line span12' >
-      <span class="span11">
-        <label>Select Default Country</label>
-        <select id="dropdown_country_edit_<%= rf.getCid() %>"
-          class='dropdown_country span12 bfh-selectbox bfh-countries'
-          data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
-          data-rv-value="model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>"
-        ></select>
-      </span>
-    </div>
-    <script>
-      $(function() {
-        $("#dropdown_country_edit_<%= rf.getCid() %>").bfhcount();
-      });
-    </script>
+    <%= Formbuilder.templates['edit/default_address']({rf: rf}) %>
   """
 
   addButton: """
     <span class="symbol"><span class="icon-home"></span></span> Address
   """
   clearFields: ($el, model) ->
-    $el.find("#address").val("")
-    $el.find("#suburb").val("")
-    $el.find("#state").val("")
-    $el.find("#zipcode").val("")
+    _that = @
+    $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS))
+    $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY))
+    $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE))
+    $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
+
+  check_and_return_val: (model, val) ->
+    if(model.get(val))
+      model.get(val)
+    else
+      ''
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
