@@ -74,6 +74,10 @@ class Formbuilder
       MASK_VALUE: 'field_options.mask_value'
       COUNTRY_CODE: 'field_options.country_code'
       AREA_CODE: 'field_options.area_code'
+      DEFAULT_ADDRESS: 'field_options.default_address'
+      DEFAULT_CITY: 'field_options.default_city'
+      DEFAULT_STATE: 'field_options.default_state'
+      DEFAULT_ZIPCODE: 'field_options.default_zipcode'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -691,6 +695,7 @@ class Formbuilder
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()
+              $('#grid_div').scrollTop(0)
           })
 
         return @
