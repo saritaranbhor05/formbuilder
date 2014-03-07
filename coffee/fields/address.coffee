@@ -58,10 +58,7 @@ Formbuilder.registerField 'address',
     $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
 
   check_and_return_val: (model, val) ->
-    if(model.get(val))
-      model.get(val)
-    else
-      ''
+    model.get(val) || ''
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(

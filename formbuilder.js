@@ -1311,11 +1311,7 @@
       return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
     },
     check_and_return_val: function(model, val) {
-      if (model.get(val)) {
-        return model.get(val);
-      } else {
-        return '';
-      }
+      return model.get(val) || '';
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
