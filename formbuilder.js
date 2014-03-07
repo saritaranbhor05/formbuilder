@@ -925,8 +925,13 @@
                   return _.each(model.get('field_values'), function(value, key) {
                     var _this = this;
                     return (function(index) {
-                      if ($('#capture_link_' + field_view.model.getCid())) {
-                        return $('#capture_link_' + field_view.model.getCid()).append("<a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a></br>");
+                      if (value) {
+                        if ($('#capture_link_' + field_view.model.getCid())) {
+                          $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                        }
+                        return $('#capture_link_close_' + key).click(function() {
+                          return $('#capture_link_div_' + key).remove();
+                        });
                       }
                     })(0);
                   });

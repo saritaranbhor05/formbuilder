@@ -733,9 +733,13 @@ class Formbuilder
               else if (field_view.model.get('field_type') is 'take_pic_video_audio')
                 _.each(model.get('field_values'), (value, key) ->
                   do(index=0) =>
-                    $('#capture_link_'+field_view.model.getCid()).append(
-                      "<a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></br>"
-                    ) if $('#capture_link_'+field_view.model.getCid())
+                    if value
+                      $('#capture_link_'+field_view.model.getCid()).append(
+                        "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
+                      ) if $('#capture_link_'+field_view.model.getCid())
+                      $('#capture_link_close_'+key).click( () ->
+                        $('#capture_link_div_'+key).remove()
+                      )
                 )
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
