@@ -280,6 +280,10 @@
 .response-field-text input.rf-size-large {
   width: 100%;
 }
+.response-field-paragraph textarea {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .response-field-paragraph textarea.rf-size-small {
   width: 200px;
   min-height: 60px;
@@ -388,6 +392,10 @@
   .response-field-text input.rf-size-large {
     width: 75%;
   }
+  .response-field-paragraph textarea {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .response-field-paragraph textarea.rf-size-small {
     width: 200px;
     min-height: 60px;
@@ -416,6 +424,10 @@
   }
   .response-field-text input.rf-size-large {
     width: 75%;
+  }
+  .response-field-paragraph textarea {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .response-field-paragraph textarea.rf-size-small {
     width: 200px;
@@ -451,6 +463,10 @@
   }
   .response-field-text input.rf-size-large {
     width: 75%;
+  }
+  .response-field-paragraph textarea {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .response-field-paragraph textarea.rf-size-small {
     width: 200px;
