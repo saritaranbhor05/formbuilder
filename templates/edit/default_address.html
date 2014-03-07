@@ -1,0 +1,57 @@
+<div class='fb-edit-section-header'>Default Address</div>
+
+<div class='input-line span12' >
+  <span class="span11">
+    <label>Street Address</label>
+    <input type="text" id="address_edit_<%= rf.getCid() %>"
+      class='span12'
+      data-address="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>"
+      data-rv-input="model.<%= Formbuilder.options.mappings.DEFAULT_ADDRESS %>"
+    />
+  </span>
+</div>
+<div class='input-line span12' >
+  <span class="span11">
+    <label>Suburb/City</label>
+    <input type="text" id="city_edit_<%= rf.getCid() %>"
+      class='span12'
+      data-city="<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>"
+      data-rv-input="model.<%= Formbuilder.options.mappings.DEFAULT_CITY %>"
+    />
+  </span>
+</div>
+<div class='input-line span12' >
+  <span class="span11">
+    <label>State / Provience / Region</label>
+    <input type="text" id="dropdown_country_edit_<%= rf.getCid() %>"
+      class='span12'
+      data-state="<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>"
+      data-rv-input="model.<%= Formbuilder.options.mappings.DEFAULT_STATE %>"
+    />
+  </span>
+</div>
+<div class='input-line span12' >
+  <span class="span11">
+    <label>Postal/Zip Code</label>
+    <input type="text" id="dropdown_country_edit_<%= rf.getCid() %>"
+      class='span12' pattern="[a-zA-Z0-9]+"
+      data-zipcode="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"
+      data-rv-input="model.<%= Formbuilder.options.mappings.DEFAULT_ZIPCODE %>"
+    />
+  </span>
+</div>
+<div class='input-line span12' >
+  <span class="span11">
+    <label>Select Default Country</label>
+    <select id="dropdown_country_edit_<%= rf.getCid() %>"
+      class='dropdown_country span12 bfh-selectbox bfh-countries'
+      data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+      data-rv-value="model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>"
+    ></select>
+  </span>
+</div>
+<script>
+  $(function() {
+    $("#dropdown_country_edit_<%= rf.getCid() %>").bfhcount();
+  });
+</script>
