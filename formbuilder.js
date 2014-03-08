@@ -1399,7 +1399,7 @@
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+        elem_val = clicked_element.find("[value = '" + set_value + "']").is(':checked');
         check_result = eval("'" + elem_val + "' " + condition + " 'true'");
         return check_result;
       })('', false);
