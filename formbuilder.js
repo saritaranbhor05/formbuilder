@@ -837,8 +837,9 @@
             }
           });
         },
-        addSectionBreak: function(obj_view, cnt) {
+        addSectionBreak: function(obj_view, cnt, back_visibility) {
           obj_view.$el.attr('data-step', cnt);
+          obj_view.$el.attr('show-back', back_visibility);
           obj_view.$el.attr('data-step-title', "step" + cnt);
           obj_view.$el.addClass('step');
           if (cnt === 1) {
@@ -848,10 +849,13 @@
         applyEasyWizard: function() {
           var _this = this;
           (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
-            var fd_views, _i, _len;
+            var back_visibility, fd_views, _i, _len;
+            $('.prev').addClass('hide btn-danger');
+            $('.next').addClass('btn-success');
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
               if (field_view.is_section_break) {
+                back_visibility = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
                 add_break_to_next = true;
                 prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
                 next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
@@ -860,7 +864,7 @@
                 wizard_view = new Formbuilder.views.wizard_tab({
                   parentView: _this
                 });
-                _this.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
               } else if (add_break_to_next && !field_view.is_section_break) {
                 _this.$responseFields.append(wizard_view.$el);
                 wizard_view = new Formbuilder.views.wizard_tab({
@@ -870,7 +874,7 @@
                 if (add_break_to_next) {
                   add_break_to_next = false;
                 }
-                _this.addSectionBreak(wizard_view, wiz_cnt);
+                _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
               }
               if (wizard_view && field_view && !field_view.is_section_break) {
                 wizard_view.$el.append(field_view.render().el);
@@ -893,6 +897,11 @@
               prevButton: prev_btn_text,
               nextButton: next_btn_text,
               after: function(wizardObj) {
+                if ($nextStep.attr('show-back') === 'false') {
+                  $('.prev').css("display", "none");
+                } else {
+                  $('.prev').css("display", "block");
+                }
                 if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
                   wizardObj.parents('.form-panel').find('.update-button').show();
                 } else {
@@ -1083,24 +1092,9 @@
           })(null, $(elem).attr('type'));
         },
         addAll: function() {
-          var back_visiblity, field_view, _i, _len, _ref;
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
-            _ref = this.fieldViews;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              field_view = _ref[_i];
-              if (field_view.field_type === 'section_break') {
-                $('.prev').addClass('hide btn-danger');
-                $('.next').addClass('btn-success');
-                back_visiblity = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
-                if (back_visiblity === 'false') {
-                  $('.next').click(function() {
-                    return $('.prev').css("display", "none");
-                  });
-                }
-              }
-            }
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
@@ -3385,11 +3379,22 @@ __p += '\n  <div class=\'cover\'></div>\n  ';
  } ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n\n  ';
+ if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
+      rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ ;
+__p += '\n    ' +
+((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n  ';
+ } else { ;
+__p += '\n    ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
 '\n  ';
+ } ;
+__p += '\n\n  ';
  if(!opts.live){ ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
