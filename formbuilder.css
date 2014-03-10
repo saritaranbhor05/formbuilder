@@ -495,20 +495,14 @@
 }
 .btn_icon_photo {
   background-image: url("photo.png");
-  height: 36px;
-  width: 36px;
-  background-repeat: no-repeat;
-  background-position: center;
 }
 .btn_icon_video {
   background-image: url("video.png");
-  height: 36px;
-  width: 36px;
-  background-repeat: no-repeat;
-  background-position: center;
 }
 .btn_icon_audio {
   background-image: url("audio.png");
+}
+.btn_capture_icon {
   height: 36px;
   width: 36px;
   background-repeat: no-repeat;
