@@ -219,7 +219,7 @@
           if (!required) {
             this.clearFields() && this.changeStateSource();
           }
-          if (required && this.field_type === 'heading') {
+          if (required && this.field_type === 'heading' || this.field_type === 'free_text_html') {
             this.changeStateSource();
           }
           if (this.model.get(Formbuilder.options.mappings.REQUIRED) && $.inArray(this.field_type, Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) === -1) {
@@ -238,6 +238,9 @@
                 if (_this.field_type === 'heading') {
                   $('#' + _this.model.getCid()).text(_this.model.get('label'));
                 }
+                if (_this.field_type === 'free_text_html') {
+                  $('#' + _this.model.getCid()).find('p').replaceWith(_this.model.get('field_options').html_data);
+                }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
               } else {
@@ -251,6 +254,9 @@
                 _this.$el.addClass("show");
                 if (_this.field_type === 'heading') {
                   $('#' + _this.model.getCid()).text(_this.model.get('label'));
+                }
+                if (_this.field_type === 'free_text_html') {
+                  $('#' + _this.model.getCid()).find('p').replaceWith(_this.model.get('field_options').html_data);
                 }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
@@ -907,7 +913,7 @@
                 if (field_view.field_type === 'esignature') {
                   initializeCanvas(field_view.model.getCid());
                 }
-                if (field_view.model.get('field_type') === 'heading') {
+                if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
                   _ref = field_view.$("label");
                   _results1 = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
@@ -948,8 +954,8 @@
                   _results2 = [];
                   for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
                     x = _ref1[_k];
-                    _results2.push(count = (function(x, index, name, val, value, cid) {
-                      var get_user_location, has_heading_field, model_in_collection, model_in_conditions, _l, _len3, _len4, _m, _ref2, _ref3;
+                    _results2.push(count = (function(x, index, name, val, value, cid, has_heading_field, has_ckeditor_field) {
+                      var get_user_location, model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
                       _ref2 = field_view.model.collection.where({
                         'field_type': 'heading'
                       });
@@ -961,6 +967,21 @@
                             model_in_conditions = _ref3[_m];
                             if (model_in_collection.getCid() === model_in_conditions.target) {
                               has_heading_field = true;
+                            }
+                          }
+                        }
+                      }
+                      _ref4 = field_view.model.collection.where({
+                        'field_type': 'free_text_html'
+                      });
+                      for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
+                        model_in_collection = _ref4[_n];
+                        if (field_view.model.get('conditions')) {
+                          _ref5 = field_view.model.get('conditions');
+                          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+                            model_in_conditions = _ref5[_o];
+                            if (model_in_collection.getCid() === model_in_conditions.target) {
+                              has_ckeditor_field = true;
                             }
                           }
                         }
@@ -983,7 +1004,7 @@
                       if ($(x).val()) {
                         val_set = true;
                       }
-                      if (val || has_heading_field) {
+                      if (val || has_heading_field || has_ckeditor_field) {
                         val_set = true;
                       }
                       if (val) {
@@ -1003,7 +1024,7 @@
                         field_view.trigger('change_state');
                       }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '', false, false));
                   }
                   return _results2;
                 }
@@ -1646,7 +1667,22 @@
       type: 'non_input',
       view: "<label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n  <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n</label>\n<div id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n",
       edit: "\n</br>\n<input type='text'\n  data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n  </textarea>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      CKEDITOR.disableAutoInline = true;\n      editor_<%= rf.getCid() %> = CKEDITOR.inline(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n      editor_<%= rf.getCid() %>.on( 'blur', function( e ) {\n        $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\"));\n        $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n      });\n    });\n  });\n</script>\n",
-      addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML"
+      addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML",
+      clearFields: function($el, model) {
+        return $el.find('#' + model.getCid()).find('p').text('');
+      },
+      evalCondition: function(clicked_element, cid, condition, set_value) {
+        var _this = this;
+        return (function(check_result) {
+          var elem_val;
+          elem_val = clicked_element.find("#" + cid).find('p').text();
+          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          return check_result;
+        })(false);
+      },
+      add_remove_require: function(cid, required) {
+        return $("." + cid).find("#" + cid).attr("required", required);
+      }
     });
   }
 
@@ -2715,22 +2751,24 @@ __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-r
 __p += '\n          ';
  for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.collection.toJSON()[i].field_type !== 'free_text_html') { ;
-__p += '\n              ';
  if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
-__p += '\n                ';
- break ;
 __p += '\n              ';
+ break ;
+__p += '\n            ';
  } ;
-__p += '\n              <option value="' +
+__p += '\n            <option value="' +
 ((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
 ((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
-'</option>\n            ';
- } ;
-__p += '\n          ';
+'</option>\n          ';
 };
-__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
+__p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      ';
+ if(rf.get('field_type') == 'date_time') { ;
+__p += '\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value1\' type=\'text\'/>\n      ';
+ } else { ;
+__p += '  \n        <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      ';
+ } ;
+__p += '  \n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '" title="Remove Condition"><i class=\'icon-minus-sign\'></i></a>\n    </div>\n  </div>\n</div>\n\n<div class=\'fb-bottom-add\'>\n  <a class="js-add-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +

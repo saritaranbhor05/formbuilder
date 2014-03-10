@@ -15,12 +15,10 @@
           <option value="">Select Field</option>
           <% opts.parentView.collection.sort();%>
           <% for( var i=0 ; i < opts.parentView.collection.length ; i++){%>
-            <% if(opts.parentView.collection.toJSON()[i].field_type !== 'free_text_html') { %>
-              <% if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ %>
-                <% break %>
-              <% } %>
-              <option value="<%= opts.parentView.collection.toJSON()[i].cid %>"><%= opts.parentView.collection.toJSON()[i].label %></option>
+            <% if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ %>
+              <% break %>
             <% } %>
+            <option value="<%= opts.parentView.collection.toJSON()[i].cid %>"><%= opts.parentView.collection.toJSON()[i].label %></option>
           <%}%>
         </select>
       </div>
@@ -34,7 +32,12 @@
             <option>is not empty</option>
         </select>
       </div>
-      <input class='span5 pull-right' data-rv-input='condition:value' type='text'/>
+      <% if(rf.get('field_type') == 'date_time') { %>
+        <input class='span5 pull-right' data-rv-input='condition:value' type='text'/>
+        <input class='span5 pull-right' data-rv-input='condition:value1' type='text'/>
+      <% } else { %>  
+        <input class='span5 pull-right' data-rv-input='condition:value' type='text'/>
+      <% } %>  
       <span class='fb-field-label fb-field-condition-label span2'> then </span>
       <div class="span3">
         <select data-rv-value='condition:action'>
