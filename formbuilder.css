@@ -494,13 +494,13 @@
   width: 275px;
 }
 .btn_icon_photo {
-  background-image: url("static_form_capture_img/photo.png");
+  background-image: image-url("photo.png");
 }
 .btn_icon_video {
-  background-image: url("static_form_capture_img/video.png");
+  background-image: image-url("video.png");
 }
 .btn_icon_audio {
-  background-image: url("static_form_capture_img/audio.png");
+  background-image: image-url("audio.png");
 }
 .btn_capture_icon {
   height: 36px;
