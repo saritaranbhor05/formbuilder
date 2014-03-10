@@ -50,3 +50,19 @@ unless typeof(CKEDITOR) is 'undefined'
       <span class='symbol'><span class='icon-font'></span></span> Free Text HTML
     """
 
+    clearFields: ($el, model) ->
+      $el.find('#' + model.getCid()).find('p').text('')
+
+    evalCondition: (clicked_element, cid, condition, set_value) ->
+      do( 
+        check_result=false
+      ) =>
+        elem_val = clicked_element
+                            .find("#"+cid).find('p').text()
+        check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+        check_result    
+  
+    add_remove_require:(cid,required) ->
+      $("." + cid)
+              .find("#"+cid)
+              .attr("required", required)
