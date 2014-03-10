@@ -166,8 +166,8 @@ class Formbuilder
             if(check_result is true )
               @$el.addClass(set_field.action)
               if(set_field.action == 'show')
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading' 
-                $('#'+@model.getCid()).find('p').text($(@model.get('field_options').html_data).text()) if @field_type is 'free_text_html'
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -179,7 +179,7 @@ class Formbuilder
               if(set_field.action == 'hide')
                 @$el.addClass("show")
                 $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').text($(@model.get('field_options').html_data).text()) if @field_type is 'free_text_html'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -773,7 +773,7 @@ class Formbuilder
                       if field_view.model.get('conditions')
                         for model_in_conditions in field_view.model.get('conditions')
                           if(model_in_collection.getCid() is model_in_conditions.target)
-                            has_ckeditor_field = true        
+                            has_ckeditor_field = true
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                     field_method_call = Formbuilder.fields[field_type_method_call]
                     cid = model.getCid()
