@@ -493,3 +493,18 @@
 #create-form-container .intl-tel-input.pretty .flag-dropdown .country-list {
   width: 275px;
 }
+.btn_icon_photo {
+  background-image: url("photo.png");
+}
+.btn_icon_video {
+  background-image: url("video.png");
+}
+.btn_icon_audio {
+  background-image: url("audio.png");
+}
+.btn_capture_icon {
+  height: 36px;
+  width: 36px;
+  background-repeat: no-repeat;
+  background-position: center;
+}

@@ -2,9 +2,18 @@ Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
-      <button class='image' id="btn_image_<%= rf.getCid() %>">Picture</button>
-      <button class='video' id="btn_video_<%= rf.getCid() %>">Video</button>
-      <button class='audio' id="btn_audio_<%= rf.getCid() %>">Audio</button>
+      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>
+        <button class='btn_capture_icon image btn_icon_photo' id="btn_image_<%= rf.getCid() %>"></button>
+      <% } %>
+
+      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>
+        <button class='btn_capture_icon video btn_icon_video' id="btn_video_<%= rf.getCid() %>"></button>
+      <% } %>
+
+      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>
+        <button class='btn_capture_icon audio btn_icon_audio' id="btn_audio_<%= rf.getCid() %>"></button>
+      <% } %>
+
       <a
         type='take_pic_video_audio'
         target="_blank" capture='capture' class="capture active_link"
@@ -105,9 +114,9 @@ Formbuilder.registerField 'take_pic_video_audio',
     </script>
   """
 
-  edit: "
-
-  "
+  edit: """
+    <%= Formbuilder.templates['edit/capture']({ rf:rf }) %>
+  """
 
   addButton: """
     <span class="symbol"><span class="icon-camera"></span></span> Capture
