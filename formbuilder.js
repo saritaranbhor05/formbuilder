@@ -120,7 +120,11 @@
         DATE_FORMAT: 'field_options.date_format',
         MASK_VALUE: 'field_options.mask_value',
         COUNTRY_CODE: 'field_options.country_code',
-        AREA_CODE: 'field_options.area_code'
+        AREA_CODE: 'field_options.area_code',
+        DEFAULT_ADDRESS: 'field_options.default_address',
+        DEFAULT_CITY: 'field_options.default_city',
+        DEFAULT_STATE: 'field_options.default_state',
+        DEFAULT_ZIPCODE: 'field_options.default_zipcode'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -901,10 +905,11 @@
                 nextButton: next_btn_text,
                 after: function(wizardObj) {
                   if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
-                    return wizardObj.parents('.form-panel').find('.update-button').show();
+                    wizardObj.parents('.form-panel').find('.update-button').show();
                   } else {
-                    return wizardObj.parents('.form-panel').find('.update-button').hide();
+                    wizardObj.parents('.form-panel').find('.update-button').hide();
                   }
+                  return $('#grid_div').scrollTop(0);
                 }
               });
             });
@@ -942,6 +947,24 @@
                       })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
                     }
                     return _results1;
+                  } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
+                    return _.each(model.get('field_values'), function(value, key) {
+                      return (function(_this) {
+                        return function(index) {
+                          if (value && value.indexOf("data:image") === -1) {
+                            if ($('#capture_link_' + field_view.model.getCid())) {
+                              $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                            }
+                            return $('#capture_link_close_' + key).click(function() {
+                              return $('#capture_link_div_' + key).remove();
+                            });
+                          } else if (value.indexOf("data:image") === 0) {
+                            $('#record_link_' + field_view.model.getCid()).attr('href', value);
+                            return $('#record_link_' + field_view.model.getCid()).text("View File");
+                          }
+                        };
+                      })(this)(0);
+                    });
                   } else {
                     _ref1 = field_view.$("input, textarea, select, canvas, a");
                     _results2 = [];
@@ -1338,14 +1361,19 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span class=\"span6\">\n    <input type='text' id='address' class='span12'/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='suburb'/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='state'/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span class=\"span3\">\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span class=\"span3\">\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
-    edit: "<div class='fb-edit-section-header'>Options</div>\n\n<div class='input-line span12' >\n  <span class=\"span11\">\n    <label>Select Default Country</label>\n    <select id=\"dropdown_country_edit_<%= rf.getCid() %>\"\n      class='dropdown_country span12 bfh-selectbox bfh-countries'\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      data-rv-value=\"model.<%= Formbuilder.options.mappings.DEFAULT_COUNTRY %>\"\n    ></select>\n  </span>\n</div>\n<script>\n  $(function() {\n    $(\"#dropdown_country_edit_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <span class=\"span6\">\n    <input type='text' id='address' class='span12' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>\"/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='suburb' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>\"/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='state' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>\"/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span class=\"span3\">\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"\n     value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span class=\"span3\">\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
+    edit: "<%= Formbuilder.templates['edit/default_address']({rf: rf}) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
     clearFields: function($el, model) {
-      $el.find("#address").val("");
-      $el.find("#suburb").val("");
-      $el.find("#state").val("");
-      return $el.find("#zipcode").val("");
+      var _that;
+      _that = this;
+      $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS));
+      $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
+      $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
+      return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+    },
+    check_and_return_val: function(model, val) {
+      return model.get(val) || '';
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
@@ -1418,7 +1446,7 @@
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
         return function(elem_val, check_result) {
-          elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
+          elem_val = clicked_element.find("[value = '" + set_value + "']").is(':checked');
           check_result = eval("'" + elem_val + "' " + condition + " 'true'");
           return check_result;
         };
@@ -1813,7 +1841,7 @@
 
 (function() {
   Formbuilder.registerField('date_time', {
-    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n            });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
+    view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', \n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n           });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({ \n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' \n            });\n    })\n  </script>\n<% } %>  ",
     edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
     setup: function(el, model, index) {
@@ -1882,6 +1910,7 @@
     check_time_retult: function(clicked_element, cid, condition, set_value, split_string) {
       return (function(_this) {
         return function(firstDate, secondDate, firstValue, secondValue, combinedValue) {
+          var _base, _base1;
           if (split_string) {
             combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
             combinedValue = combinedValue.split(' ');
@@ -1889,27 +1918,25 @@
           } else {
             firstValue = clicked_element.find("[name = " + cid + "_1]").val();
           }
-          firstValue = firstValue.split(':');
-          secondValue = set_value.split(':');
-          firstDate.setHours(firstValue[0]);
-          firstDate.setMinutes(firstValue[1]);
-          secondDate.setHours(secondValue[0]);
-          secondDate.setMinutes(secondValue[1]);
-          if (condition === "<") {
-            if (firstDate < secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === ">") {
-            if (firstDate > secondDate) {
-              return true;
-            } else {
-              return false;
-            }
-          } else if (condition === "==") {
-            if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
-              return true;
+          if (firstValue) {
+            firstValue = firstValue.split(':');
+            secondValue = set_value.split(':');
+            firstDate.setHours(firstValue[0]);
+            firstDate.setMinutes(firstValue[1]);
+            secondDate.setHours(secondValue[0]);
+            secondDate.setMinutes(secondValue[1]);
+            if (condition === "<") {
+              return typeof (_base = firstDate < secondDate) === "function" ? _base({
+                "true": false
+              }) : void 0;
+            } else if (condition === ">") {
+              return typeof (_base1 = firstDate > secondDate) === "function" ? _base1({
+                "true": false
+              }) : void 0;
+            } else if (condition === "==") {
+              if (parseInt(firstValue[0]) === parseInt(secondValue[0]) && parseInt(firstValue[1]) === parseInt(secondValue[1])) {
+                return true;
+              }
             }
           }
         };
@@ -1925,30 +1952,34 @@
             combinedValue = clicked_element.find("[name = " + cid + "_1]").val();
             combinedValue = combinedValue.split(' ');
             firstValue = combinedValue[0];
-            firstValue = firstValue.split('/');
-            if (check_field_date_format === 'mm/dd/yy') {
-              hold_date = firstValue[0];
-              firstValue[0] = firstValue[1];
-              firstValue[1] = hold_date;
-            }
-            set_value = set_value.split(' ');
-            secondValue = set_value[0].split('/');
-            is_date_true = field.check_date_result(condition, firstValue, secondValue);
-            split_string = true;
-            is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
-            if (is_date_true && is_time_true) {
-              return true;
+            if (firstValue) {
+              firstValue = firstValue.split('/');
+              if (check_field_date_format === 'mm/dd/yy') {
+                hold_date = firstValue[0];
+                firstValue[0] = firstValue[1];
+                firstValue[1] = hold_date;
+              }
+              set_value = set_value.split(' ');
+              secondValue = set_value[0].split('/');
+              is_date_true = field.check_date_result(condition, firstValue, secondValue);
+              split_string = true;
+              is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1], split_string);
+              if (is_date_true && is_time_true) {
+                return true;
+              }
             }
           } else if (check_field_id === cid + '_date') {
             firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-            firstValue = firstValue.split('/');
-            if (check_field_date_format === 'mm/dd/yy') {
-              hold_date = firstValue[0];
-              firstValue[0] = firstValue[1];
-              firstValue[1] = hold_date;
+            if (firstValue) {
+              firstValue = firstValue.split('/');
+              if (check_field_date_format === 'mm/dd/yy') {
+                hold_date = firstValue[0];
+                firstValue[0] = firstValue[1];
+                firstValue[1] = hold_date;
+              }
+              secondValue = set_value.split('/');
+              return is_date_true = field.check_date_result(condition, firstValue, secondValue);
             }
-            secondValue = set_value.split('/');
-            return is_date_true = field.check_date_result(condition, firstValue, secondValue);
           } else {
             return is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value, split_string);
           }
@@ -2058,9 +2089,9 @@
 
 (function() {
   Formbuilder.registerField('esignature', {
-    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas \n      type='esignature' \n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else \n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas \n        type='esignature' \n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\">\n</div>",
+    view: "<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <canvas\n      type='esignature'\n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"border:1px solid #000000;\"\n  />\n  <% } else\n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <canvas\n        type='esignature'\n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"border:1px solid #000000;\"\n    />\n  <% } %>\n<div>\n  <input class=\"clear-button\" id=\"clr\" type=\"button\" value=\"Clear\" style=\"max-width:70px;\">\n</div>",
     edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature ",
+    addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature",
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     },
@@ -2318,7 +2349,7 @@
 (function() {
   Formbuilder.registerField('phone_number', {
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
-    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput(); \n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: [\"au\", \"gb\", \"us\"]\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
     setup: function(el, model, index) {
       return (function(_this) {
@@ -2523,7 +2554,7 @@
 
 (function() {
   Formbuilder.registerField('take_pic_video_audio', {
-    view: "<div class='input-line'>\n  <button class='image' id=\"btn_image_<%= rf.getCid() %>\">Picture</button>\n  <button class='video' id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button class='audio' id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  setTimeout(function(){\n      var data = $(\"#snapshot_<%= rf.getCid() %>\").val();\n      if (!$(\"#record_link_<%= rf.getCid() %>\").text()){\n        $(\"#record_link_<%= rf.getCid() %>\").attr('href',data);\n        $(\"#record_link_<%= rf.getCid() %>\").text('File');\n      }\n    },100);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").val(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
+    view: "<div class='input-line'>\n  <button class='image' id=\"btn_image_<%= rf.getCid() %>\">Picture</button>\n  <button class='video' id=\"btn_video_<%= rf.getCid() %>\">Video</button>\n  <button class='audio' id=\"btn_audio_<%= rf.getCid() %>\">Audio</button>\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n  <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").text(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n      $('#record_link_<%= rf.getCid() %>').text('View File');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
     clearFields: function($el, model) {
@@ -2701,7 +2732,7 @@ __p +=
 '\n' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) )) == null ? '' : __t) +
 '\n';
- if(rf.get('field_type') == 'heading' || 'free_text_html'  ) { ;
+ if(rf.get('field_type') == 'heading' || rf.get('field_type') == 'free_text_html') { ;
 __p += '\n' +
 ((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
 '\n';
@@ -2766,16 +2797,20 @@ __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-r
 __p += '\n          ';
  for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
+ if(opts.parentView.collection.toJSON()[i].field_type !== 'free_text_html') { ;
 __p += '\n              ';
+ if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
+__p += '\n                ';
  break ;
-__p += '\n            ';
+__p += '\n              ';
  } ;
-__p += '\n            <option value="' +
+__p += '\n              <option value="' +
 ((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
 ((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
-'</option>\n          ';
+'</option>\n            ';
+ } ;
+__p += '\n          ';
 };
 __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> then </span>\n      <div class="span3">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8">\n        <input type=\'text\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
@@ -2820,6 +2855,48 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
 '\' />\n  only date field\n</label>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/default_address"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default Address</div>\n\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Street Address</label>\n    <input type="text" id="address_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-address="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_ADDRESS )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Suburb/City</label>\n    <input type="text" id="city_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-city="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_CITY))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_CITY )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>State / Provience / Region</label>\n    <input type="text" id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\'\n      data-state="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_STATE))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_STATE )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Postal/Zip Code</label>\n    <input type="text" id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'span12\' pattern="[a-zA-Z0-9]+"\n      data-zipcode="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE))) == null ? '' : __t) +
+'"\n      data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_ZIPCODE )) == null ? '' : __t) +
+'"\n    />\n  </span>\n</div>\n<div class=\'input-line span12\' >\n  <span class="span11">\n    <label>Select Default Country</label>\n    <select id="dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'"\n      class=\'dropdown_country span12 bfh-selectbox bfh-countries\'\n      data-country="' +
+((__t = ( rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY))) == null ? '' : __t) +
+'"\n      data-rv-value="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_COUNTRY )) == null ? '' : __t) +
+'"\n    ></select>\n  </span>\n</div>\n<script>\n  $(function() {\n    $("#dropdown_country_edit_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'").bfhcount();\n  });\n</script>';
 
 }
 return __p

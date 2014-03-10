@@ -11,6 +11,7 @@ Formbuilder.registerField 'take_pic_video_audio',
         id="record_link_<%= rf.getCid() %>" href=""
         style="margin-bottom:12px;"
       ></a>
+      <div id="capture_link_<%= rf.getCid() %>"></div>
     </div>
     <div id="open_model_<%= rf.getCid() %>"
       class="modal hide fade modal_style" tabindex="-1"
@@ -46,14 +47,6 @@ Formbuilder.registerField 'take_pic_video_audio',
       $('#snapshot_<%= rf.getCid() %>').attr("required", false);
       $('#canvas_<%= rf.getCid() %>').attr("required", false);
 
-      setTimeout(function(){
-          var data = $("#snapshot_<%= rf.getCid() %>").val();
-          if (!$("#record_link_<%= rf.getCid() %>").text()){
-            $("#record_link_<%= rf.getCid() %>").attr('href',data);
-            $("#record_link_<%= rf.getCid() %>").text('File');
-          }
-        },100);
-
       $("#btn_image_<%= rf.getCid() %>").click( function() {
         $("#open_model_<%= rf.getCid() %>").modal('show');
         $("#open_model_<%= rf.getCid() %>").on('shown', function() {
@@ -62,7 +55,7 @@ Formbuilder.registerField 'take_pic_video_audio',
         $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
           localMediaStream.stop();
           localMediaStream = null;
-          $("#snapshot_<%= rf.getCid() %>").val(
+          $("#snapshot_<%= rf.getCid() %>").text(
             $('#record_link_<%= rf.getCid() %>').attr('href')
           );
           $("#snapshot_<%= rf.getCid() %>").trigger("change");
@@ -83,6 +76,7 @@ Formbuilder.registerField 'take_pic_video_audio',
           // "image/webp" works in Chrome.
           // Other browsers will fall back to image/png.
           document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');
+          $('#record_link_<%= rf.getCid() %>').text('View File');
         }
       }
       function sizeCanvas() {

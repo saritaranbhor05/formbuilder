@@ -59,9 +59,9 @@ Formbuilder.registerField 'checkboxes',
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
        elem_val = '' ,
-       check_result = false                   
+       check_result = false
     ) =>
-      elem_val = clicked_element.find("[value = " + set_value+"]").is(':checked')
+      elem_val = clicked_element.find("[value = '" + set_value+"']").is(':checked')
       check_result = eval("'#{elem_val}' #{condition} 'true'")
       check_result
 
@@ -70,4 +70,4 @@ Formbuilder.registerField 'checkboxes',
       for i, input_elem in $el.find('input:checked').length
         $("." + cid)
                 .find("[name = "+cid+"_1]")
-                .attr("required", required)    
+                .attr("required", required)
