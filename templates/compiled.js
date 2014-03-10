@@ -775,11 +775,22 @@ __p += '\n  <div class=\'cover\'></div>\n  ';
  } ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n\n  ';
+ if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
+      rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ ;
+__p += '\n    ' +
+((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n  ';
+ } else { ;
+__p += '\n    ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
 '\n  ';
+ } ;
+__p += '\n\n  ';
  if(!opts.live){ ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
