@@ -157,7 +157,7 @@ class Formbuilder
 
       add_remove_require:(required) ->
         @clearFields() and @changeStateSource() if !required
-        @changeStateSource() if required and @field_type is 'heading'
+        @changeStateSource() if required and @field_type is 'heading' || @field_type is 'free_text_html'
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -170,6 +170,7 @@ class Formbuilder
               @$el.addClass(set_field.action)
               if(set_field.action == 'show')
                 $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -181,6 +182,7 @@ class Formbuilder
               if(set_field.action == 'hide')
                 @$el.addClass("show")
                 $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -720,7 +722,7 @@ class Formbuilder
               field_method_call = ''
             ) =>
               initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
-              if(field_view.model.get('field_type') is 'heading')
+              if(field_view.model.get('field_type') is 'heading' || field_view.model.get('field_type') is 'free_text_html')
                 for x in field_view.$("label")
                   count = do( # set element name, value and call setup
                     x,
@@ -761,13 +763,20 @@ class Formbuilder
                     name = null,
                     val = null,
                     value = 0,
-                    cid = ''
+                    cid = '',
+                    has_heading_field = false,
+                    has_ckeditor_field = false
                   ) =>
                     for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
                       if field_view.model.get('conditions')
                         for model_in_conditions in field_view.model.get('conditions')
                           if(model_in_collection.getCid() is model_in_conditions.target)
                             has_heading_field = true
+                    for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
+                      if field_view.model.get('conditions')
+                        for model_in_conditions in field_view.model.get('conditions')
+                          if(model_in_collection.getCid() is model_in_conditions.target)
+                            has_ckeditor_field = true
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                     field_method_call = Formbuilder.fields[field_type_method_call]
                     cid = model.getCid()
@@ -779,7 +788,7 @@ class Formbuilder
                       val = model.get('field_values')[name]
                     field_method_call.setup($(x), model, index) if field_method_call.setup
                     val_set = true if $(x).val()
-                    val_set = true if val or has_heading_field
+                    val_set = true if val or has_heading_field or has_ckeditor_field
                     @setFieldVal($(x), val) if val
                     if !val
                       if(field_view.field_type == 'gmap')
