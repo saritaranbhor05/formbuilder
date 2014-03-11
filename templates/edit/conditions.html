@@ -15,7 +15,7 @@
           <option value="">Select Field</option>
           <% opts.parentView.collection.sort();%>
           <% for( var i=0 ; i < opts.parentView.collection.length ; i++){%>
-            <% if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ %>
+            <% if(opts.parentView.collection.toJSON()[i].cid == rf.getCid()){ %>
               <% break %>
             <% } %>
             <option value="<%= opts.parentView.collection.toJSON()[i].cid %>"><%= opts.parentView.collection.toJSON()[i].label %></option>

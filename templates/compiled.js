@@ -166,7 +166,7 @@ __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-r
 __p += '\n          ';
  for( var i=0 ; i < opts.parentView.collection.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.collection.toJSON()[i].label == rf.get('label')){ ;
+ if(opts.parentView.collection.toJSON()[i].cid == rf.getCid()){ ;
 __p += '\n              ';
  break ;
 __p += '\n            ';
