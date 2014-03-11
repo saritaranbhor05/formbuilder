@@ -4,9 +4,15 @@
   <% } %>
   <%= Formbuilder.templates['view/label']({rf: rf}) %>
 
-  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+  <% if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
+      rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ %>
+    <%= Formbuilder.templates['view/description']({rf: rf}) %>
+    <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+  <% } else { %>
+    <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+    <%= Formbuilder.templates['view/description']({rf: rf}) %>
+  <% } %>
 
-  <%= Formbuilder.templates['view/description']({rf: rf}) %>
   <% if(!opts.live){ %>
   <%= Formbuilder.templates['view/duplicate_remove']({rf: rf}) %>
   <% } %>

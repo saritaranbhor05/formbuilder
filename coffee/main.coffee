@@ -33,6 +33,9 @@ class Formbuilder
       OPTIONS: 'field_options.options'
       DESCRIPTION: 'field_options.description'
       INCLUDE_OTHER: 'field_options.include_other_option'
+      INCLUDE_PHOTO: 'field_options.include_photo_option'
+      INCLUDE_VIDEO: 'field_options.include_video_option'
+      INCLUDE_AUDIO: 'field_options.include_audio_option'
       INCLUDE_SUFFIX: 'field_options.include_suffix'
       INCLUDE_BLANK: 'field_options.include_blank_option'
       INTEGER_ONLY: 'field_options.integer_only'
@@ -166,8 +169,8 @@ class Formbuilder
             if(check_result is true )
               @$el.addClass(set_field.action)
               if(set_field.action == 'show')
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading' 
-                $('#'+@model.getCid()).find('p').text($(@model.get('field_options').html_data).text()) if @field_type is 'free_text_html'
+                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -179,7 +182,7 @@ class Formbuilder
               if(set_field.action == 'hide')
                 @$el.addClass("show")
                 $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').text($(@model.get('field_options').html_data).text()) if @field_type is 'free_text_html'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -643,8 +646,9 @@ class Formbuilder
 
             $helper
 
-      addSectionBreak: (obj_view, cnt) ->
+      addSectionBreak: (obj_view, cnt, back_visibility) ->
         obj_view.$el.attr('data-step', cnt)
+        obj_view.$el.attr('show-back', back_visibility)
         obj_view.$el.attr('data-step-title', "step#{cnt}")
         obj_view.$el.addClass('step')
         obj_view.$el.addClass('active') if cnt == 1
@@ -654,8 +658,12 @@ class Formbuilder
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit) =>
+          $('.prev').addClass('hide btn-danger')
+          $('.next').addClass('btn-success')
           for field_view in fieldViews
             if (field_view.is_section_break)
+              back_visibility = field_view.model.get(
+                Formbuilder.options.mappings.BACK_VISIBLITY)
               add_break_to_next = true
               prev_btn_text = field_view.model.get(
                 Formbuilder.options.mappings.PREV_BUTTON_TEXT)
@@ -665,14 +673,14 @@ class Formbuilder
             if cnt == 1
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
-              @addSectionBreak(wizard_view, wiz_cnt)
+              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
             else if add_break_to_next && !field_view.is_section_break
               @$responseFields.append wizard_view.$el
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
-              @addSectionBreak(wizard_view, wiz_cnt)
+              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
 
             if wizard_view && field_view && !field_view.is_section_break
               wizard_view.$el.append field_view.render().el
@@ -692,6 +700,10 @@ class Formbuilder
             prevButton: prev_btn_text,
             nextButton: next_btn_text,
             after: (wizardObj) ->
+              if $nextStep.attr('show-back') == 'false'
+                $('.prev').css("display", "none")
+              else
+                $('.prev').css("display", "block")
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
                  showSubmit
                 wizardObj.parents('.form-panel').find('.update-button').show()
@@ -773,7 +785,7 @@ class Formbuilder
                       if field_view.model.get('conditions')
                         for model_in_conditions in field_view.model.get('conditions')
                           if(model_in_collection.getCid() is model_in_conditions.target)
-                            has_ckeditor_field = true        
+                            has_ckeditor_field = true
                     field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                     field_method_call = Formbuilder.fields[field_type_method_call]
                     cid = model.getCid()
@@ -830,17 +842,6 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          for field_view in @fieldViews
-            if (field_view.field_type == 'section_break')
-              $('.prev').addClass('hide btn-danger')
-              $('.next').addClass('btn-success')
-              back_visiblity = field_view.model.get(
-                Formbuilder.options.mappings.BACK_VISIBLITY)
-              if back_visiblity is 'false'
-                $('.next').click( ->
-                  $('.prev').css("display", "none")
-                )
-
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()

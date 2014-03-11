@@ -104,6 +104,28 @@ __p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<in
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/capture"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n  <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_PHOTO )) == null ? '' : __t) +
+'\' />\n  Include "Photo"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_VIDEO )) == null ? '' : __t) +
+'\' />\n  Include "Video"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.INCLUDE_AUDIO )) == null ? '' : __t) +
+'\' />\n  Include "Audio"\n</label>\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/checkboxes"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -753,11 +775,22 @@ __p += '\n  <div class=\'cover\'></div>\n  ';
  } ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n\n  ';
+ if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
+      rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ ;
+__p += '\n    ' +
+((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
-'\n\n  ' +
+'\n  ';
+ } else { ;
+__p += '\n    ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    ' +
 ((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
 '\n  ';
+ } ;
+__p += '\n\n  ';
  if(!opts.live){ ;
 __p += '\n  ' +
 ((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
