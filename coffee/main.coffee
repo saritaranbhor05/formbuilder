@@ -658,8 +658,6 @@ class Formbuilder
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit) =>
-          $('.prev').addClass('hide btn-danger')
-          $('.next').addClass('btn-success')
           for field_view in fieldViews
             if (field_view.is_section_break)
               back_visibility = field_view.model.get(
@@ -842,6 +840,8 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
+          $('.prev').addClass('hide btn-danger')
+          $('.next').addClass('btn-success')
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
