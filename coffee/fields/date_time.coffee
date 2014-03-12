@@ -8,9 +8,11 @@ Formbuilder.registerField 'date_time',
       <script>
         $(function() {
           $("#<%= rf.getCid() %>_datetime")
-              .datetimepicker({ 
-                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>', 
-                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
+              .datetimepicker({
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
+                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),
+                  addSliderAccess: true,
+                  sliderAccessArgs: { touchonly: false }
                });
         })
       </script>
@@ -22,7 +24,9 @@ Formbuilder.registerField 'date_time',
         $(function() {
           $("#<%= rf.getCid() %>_time")
                 .timepicker({
-                    stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>')
+                    stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),
+                    addSliderAccess: true,
+                    sliderAccessArgs: { touchonly: false }
                   });
         })
       </script>
@@ -33,12 +37,12 @@ Formbuilder.registerField 'date_time',
       <script>
         $(function() {
           $("#<%= rf.getCid() %>_date")
-              .datepicker({ 
-                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>' 
+              .datepicker({
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>'
                 });
         })
       </script>
-    <% } %>  
+    <% } %>
   """
 
   edit: """
@@ -57,10 +61,10 @@ Formbuilder.registerField 'date_time',
       if !model.get('field_values')
         if el.attr('id') is model.getCid()+'_datetime'
           el.datetimepicker('setDate', (new Date()) )
-        else if el.attr('id') is model.getCid()+'_date' 
+        else if el.attr('id') is model.getCid()+'_date'
           el.datepicker('setDate', (new Date()) )
         else
-          el.timepicker('setTime', (new Date()) ) 
+          el.timepicker('setTime', (new Date()) )
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
       $('#ui-datepicker-div').css('display','none')
@@ -108,7 +112,7 @@ Formbuilder.registerField 'date_time',
       else
         false
 
-  check_time_retult: (clicked_element, cid, condition, set_value,split_string) ->      
+  check_time_retult: (clicked_element, cid, condition, set_value,split_string) ->
     do(firstDate = new Date(),secondDate = new Date()
         , firstValue = ""
         , secondValue = ""
@@ -119,7 +123,7 @@ Formbuilder.registerField 'date_time',
                           .find("[name = "+cid+"_1]").val()
         combinedValue = combinedValue.split(' ')
         firstValue = combinedValue[1]
-      else  
+      else
         firstValue = clicked_element
                     .find("[name = "+cid+"_1]").val()
       if firstValue
@@ -140,7 +144,7 @@ Formbuilder.registerField 'date_time',
 
   evalCondition: (clicked_element, cid, condition, set_value, field) ->
     do(
-       combinedValue = '' 
+       combinedValue = ''
        firstValue = '' ,
        check_result = false,
        secondValue = '',
@@ -152,7 +156,7 @@ Formbuilder.registerField 'date_time',
     ) =>
       check_field_id = clicked_element.find("[name = "+cid+"_1]").attr('id')
       check_field_date_format = clicked_element.find("[name = "+cid+"_1]").attr('date_format')
-      
+
       if check_field_id is cid+'_datetime'
         combinedValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
@@ -170,7 +174,7 @@ Formbuilder.registerField 'date_time',
           split_string = true
           is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value[1],split_string)
           if is_date_true and is_time_true
-            true 
+            true
       else if check_field_id is cid+'_date'
         firstValue = clicked_element
                           .find("[name = "+cid+"_1]").val()
@@ -184,7 +188,7 @@ Formbuilder.registerField 'date_time',
           is_date_true = field.check_date_result(condition,firstValue,secondValue)
       else
         is_time_true = field.check_time_retult(clicked_element, cid, condition, set_value , split_string)
-          
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
