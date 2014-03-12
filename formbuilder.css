@@ -167,6 +167,7 @@
 .fb-field-wrapper .subtemplate-wrapper .active_link_doc {
   position: absolute;
   z-index: 3;
+  text-decoration: underline;
 }
 .fb-field-wrapper .subtemplate-wrapper .cover {
   position: absolute;
