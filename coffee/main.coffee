@@ -697,17 +697,26 @@ class Formbuilder
             submitButton: false,
             prevButton: prev_btn_text,
             nextButton: next_btn_text,
-            after: (wizardObj) ->
-              if $nextStep.attr('show-back') == 'false'
-                $('.prev').css("display", "none")
+            after: (wizardObj, prevStepObj, currentStepObj) ->
+              prev_clicked = false
+              if currentStepObj.children(':visible').length is 0
+                if currentStepObj.context.classList
+                  prev_clicked = currentStepObj.context.classList.toString().indexOf('prev') != -1
+                if prev_clicked
+                  $('.prev').click()
+                else
+                  $('#formbuilder_form').easyWizard('goToStep', parseInt($nextStep.attr('data-step'))+1)
               else
-                $('.prev').css("display", "block")
+                if $nextStep.attr('show-back') == 'false'
+                  $('.prev').css("display", "none")
+                else
+                  $('.prev').css("display", "block")
+                $('#grid_div').scrollTop(0)
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
                  showSubmit
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()
-              $('#grid_div').scrollTop(0)
           })
 
         return @
