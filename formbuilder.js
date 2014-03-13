@@ -1093,25 +1093,21 @@
           })(null, $(elem).attr('type'));
         },
         applyFileStyle: function() {
-          return (function(show_country) {
-            return _.each(this.fieldViews, function(field_view) {
-              if (field_view.model.get('field_type') === 'file') {
-                $('#file_' + field_view.model.getCid()).filestyle({
-                  input: false,
-                  buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
-                });
+          return _.each(this.fieldViews, function(field_view) {
+            if (field_view.model.get('field_type') === 'file') {
+              $('#file_' + field_view.model.getCid()).filestyle({
+                input: false,
+                buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
+              });
+            }
+            if (field_view.model.get('field_type') === 'address') {
+              if (typeof BRIJavaScriptInterface !== 'undefined') {
+                return $('#file_' + field_view.model.getCid()).bfhcountries();
+              } else {
+                return $('#file_' + field_view.model.getCid()).bfhcount();
               }
-              if (field_view.model.get('field_type') === 'address') {
-                show_country = field_view.model.get('field_values')[Object.keys(field_view.model.get('field_values'))[Object.keys(field_view.model.get('field_values')).length - 1]];
-                if (typeof BRIJavaScriptInterface !== 'undefined') {
-                  return $('#file_' + field_view.model.getCid()).bfhcountries();
-                } else {
-                  $('#file_' + field_view.model.getCid()).attr('data-country', show_country);
-                  return $('#file_' + field_view.model.getCid()).bfhcount();
-                }
-              }
-            });
-          })("");
+            }
+          });
         },
         addAll: function() {
           this.collection.each(this.addOne, this);
