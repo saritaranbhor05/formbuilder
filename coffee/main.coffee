@@ -686,6 +686,9 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
+            if !field_view.is_section_break
+              field_view.$el.attr('data-step-id', wiz_cnt)
+
           # check for ci-hierarchy type
           fd_views = @fieldViews.filter (fd_view) ->
             fd_view.field_type is "ci-hierarchy"
