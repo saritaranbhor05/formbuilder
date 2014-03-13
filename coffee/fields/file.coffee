@@ -1,7 +1,7 @@
 Formbuilder.registerField 'file',
 
   view: """
-    <span id='file_name_<%= rf.getCid() %>'>no file selected</span>
+    <span id='file_name_<%= rf.getCid() %>'></span>
     <a target="_blank" class="active_link"></a>
     <input
       id='file_<%= rf.getCid() %>'
@@ -11,11 +11,6 @@ Formbuilder.registerField 'file',
     />
     <script>
       $(function() {
-        $("#file_<%= rf.getCid() %>").filestyle({
-          input: false,
-          buttonText: "<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>"
-        });
-
         setTimeout(function(){
           if ($('a[name="<%= rf.getCid() %>_1"]').text() != ""){
             $("#file_<%= rf.getCid() %>").attr('required',false);
