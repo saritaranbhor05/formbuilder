@@ -686,6 +686,9 @@ class Formbuilder
               @$responseFields.append wizard_view.$el
             cnt += 1
 
+            if !field_view.is_section_break
+              field_view.$el.attr('data-step-id', wiz_cnt)
+
           # check for ci-hierarchy type
           fd_views = @fieldViews.filter (fd_view) ->
             fd_view.field_type is "ci-hierarchy"
@@ -844,6 +847,18 @@ class Formbuilder
 
           (setters[type] || setters['default'])(elem, val)
 
+      applyFileStyle: ->
+        _.each @fieldViews, (field_view) ->
+          if field_view.model.get('field_type') is 'file'
+            $('#file_'+field_view.model.getCid()).filestyle({
+              input: false,
+              buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
+            });
+          if field_view.model.get('field_type') is 'address'
+            if typeof(BRIJavaScriptInterface) != 'undefined'
+              $('#file_'+field_view.model.getCid()).bfhcountries();
+            else
+              $('#file_'+field_view.model.getCid()).bfhcount();
 
       addAll: ->
         @collection.each @addOne, @
@@ -851,6 +866,7 @@ class Formbuilder
           @applyEasyWizard()
           $('.prev').addClass('hide btn-danger')
           $('.next').addClass('btn-success')
+          @applyFileStyle()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()
