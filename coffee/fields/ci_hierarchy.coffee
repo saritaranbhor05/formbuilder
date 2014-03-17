@@ -3,7 +3,7 @@ Formbuilder.registerField 'ci-hierarchy',
   view: """
     <div class="row-fluid">
       <div class="control-group">
-        <label class="control-label">Company </label>
+        <label class="control-label">Organisation </label>
         <div class="controls">
           <select id="company_id_<%= rf.getCid() %>">
             <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
