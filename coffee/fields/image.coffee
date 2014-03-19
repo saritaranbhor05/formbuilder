@@ -13,7 +13,7 @@ Formbuilder.registerField 'image',
       <% } %>
     <% } %>
       <a
-        class='image_link_form document_link_form'
+        class='image_link_form'
         target='_blank'
         href="<%=image_link%>"
       >
