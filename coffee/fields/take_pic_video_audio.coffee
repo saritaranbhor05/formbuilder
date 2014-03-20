@@ -3,15 +3,15 @@ Formbuilder.registerField 'take_pic_video_audio',
   view: """
     <div class='input-line'>
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>
-        <button class='btn_capture_icon image btn_icon_photo' id="btn_image_<%= rf.getCid() %>"></button>
+        <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid="<%= rf.getCid() %>" id="btn_image_<%= rf.getCid() %>"></button>
       <% } %>
 
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>
-        <button class='btn_capture_icon video btn_icon_video' id="btn_video_<%= rf.getCid() %>"></button>
+        <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid="<%= rf.getCid() %>" id="btn_video_<%= rf.getCid() %>"></button>
       <% } %>
 
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>
-        <button class='btn_capture_icon audio btn_icon_audio' id="btn_audio_<%= rf.getCid() %>"></button>
+        <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid="<%= rf.getCid() %>" id="btn_audio_<%= rf.getCid() %>"></button>
       <% } %>
 
       <a

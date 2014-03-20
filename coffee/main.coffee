@@ -808,7 +808,7 @@ class Formbuilder
                     field_method_call.setup($(x), model, index) if field_method_call.setup
                     val_set = true if $(x).val()
                     val_set = true if val or has_heading_field or has_ckeditor_field
-                    @setFieldVal($(x), val) if val
+                    @setFieldVal($(x), val, model.getCid()) if val
                     if !val
                       if(field_view.field_type == 'gmap')
                         get_user_location = getCurrentLocation(model.getCid());
@@ -820,7 +820,7 @@ class Formbuilder
                       field_view.trigger('change_state')
                     index
 
-      setFieldVal: (elem, val) ->
+      setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
             gmap: ->
@@ -829,10 +829,9 @@ class Formbuilder
               $(elem).attr("upload_url", val) if val
               makeRequest(val,$(elem).attr("name"))
             file: ->
-              $(elem).siblings(".active_link").attr("href",val)
-              $(elem).siblings(".active_link").text(
-                val.split("/").pop().split("?")[0]
-              ) if val
+              $("#file_upload_link_"+cid).html(
+                "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
+              ) if $('#file_upload_link_'+cid) and val
             take_pic_video_audio: ->
               $(elem).attr("href",val)
               $(elem).text(
@@ -850,10 +849,15 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            $('#file_'+field_view.model.getCid()).filestyle({
-              input: false,
-              buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
-            });
+            if typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'
+              $('#file_'+field_view.model.getCid()).attr("type","button");
+              $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
+              $('#file_'+field_view.model.getCid()).addClass("file_upload");
+            else
+              $('#file_'+field_view.model.getCid()).filestyle({
+                input: false,
+                buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
+              });
           if field_view.model.get('field_type') is 'address'
             if typeof(BRIJavaScriptInterface) != 'undefined'
               $('#file_'+field_view.model.getCid()).bfhcountries();
