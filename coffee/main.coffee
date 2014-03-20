@@ -773,6 +773,13 @@ class Formbuilder
                       $('#record_link_'+field_view.model.getCid()).attr('href',value)
                       $('#record_link_'+field_view.model.getCid()).text("View File")
                 )
+              else if (field_view.model.get('field_type') is 'file')
+                _.each(model.get('field_values'), (value, key) ->
+                  unless value is ""
+                    $('#file_upload_link_'+field_view.model.getCid()).html(
+                      "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></div>"
+                    ) if $('#file_upload_link_'+field_view.model.getCid())
+                )
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
                   count = do( # set element name, value and call setup
@@ -830,7 +837,7 @@ class Formbuilder
               makeRequest(val,$(elem).attr("name"))
             file: ->
               $("#file_upload_link_"+cid).html(
-                "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a class='active_link_doc' target='_blank' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
+                "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
               ) if $('#file_upload_link_'+cid) and val
             take_pic_video_audio: ->
               $(elem).attr("href",val)
@@ -853,6 +860,7 @@ class Formbuilder
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
               $('#file_'+field_view.model.getCid()).addClass("file_upload");
+              $('#file_'+field_view.model.getCid()).removeAttr("name");
             else
               $('#file_'+field_view.model.getCid()).filestyle({
                 input: false,

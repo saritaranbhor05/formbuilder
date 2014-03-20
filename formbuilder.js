@@ -975,6 +975,14 @@
                       }
                     })(0);
                   });
+                } else if (field_view.model.get('field_type') === 'file') {
+                  return _.each(model.get('field_values'), function(value, key) {
+                    if (value !== "") {
+                      if ($('#file_upload_link_' + field_view.model.getCid())) {
+                        return $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a></div>");
+                      }
+                    }
+                  });
                 } else {
                   _ref1 = field_view.$("input, textarea, select, canvas, a");
                   _results2 = [];
@@ -1076,7 +1084,7 @@
               },
               file: function() {
                 if ($('#file_upload_link_' + cid) && val) {
-                  return $("#file_upload_link_" + cid).html("<div class='file_upload_link_div' id=file_upload_link_div_" + cid + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + cid + " href=" + val + ">" + val.split("/").pop().split("?")[0] + "</a></div>");
+                  return $("#file_upload_link_" + cid).html("<div class='file_upload_link_div' id=file_upload_link_div_" + cid + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + cid + " href=" + val + ">" + val.split("/").pop().split("?")[0] + "</a></div>");
                 }
               },
               take_pic_video_audio: function() {
@@ -1111,6 +1119,7 @@
                 $('#file_' + field_view.model.getCid()).attr("type", "button");
                 $('#file_' + field_view.model.getCid()).attr("value", field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
                 $('#file_' + field_view.model.getCid()).addClass("file_upload");
+                $('#file_' + field_view.model.getCid()).removeAttr("name");
               } else {
                 $('#file_' + field_view.model.getCid()).filestyle({
                   input: false,
