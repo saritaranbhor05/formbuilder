@@ -830,7 +830,7 @@ class Formbuilder
               makeRequest(val,$(elem).attr("name"))
             file: ->
               $("#file_upload_link_"+cid).html(
-                "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
+                "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a class='active_link_doc' target='_blank' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
               ) if $('#file_upload_link_'+cid) and val
             take_pic_video_audio: ->
               $(elem).attr("href",val)
