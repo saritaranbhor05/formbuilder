@@ -860,7 +860,7 @@ class Formbuilder
             if typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
-              $('#file_'+field_view.model.getCid()).addClass("file_upload");
+              $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
               $('#file_'+field_view.model.getCid()).removeAttr("name");
             else
               $('#file_'+field_view.model.getCid()).filestyle({
