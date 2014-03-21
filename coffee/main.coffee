@@ -779,6 +779,7 @@ class Formbuilder
                     $('#file_upload_link_'+field_view.model.getCid()).html(
                       "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></div>"
                     ) if $('#file_upload_link_'+field_view.model.getCid())
+                    $('#file_'+field_view.model.getCid()).attr("required", false);
                 )
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
