@@ -470,6 +470,18 @@ __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/optional_title"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n\t<input type=\'checkbox\' data-rv-checked=\'model.' +
+((__t = ( Formbuilder.options.mappings.OPTIONAL_FIELD )) == null ? '' : __t) +
+'\' />\n    Show Label\n</label>\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/options"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;

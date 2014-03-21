@@ -500,3 +500,6 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+.freeTextHTMLDiv {
+  min-height: 20px;
+}

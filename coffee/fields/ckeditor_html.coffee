@@ -4,10 +4,26 @@ unless typeof(CKEDITOR) is 'undefined'
     type: 'non_input'
 
     view: """
-      <label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>
-        <%= rf.get(Formbuilder.options.mappings.LABEL) %>
-      </label>
-      <div id='<%= rf.getCid() %>'></div>
+      <%
+        if(rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){
+            
+          if($("#title_"+rf.getCid()).is(':disabled')){
+            $("#title_"+rf.getCid()).attr("disabled",false);
+          }
+
+          if(!$("#title_"+rf.getCid()).is(':focus')){
+            $("#title_"+rf.getCid()).val(rf.get(Formbuilder.options.mappings.LABEL));
+            $("#title_"+rf.getCid()).focus();
+          }
+      %>
+        <label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>
+          <%= rf.get(Formbuilder.options.mappings.LABEL) %>
+        </label>
+      <% }else{
+          $("#title_"+rf.getCid()).val("");
+          $("#title_"+rf.getCid()).attr("disabled",true);
+      } %>
+      <div class="freeTextHTMLDiv" id='<%= rf.getCid() %>'></div>
       <script>
         $(function() {
           var data = "<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>"
@@ -19,10 +35,11 @@ unless typeof(CKEDITOR) is 'undefined'
     """
 
     edit: """
-
+      <%= Formbuilder.templates['edit/optional_title']() %>
       </br>
-      <input type='text'
-        data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />
+
+      <input id="title_<%= rf.getCid() %>" type='text' disabled="true" 
+        data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
 
       <div class='inline'>
         <span>Edit Here:</span>
