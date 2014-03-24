@@ -962,16 +962,24 @@
                   return _.each(model.get('field_values'), function(value, key) {
                     var _this = this;
                     return (function(index) {
-                      if (value && value.indexOf("data:image") === -1) {
+                      if (value) {
                         if ($('#capture_link_' + field_view.model.getCid())) {
-                          $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                          if (_.isString(value)) {
+                            if (value.indexOf("data:image") === -1) {
+                              $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                            } else if (value.indexOf("data:image") === 0) {
+                              $('#record_link_' + field_view.model.getCid()).attr('href', value);
+                              $('#record_link_' + field_view.model.getCid()).text("View File");
+                            }
+                          } else if (_.isObject(value)) {
+                            $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                          }
                         }
-                        return $('#capture_link_close_' + key).click(function() {
-                          return $('#capture_link_div_' + key).remove();
-                        });
-                      } else if (value.indexOf("data:image") === 0) {
-                        $('#record_link_' + field_view.model.getCid()).attr('href', value);
-                        return $('#record_link_' + field_view.model.getCid()).text("View File");
+                        if ($('#capture_link_close_' + key)) {
+                          return $('#capture_link_close_' + key).click(function() {
+                            return $('#capture_link_div_' + key).remove();
+                          });
+                        }
                       }
                     })(0);
                   });
@@ -979,7 +987,11 @@
                   return _.each(model.get('field_values'), function(value, key) {
                     if (value !== "") {
                       if ($('#file_upload_link_' + field_view.model.getCid())) {
-                        $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a></div>");
+                        if (_.isString(value)) {
+                          $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a></div>");
+                        } else if (_.isObject(value)) {
+                          $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value.url + ">" + value.name + "</a></div>");
+                        }
                       }
                       return $('#file_' + field_view.model.getCid()).attr("required", false);
                     }
@@ -1085,7 +1097,12 @@
               },
               file: function() {
                 if ($('#file_upload_link_' + cid) && val) {
-                  return $("#file_upload_link_" + cid).html("<div class='file_upload_link_div' id=file_upload_link_div_" + cid + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + cid + " href=" + val + ">" + val.split("/").pop().split("?")[0] + "</a></div>");
+                  if (_.isString(val)) {
+                    $("#file_upload_link_" + cid).html("<div class='file_upload_link_div' id=file_upload_link_div_" + cid + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + cid + " href=" + val + ">" + val.split("/").pop().split("?")[0] + "</a></div>");
+                  }
+                  if (_.isObject(val)) {
+                    return $("#file_upload_link_" + cid).html("<div class='file_upload_link_div' id=file_upload_link_div_" + cid + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + cid + " href=" + val.url + ">" + val.name + "</a></div>");
+                  }
                 }
               },
               take_pic_video_audio: function() {
