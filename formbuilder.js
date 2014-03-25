@@ -809,6 +809,7 @@
                 });
                 _this.createAndShowEditView(rf);
               }
+              $('.form-builder-left-container ').css('overflow', 'auto');
               _this.handleFormUpdate();
               return true;
             },
@@ -833,6 +834,7 @@
                 width: _this.$responseFields.width(),
                 height: '80px'
               });
+              $('.form-builder-left-container ').css('overflow', 'inherit');
               return $helper;
             }
           });

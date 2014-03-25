@@ -624,7 +624,7 @@ class Formbuilder
             if ui.item.data('field-type')
               rf = @collection.create Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {$replaceEl: ui.item}
               @createAndShowEditView(rf)
-
+            $('.form-builder-left-container ').css('overflow', 'auto')
             @handleFormUpdate()
             return true
           update: (e, ui) =>
@@ -643,7 +643,7 @@ class Formbuilder
             $helper.css
               width: @$responseFields.width() # hacky, won't get set without inline style
               height: '80px'
-
+            $('.form-builder-left-container ').css('overflow', 'inherit')
             $helper
 
       addSectionBreak: (obj_view, cnt, back_visibility) ->
