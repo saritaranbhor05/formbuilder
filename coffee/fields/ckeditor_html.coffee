@@ -99,7 +99,7 @@ unless typeof(CKEDITOR) is 'undefined'
             // this event fired when any popup is opened inside ckeditor
             CKEDITOR.on('dialogDefinition', function(ev){
                 var dialogName = ev.data.name;
-                dialogDef  = ev.data.definition;
+                var dialogDef  = ev.data.definition;
                 // check if link popup is opened
                 if(dialogName === "link"){
                   // remove unwanted link types
@@ -107,7 +107,7 @@ unless typeof(CKEDITOR) is 'undefined'
                   // remove unwanted protocols
                   dialogDef.getContents('info').get('protocol')['items'].splice(2,5);
                   // select another tab called as target
-                  targetTab = dialogDef.getContents('target').elements[0];
+                  var targetTab = dialogDef.getContents('target').elements[0];
                   if(typeof targetTab.children === "object" && typeof targetTab.children[0] === "object"){
                     if(typeof targetTab.children[0].items === "object"){
                       // validate and then remove unwanted options in target tab
