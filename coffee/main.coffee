@@ -625,7 +625,7 @@ class Formbuilder
             if ui.item.data('field-type')
               rf = @collection.create Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {$replaceEl: ui.item}
               @createAndShowEditView(rf)
-
+            $('.form-builder-left-container ').css('overflow', 'auto')
             @handleFormUpdate()
             return true
           update: (e, ui) =>
@@ -644,7 +644,7 @@ class Formbuilder
             $helper.css
               width: @$responseFields.width() # hacky, won't get set without inline style
               height: '80px'
-
+            $('.form-builder-left-container ').css('overflow', 'inherit')
             $helper
 
       addSectionBreak: (obj_view, cnt, back_visibility) ->
@@ -763,16 +763,37 @@ class Formbuilder
               else if (field_view.model.get('field_type') is 'take_pic_video_audio')
                 _.each(model.get('field_values'), (value, key) ->
                   do(index=0) =>
-                    if value && value.indexOf("data:image") == -1
-                      $('#capture_link_'+field_view.model.getCid()).append(
-                        "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
-                      ) if $('#capture_link_'+field_view.model.getCid())
+                    if value
+                      if $('#capture_link_'+field_view.model.getCid())
+                        if _.isString value
+                          if value.indexOf("data:image") == -1
+                            $('#capture_link_'+field_view.model.getCid()).append(
+                              "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
+                            )
+                          else if value.indexOf("data:image") == 0
+                            $('#record_link_'+field_view.model.getCid()).attr('href',value)
+                            $('#record_link_'+field_view.model.getCid()).text("View File")
+                        else if _.isObject value
+                          $('#capture_link_'+field_view.model.getCid()).append(
+                            "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value.url+">"+value.name+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
+                          )
                       $('#capture_link_close_'+key).click( () ->
                         $('#capture_link_div_'+key).remove()
-                      )
-                    else if value.indexOf("data:image") == 0
-                      $('#record_link_'+field_view.model.getCid()).attr('href',value)
-                      $('#record_link_'+field_view.model.getCid()).text("View File")
+                      ) if $('#capture_link_close_'+key)
+                )
+              else if (field_view.model.get('field_type') is 'file')
+                _.each(model.get('field_values'), (value, key) ->
+                  unless value is ""
+                    if $('#file_upload_link_'+field_view.model.getCid())
+                      if _.isString value
+                        $('#file_upload_link_'+field_view.model.getCid()).html(
+                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></div>"
+                        )
+                      else if _.isObject value
+                        $('#file_upload_link_'+field_view.model.getCid()).html(
+                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value.url+">"+value.name+"</a></div>"
+                        )
+                    $('#file_'+field_view.model.getCid()).attr("required", false);
                 )
               else
                 for x in field_view.$("input, textarea, select, canvas, a")
@@ -809,7 +830,7 @@ class Formbuilder
                     field_method_call.setup($(x), model, index) if field_method_call.setup
                     val_set = true if $(x).val()
                     val_set = true if val or has_heading_field or has_ckeditor_field
-                    @setFieldVal($(x), val) if val
+                    @setFieldVal($(x), val, model.getCid()) if val
                     if !val
                       if(field_view.field_type == 'gmap')
                         get_user_location = getCurrentLocation(model.getCid());
@@ -821,7 +842,7 @@ class Formbuilder
                       field_view.trigger('change_state')
                     index
 
-      setFieldVal: (elem, val) ->
+      setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
             gmap: ->
@@ -830,10 +851,13 @@ class Formbuilder
               $(elem).attr("upload_url", val) if val
               makeRequest(val,$(elem).attr("name"))
             file: ->
-              $(elem).siblings(".active_link").attr("href",val)
-              $(elem).siblings(".active_link").text(
-                val.split("/").pop().split("?")[0]
-              ) if val
+              if $('#file_upload_link_'+cid) and val
+                $("#file_upload_link_"+cid).html(
+                  "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+cid+" href="+val+">"+val.split("/").pop().split("?")[0]+"</a></div>"
+                ) if _.isString val
+                $("#file_upload_link_"+cid).html(
+                  "<div class='file_upload_link_div' id=file_upload_link_div_"+cid+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+cid+" href="+val.url+">"+val.name+"</a></div>"
+                ) if _.isObject val
             take_pic_video_audio: ->
               $(elem).attr("href",val)
               $(elem).text(
@@ -851,10 +875,16 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            $('#file_'+field_view.model.getCid()).filestyle({
-              input: false,
-              buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
-            });
+            if typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'
+              $('#file_'+field_view.model.getCid()).attr("type","button");
+              $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
+              $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
+              $('#file_'+field_view.model.getCid()).removeAttr("name");
+            else
+              $('#file_'+field_view.model.getCid()).filestyle({
+                input: false,
+                buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
+              });
           if field_view.model.get('field_type') is 'address'
             if typeof(BRIJavaScriptInterface) != 'undefined'
               $('#file_'+field_view.model.getCid()).bfhcountries();

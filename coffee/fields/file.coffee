@@ -6,9 +6,12 @@ Formbuilder.registerField 'file',
     <input
       id='file_<%= rf.getCid() %>'
       type='file'
+      class='icon-folder-open file_field'
+      cid="<%= rf.getCid() %>"
       accept="<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>"
       for-ios-file-size="<%= rf.get(Formbuilder.options.mappings.MAX) %>"
     />
+    <div id="file_upload_link_<%= rf.getCid() %>"></div>
     <script>
       $(function() {
         $("#file_<%= rf.getCid() %>").filestyle({
