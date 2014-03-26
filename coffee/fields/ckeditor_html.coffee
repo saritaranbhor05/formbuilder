@@ -74,7 +74,20 @@ unless typeof(CKEDITOR) is 'undefined'
         $(function() {
           $(document).ready( function() {
             $("#button_<%= rf.getCid() %>").click( function() {
+
+              $("#open_model_<%= rf.getCid() %>").on('shown', function() {
+                var that = $(this).data('modal');
+                $(document).off('focusin.modal').on('focusin.modal', function (e) {
+                  // Add this line 
+                  if( e.target.className && e.target.className.indexOf('cke_') == 0 ) return; 
+                  // Original 
+                  if (that.$element[0] !== e.target && !that.$element.has(e.target).length) { 
+                  that.$element.focus() } 
+                });
+              });
+
               $("#open_model_<%= rf.getCid() %>").modal('show');
+
               $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
                 $("#ck_<%= rf.getCid() %>").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, "").replace(/\"/g,"'"));
                 $("#ck_<%= rf.getCid() %>").trigger("change");
@@ -83,6 +96,30 @@ unless typeof(CKEDITOR) is 'undefined'
               });
             });
             CKEDITOR.disableAutoInline = true;
+            // this event fired when any popup is opened inside ckeditor
+            CKEDITOR.on('dialogDefinition', function(ev){
+                var dialogName = ev.data.name;
+                dialogDef  = ev.data.definition;
+                // check if link popup is opened
+                if(dialogName === "link"){
+                  // remove unwanted link types
+                  dialogDef.getContents('info').get('linkType')['items'].splice(1,2);
+                  // remove unwanted protocols
+                  dialogDef.getContents('info').get('protocol')['items'].splice(2,5);
+                  // select another tab called as target
+                  targetTab = dialogDef.getContents('target').elements[0];
+                  if(typeof targetTab.children === "object" && typeof targetTab.children[0] === "object"){
+                    if(typeof targetTab.children[0].items === "object"){
+                      // validate and then remove unwanted options in target tab
+                      if(targetTab.children[0].items.length > 1){
+                        targetTab.children[0].items.splice(4,3);
+                        targetTab.children[0].items.splice(0,3);
+                        targetTab.children[0].default = "_blank";
+                      }                      
+                    }
+                  }
+                }
+              });
             editor_<%= rf.getCid() %> = CKEDITOR.replace(document.getElementById("ck_<%= rf.getCid() %>"),
               Formbuilder.options.CKEDITOR_CONFIG
             );

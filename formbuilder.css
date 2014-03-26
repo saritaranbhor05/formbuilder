@@ -503,3 +503,10 @@
 .freeTextHTMLDiv {
   min-height: 20px;
 }
+.freeTextHTMLDiv a {
+  position: relative;
+  z-index: 4;
+}
+.marker {
+  background-color: #ff0;
+}
