@@ -81,6 +81,7 @@ class Formbuilder
       DEFAULT_CITY: 'field_options.default_city'
       DEFAULT_STATE: 'field_options.default_state'
       DEFAULT_ZIPCODE: 'field_options.default_zipcode'
+      OPTIONAL_FIELD: 'field_opions.optional_field'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
