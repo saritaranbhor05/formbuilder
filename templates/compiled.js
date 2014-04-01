@@ -279,6 +279,18 @@ __p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/default_paragraph_value"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<textarea data-rv-input="model.' +
+((__t = ( Formbuilder.options.mappings.DEFAULT_VALUE )) == null ? '' : __t) +
+'"></textarea>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/default_value_hint"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
