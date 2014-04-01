@@ -7,6 +7,7 @@ Formbuilder.registerField 'paragraph',
   edit: """
     <%= Formbuilder.templates['edit/size']() %>
     <%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>
+    <%= Formbuilder.templates['edit/default_paragraph_value']() %>
   """
 
   addButton: """
@@ -23,6 +24,8 @@ Formbuilder.registerField 'paragraph',
         el.attr("pattern", "[a-zA-Z0-9_\\s]{#{min_length},}")
     if model.get(Formbuilder.options.mappings.MAXLENGTH)
       el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH))
+    if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
+      el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
 
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
