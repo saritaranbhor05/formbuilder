@@ -3,7 +3,8 @@ Formbuilder.registerField 'dropdown',
   view: """
     <select id="dropdown">
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
-        <option value=''></option>
+        <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>
+        <option value=''><%= empty_opt_text %></option>
       <% } %>
 
       <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
@@ -16,7 +17,20 @@ Formbuilder.registerField 'dropdown',
   """
 
   edit: """
-    <%= Formbuilder.templates['edit/options']({ includeBlank: true }) %>
+    <%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>
+    <script >
+      $(function() {
+        $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {
+          var $target = $(e.currentTarget),
+          $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');
+          if ($target.is(':checked')) {
+            $empty_option_div.show();
+          } else {
+            $empty_option_div.hide();
+          }
+        });
+      });
+    </script>
   """
 
   addButton: """

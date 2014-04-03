@@ -501,9 +501,21 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeBlank !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input type=\'checkbox\' id=\'include_empty_option_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_BLANK )) == null ? '' : __t) +
-'\' />\n    Include blank\n  </label>\n';
+'\' />\n    Include blank\n  </label>\n  ';
+ if (typeof rf !== 'undefined'){ ;
+__p += '\n    <div class="control-group" id=\'empty_option_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n      style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_BLANK) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n      <div class="controls">\n        <input class="empty-option-text" type="text" pattern="^[\\w]+[\\w\\s ]*"\n         data-rv-input=\n         "model.' +
+((__t = ( Formbuilder.options.mappings.EMPTY_OPTION_TEXT )) == null ? '' : __t) +
+'"\n         value=\'Select Option\' placeholder="Empty option text"/>\n      </div>\n    </div>\n  ';
+ } ;
+__p += '\n';
  } ;
 __p += '\n\n<div class=\'option\' data-rv-each-option=\'model.' +
 ((__t = ( Formbuilder.options.mappings.OPTIONS )) == null ? '' : __t) +
