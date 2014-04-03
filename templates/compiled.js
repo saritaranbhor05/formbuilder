@@ -305,29 +305,6 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 return __p
 };
 
-this["Formbuilder"]["templates"]["edit/empty_option_text"] = function(obj) {
-obj || (obj = {});
-var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
-function print() { __p += __j.call(arguments, '') }
-with (obj) {
-
- if (typeof includeBlank !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
-((__t = ( Formbuilder.options.mappings.INCLUDE_BLANK )) == null ? '' : __t) +
-'\' />\n    Include blank\n  </label>\n  <div class="control-group" id=\'empty_option_div_' +
-((__t = ( rf.getCid() )) == null ? '' : __t) +
-'\'\n    style= \'' +
-((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_BLANK) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
-'\' >\n    <div class="controls">\n      <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n       data-rv-input=\n       "model.' +
-((__t = ( Formbuilder.options.mappings.EMPTY_OPTION_TEXT )) == null ? '' : __t) +
-'"\n       value=\'Select Option\' placeholder="Empty option text"/>\n    </div>\n  </div>\n';
- } ;
-
-
-}
-return __p
-};
-
 this["Formbuilder"]["templates"]["edit/first_label_value"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

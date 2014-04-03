@@ -128,7 +128,7 @@
         DEFAULT_CITY: 'field_options.default_city',
         DEFAULT_STATE: 'field_options.default_state',
         DEFAULT_ZIPCODE: 'field_options.default_zipcode',
-        OPTIONAL_FIELD: 'field_opions.optional_field',
+        OPTIONAL_FIELD: 'field_options.optional_field',
         EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
       },
       dict: {
@@ -2977,29 +2977,6 @@ __p += '<div class=\'fb-edit-section-header\'>Default value</div>\n\n<input type
 '"/>\n\n<div class=\'fb-edit-section-header\'>Hint/Placeholder</div>\n\n<input type="text" pattern="[a-zA-Z0-9_\\\\s]+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.HINT )) == null ? '' : __t) +
 '"/>\n';
-
-}
-return __p
-};
-
-this["Formbuilder"]["templates"]["edit/empty_option_text"] = function(obj) {
-obj || (obj = {});
-var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
-function print() { __p += __j.call(arguments, '') }
-with (obj) {
-
- if (typeof includeBlank !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
-((__t = ( Formbuilder.options.mappings.INCLUDE_BLANK )) == null ? '' : __t) +
-'\' />\n    Include blank\n  </label>\n  <div class="control-group" id=\'empty_option_div_' +
-((__t = ( rf.getCid() )) == null ? '' : __t) +
-'\'\n    style= \'' +
-((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_BLANK) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
-'\' >\n    <div class="controls">\n      <input type="text" pattern="^[\\w]+[\\w\\s ]*"\n       data-rv-input=\n       "model.' +
-((__t = ( Formbuilder.options.mappings.EMPTY_OPTION_TEXT )) == null ? '' : __t) +
-'"\n       value=\'Select Option\' placeholder="Empty option text"/>\n    </div>\n  </div>\n';
- } ;
-
 
 }
 return __p
