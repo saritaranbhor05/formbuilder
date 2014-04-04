@@ -128,7 +128,8 @@
         DEFAULT_CITY: 'field_options.default_city',
         DEFAULT_STATE: 'field_options.default_state',
         DEFAULT_ZIPCODE: 'field_options.default_zipcode',
-        OPTIONAL_FIELD: 'field_options.optional_field'
+        OPTIONAL_FIELD: 'field_options.optional_field',
+        EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -142,6 +143,18 @@
     Formbuilder.inputFields = {};
 
     Formbuilder.nonInputFields = {};
+
+    Formbuilder.isIos = function() {
+      return typeof BRIJavaScriptInterface !== 'undefined';
+    };
+
+    Formbuilder.isAndroid = function() {
+      return typeof Android !== 'undefined';
+    };
+
+    Formbuilder.isMobile = function() {
+      return Formbuilder.isAndroid() || Formbuilder.isIos();
+    };
 
     Formbuilder.model = Backbone.DeepModel.extend({
       sync: function() {},
@@ -918,18 +931,15 @@
                   var prev_clicked;
                   prev_clicked = false;
                   if (currentStepObj.children(':visible').length === 0) {
-                    if (currentStepObj.context.classList) {
-                      prev_clicked = currentStepObj.context.classList.toString().indexOf('prev') !== -1;
-                    }
-                    if (prev_clicked) {
-                      $('.prev').click();
+                    if (prev_clicked = wizardObj.direction === 'prev') {
+                      $('#formbuilder_form').easyWizard('prevStep', 100);
                     } else {
-                      $('#formbuilder_form').easyWizard('goToStep', parseInt($nextStep.attr('data-step')) + 1);
+                      $('#formbuilder_form').easyWizard('nextStep', 100);
                     }
                   } else {
                     if ($nextStep.attr('show-back') === 'false') {
                       $('.prev').css("display", "none");
-                    } else {
+                    } else if (currentStepObj.attr('data-step') !== '1') {
                       $('.prev').css("display", "block");
                     }
                     $('#grid_div').scrollTop(0);
@@ -1154,7 +1164,7 @@
         applyFileStyle: function() {
           return _.each(this.fieldViews, function(field_view) {
             if (field_view.model.get('field_type') === 'file') {
-              if (typeof Android !== 'undefined' || typeof BRIJavaScriptInterface !== 'undefined') {
+              if (isMobile()) {
                 $('#file_' + field_view.model.getCid()).attr("type", "button");
                 $('#file_' + field_view.model.getCid()).attr("value", field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
                 $('#file_' + field_view.model.getCid()).addClass("file_upload btn_icon_file");
@@ -2070,8 +2080,8 @@
 
 (function() {
   Formbuilder.registerField('dropdown', {
-    view: "<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <option value=''></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
-    edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true }) %>",
+    view: "<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
+    edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');\n      if ($target.is(':checked')) {\n        $empty_option_div.show();\n      } else {\n        $empty_option_div.hide();\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
@@ -3223,9 +3233,21 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n';
  if (typeof includeBlank !== 'undefined'){ ;
-__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
+__p += '\n  <label>\n    <input type=\'checkbox\' id=\'include_empty_option_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_BLANK )) == null ? '' : __t) +
-'\' />\n    Include blank\n  </label>\n';
+'\' />\n    Include blank\n  </label>\n  ';
+ if (typeof rf !== 'undefined'){ ;
+__p += '\n    <div class="control-group" id=\'empty_option_div_' +
+((__t = ( rf.getCid() )) == null ? '' : __t) +
+'\'\n      style= \'' +
+((__t = ( rf.get(Formbuilder.options.mappings.INCLUDE_BLANK) ? 'display:block' : 'display:none' )) == null ? '' : __t) +
+'\' >\n      <div class="controls">\n        <input class="empty-option-text" type="text" pattern="^[\\w]+[\\w\\s ]*"\n         data-rv-input=\n         "model.' +
+((__t = ( Formbuilder.options.mappings.EMPTY_OPTION_TEXT )) == null ? '' : __t) +
+'"\n         value=\'Select Option\' placeholder="Empty option text"/>\n      </div>\n    </div>\n  ';
+ } ;
+__p += '\n';
  } ;
 __p += '\n\n<div class=\'option\' data-rv-each-option=\'model.' +
 ((__t = ( Formbuilder.options.mappings.OPTIONS )) == null ? '' : __t) +

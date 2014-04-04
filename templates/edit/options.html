@@ -2,9 +2,20 @@
 
 <% if (typeof includeBlank !== 'undefined'){ %>
   <label>
-    <input type='checkbox' data-rv-checked='model.<%= Formbuilder.options.mappings.INCLUDE_BLANK %>' />
+    <input type='checkbox' id='include_empty_option_<%= rf.getCid() %>' data-rv-checked='model.<%= Formbuilder.options.mappings.INCLUDE_BLANK %>' />
     Include blank
   </label>
+  <% if (typeof rf !== 'undefined'){ %>
+    <div class="control-group" id='empty_option_div_<%= rf.getCid() %>'
+      style= '<%= rf.get(Formbuilder.options.mappings.INCLUDE_BLANK) ? 'display:block' : 'display:none' %>' >
+      <div class="controls">
+        <input class="empty-option-text" type="text" pattern="^[\w]+[\w\s ]*"
+         data-rv-input=
+         "model.<%= Formbuilder.options.mappings.EMPTY_OPTION_TEXT %>"
+         value='Select Option' placeholder="Empty option text"/>
+      </div>
+    </div>
+  <% } %>
 <% } %>
 
 <div class='option' data-rv-each-option='model.<%= Formbuilder.options.mappings.OPTIONS %>'>
