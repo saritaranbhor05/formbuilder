@@ -93,6 +93,15 @@ class Formbuilder
   @inputFields: {}
   @nonInputFields: {}
 
+  @isIos: ->
+    typeof(BRIJavaScriptInterface) != 'undefined'
+
+  @isAndroid: ->
+    typeof(Android) != 'undefined'
+
+  @isMobile: ->
+    Formbuilder.isAndroid() || Formbuilder.isIos()
+
   @model: Backbone.DeepModel.extend
     sync: -> # noop
     indexInDOM: ->
@@ -705,17 +714,15 @@ class Formbuilder
             after: (wizardObj, prevStepObj, currentStepObj) ->
               prev_clicked = false
               if currentStepObj.children(':visible').length is 0
-                if currentStepObj.context.classList
-                  prev_clicked = currentStepObj.context.classList.toString().indexOf('prev') != -1
-                if prev_clicked
-                  $('.prev').click()
+                if prev_clicked = wizardObj.direction == 'prev'
+                  $('#formbuilder_form').easyWizard('prevStep', 100)
                 else
-                  $('#formbuilder_form').easyWizard('goToStep', parseInt($nextStep.attr('data-step'))+1)
+                  $('#formbuilder_form').easyWizard('nextStep', 100)
               else
                 if $nextStep.attr('show-back') == 'false'
                   $('.prev').css("display", "none")
-                else
-                  $('.prev').css("display", "block")
+                else if currentStepObj.attr('data-step') != '1'
+                    $('.prev').css("display", "block")
                 $('#grid_div').scrollTop(0)
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
                  showSubmit
@@ -876,7 +883,7 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            if typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'
+            if isMobile()
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
               $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
