@@ -3218,7 +3218,7 @@ this["Formbuilder"]["templates"]["edit/optional_title"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n\t<input type=\'checkbox\' id="chk_123" data-rv-checked=\'model.' +
+__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n\t<input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.OPTIONAL_FIELD )) == null ? '' : __t) +
 '\' />\n    Show Label\n</label>\n';
 
