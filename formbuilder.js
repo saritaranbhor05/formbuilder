@@ -932,9 +932,9 @@
                   prev_clicked = false;
                   if (currentStepObj.children(':visible').length === 0) {
                     if (prev_clicked = wizardObj.direction === 'prev') {
-                      $('#formbuilder_form').easyWizard('prevStep', 100);
+                      $('.easyWizardButtons .prev').trigger('click');
                     } else {
-                      $('#formbuilder_form').easyWizard('nextStep', 100);
+                      $('.easyWizardButtons .next').trigger('click');
                     }
                   } else {
                     if ($nextStep.attr('show-back') === 'false') {
@@ -944,6 +944,14 @@
                     }
                     $('#grid_div').scrollTop(0);
                   }
+                  if ((wizardObj.direction === 'prev') && (prevStep === 1)) {
+                    $('.easyWizardButtons').css('clear', 'both');
+                  } else {
+                    setTimeout((function() {
+                      return $('.easyWizardButtons').css('clear', 'none');
+                    }), 200);
+                  }
+                  $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() + $('.easyWizardButtons').outerHeight());
                   if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
                     return wizardObj.parents('.form-panel').find('.update-button').show();
                   } else {
@@ -1164,7 +1172,7 @@
         applyFileStyle: function() {
           return _.each(this.fieldViews, function(field_view) {
             if (field_view.model.get('field_type') === 'file') {
-              if (isMobile()) {
+              if (Formbuilder.isMobile()) {
                 $('#file_' + field_view.model.getCid()).attr("type", "button");
                 $('#file_' + field_view.model.getCid()).attr("value", field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
                 $('#file_' + field_view.model.getCid()).addClass("file_upload btn_icon_file");
@@ -1189,8 +1197,8 @@
           this.collection.each(this.addOne, this);
           if (this.options.live) {
             this.applyEasyWizard();
-            $('.prev').addClass('hide btn-danger');
-            $('.next').addClass('btn-success');
+            $('.easyWizardButtons .prev').addClass('hide btn-danger');
+            $('.easyWizardButtons .next').addClass('btn-success');
             this.applyFileStyle();
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
@@ -1251,14 +1259,7 @@
           }
           return this.scrollLeftWrapper($(".fb-field-wrapper.editing"));
         },
-        scrollLeftWrapper: function($responseFieldEl) {
-          this.unlockLeftWrapper();
-          return $.scrollWindowTo($responseFieldEl.offset().top - this.$responseFields.offset().top, 200, (function(_this) {
-            return function() {
-              return _this.lockLeftWrapper();
-            };
-          })(this));
-        },
+        scrollLeftWrapper: function($responseFieldEl) {},
         lockLeftWrapper: function() {
           return this.$fbLeft.data('locked', true);
         },
