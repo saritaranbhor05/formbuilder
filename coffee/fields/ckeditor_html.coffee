@@ -38,8 +38,14 @@ unless typeof(CKEDITOR) is 'undefined'
       <%= Formbuilder.templates['edit/optional_title']() %>
       </br>
 
-      <input id="title_<%= rf.getCid() %>" type='text' disabled="true" 
-        data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
+      <input id="title_<%= rf.getCid() %>" type='text' 
+        <% 
+        if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){
+          disabled="true"
+        }
+        %>
+      data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
+      
 
       <div class='inline'>
         <span>Edit Here:</span>
