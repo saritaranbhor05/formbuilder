@@ -944,12 +944,10 @@
                     }
                     $('#grid_div').scrollTop(0);
                   }
-                  if ((wizardObj.direction === 'prev') && (prevStep === 1)) {
-                    $('.easyWizardButtons').css('clear', 'both');
+                  if (wizardObj.direction === 'prev') {
+
                   } else {
-                    setTimeout((function() {
-                      return $('.easyWizardButtons').css('clear', 'none');
-                    }), 200);
+
                   }
                   $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() + $('.easyWizardButtons').outerHeight());
                   if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {

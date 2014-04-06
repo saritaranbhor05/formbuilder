@@ -724,10 +724,10 @@ class Formbuilder
                 else if currentStepObj.attr('data-step') != '1'
                     $('.prev').css("display", "block")
                 $('#grid_div').scrollTop(0)
-              if (wizardObj.direction == 'prev') && (prevStep == 1)
-                $('.easyWizardButtons').css('clear','both')
+              if (wizardObj.direction == 'prev')
+                #setTimeout (-> $('.easyWizardButtons').css('clear','both')), 1000
               else
-                setTimeout (-> $('.easyWizardButtons').css('clear','none')), 200
+                #setTimeout (-> $('.easyWizardButtons').css('clear','none')), 1000
               $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
                 $('.easyWizardButtons').outerHeight())
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
