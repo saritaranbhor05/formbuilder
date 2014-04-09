@@ -3,4 +3,8 @@
   <% if (rf.get(Formbuilder.options.mappings.REQUIRED)) { %>
     <abbr title='required'>*</abbr>
   <% } %>
+  <% if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'))) { %>
+    <span class='label_info'>click here to change</span>
+  <% } %>
 </label>
+
