@@ -9,7 +9,7 @@ Formbuilder.registerField 'esignature',
           id="can"
           width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
           height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
-          style="display:none;"
+          style="display:none;" class="esign_canvas"
       />
     <% } else
       if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
@@ -18,7 +18,7 @@ Formbuilder.registerField 'esignature',
             id="can"
             width='250px'
             height='150px'
-            style="display:none;"
+            style="display:none;" class="esign_canvas"
         />
     <% } %>
     <% if (typeof(Android) == 'undefined' && typeof(BRIJavaScriptInterface) == 'undefined') { %>
