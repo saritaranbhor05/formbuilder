@@ -894,7 +894,11 @@ __p += '<label>\n  <span>' +
  if (rf.get(Formbuilder.options.mappings.REQUIRED)) { ;
 __p += '\n    <abbr title=\'required\'>*</abbr>\n  ';
  } ;
-__p += '\n</label>\n';
+__p += '\n  ';
+ if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'))) { ;
+__p += '\n    <span class=\'label_info\'>click here to change</span>\n  ';
+ } ;
+__p += '\n</label>\n\n';
 
 }
 return __p

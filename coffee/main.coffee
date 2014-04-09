@@ -312,7 +312,7 @@ class Formbuilder
             .data('cid', cid)
             .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
           do (x = null, count = 0) ->
-            for x in that.$("input, textarea, select, canvas")
+            for x in that.$("input, textarea, select, .canvas_img")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
               $(x).attr("name", cid.toString() + "_" + count.toString())
         return @
@@ -359,7 +359,7 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio'
             ) =>
-              for x in @$("input, textarea, select, canvas, a")
+              for x in @$("input, textarea, select, .canvas_img, a")
                 count = do( # set element name, value and call setup
                   x,
                   index = count + (if should_incr($(x)
@@ -810,7 +810,7 @@ class Formbuilder
                     $('#file_'+field_view.model.getCid()).attr("required", false);
                 )
               else
-                for x in field_view.$("input, textarea, select, canvas, a")
+                for x in field_view.$("input, textarea, select, .canvas_img, a")
                   count = do( # set element name, value and call setup
                     x,
                     index = count + (if should_incr($(x)
@@ -862,7 +862,11 @@ class Formbuilder
             gmap: ->
               $(elem).text(val)
             esignature: ->
-              $(elem).attr("upload_url", val) if val
+              if val
+                $(elem).attr("upload_url", val)
+                $(elem).show()
+              else
+                $(elem).hide()
               makeRequest(val,$(elem).attr("name"))
             file: ->
               if $('#file_upload_link_'+cid) and val

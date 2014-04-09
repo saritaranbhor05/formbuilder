@@ -1,26 +1,33 @@
 Formbuilder.registerField 'esignature',
 
   view: """
+    <div class='esign-panel' style="display: inline-block;" >
     <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+      <img title="click here to change" type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;
+                      height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>
       <canvas
-          type='esignature'
           id="can"
           width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
           height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
-          style="border:1px solid #000000;"
+          style="display:none;"
       />
-      <% } else
+    <% } else
       if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+        <img title="click here to change" type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>
         <canvas
-            type='esignature'
             id="can"
             width='250px'
             height='150px'
-            style="border:1px solid #000000;"
+            style="display:none;"
         />
-      <% } %>
-    <div>
-      <input class="clear-button" id="clr" type="button" value="Clear" style="max-width:70px;">
+    <% } %>
+    <% if (typeof(Android) == 'undefined' && typeof(BRIJavaScriptInterface) == 'undefined') { %>
+    <div class="esign_actions" style="display:none;">
+      <i class="esign_icons icon-refresh" id="clr" type="" value="Clear" title="clear" style="max-width:70px;"></i>
+      <i class="esign_icons icon-ok" id="done" type="" value="Done" title="done" style="max-width:70px;"></i>
+      <i class="esign_icons icon-remove" id="cancel" type="" value="Cancel" title="cancel"  style="max-width:70px;"></i>
+    </div>
+    <% } %>
     </div>
   """
 
@@ -38,9 +45,11 @@ Formbuilder.registerField 'esignature',
             .attr("required", required)
 
   isValid: ($el, model) ->
-    do(valid = false) =>
-      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0, is_empty='') =>
+    do(valid = false, src = null) =>
+      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0, is_empty = false) =>
         return true if !required_attr
-        is_empty =  !($el.find("[name = "+model.getCid()+"_1]")[0].toDataURL() == getCanvasDrawn())
+        src = $el.find("[name = "+model.getCid()+"_1]").attr('src')
+        if src
+          is_empty =  true
         return is_empty
       valid

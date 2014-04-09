@@ -6,7 +6,7 @@ Formbuilder.registerField 'image',
         text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;
       "
     >
-    <% var image_link = "#" %>
+    <% var image_link;%>
     <% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != "undefined"){ %>
       <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != ""){ %>
         <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>
@@ -15,7 +15,7 @@ Formbuilder.registerField 'image',
       <a
         class='image_link_form'
         target='_blank'
-        href="<%=image_link%>"
+        <%= image_link ? 'href='+image_link : '' %>
       >
         <img
           id='img_<%= rf.getCid() %>'

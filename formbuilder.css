@@ -510,3 +510,29 @@
 .marker {
   background-color: #ff0;
 }
+.label_info {
+  font-weight: normal;
+  font-size: 13px;
+  background-color: transparent;
+  text-decoration: underline;
+}
+.canvas_img {
+  border: 1px solid #000;
+  vertical-align: top;
+  float: left;
+}
+canvas {
+  float: left;
+  border: 1px solid #000;
+}
+.esign_actions {
+  float: left;
+  width: 25px;
+  background-color: #f1f1f1;
+}
+.esign_icons {
+  float: left;
+  padding: 5px;
+  border: 1px solid #ccc;
+  width: 13px;
+}
