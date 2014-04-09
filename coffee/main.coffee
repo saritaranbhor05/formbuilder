@@ -93,6 +93,15 @@ class Formbuilder
   @inputFields: {}
   @nonInputFields: {}
 
+  @isIos: ->
+    typeof(BRIJavaScriptInterface) != 'undefined'
+
+  @isAndroid: ->
+    typeof(Android) != 'undefined'
+
+  @isMobile: ->
+    Formbuilder.isAndroid() || Formbuilder.isIos()
+
   @model: Backbone.DeepModel.extend
     sync: -> # noop
     indexInDOM: ->
@@ -705,18 +714,22 @@ class Formbuilder
             after: (wizardObj, prevStepObj, currentStepObj) ->
               prev_clicked = false
               if currentStepObj.children(':visible').length is 0
-                if currentStepObj.context.classList
-                  prev_clicked = currentStepObj.context.classList.toString().indexOf('prev') != -1
-                if prev_clicked
-                  $('.prev').click()
+                if prev_clicked = wizardObj.direction == 'prev'
+                  $('.easyWizardButtons .prev').trigger('click')
                 else
-                  $('#formbuilder_form').easyWizard('goToStep', parseInt($nextStep.attr('data-step'))+1)
+                  $('.easyWizardButtons .next').trigger('click')
               else
                 if $nextStep.attr('show-back') == 'false'
                   $('.prev').css("display", "none")
-                else
-                  $('.prev').css("display", "block")
+                else if currentStepObj.attr('data-step') != '1'
+                    $('.prev').css("display", "block")
                 $('#grid_div').scrollTop(0)
+              if (wizardObj.direction == 'prev')
+                #setTimeout (-> $('.easyWizardButtons').css('clear','both')), 1000
+              else
+                #setTimeout (-> $('.easyWizardButtons').css('clear','none')), 1000
+              $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
+                $('.easyWizardButtons').outerHeight())
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
                  showSubmit
                 wizardObj.parents('.form-panel').find('.update-button').show()
@@ -880,7 +893,7 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            if typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'
+            if Formbuilder.isMobile()
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
               $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
@@ -900,8 +913,8 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          $('.prev').addClass('hide btn-danger')
-          $('.next').addClass('btn-success')
+          $('.easyWizardButtons .prev').addClass('hide btn-danger')
+          $('.easyWizardButtons .next').addClass('btn-success')
           @applyFileStyle()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
@@ -952,9 +965,9 @@ class Formbuilder
         @scrollLeftWrapper $(".fb-field-wrapper.editing")
 
       scrollLeftWrapper: ($responseFieldEl) ->
-        @unlockLeftWrapper()
-        $.scrollWindowTo ($responseFieldEl.offset().top - @$responseFields.offset().top), 200, =>
-          @lockLeftWrapper()
+        #@unlockLeftWrapper()
+        #$.scrollWindowTo ($responseFieldEl.offset().top - @$responseFields.offset().top), 200, =>
+        #@lockLeftWrapper()
 
       lockLeftWrapper: ->
         @$fbLeft.data('locked', true)
