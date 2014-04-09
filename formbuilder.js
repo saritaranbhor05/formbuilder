@@ -286,7 +286,8 @@
           })(set_field);
         },
         changeState: function() {
-          var _this = this;
+          var outerHeight,
+            _this = this;
           (function(set_field, i, and_flag, check_match_condtions) {
             var _i, _len, _ref, _results;
             if (_this.model.get('field_options').match_conditions === 'and') {
@@ -332,6 +333,14 @@
             }
             return _results;
           })({}, 0, false, new Array());
+          outerHeight = 0;
+          $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
+            return outerHeight += $(this).height();
+          });
+          $('.easyWizardButtons').css('position', 'absolute');
+          $('.easyWizardButtons').css('top', outerHeight);
+          $('.easyWizardButtons').css('width', $('.easyPager').width() - 20);
+          $('#formbuilder_form').css('height', outerHeight + 50);
           return this;
         },
         evalCondition: function(clicked_element, source_model, condition, value) {
