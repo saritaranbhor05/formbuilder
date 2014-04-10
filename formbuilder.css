@@ -536,3 +536,6 @@
   border: 1px solid #ccc;
   width: 13px;
 }
+#formbuilder_form {
+  height: auto !important;
+}

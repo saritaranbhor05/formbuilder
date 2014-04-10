@@ -337,10 +337,9 @@
           $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
             return outerHeight += $(this).height();
           });
-          $('.easyWizardButtons').css('position', 'absolute');
+          $('.easyWizardButtons').css('position', 'static');
           $('.easyWizardButtons').css('top', outerHeight);
           $('.easyWizardButtons').css('width', $('.easyPager').width() - 20);
-          $('#formbuilder_form').css('height', outerHeight + 50);
           return this;
         },
         evalCondition: function(clicked_element, source_model, condition, value) {
@@ -859,6 +858,9 @@
               });
               $('.form-builder-left-container ').css('overflow', 'inherit');
               return $helper;
+            },
+            stop: function() {
+              return $('.form-builder-left-container ').css('overflow', 'auto');
             }
           });
         },
