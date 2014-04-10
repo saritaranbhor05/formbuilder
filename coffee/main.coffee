@@ -664,6 +664,9 @@ class Formbuilder
             $('.form-builder-left-container ').css('overflow', 'inherit')
             $helper
 
+          stop: =>
+            $('.form-builder-left-container ').css('overflow', 'auto');
+
       addSectionBreak: (obj_view, cnt, back_visibility) ->
         obj_view.$el.attr('data-step', cnt)
         obj_view.$el.attr('show-back', back_visibility)

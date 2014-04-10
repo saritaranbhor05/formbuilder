@@ -858,6 +858,9 @@
               });
               $('.form-builder-left-container ').css('overflow', 'inherit');
               return $helper;
+            },
+            stop: function() {
+              return $('.form-builder-left-container ').css('overflow', 'auto');
             }
           });
         },
