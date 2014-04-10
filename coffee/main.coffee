@@ -248,10 +248,9 @@ class Formbuilder
         $(".fb-tab.step.active .fb-field-wrapper:visible").each ->
           outerHeight += $(this).height()
 
-        $('.easyWizardButtons').css('position', 'absolute');
+        $('.easyWizardButtons').css('position', 'static');
         $('.easyWizardButtons').css('top',outerHeight);
         $('.easyWizardButtons').css('width',$('.easyPager').width()-20);
-        $('#formbuilder_form').css('height', outerHeight+50);
         return @
 
       evalCondition: (clicked_element, source_model, condition, value)->
