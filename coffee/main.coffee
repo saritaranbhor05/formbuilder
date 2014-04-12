@@ -724,6 +724,7 @@ class Formbuilder
             after: (wizardObj, prevStepObj, currentStepObj) ->
               prev_clicked = false
               if currentStepObj.children(':visible').length is 0
+                $activeStep.css({ height: '1px' })
                 if prev_clicked = wizardObj.direction == 'prev'
                   $('.easyWizardButtons .prev').trigger('click')
                 else
