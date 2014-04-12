@@ -354,8 +354,9 @@
 
 #gmapModal
   .modal-body
-    overflow-y: hidden;
-    overflow-x: hidden;
+    margin-top: 25px
+    overflow-y: hidden
+    overflow-x: hidden
 
   .modal-header
     border-bottom: 0px;
@@ -368,8 +369,13 @@
     padding:5px;
 
 .top-panel1
-  margin-left:20%
+  text-align:left
+  margin-left:15px
   top:1%
+  width:100%
+
+  table
+    width:100%
 
 .top-panel2
   margin-left:20%
@@ -422,7 +428,7 @@
       height: 350px;
 
     .modal.fade.in
-      top: 20%;
+      top: 20px;
 
     .response-field-text
       input
@@ -452,20 +458,28 @@
           width: 75%
           min-height: 200px
 
+@media (max-device-width: 480px) and (orientation: portrait)
+    #map-canvas
+      height: 600px
+      margin: 0px
+      padding: 0px
 
-@media (max-width: 480px)
-
-    .top-panel2
-      margin-left:20%
-      top:10%
-
+@media (max-device-width: 640px) and (orientation: landscape)
+    .modal.fade.in
+      top: 10px;
+    
     #map-canvas
       height: 200px
       margin: 0px
       padding: 0px
 
+@media (max-width: 480px) 
+    .top-panel2
+      margin-left:20%
+      top:10%
+
     .modal.fade.in
-      top: 15%;
+      top: 10px;
 
     .response-field-text
       input

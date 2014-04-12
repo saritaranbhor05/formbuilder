@@ -17,13 +17,15 @@ Formbuilder.registerField 'gmap',
           <div class="modal-content">
             <div class="modal-header">
               <div class="geo-location-panel top-panel1">
+              <table>
+              <tr><td>
                 <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>
                 <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>
-              </div>
-              <div class="geo-location-panel top-panel2">
+              </td></tr><tr><td>
                 <input id="gmap_address" class="geo-location-panel1" type="textbox"/>
                 <input type="button" value="Location" onclick="codeAddress()"/>
-              </div>
+              </td></tr>
+              </table>
             </div>
             <div class="modal-body">
               <div id="map-canvas"/>
