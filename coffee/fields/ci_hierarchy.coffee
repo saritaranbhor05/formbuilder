@@ -40,7 +40,7 @@ Formbuilder.registerField 'ci-hierarchy',
   addButton: """
     <span class="symbol">
       <span class="icon-caret-down"></span>
-    </span> CI-Hierarchy
+    </span> Hierarchy
   """
   selected_comp: null
 
