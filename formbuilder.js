@@ -2405,8 +2405,18 @@
         el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
       }
       if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
-        return el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
+        el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
       }
+      return el.focus((function(_this) {
+        return function(event) {
+          if (Formbuilder.isMobile()) {
+            el.css('width', '100%');
+            return $('#grid_div').animate({
+              scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
+            }, 1000);
+          }
+        };
+      })(this));
     },
     clearFields: function($el, model) {
       return $el.find("[name = " + model.getCid() + "_1]").val("");

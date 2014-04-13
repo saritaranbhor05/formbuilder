@@ -26,6 +26,12 @@ Formbuilder.registerField 'paragraph',
       el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH))
     if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
       el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+    el.focus (event) =>
+      if Formbuilder.isMobile()
+        el.css('width', '100%')
+        $('#grid_div').animate( {
+          scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
+        }, 1000)
 
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
