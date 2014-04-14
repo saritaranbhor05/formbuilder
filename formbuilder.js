@@ -2409,7 +2409,7 @@
       }
       return el.focus((function(_this) {
         return function(event) {
-          if (Formbuilder.isMobile()) {
+          if (Formbuilder.isAndroid()) {
             el.css('width', '100%');
             return $('#grid_div').animate({
               scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20

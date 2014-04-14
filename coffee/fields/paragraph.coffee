@@ -27,7 +27,7 @@ Formbuilder.registerField 'paragraph',
     if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
       el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
     el.focus (event) =>
-      if Formbuilder.isMobile()
+      if Formbuilder.isAndroid()
         el.css('width', '100%')
         $('#grid_div').animate( {
           scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
