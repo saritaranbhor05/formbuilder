@@ -896,7 +896,16 @@ __p += '\n    <abbr title=\'required\'>*</abbr>\n  ';
  } ;
 __p += '\n  ';
  if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'))) { ;
-__p += '\n    <span class=\'label_info\'>click here to change</span>\n  ';
+__p += '\n    ';
+ var lbl_info_to_show = 'click here to sign',
+        esign_cid = rf.get('cid');
+      if (rf.get('field_values') && rf.get('field_values')[rf.get('cid')+'_1']){
+        lbl_info_to_show = 'click here to change';
+      }
+    ;
+__p += '\n    <span class=\'label_info\'>' +
+((__t = ( lbl_info_to_show )) == null ? '' : __t) +
+'</span>\n  ';
  } ;
 __p += '\n</label>\n\n';
 
