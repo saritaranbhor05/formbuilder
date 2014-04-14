@@ -1352,20 +1352,38 @@
               return !el.checkValidity || el.checkValidity();
             })(_this.$('#formbuilder_form')[0]);
             if (!valid) {
+              _this.$('#formbuilder_form')[0].classList.add('submitted');
               return false;
             }
-            return (function(field, i) {
+            return (function(field, i, invalid_field, err_field_types) {
+              err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio'];
               while (i < _this.fieldViews.length) {
                 field = _this.fieldViews[i];
                 if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
                   if (field.isValid && !field.isValid()) {
-                    return false;
+                    field.$el.find('input').css('border-color', 'red');
+                    field.$el.find('.hasDatepicker').css('border-color', 'red');
+                    if (err_field_types.indexOf(field.field_type) !== -1) {
+                      field.$el.find('label > span').css('color', 'red');
+                    }
+                    if (!invalid_field) {
+                      invalid_field = true;
+                    }
+                  } else {
+                    field.$el.find('input').css('border-color', '#CCCCCC');
+                    field.$el.find('.hasDatepicker').css('border-color', '#CCCCCC');
+                    field.$el.find('.bootstrap-filestyle label').css('border-color', 'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)');
+                    field.$el.find('.bootstrap-filestyle label').css('border-bottom-color', '#b3b3b3');
+                    field.$el.find('label > span').css('color', '#333');
                   }
                 }
                 i++;
               }
+              if (invalid_field) {
+                return false;
+              }
               return true;
-            })(null, 0);
+            })(null, 0, false, []);
           })(false);
         },
         doAjaxSave: function(payload) {

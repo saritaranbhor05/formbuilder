@@ -557,3 +557,16 @@
 #formbuilder_form {
   height: auto !important;
 }
+.submitted input:invalid {
+  border-color: #f00;
+}
+.submitted textarea:invalid,
+.submitted select:invalid {
+  border-color: #f00;
+}
+.submitted input:invalid.hasDatepicker {
+  border-color: #f00;
+}
+.submitted .bootstrap-filestyle > label {
+  border-color: #f00;
+}
