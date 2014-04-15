@@ -251,6 +251,7 @@ class Formbuilder
         $('.easyWizardButtons').css('position', 'static');
         $('.easyWizardButtons').css('top',outerHeight);
         $('.easyWizardButtons').css('width',$('.easyPager').width()-20);
+
         return @
 
       evalCondition: (clicked_element, source_model, condition, value)->
@@ -1044,13 +1045,29 @@ class Formbuilder
         do(valid = false) =>
           valid = do(el = @$('#formbuilder_form')[0]) ->
             !el.checkValidity || el.checkValidity()
-          return false if !valid
-          do(field=null,i=0) =>
+          if !valid
+            @$('#formbuilder_form')[0].classList.add('submitted')
+            return false
+          do(field=null,i=0, invalid_field = false, err_field_types=[]) =>
+            err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']
             while i< @fieldViews.length
               field = @fieldViews[i]
               if @getCurrentView().indexOf(field.model.get('cid')) != -1
-                return false if field.isValid && !field.isValid()
+                if field.isValid && !field.isValid()
+                  field.$el.find('input').css('border-color','red')
+                  field.$el.find('.hasDatepicker').css('border-color','red')
+                  if err_field_types.indexOf(field.field_type) != -1
+                    field.$el.find('label > span').css('color','red')
+                  invalid_field = true if !invalid_field
+                else
+                  field.$el.find('input').css('border-color','#CCCCCC')
+                  field.$el.find('.hasDatepicker').css('border-color','#CCCCCC')
+                  field.$el.find('.bootstrap-filestyle label').css('border-color','rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)')
+                  field.$el.find('.bootstrap-filestyle label').css('border-bottom-color','#b3b3b3')
+                  field.$el.find('label > span').css('color','#333')
+
               i++
+            return false if invalid_field
             return true
 
       doAjaxSave: (payload) ->
