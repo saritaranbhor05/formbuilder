@@ -389,40 +389,7 @@
 #map-canvas {
   height: 400px;
 }
-@media (max-width: 768px) {
-  .response-field-text input.rf-size-small {
-    width: 130px;
-  }
-  .response-field-text input.rf-size-medium {
-    width: 55%;
-  }
-  .response-field-text input.rf-size-large {
-    width: 75%;
-  }
-  .response-field-paragraph textarea {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .response-field-paragraph textarea.rf-size-small {
-    width: 200px;
-    min-height: 60px;
-  }
-  .response-field-paragraph textarea.rf-size-medium {
-    width: 55%;
-    min-height: 100px;
-  }
-  .response-field-paragraph textarea.rf-size-large {
-    width: 75%;
-    min-height: 200px;
-  }
-}
 @media (max-width: 767px) {
-  #map-canvas {
-    height: 350px;
-  }
-  .modal.fade.in {
-    top: 20px;
-  }
   .response-field-text input.rf-size-small {
     width: 130px;
   }
@@ -449,7 +416,7 @@
     min-height: 200px;
   }
 }
-@media (max-width: 640px) and (max-width: 480px) {
+@media (min-width: 0px) and (max-width: 767px) {
   .modal.fade.in {
     top: 5px;
     left: 5px;
