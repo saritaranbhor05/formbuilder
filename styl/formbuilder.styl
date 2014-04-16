@@ -392,44 +392,8 @@
 #map-canvas
   height:400px
 
-@media (max-width: 768px)
-
-    .response-field-text
-      input
-        &.rf-size-small
-          width: 130px
-
-        &.rf-size-medium
-          width: 55%
-
-        &.rf-size-large
-          width: 75%
-
-    .response-field-paragraph
-      textarea
-        overflow: auto
-        -webkit-overflow-scrolling: touch
-
-        &.rf-size-small
-          width: 200px
-          min-height: 60px
-
-        &.rf-size-medium
-          width: 55%
-          min-height: 100px
-
-        &.rf-size-large
-          width: 75%
-          min-height: 200px
-
 @media (max-width: 767px)
 
-    #map-canvas
-      height: 350px;
-
-    .modal.fade.in
-      top: 20px;
-
     .response-field-text
       input
         &.rf-size-small
@@ -458,7 +422,7 @@
           width: 75%
           min-height: 200px
 
-@media (max-width: 640px) and (max-width: 480px)
+@media (min-width: 0px) and (max-width: 767px)
   .modal.fade.in
       top: 5px;
       left: 5px;
