@@ -12,7 +12,10 @@ Formbuilder.registerField 'date_time',
                   dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
                   stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),
                   addSliderAccess: true,
-                  sliderAccessArgs: { touchonly: false }
+                  sliderAccessArgs: { touchonly: false },
+                  changeMonth : true,
+                  changeYear : true,
+                  yearRange: '-100y:+100y'
                });
         })
       </script>
@@ -38,7 +41,10 @@ Formbuilder.registerField 'date_time',
         $(function() {
           $("#<%= rf.getCid() %>_date")
               .datepicker({
-                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>'
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
+                  changeMonth : true,
+                  changeYear : true,
+                  yearRange: '-100y:+100y'
                 });
         })
       </script>
