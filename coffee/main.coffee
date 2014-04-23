@@ -1035,8 +1035,23 @@ class Formbuilder
                   _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
-
           )
+
+      getVisibleNonEmptyFields: ()->
+        res = []
+        for f in @fieldViews
+          if f.current_state is 'show'
+            if 'isAnyAttributeEmpty' of f.field
+              r = f.field.isAnyAttributeEmpty(f.model.get('cid'),f.$el)
+              if r
+                if typeof r == 'object'
+                  for m in r
+                    res.push(m)
+                else
+                  res.push(r)
+            else
+              res.push(f.model.get('cid'))
+        res
 
       formData: ->
         @$('#formbuilder_form').serializeArray()
@@ -1095,6 +1110,9 @@ class Formbuilder
 
   formValid: ->
     @mainView.formValid()
+
+  getVisibleNonEmptyFields: ->
+    @mainView.getVisibleNonEmptyFields()
 
 window.Formbuilder = Formbuilder
 

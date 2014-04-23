@@ -66,6 +66,21 @@ Formbuilder.registerField 'fullname',
     <span class="symbol"><span class="icon-user"></span></span> Full Name
   """
 
+  isAnyAttributeEmpty: (cid, $el)->
+    incomplete = false
+    cb = ->
+      if($(this).val() == "")
+        incomplete = true
+    $el.find("input[type=text]").each(cb);
+
+    if($el.find('select').val() == "")
+      incomplete = true
+
+    if(incomplete == true)
+      return false
+    else
+      return cid
+
   isValid: ($el, model) ->
     do(valid = false) =>
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>

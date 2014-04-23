@@ -50,6 +50,22 @@ Formbuilder.registerField 'address',
   addButton: """
     <span class="symbol"><span class="icon-home"></span></span> Address
   """
+
+  isAnyAttributeEmpty: (cid, $el)->
+    incomplete = false
+    cb = ->
+      if($(this).val() == "")
+        incomplete = true
+    $el.find("input[type=text]").each(cb);
+
+    if ($el.find('select').val() == "")
+      incomplete = true
+
+    if(incomplete == true)
+      return false
+    else
+      return cid
+
   clearFields: ($el, model) ->
     _that = @
     $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS))

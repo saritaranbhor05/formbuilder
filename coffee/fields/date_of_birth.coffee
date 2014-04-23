@@ -81,7 +81,11 @@ Formbuilder.registerField 'date_of_birth',
       else
         false
 
-
+  isAnyAttributeEmpty: (cid, $el)->
+    if($el.find("input[type=text]").val() == "")
+      return false
+    else
+      return cid
 
   evalCondition: (clicked_element, cid, condition, set_value, field) ->
     do(
