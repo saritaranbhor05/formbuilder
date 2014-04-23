@@ -31,6 +31,14 @@ Formbuilder.registerField 'checkboxes',
     <span class="symbol"><span class="icon-check-empty"></span></span> Checkboxes
   """
 
+  isAnyAttributeEmpty: (cid, $el) ->
+    if($el.find('input:checked').length <= 0)
+      return false
+    if $el.find('input:checked').last().val() == '__other__'
+      if $el.find('input:text').val() == ''
+        return false
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.options = [
       label: "",

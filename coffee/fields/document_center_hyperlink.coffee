@@ -154,3 +154,14 @@ Formbuilder.registerField 'document_center_hyperlink',
   addButton: """
     <span class="symbol"><span class="icon-list"></span></span> Doc. Link
   """
+
+  isAnyAttributeEmpty: (cid, $el)->
+    incomplete = false
+    cb = (k,v)->
+      if(v.href == "")
+        incomplete = true
+    $el.find('a').each(cb);
+    if(incomplete == true)
+      return false
+    else
+      return cid

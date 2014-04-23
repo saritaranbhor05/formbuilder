@@ -44,6 +44,16 @@ Formbuilder.registerField 'ci-hierarchy',
   """
   selected_comp: null
 
+  isAnyAttributeEmpty: (cid, $el) ->
+    incomplete = false
+    cb = (k,v) ->
+      if v.value == ''
+        incomplete = true
+    $el.find('select').each(cb)
+    if incomplete == true
+      return false
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'
     attrs
