@@ -1041,16 +1041,22 @@ class Formbuilder
         res = []
         for f in @fieldViews
           if f.current_state is 'show'
+            obj =
+                field_type: f.model.get('field_type'),
+                label: f.model.get('label')
             if 'isAnyAttributeEmpty' of f.field
               r = f.field.isAnyAttributeEmpty(f.model.get('cid'),f.$el)
               if r
                 if typeof r == 'object'
                   for m in r
-                    res.push(m)
+                    obj.cid = m
+                    res.push(obj)
                 else
-                  res.push(r)
+                  obj.cid = r
+                  res.push(obj)
             else
-              res.push(f.model.get('cid'))
+              obj.cid = f.model.get('cid')
+              res.push(obj)
         res
 
       formData: ->
