@@ -38,7 +38,7 @@ Formbuilder.registerField 'esignature',
   addButton: """
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature
   """
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
       incomplete = false
       cb = (k,v) ->
         if(v.src == "")

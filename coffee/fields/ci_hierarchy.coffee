@@ -44,7 +44,7 @@ Formbuilder.registerField 'ci-hierarchy',
   """
   selected_comp: null
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     incomplete = false
     cb = (k,v) ->
       if v.value == ''

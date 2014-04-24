@@ -62,7 +62,7 @@ Formbuilder.registerField 'date_time',
     <span class="symbol"><span class="icon-calendar"></span></span> Date and Time
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     if $el.find("input[type=text]").val() == ""
       return false
     return cid

@@ -139,7 +139,7 @@ unless typeof(CKEDITOR) is 'undefined'
       <span class='symbol'><span class='icon-font'></span></span> Free Text HTML
     """
 
-    isAnyAttributeEmpty: (cid, $el)->
+    checkAttributeHasValue: (cid, $el)->
       if($el.find('.freeTextHTMLDiv').is(':empty'))
         return false
       else

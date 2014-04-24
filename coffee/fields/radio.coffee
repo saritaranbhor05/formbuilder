@@ -43,7 +43,7 @@ Formbuilder.registerField 'radio',
 
     attrs
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     if ($el.find('input:checked').length <= 0)
       return false
     if $el.find('input:checked').val() == '__other__'

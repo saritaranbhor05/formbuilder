@@ -31,7 +31,7 @@ Formbuilder.registerField 'checkboxes',
     <span class="symbol"><span class="icon-check-empty"></span></span> Checkboxes
   """
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     if($el.find('input:checked').length <= 0)
       return false
     if $el.find('input:checked').last().val() == '__other__'

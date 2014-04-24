@@ -12,7 +12,7 @@ Formbuilder.registerField 'url',
     <span class="symbol"><span class="icon-link"></span></span> URL
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     if($el.find("input[type=url]").val() == "")
       return false
     else

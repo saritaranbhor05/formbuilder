@@ -17,7 +17,7 @@ Formbuilder.registerField 'text',
     <span class='symbol'><span class='icon-font'></span></span> Text Box
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     if($el.find("input[type=text]").val() == "")
       return false
     else

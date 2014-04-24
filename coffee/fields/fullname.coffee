@@ -66,7 +66,7 @@ Formbuilder.registerField 'fullname',
     <span class="symbol"><span class="icon-user"></span></span> Full Name
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = ->
       if($(this).val() == "")

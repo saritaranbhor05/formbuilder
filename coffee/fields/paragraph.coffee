@@ -14,7 +14,7 @@ Formbuilder.registerField 'paragraph',
     <span class="symbol">&#182;</span> Paragraph
   """
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     if ($el.find('textarea').val() == "")
       return false
     return cid

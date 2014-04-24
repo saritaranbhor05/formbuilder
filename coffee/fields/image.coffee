@@ -67,7 +67,7 @@ Formbuilder.registerField 'image',
   addButton: """
     <span class="symbol"><span class="icon-picture"></span></span> Image
   """
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = (k,v) ->
       if(v.src == "")

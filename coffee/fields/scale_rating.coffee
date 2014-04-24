@@ -41,7 +41,7 @@ Formbuilder.registerField 'scale_rating',
     </span> Scale Rating
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     if ($el.find('input:checked').length <= 0)
       return false
     return cid

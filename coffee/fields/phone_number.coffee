@@ -23,7 +23,7 @@ Formbuilder.registerField 'phone_number',
     <span class="symbol"><span class="icon-phone"></span></span> Phone Number
   """
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     if ($el.find('input[type=tel]').val() == "")
       return false
     return cid

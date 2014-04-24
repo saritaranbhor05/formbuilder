@@ -1044,8 +1044,8 @@ class Formbuilder
             obj =
                 field_type: f.model.get('field_type'),
                 label: f.model.get('label')
-            if 'isAnyAttributeEmpty' of f.field
-              r = f.field.isAnyAttributeEmpty(f.model.get('cid'),f.$el)
+            if 'checkAttributeHasValue' of f.field
+              r = f.field.checkAttributeHasValue(f.model.get('cid'),f.$el)
               if r
                 if typeof r == 'object'
                   for m in r

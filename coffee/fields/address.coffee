@@ -51,7 +51,7 @@ Formbuilder.registerField 'address',
     <span class="symbol"><span class="icon-home"></span></span> Address
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = ->
       if($(this).val() == "")

@@ -21,7 +21,7 @@ Formbuilder.registerField 'price',
     <span class="symbol"><span class="icon-dollar"></span></span> Price
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = (k,v) ->
       if(v.value == "")

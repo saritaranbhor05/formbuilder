@@ -37,7 +37,7 @@ Formbuilder.registerField 'dropdown',
     <span class="symbol"><span class="icon-caret-down"></span></span> Dropdown
   """
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     if $el.find('select').val() == ''
       return false
     return cid

@@ -155,7 +155,7 @@ Formbuilder.registerField 'document_center_hyperlink',
     <span class="symbol"><span class="icon-list"></span></span> Doc. Link
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = (k,v)->
       if(v.href == "")

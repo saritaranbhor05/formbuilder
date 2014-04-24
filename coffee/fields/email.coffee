@@ -10,7 +10,7 @@ Formbuilder.registerField 'email',
     <span class="symbol"><span class="icon-envelope-alt"></span></span> Email
   """
 
-  isAnyAttributeEmpty: (cid, $el) ->
+  checkAttributeHasValue: (cid, $el) ->
     if $el.find('input[type=email]').val() == ''
       return false
     return cid

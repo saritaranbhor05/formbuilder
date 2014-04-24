@@ -81,7 +81,7 @@ Formbuilder.registerField 'file',
     <span class="symbol"><span class="icon-cloud-upload"></span></span> File
   """
 
-  isAnyAttributeEmpty: (cid, $el)->
+  checkAttributeHasValue: (cid, $el)->
     incomplete = false
     cb = (k,v)->
       if(v.href == "")
