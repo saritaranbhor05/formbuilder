@@ -23,6 +23,11 @@ Formbuilder.registerField 'phone_number',
     <span class="symbol"><span class="icon-phone"></span></span> Phone Number
   """
 
+  isAnyAttributeEmpty: (cid, $el) ->
+    if ($el.find('input[type=tel]').val() == "")
+      return false
+    return cid
+
   setup: (el, model, index) ->
 	  do(mask_value = false , country_code = false, country_code_set='') =>
 		  country_code = model.get(Formbuilder.options.mappings.COUNTRY_CODE)

@@ -38,6 +38,17 @@ Formbuilder.registerField 'esignature',
   addButton: """
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature
   """
+  isAnyAttributeEmpty: (cid, $el)->
+      incomplete = false
+      cb = (k,v) ->
+        if(v.src == "")
+          incomplete = true
+      $el.find("img").each(cb);
+
+      if(incomplete == true)
+        return false
+      else
+        return cid
 
   add_remove_require:(cid,required) ->
     $("." + cid)

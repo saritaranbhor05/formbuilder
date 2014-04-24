@@ -18,6 +18,11 @@ Formbuilder.registerField 'number',
     <span class="symbol"><span class="icon-number">123</span></span> Number
   """
 
+  isAnyAttributeEmpty: (cid, $el) ->
+    if ($el.find('input[type=number]').val() == "")
+      return false
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'
     attrs
