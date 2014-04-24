@@ -43,6 +43,14 @@ Formbuilder.registerField 'radio',
 
     attrs
 
+  isAnyAttributeEmpty: (cid, $el)->
+    if ($el.find('input:checked').length <= 0)
+      return false
+    if $el.find('input:checked').val() == '__other__'
+      if $el.find('input:text').val() == ''
+        return false
+    return cid
+
   isValid: ($el, model) ->
     do(valid = false) =>
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>

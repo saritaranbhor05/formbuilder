@@ -20,6 +20,19 @@ Formbuilder.registerField 'price',
   addButton: """
     <span class="symbol"><span class="icon-dollar"></span></span> Price
   """
+
+  isAnyAttributeEmpty: (cid, $el)->
+    incomplete = false
+    cb = (k,v) ->
+      if(v.value == "")
+        incomplete = true
+    $el.find("input[type=text]").each(cb);
+
+    if(incomplete == true)
+      return false
+    else
+      return cid
+
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 

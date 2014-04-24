@@ -56,7 +56,7 @@ Formbuilder.registerField 'address',
     cb = ->
       if($(this).val() == "")
         incomplete = true
-    $el.find("input[type=text]").each(cb);
+    $el.find("input[type=text]").each(cb)
 
     if ($el.find('select').val() == "")
       incomplete = true
