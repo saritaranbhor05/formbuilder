@@ -81,6 +81,22 @@ Formbuilder.registerField 'file',
     <span class="symbol"><span class="icon-cloud-upload"></span></span> File
   """
 
+  isAnyAttributeEmpty: (cid, $el)->
+    incomplete = false
+    cb = (k,v)->
+      if(v.href == "")
+        incomplete = true
+
+    if $el.find('.active_link_doc').length == 0
+      return false
+
+    $el.find('.active_link_doc').each(cb)
+
+    if(incomplete == true)
+      return false
+    else
+      return cid
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
