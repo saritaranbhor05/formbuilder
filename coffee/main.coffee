@@ -1043,20 +1043,14 @@ class Formbuilder
           if f.current_state is 'show'
             obj =
                 field_type: f.model.get('field_type'),
-                label: f.model.get('label')
+                label: f.model.get('label'),
+                cid: f.model.get('cid'),
+                complete: false
             if 'checkAttributeHasValue' of f.field
               r = f.field.checkAttributeHasValue(f.model.get('cid'),f.$el)
               if r
-                if typeof r == 'object'
-                  for m in r
-                    obj.cid = m
-                    res.push(obj)
-                else
-                  obj.cid = r
-                  res.push(obj)
-            else
-              obj.cid = f.model.get('cid')
-              res.push(obj)
+                obj.complete = true
+            res.push(obj)
         res
 
       formData: ->
