@@ -37,3 +37,6 @@ Formbuilder.registerField 'section_break',
   addButton: """
     <span class='symbol'><span class='icon-minus'></span></span> Section Break
   """
+
+  checkAttributeHasValue: (cid, $el)->
+    return false;
