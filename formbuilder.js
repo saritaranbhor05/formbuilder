@@ -70,6 +70,7 @@
       HIERARCHYSELECTORVIEW: ' ',
       COMPANY_HIERARCHY: [],
       PRINTVIEW: false,
+      EDIT_FS_MODEL: false,
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -288,51 +289,57 @@
         changeState: function() {
           var outerHeight,
             _this = this;
-          (function(set_field, i, and_flag, check_match_condtions) {
-            var _i, _len, _ref, _results;
+          (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
+            var _fn, _i, _len, _ref;
             if (_this.model.get('field_options').match_conditions === 'and') {
               and_flag = true;
             }
             _ref = _this.model.get("conditions");
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              set_field = _ref[_i];
-              _results.push((function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
-                if (set_field.target === _this.model.getCid()) {
-                  source_model = _this.model.collection.where({
-                    cid: set_field.source
-                  })[0];
-                  clicked_element = $("." + source_model.getCid());
-                  field_type = source_model.get('field_type');
-                  if (set_field.condition === "equals") {
+            _fn = function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
+              if (set_field.target === _this_model_cid) {
+                source_model = _this.model.collection.where({
+                  cid: set_field.source
+                })[0];
+                clicked_element = $("." + source_model.getCid());
+                field_type = source_model.get('field_type');
+                if (date_field_types.indexOf(field_type) !== -1) {
+                  str_condition = true;
+                }
+                if (set_field.condition === "equals") {
+                  condition = _this.parentView.checkEquals;
+                  if (str_condition) {
                     condition = '==';
-                  } else if (set_field.condition === "less than") {
-                    condition = '<';
-                  } else if (set_field.condition === "greater than") {
-                    condition = '>';
-                  } else {
-                    condition = "!=";
                   }
-                  check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
-                  check_match_condtions.push(check_result);
-                  if (and_flag === true) {
-                    if (check_match_condtions.indexOf(false) === -1) {
-                      return _this.show_hide_fields(true, set_field);
-                    } else {
-                      return _this.show_hide_fields('false', set_field);
-                    }
-                  } else {
-                    if (check_match_condtions.indexOf(true) !== -1) {
-                      return _this.show_hide_fields(true, set_field);
-                    } else {
-                      return _this.show_hide_fields('false', set_field);
-                    }
+                } else if (set_field.condition === "less than") {
+                  condition = _this.parentView.checkLessThan;
+                  if (str_condition) {
+                    condition = '<';
+                  }
+                } else if (set_field.condition === "greater than") {
+                  condition = _this.parentView.checkGreaterThan;
+                  if (str_condition) {
+                    condition = '>';
+                  }
+                } else {
+                  condition = _this.parentView.checkNotEqual;
+                  if (str_condition) {
+                    condition = '!=';
                   }
                 }
-              })({}, [], {}, "equals", '', false));
+                check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
+                return check_match_condtions.push(check_result);
+              }
+            };
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              set_field = _ref[_i];
+              _fn({}, [], {}, "equals", '', false);
             }
-            return _results;
-          })({}, 0, false, new Array());
+            if ((and_flag && check_match_condtions.indexOf(false) === -1) || (!and_flag && check_match_condtions.indexOf(true) !== -1)) {
+              return _this.show_hide_fields(true, set_field);
+            } else {
+              return _this.show_hide_fields(false, set_field);
+            }
+          })({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
           outerHeight = 0;
           $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
             return outerHeight += $(this).height();
@@ -440,7 +447,7 @@
         live_render: function() {
           var _this = this;
           (function(set_field, i, action, cid, base_templ_suff, set_field_class) {
-            var _fn, _i, _j, _len, _len1, _ref, _ref1;
+            var condition_hash, _fn, _i, _j, _len, _len1, _ref, _ref1;
             if (_this.model.attributes.conditions) {
               _ref = _this.model.get('conditions');
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -453,31 +460,27 @@
             if (set_field_class) {
               _this.$el.addClass("hide");
             }
-            if (_this.model.attributes.conditions) {
-              if (!_this.is_section_break) {
-                if (_this.model.get("conditions").length) {
-                  _ref1 = _this.model.get("conditions");
-                  _fn = function(set_field) {
-                    var views_name, _k, _len2, _ref2, _results;
-                    if (set_field.target === _this.model.getCid()) {
-                      _ref2 = _this.parentView.fieldViews;
-                      _results = [];
-                      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-                        views_name = _ref2[_k];
-                        _results.push((function(views_name, set_field) {
-                          if (views_name.model.get('cid') === set_field.source) {
-                            return _this.listenTo(views_name, 'change_state', _this.changeState);
-                          }
-                        })(views_name, set_field));
+            if (!_this.is_section_break && _this.model.attributes.conditions) {
+              _ref1 = _this.model.get("conditions");
+              _fn = function(condition_hash) {
+                var views_name, _k, _len2, _ref2, _results;
+                if (condition_hash.target === _this.model.getCid()) {
+                  _ref2 = _this.parentView.fieldViews;
+                  _results = [];
+                  for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                    views_name = _ref2[_k];
+                    _results.push((function(views_name, condition_hash) {
+                      if (views_name.model.get('cid') === condition_hash.source) {
+                        return _this.listenTo(views_name, 'change_state', _this.changeState);
                       }
-                      return _results;
-                    }
-                  };
-                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                    set_field = _ref1[_j];
-                    _fn(set_field);
+                    })(views_name, condition_hash));
                   }
+                  return _results;
                 }
+              };
+              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                condition_hash = _ref1[_j];
+                _fn(condition_hash);
               }
             }
             if (!_this.is_section_break) {
@@ -683,6 +686,7 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
             Formbuilder.options.PRINTVIEW = this.options.print_view;
           }
@@ -731,6 +735,18 @@
         reset: function() {
           this.$responseFields.html('');
           return this.addAll();
+        },
+        checkEquals: function(val1, val2) {
+          return val1 === val2;
+        },
+        checkLessThan: function(val1, val2) {
+          return val1 < val2;
+        },
+        checkGreaterThan: function(val1, val2) {
+          return val1 > val2;
+        },
+        checkNotEqual: function(val1, val2) {
+          return val1 !== val2;
         },
         render: function() {
           var subview, _i, _len, _ref;
@@ -865,17 +881,22 @@
           });
         },
         addSectionBreak: function(obj_view, cnt, back_visibility) {
-          obj_view.$el.attr('data-step', cnt);
-          obj_view.$el.attr('show-back', back_visibility);
-          obj_view.$el.attr('data-step-title', "step" + cnt);
-          obj_view.$el.addClass('step');
-          if (cnt === 1) {
-            return obj_view.$el.addClass('active');
-          }
+          var _this = this;
+          return (function($obj_view_el) {
+            $obj_view_el.attr({
+              'data-step': cnt,
+              'show-back': back_visibility,
+              'data-step-title': "step" + cnt
+            });
+            $obj_view_el.addClass('step');
+            if (cnt === 1) {
+              return $obj_view_el.addClass('active');
+            }
+          })(obj_view.$el);
         },
         applyEasyWizard: function() {
           var _this = this;
-          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit) {
+          (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit, sub_frag) {
             var back_visibility, fd_views, _i, _len;
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
@@ -891,6 +912,8 @@
                 });
                 _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
               } else if (add_break_to_next && !field_view.is_section_break) {
+                wizard_view.$el.append(sub_frag);
+                sub_frag = document.createDocumentFragment();
                 _this.$responseFields.append(wizard_view.$el);
                 wizard_view = new Formbuilder.views.wizard_tab({
                   parentView: _this
@@ -902,7 +925,7 @@
                 _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
               }
               if (wizard_view && field_view && !field_view.is_section_break) {
-                wizard_view.$el.append(field_view.render().el);
+                sub_frag.appendChild(field_view.render().el);
               }
               if (cnt === fieldViews.length && wizard_view) {
                 _this.$responseFields.append(wizard_view.$el);
@@ -944,11 +967,6 @@
                   }
                   $('#grid_div').scrollTop(0);
                 }
-                if (wizardObj.direction === 'prev') {
-
-                } else {
-
-                }
                 $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() + $('.easyWizardButtons').outerHeight());
                 if (parseInt($nextStep.attr('data-step')) === thisSettings.steps && showSubmit) {
                   return wizardObj.parents('.form-panel').find('.update-button').show();
@@ -957,7 +975,7 @@
                 }
               }
             });
-          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit);
+          })(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit, document.createDocumentFragment());
           return this;
         },
         triggerEvent: function() {
@@ -968,24 +986,15 @@
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
               _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
-                var _j, _k, _len1, _len2, _ref, _ref1, _results1, _results2;
-                if (field_view.field_type === 'esignature') {
-                  initializeCanvas(field_view.model.getCid());
-                }
+                var cid, _j, _k, _len1, _len2, _ref, _ref1, _results1;
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
                   _ref = field_view.$("label");
                   _results1 = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                     x = _ref[_j];
                     _results1.push(count = (function(x, index, name, val, value, cid) {
-                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                      field_method_call = Formbuilder.fields[field_type_method_call];
-                      cid = model.getCid();
-                      if ($(x).text()) {
+                      if ($(x).text() && !val_set) {
                         val_set = true;
-                      }
-                      if (val_set) {
-                        field_view.trigger('change_state');
                       }
                       return index;
                     })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
@@ -1008,8 +1017,8 @@
                             $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
                           }
                         }
-                        if ($('#capture_link_close_' + key)) {
-                          return $('#capture_link_close_' + key).click(function() {
+                        if (_this.$('#capture_link_close_' + key)) {
+                          return _this.$('#capture_link_close_' + key).click(function() {
                             return $('#capture_link_div_' + key).remove();
                           });
                         }
@@ -1018,24 +1027,32 @@
                   });
                 } else if (field_view.model.get('field_type') === 'file') {
                   return _.each(model.get('field_values'), function(value, key) {
+                    var _this = this;
                     if (value !== "") {
-                      if ($('#file_upload_link_' + field_view.model.getCid())) {
-                        if (_.isString(value)) {
-                          $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a></div>");
-                        } else if (_.isObject(value)) {
-                          $('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + value.url + ">" + value.name + "</a></div>");
+                      return (function(a_href_val, a_text) {
+                        if ($('#file_upload_link_' + field_view.model.getCid())) {
+                          if (_.isString(value)) {
+                            a_href_val = value;
+                            a_text = value.split("/").pop().split("?")[0];
+                          } else if (_.isObject(value)) {
+                            a_href_val = value.url;
+                            a_text = value.name;
+                          }
+                          _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
                         }
-                      }
-                      return $('#file_' + field_view.model.getCid()).attr("required", false);
+                        return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
+                      })('', '');
                     }
                   });
                 } else {
+                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                  field_method_call = Formbuilder.fields[field_type_method_call];
+                  cid = model.getCid();
                   _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
-                  _results2 = [];
                   for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
                     x = _ref1[_k];
-                    _results2.push(count = (function(x, index, name, val, value, cid, has_heading_field, has_ckeditor_field) {
-                      var get_user_location, model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
+                    count = (function(x, index, name, val, value, cid, has_heading_field, has_ckeditor_field) {
+                      var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
                       _ref2 = field_view.model.collection.where({
                         'field_type': 'heading'
                       });
@@ -1066,9 +1083,6 @@
                           }
                         }
                       }
-                      field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                      field_method_call = Formbuilder.fields[field_type_method_call];
-                      cid = model.getCid();
                       if (field_view.field_type === 'radio' || 'scale_rating') {
                         value = x.value;
                       }
@@ -1081,32 +1095,20 @@
                       if (field_method_call.setup) {
                         field_method_call.setup($(x), model, index);
                       }
-                      if ($(x).val()) {
-                        val_set = true;
-                      }
-                      if (val || has_heading_field || has_ckeditor_field) {
-                        val_set = true;
+                      if (!val_set) {
+                        if ($(x).val()) {
+                          val_set = true;
+                        }
                       }
                       if (val) {
                         _this.setFieldVal($(x), val, model.getCid());
                       }
-                      if (!val) {
-                        if (field_view.field_type === 'gmap') {
-                          get_user_location = getCurrentLocation(model.getCid());
-                          if (get_user_location !== 'false') {
-                            $("[name = " + model.getCid() + "_1]").text(get_user_location);
-                          } else {
-                            $("[name = " + model.getCid() + "_1]").text('Select Your Address');
-                          }
-                        }
-                      }
-                      if (val_set) {
-                        field_view.trigger('change_state');
-                      }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '', false, false));
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '', false, false);
                   }
-                  return _results2;
+                  if (val_set && Formbuilder.options.EDIT_FS_MODEL) {
+                    return field_view.trigger('change_state');
+                  }
                 }
               })(null, 0, function(attr) {
                 return attr !== 'radio';
@@ -1469,7 +1471,7 @@
           check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
         } else {
           elem_val = clicked_element.find("#address").val();
-          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         }
         return check_result;
       })(false, [], '');
@@ -1531,8 +1533,8 @@
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
       return (function(elem_val, check_result) {
-        elem_val = clicked_element.find("[value = '" + set_value + "']").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        elem_val = clicked_element.find("input[value = '" + set_value + "']").is(':checked');
+        check_result = condition(elem_val, true);
         return check_result;
       })('', false);
     },
@@ -1787,7 +1789,7 @@
         return (function(check_result) {
           var elem_val;
           elem_val = clicked_element.find("#" + cid).find('p').text();
-          check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+          check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
           return check_result;
         })(false);
       },
@@ -2085,7 +2087,7 @@
       return attrs;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
-      var elem_val,
+      var check_result, elem_val,
         _this = this;
       (function(check_result) {})(false);
       elem_val = clicked_element.find("[name = " + cid + "_1]").val();
@@ -2093,25 +2095,8 @@
         elem_val = parseInt(elem_val);
         set_value = parseInt(set_value);
       }
-      if (condition === '<') {
-        if (elem_val < set_value) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (condition === '>') {
-        if (elem_val > set_value) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        if (elem_val === set_value) {
-          return true;
-        } else {
-          return false;
-        }
-      }
+      check_result = condition(elem_val, set_value);
+      return check_result;
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
@@ -2137,7 +2122,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false);
     },
@@ -2171,6 +2156,9 @@
         })(model.get('required'), 0, false);
         return valid;
       })(false, null);
+    },
+    setup: function(el, model, index) {
+      return initializeCanvas(model.getCid());
     }
   });
 
@@ -2217,7 +2205,7 @@
         _this = this;
       (function(elem_val, check_result) {})('', false);
       elem_val = clicked_element.find("#first_name").val();
-      check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+      check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
       return check_result;
     },
     add_remove_require: function(cid, required) {
@@ -2272,6 +2260,17 @@
         })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
         return valid;
       })(false);
+    },
+    setup: function(el, model, index) {
+      var get_user_location;
+      if (!(model.get('field_values') && model.get('field_values')[name])) {
+        get_user_location = getCurrentLocation(model.getCid());
+        if (get_user_location !== 'false') {
+          return $("[name = " + model.getCid() + "_1]").text(get_user_location);
+        } else {
+          return $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+        }
+      }
     }
   });
 
@@ -2293,7 +2292,7 @@
         elem_val = clicked_element.find("#" + cid).text();
         elem_val = elem_val.replace(/(\r\n|\n|\r)/gm, '');
         elem_val = elem_val.trimLeft();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false);
     },
@@ -2360,7 +2359,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false);
     },
@@ -2410,7 +2409,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false);
     },
@@ -2474,7 +2473,7 @@
       return (function(check_result) {
         var elem_val;
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false);
     },
@@ -2500,9 +2499,8 @@
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
         firstValue = parseInt(elem_val);
         secondValue = parseInt(set_value);
-        if (eval("" + firstValue + " " + condition + " " + secondValue)) {
-          return true;
-        }
+        check_result = condition(firstValue, secondValue);
+        return check_result;
       })('', false, '', false);
     },
     add_remove_require: function(cid, required) {
@@ -2560,7 +2558,7 @@
       var _this = this;
       return (function(elem_val, check_result) {
         elem_val = clicked_element.find("[value = '" + set_value + "']").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        check_result = condition(elem_val, true);
         return check_result;
       })('', false);
     }
@@ -2618,7 +2616,7 @@
       var _this = this;
       return (function(elem_val, check_result) {
         elem_val = clicked_element.find("[value = " + set_value + "]").is(':checked');
-        check_result = eval("'" + elem_val + "' " + condition + " 'true'");
+        check_result = condition("'" + elem_val + "'", "'true'");
         return check_result;
       })('', false);
     }
@@ -2683,7 +2681,7 @@
       var _this = this;
       return (function(check_result, elem_val) {
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        check_result = condition("'" + elem_val + "'", "'set_value'");
         return check_result;
       })(false, '');
     },
@@ -2721,8 +2719,8 @@
       var _this = this;
       return (function(check_result) {
         var elem_val;
-        elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = eval("'" + elem_val + "' " + condition + " '" + set_value + "'");
+        elem_val = clicked_element.find("input[name = " + cid + "_1]").val();
+        check_result = condition("'" + elem_val + "'", "'set_value'");
         return check_result;
       })(false);
     },

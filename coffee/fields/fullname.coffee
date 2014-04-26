@@ -86,7 +86,7 @@ Formbuilder.registerField 'fullname',
     ) =>
     elem_val = clicked_element
                           .find("#first_name").val()
-    check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+    check_result = condition("'#{elem_val}'", "'#{set_value}'")
     check_result
 
   add_remove_require:(cid,required) ->

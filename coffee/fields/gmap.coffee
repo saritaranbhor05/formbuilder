@@ -44,3 +44,11 @@ Formbuilder.registerField 'gmap',
         return true if !required_attr
         return $el.find("[name = " + model.getCid() + "_1]").text() != ''
       valid
+
+  setup: (el, model, index) ->
+    if !(model.get('field_values') && model.get('field_values')[name])
+      get_user_location = getCurrentLocation(model.getCid());
+      if get_user_location != 'false'
+        $("[name = " + model.getCid() + "_1]").text(get_user_location)
+      else
+        $("[name = " + model.getCid() + "_1]").text('Select Your Address')

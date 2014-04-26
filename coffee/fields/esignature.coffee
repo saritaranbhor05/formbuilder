@@ -53,3 +53,7 @@ Formbuilder.registerField 'esignature',
           is_empty =  true
         return is_empty
       valid
+
+  setup: (el, model, index) ->
+    #This can be in setup method of esignature
+    initializeCanvas(model.getCid())

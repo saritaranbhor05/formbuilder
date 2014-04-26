@@ -24,8 +24,8 @@ Formbuilder.registerField 'url',
       check_result=false
     ) =>
       elem_val = clicked_element
-                          .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+                          .find("input[name = "+cid+"_1]").val()
+      check_result =  condition("'#{elem_val}'", "'set_value'")
       check_result
 
   add_remove_require:(cid,required) ->

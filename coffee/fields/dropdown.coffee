@@ -59,21 +59,8 @@ Formbuilder.registerField 'dropdown',
     if (typeof elem_val is 'number')
       elem_val = parseInt elem_val
       set_value = parseInt set_value
-    if(condition == '<')
-      if(elem_val < set_value)
-        true
-      else
-        false  
-    else if(condition == '>')
-      if(elem_val > set_value)
-        true
-      else
-        false
-    else
-      if(elem_val is set_value)
-        true
-      else
-        false
+    check_result = condition(elem_val, set_value)
+    check_result
   
   add_remove_require:(cid,required) ->
     $("." + cid)
