@@ -724,6 +724,7 @@ class Formbuilder
             if wizard_view && field_view && !field_view.is_section_break
               sub_frag.appendChild(field_view.render().el)
             if cnt == fieldViews.length && wizard_view
+              wizard_view.$el.append(sub_frag)
               @$responseFields.append wizard_view.$el
             cnt += 1
 
