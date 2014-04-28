@@ -257,7 +257,8 @@
                   $('#' + _this.model.getCid()).text(_this.model.get('label'));
                 }
                 if (_this.field_type === 'free_text_html') {
-                  $('#' + _this.model.getCid()).find('p').replaceWith(_this.model.get('field_options').html_data);
+                  _this.$('#' + _this.model.getCid()).html('');
+                  _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
                 }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);
@@ -274,7 +275,8 @@
                   $('#' + _this.model.getCid()).text(_this.model.get('label'));
                 }
                 if (_this.field_type === 'free_text_html') {
-                  $('#' + _this.model.getCid()).find('p').replaceWith(_this.model.get('field_options').html_data);
+                  _this.$('#' + _this.model.getCid()).html('');
+                  _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
                 }
                 _this.current_state = set_field.action;
                 return _this.add_remove_require(true);

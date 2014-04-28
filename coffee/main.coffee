@@ -178,29 +178,33 @@ class Formbuilder
 
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field) =>
-            if(check_result is true )
-              @$el.addClass(set_field.action)
-              if(set_field.action == 'show')
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
-                @current_state = set_field.action
-                @add_remove_require(true)
-              else
-                @$el.removeClass('show')
-                @current_state = "hide"
-                @add_remove_require(false)
+          if(check_result is true )
+            @$el.addClass(set_field.action)
+            if(set_field.action == 'show')
+              $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+              if @field_type is 'free_text_html'
+                @$('#'+@model.getCid()).html('')
+                @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
+              @current_state = set_field.action
+              @add_remove_require(true)
             else
-              @$el.removeClass(set_field.action)
-              if(set_field.action == 'hide')
-                @$el.addClass("show")
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
-                @current_state = set_field.action
-                @add_remove_require(true)
-              else
-                @$el.addClass("hide")
-                @add_remove_require(false)
-                @current_state = "hide"
+              @$el.removeClass('show')
+              @current_state = "hide"
+              @add_remove_require(false)
+          else
+            @$el.removeClass(set_field.action)
+            if(set_field.action == 'hide')
+              @$el.addClass("show")
+              $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+              if @field_type is 'free_text_html'
+                @$('#'+@model.getCid()).html('')
+                @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
+              @current_state = set_field.action
+              @add_remove_require(true)
+            else
+              @$el.addClass("hide")
+              @add_remove_require(false)
+              @current_state = "hide"
 
       changeState: ->
         do(
