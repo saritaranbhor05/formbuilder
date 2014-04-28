@@ -993,12 +993,12 @@
                   _results1 = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                     x = _ref[_j];
-                    _results1.push(count = (function(x, index, name, val, value, cid) {
+                    _results1.push(count = (function(x, index, name, val, value) {
                       if ($(x).text() && !val_set) {
                         val_set = true;
                       }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, ''));
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
                   }
                   return _results1;
                 } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
@@ -1317,21 +1317,21 @@
           if (!_.isEmpty(model.attributes.conditions)) {
             return _.each(model.attributes.conditions, function(condition) {
               var _this = this;
-              return (function(source, source_condition, target_condition, is_equal) {
+              return (function(source, source_condition, target_condition, is_equal, model_cid) {
                 if (!_.isEmpty(condition.source)) {
                   source = model.collection.where({
                     cid: condition.source
                   });
                   if (condition.target === '') {
-                    condition.target = model.getCid();
+                    condition.target = model_cid;
                   }
                   target_condition = $.extend(true, {}, condition);
                   target_condition.isSource = false;
-                  if (source[0].attributes.conditions.length < 1) {
+                  if (!source[0].attributes.conditions || source[0].attributes.conditions.length < 1) {
                     source_condition = target_condition;
                   }
                   _.each(source[0].attributes.conditions, function(source_condition) {
-                    if (source_condition.target === model.getCid()) {
+                    if (source_condition.target === model_cid) {
                       delete source[0].attributes.conditions[source_condition];
                     }
                     if (_.isEqual(source_condition, target_condition)) {
@@ -1344,7 +1344,7 @@
                     return source[0].save();
                   }
                 }
-              })({}, {}, {}, false);
+              })({}, {}, {}, false, model.getCid());
             });
           }
         },

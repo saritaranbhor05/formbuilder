@@ -795,7 +795,6 @@ class Formbuilder
                     name = null,
                     val = null,
                     value = 0,
-                    cid = ''
                   ) =>
                     val_set = true if $(x).text() && !val_set
                     index
@@ -1030,15 +1029,17 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}, target_condition = {}, is_equal = false) =>
+            do(source = {}, source_condition = {}, target_condition = {}, is_equal = false,
+               model_cid = model.getCid()) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                condition.target = model.getCid() if condition.target is ''
+                condition.target = model_cid if condition.target is ''
                 target_condition = $.extend(true, {}, condition)
                 target_condition.isSource = false
-                source_condition = target_condition if source[0].attributes.conditions.length < 1
+                if !source[0].attributes.conditions || source[0].attributes.conditions.length < 1
+                  source_condition = target_condition
                 _.each(source[0].attributes.conditions, (source_condition) ->
-                  delete source[0].attributes.conditions[source_condition] if source_condition.target is model.getCid()
+                  delete source[0].attributes.conditions[source_condition] if source_condition.target is model_cid
                   if _.isEqual(source_condition,target_condition)
                     is_equal = true
                 )
