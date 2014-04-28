@@ -782,7 +782,8 @@ class Formbuilder
               val_set = false,
               model = field_view.model,
               field_type_method_call = '',
-              field_method_call = ''
+              field_method_call = '',
+              cid = ''
             ) =>
 
               if(field_view.model.get('field_type') is 'heading' || field_view.model.get('field_type') is 'free_text_html')
@@ -847,7 +848,6 @@ class Formbuilder
                     name = null,
                     val = null,
                     value = 0,
-                    cid = '',
                     has_heading_field = false,
                     has_ckeditor_field = false
                   ) =>
@@ -871,7 +871,7 @@ class Formbuilder
                     field_method_call.setup($(x), model, index) if field_method_call.setup
                     if !val_set
                       val_set = true if $(x).val()
-                      #val_set = true if val or has_heading_field or has_ckeditor_field
+                      val_set = true if val or has_heading_field or has_ckeditor_field
                     @setFieldVal($(x), val, model.getCid()) if val
 
                     index

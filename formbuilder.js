@@ -928,6 +928,7 @@
                 sub_frag.appendChild(field_view.render().el);
               }
               if (cnt === fieldViews.length && wizard_view) {
+                wizard_view.$el.append(sub_frag);
                 _this.$responseFields.append(wizard_view.$el);
               }
               cnt += 1;
@@ -985,8 +986,8 @@
             _results = [];
             for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
               field_view = fieldViews[_i];
-              _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call) {
-                var cid, _j, _k, _len1, _len2, _ref, _ref1, _results1;
+              _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
+                var _j, _k, _len1, _len2, _ref, _ref1, _results1;
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
                   _ref = field_view.$("label");
                   _results1 = [];
@@ -1051,7 +1052,7 @@
                   _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
                   for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
                     x = _ref1[_k];
-                    count = (function(x, index, name, val, value, cid, has_heading_field, has_ckeditor_field) {
+                    count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
                       var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
                       _ref2 = field_view.model.collection.where({
                         'field_type': 'heading'
@@ -1099,12 +1100,15 @@
                         if ($(x).val()) {
                           val_set = true;
                         }
+                        if (val || has_heading_field || has_ckeditor_field) {
+                          val_set = true;
+                        }
                       }
                       if (val) {
                         _this.setFieldVal($(x), val, model.getCid());
                       }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, '', false, false);
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
                   }
                   if (val_set && Formbuilder.options.EDIT_FS_MODEL) {
                     return field_view.trigger('change_state');
@@ -1112,7 +1116,7 @@
                 }
               })(null, 0, function(attr) {
                 return attr !== 'radio';
-              }, false, field_view.model, '', ''));
+              }, false, field_view.model, '', '', ''));
             }
             return _results;
           })(null, this.fieldViews, "");
