@@ -1051,66 +1051,70 @@
                   field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                   field_method_call = Formbuilder.fields[field_type_method_call];
                   cid = model.getCid();
-                  _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
-                  for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-                    x = _ref1[_k];
-                    count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
-                      var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
-                      _ref2 = field_view.model.collection.where({
-                        'field_type': 'heading'
-                      });
-                      for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-                        model_in_collection = _ref2[_l];
-                        if (field_view.model.get('conditions')) {
-                          _ref3 = field_view.model.get('conditions');
-                          for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-                            model_in_conditions = _ref3[_m];
-                            if (model_in_collection.getCid() === model_in_conditions.target) {
-                              has_heading_field = true;
+                  if (field_method_call.setup) {
+                    field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                  } else {
+                    _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
+                    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                      x = _ref1[_k];
+                      count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
+                        var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
+                        _ref2 = field_view.model.collection.where({
+                          'field_type': 'heading'
+                        });
+                        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                          model_in_collection = _ref2[_l];
+                          if (field_view.model.get('conditions')) {
+                            _ref3 = field_view.model.get('conditions');
+                            for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                              model_in_conditions = _ref3[_m];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_heading_field = true;
+                              }
                             }
                           }
                         }
-                      }
-                      _ref4 = field_view.model.collection.where({
-                        'field_type': 'free_text_html'
-                      });
-                      for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
-                        model_in_collection = _ref4[_n];
-                        if (field_view.model.get('conditions')) {
-                          _ref5 = field_view.model.get('conditions');
-                          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
-                            model_in_conditions = _ref5[_o];
-                            if (model_in_collection.getCid() === model_in_conditions.target) {
-                              has_ckeditor_field = true;
+                        _ref4 = field_view.model.collection.where({
+                          'field_type': 'free_text_html'
+                        });
+                        for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
+                          model_in_collection = _ref4[_n];
+                          if (field_view.model.get('conditions')) {
+                            _ref5 = field_view.model.get('conditions');
+                            for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+                              model_in_conditions = _ref5[_o];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_ckeditor_field = true;
+                              }
                             }
                           }
                         }
-                      }
-                      if (field_view.field_type === 'radio' || 'scale_rating') {
-                        value = x.value;
-                      }
-                      name = cid.toString() + "_" + index.toString();
-                      if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                        val = model.get('field_values')[value];
-                      } else if (model.get('field_values')) {
-                        val = model.get('field_values')[name];
-                      }
-                      if (field_method_call.setup) {
-                        field_method_call.setup($(x), model, index);
-                      }
-                      if (!val_set) {
-                        if ($(x).val()) {
-                          val_set = true;
+                        if (field_view.field_type === 'radio' || 'scale_rating') {
+                          value = x.value;
                         }
-                        if (val || has_heading_field || has_ckeditor_field) {
-                          val_set = true;
+                        name = cid.toString() + "_" + index.toString();
+                        if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                          val = model.get('field_values')[value];
+                        } else if (model.get('field_values')) {
+                          val = model.get('field_values')[name];
                         }
-                      }
-                      if (val) {
-                        _this.setFieldVal($(x), val, model.getCid());
-                      }
-                      return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
+                        if (field_method_call.setup) {
+                          field_method_call.setup($(x), model, index);
+                        }
+                        if (!val_set) {
+                          if ($(x).val()) {
+                            val_set = true;
+                          }
+                          if (val || has_heading_field || has_ckeditor_field) {
+                            val_set = true;
+                          }
+                        }
+                        if (val) {
+                          _this.setFieldVal($(x), val, model.getCid());
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
+                    }
                   }
                   if (val_set && Formbuilder.options.EDIT_FS_MODEL) {
                     return field_view.trigger('change_state');
@@ -1127,18 +1131,6 @@
           var _this = this;
           return (function(setters, type) {
             setters = {
-              gmap: function() {
-                return $(elem).text(val);
-              },
-              esignature: function() {
-                if (val) {
-                  $(elem).attr("upload_url", val);
-                  $(elem).show();
-                } else {
-                  $(elem).hide();
-                }
-                return makeRequest(val, $(elem).attr("name"));
-              },
               file: function() {
                 if ($('#file_upload_link_' + cid) && val) {
                   if (_.isString(val)) {
@@ -1460,12 +1452,13 @@
     edit: "<%= Formbuilder.templates['edit/default_address']({rf: rf}) %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
     clearFields: function($el, model) {
-      var _that;
-      _that = this;
-      $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS));
-      $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
-      $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
-      return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+      var _this = this;
+      return (function(_that) {
+        $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS));
+        $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
+        $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
+        return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+      })(this);
     },
     check_and_return_val: function(model, val) {
       return model.get(val) || '';
@@ -1488,6 +1481,23 @@
       $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
       return $("." + cid).find("[name = " + cid + "_5]").attr("required", required);
+    },
+    setup: function(field_view, model) {
+      var _this = this;
+      return (function($str_add) {
+        if (model.attributes.field_values) {
+          field_view.$el.find("#address").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          field_view.$el.find("#suburb").val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+          field_view.$el.find("#state").val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
+          field_view.$el.find("#zipcode").val(model.attributes.field_values["" + (model.getCid()) + "_4"]);
+          field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_5"]);
+        } else {
+          _this.clearFields;
+        }
+        if ($str_add.val() !== '') {
+          return field_view.trigger('change_state');
+        }
+      })(field_view.$el.find("#address"));
     }
   });
 
@@ -1823,8 +1833,10 @@
     view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
     edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
-    setup: function(el, model, index) {
-      var _this = this;
+    setup: function(field_view, model) {
+      var el,
+        _this = this;
+      el = field_view.$el.find('input');
       return (function(today, restricted_date) {
         if (model.get(Formbuilder.options.mappings.MINAGE)) {
           restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
@@ -1843,6 +1855,9 @@
             yearRange: '-100y:c+nn',
             maxDate: today
           });
+        }
+        if (model.get('field_values')) {
+          el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
         }
         return $(el).click(function() {
           return $("#ui-datepicker-div").css("z-index", 3);
@@ -1919,8 +1934,10 @@
     view: "<% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_datetime\")\n          .datetimepicker({\n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n              addSliderAccess: true,\n              sliderAccessArgs: { touchonly: false },\n              changeMonth : true,\n              changeYear : true,\n              yearRange: '-100y:+100y'\n           });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_time' type='text' readonly />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_time\")\n            .timepicker({\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n                addSliderAccess: true,\n                sliderAccessArgs: { touchonly: false }\n              });\n    })\n  </script>\n<% } else if(rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>\n  <div class='input-line'>\n    <input id='<%= rf.getCid() %>_date' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>' />\n  </div>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_date\")\n          .datepicker({\n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n              changeMonth : true,\n              changeYear : true,\n              yearRange: '-100y:+100y'\n            });\n    })\n  </script>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/date_only']() %>\n<%= Formbuilder.templates['edit/time_only']() %>\n<%= Formbuilder.templates['edit/step']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date and Time",
-    setup: function(el, model, index) {
-      var _this = this;
+    setup: function(field_view, model) {
+      var el,
+        _this = this;
+      el = field_view.$el.find('input');
       return (function(today) {
         if (!model.get('field_values')) {
           if (el.attr('id') === model.getCid() + '_datetime') {
@@ -1930,6 +1947,8 @@
           } else {
             el.timepicker('setTime', new Date());
           }
+        } else {
+          el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
         }
         $(el).click(function() {
           return $("#ui-datepicker-div").css("z-index", 3);
@@ -2106,6 +2125,15 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    setup: function(field_view, model, edit_fs_model) {
+      if (model.attributes.field_values) {
+        return field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+      } else {
+        if (field_view.$el.find('select').val() !== '' && edit_fs_model) {
+          return field_view.trigger('change_state');
+        }
+      }
     }
   });
 
@@ -2163,8 +2191,21 @@
         return valid;
       })(false, null);
     },
-    setup: function(el, model, index) {
-      return initializeCanvas(model.getCid());
+    setup: function(field_view, model) {
+      var _this = this;
+      return (function(model_cid, upload_url, $img) {
+        initializeCanvas(model_cid);
+        if (model.get('field_values')) {
+          upload_url = model.get('field_values')["" + model_cid + "_1"];
+          $img.attr("upload_url", upload_url);
+          $img.show();
+        } else {
+          $img.hide();
+        }
+        if (upload_url !== "") {
+          return makeRequest(upload_url, $img.attr("name"));
+        }
+      })(model.getCid(), '', field_view.$el.find('img'));
     }
   });
 
@@ -2267,16 +2308,27 @@
         return valid;
       })(false);
     },
-    setup: function(el, model, index) {
-      var get_user_location;
-      if (!(model.get('field_values') && model.get('field_values')[name])) {
-        get_user_location = getCurrentLocation(model.getCid());
-        if (get_user_location !== 'false') {
-          return $("[name = " + model.getCid() + "_1]").text(get_user_location);
+    setup: function(field_view, model) {
+      var _this = this;
+      return (function($input) {
+        var get_user_location;
+        if (model.attributes.field_values) {
+          field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          $input.val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
         } else {
-          return $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+          if (!(model.get('field_values') && model.get('field_values')[name])) {
+            get_user_location = getCurrentLocation(model.getCid());
+            if (get_user_location !== 'false') {
+              $("[name = " + model.getCid() + "_1]").text(get_user_location);
+            } else {
+              $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+            }
+          }
         }
-      }
+        if ($input.val() !== '') {
+          return field_view.trigger('change_state');
+        }
+      })(field_view.$el.find($("[name = " + model.getCid() + "_2]")));
     }
   });
 
@@ -2331,8 +2383,9 @@
       attrs.field_options.size = 'small';
       return attrs;
     },
-    setup: function(el, model, index) {
-      var rounded_value;
+    setup: function(field_view, model) {
+      var el, rounded_value;
+      el = field_view.$el.find('input');
       if (model.get(Formbuilder.options.mappings.MIN)) {
         el.attr("min", model.get(Formbuilder.options.mappings.MIN));
       }
@@ -2354,11 +2407,20 @@
         }
       }
       if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
-        return el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
+        el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
+      }
+      if (model.get('field_values')) {
+        return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
       }
     },
     clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
+      var _this = this;
+      return (function($input) {
+        $input.val("");
+        if (model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)) {
+          return $input.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE));
+        }
+      })($el.find("[name = " + model.getCid() + "_1]"));
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
@@ -2385,8 +2447,10 @@
       attrs.field_options.size = 'medium';
       return attrs;
     },
-    setup: function(el, model, index) {
-      var _this = this;
+    setup: function(field_view, model) {
+      var el,
+        _this = this;
+      el = field_view.$el.find('textarea');
       if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
         (function(min_length) {
           return el.attr("pattern", "[a-zA-Z0-9_\\s]{" + min_length + ",}");
@@ -2398,7 +2462,7 @@
       if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
         el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
       }
-      return el.focus(function(event) {
+      el.focus(function(event) {
         if (Formbuilder.isAndroid()) {
           el.css('width', '100%');
           return $('#grid_div').animate({
@@ -2406,9 +2470,19 @@
           }, 1000);
         }
       });
+      if (model.get('field_values')) {
+        return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+      }
     },
     clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
+      var _this = this;
+      return (function($input) {
+        $input.val("");
+        if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
+          $input.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
+          return $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
+        }
+      })($el.find("[name = " + model.getCid() + "_1]"));
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
@@ -2448,7 +2522,7 @@
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
     edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: [\"au\", \"gb\", \"us\"]\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
-    setup: function(el, model, index) {
+    setup: function(field_view, model) {
       var _this = this;
       return (function(mask_value, country_code, country_code_set) {
         var area_code;
@@ -2467,7 +2541,10 @@
           $('#' + model.getCid() + 'phone').val(country_code_set + area_code);
         }
         if (mask_value) {
-          return $('#' + model.getCid() + 'phone').mask(mask_value);
+          $('#' + model.getCid() + 'phone').mask(mask_value);
+        }
+        if (model.get('field_values')) {
+          return field_view.$el.find('input').val(model.get('field_values')["" + (model.getCid()) + "_1"]);
         }
       })(false, false, '');
     },
@@ -2664,7 +2741,9 @@
       attrs.field_options.size = 'medium';
       return attrs;
     },
-    setup: function(el, model, index) {
+    setup: function(field_view, model) {
+      var el;
+      el = field_view.$el.find('input');
       if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
         (function(min_length) {
           return el.attr("pattern", "[a-zA-Z0-9_\\s]{" + min_length + ",}");
@@ -2674,14 +2753,23 @@
         el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH));
       }
       if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
-        el.attr("value", model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
+        el.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
       }
       if (model.get(Formbuilder.options.mappings.HINT)) {
-        return el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT));
+        el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT));
+      }
+      if (model.get('field_values')) {
+        return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
       }
     },
     clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
+      var _this = this;
+      return (function($input) {
+        $input.val("");
+        if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
+          return $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
+        }
+      })($el.find("[name = " + model.getCid() + "_1]"));
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;

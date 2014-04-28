@@ -45,10 +45,17 @@ Formbuilder.registerField 'gmap',
         return $el.find("[name = " + model.getCid() + "_1]").text() != ''
       valid
 
-  setup: (el, model, index) ->
-    if !(model.get('field_values') && model.get('field_values')[name])
-      get_user_location = getCurrentLocation(model.getCid());
-      if get_user_location != 'false'
-        $("[name = " + model.getCid() + "_1]").text(get_user_location)
+  setup: (field_view, model) ->
+    do($input = field_view.$el.find($("[name = " + model.getCid() + "_2]"))) =>
+      if model.attributes.field_values
+        field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["#{model.getCid()}_1"])
+        $input.val(model.attributes.field_values["#{model.getCid()}_2"])    
       else
-        $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+        if !(model.get('field_values') && model.get('field_values')[name])
+          get_user_location = getCurrentLocation(model.getCid());
+          if get_user_location != 'false'
+            $("[name = " + model.getCid() + "_1]").text(get_user_location)
+          else
+            $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+      if $input.val() != ''
+        field_view.trigger('change_state')

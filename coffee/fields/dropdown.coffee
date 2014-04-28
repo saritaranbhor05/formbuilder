@@ -65,4 +65,11 @@ Formbuilder.registerField 'dropdown',
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)    
+            .attr("required", required) 
+
+  setup: (field_view, model, edit_fs_model) ->
+    if model.attributes.field_values
+      field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+    else
+      if field_view.$el.find('select').val() != '' && edit_fs_model
+        field_view.trigger('change_state')

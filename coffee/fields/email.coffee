@@ -15,7 +15,7 @@ Formbuilder.registerField 'email',
     attrs
 
   clearFields: ($el, model) ->
-  		$el.find("[name = " + model.getCid() + "_1]").val("")
+  	$el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 

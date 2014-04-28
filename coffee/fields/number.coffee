@@ -22,7 +22,8 @@ Formbuilder.registerField 'number',
     attrs.field_options.size = 'small'
     attrs
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
+    el = field_view.$el.find('input')
     if model.get(Formbuilder.options.mappings.MIN)
       el.attr("min", model.get(Formbuilder.options.mappings.MIN))
     if model.get(Formbuilder.options.mappings.MAX)
@@ -43,8 +44,14 @@ Formbuilder.registerField 'number',
     if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
       el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
+    if model.get('field_values')
+      el.val(model.get('field_values')["#{model.getCid()}_1"])
+
   clearFields: ($el, model) ->
-    $el.find("[name = " + model.getCid() + "_1]").val("")
+    do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
+      $input.val("")
+      if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
+        $input.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
