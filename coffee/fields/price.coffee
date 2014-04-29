@@ -17,6 +17,19 @@ Formbuilder.registerField 'price',
 
   edit: ""
 
+  print: """
+    <div>
+     <% var all_attr =  rf.get('field_values') %>
+     <% var cid =  rf.get('cid') %>
+     <% if(all_attr && all_attr.length == 2){ %>
+     <label class='above-line'>$</label>
+     <label><%= all_attr[cid + '_1'] %></label>
+     <label class='above-line'>.</label>
+     <label><%= all_attr[cid + '_2'] %></label>
+     <% } %>
+    </div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-dollar"></span></span> Price
   """
