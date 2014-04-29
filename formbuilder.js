@@ -2195,14 +2195,14 @@
       var _this = this;
       return (function(model_cid, upload_url, $img) {
         initializeCanvas(model_cid);
-        if (model.get('field_values')) {
+        if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
           upload_url = model.get('field_values')["" + model_cid + "_1"];
           $img.attr("upload_url", upload_url);
           $img.show();
         } else {
           $img.hide();
         }
-        if (upload_url !== "") {
+        if (upload_url) {
           return makeRequest(upload_url, $img.attr("name"));
         }
       })(model.getCid(), '', field_view.$el.find('img'));

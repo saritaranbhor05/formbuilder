@@ -60,11 +60,11 @@ Formbuilder.registerField 'esignature',
        $img = field_view.$el.find('img')) =>
       #This can be in setup method of esignature
       initializeCanvas(model_cid)
-      if model.get('field_values')
+      if model.get('field_values') && model.get('field_values')["#{model_cid}_1"]
         upload_url = model.get('field_values')["#{model_cid}_1"]
         $img.attr("upload_url", upload_url)
         $img.show()
       else
         $img.hide()
-      if upload_url != ""
+      if upload_url
         makeRequest(upload_url, $img.attr("name"))
