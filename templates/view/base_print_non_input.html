@@ -1,0 +1,6 @@
+<td colspan=2>
+  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) %>
+  <% if(!opts.live){ %>
+  <%= Formbuilder.templates['view/duplicate_remove']({rf: rf}) %>
+  <% } %>
+</td>

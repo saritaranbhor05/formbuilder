@@ -568,3 +568,34 @@
 .submitted textarea:invalid, .submitted select:invalid { border-color: red; }
 .submitted input:invalid.hasDatepicker { border-color: red; }
 .submitted .bootstrap-filestyle > label { border-color: red; }
+
+
+.print_form {
+    border: 1px solid;
+    height: 100%;
+    width: 100%;
+
+  .field_tr {
+    text-align: left;
+    vertical-align: middle;
+    td, th {
+      padding: 2px 0px 2px 2px
+      border: 1px solid;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .innerTbl {
+      border: none;
+      td, th {
+        padding: 2px 0px 2px 2px
+        text-align: left;
+        vertical-align: middle;
+        border: none;
+      }
+    }
+  }
+  input, select {
+    border: none;
+    box-shadow: none;
+  }
+}

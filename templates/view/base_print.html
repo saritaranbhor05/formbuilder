@@ -1,0 +1,15 @@
+<% if(opts.readonly){ %>
+<div class='cover'></div>
+<% } %>
+<td>
+<%= Formbuilder.templates['view/label']({rf: rf}) %>
+</td>
+<td class='_<%= rf.get(Formbuilder.options.mappings.FIELD_TYPE) %>'>
+<% if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ %>
+  <%= Formbuilder.templates['view/description']({rf: rf}) %>
+  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) %>
+<% } else { %>
+  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+  <%= Formbuilder.templates['view/description']({rf: rf}) %>
+<% } %>
+</td>
