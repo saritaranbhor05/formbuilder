@@ -13,6 +13,15 @@ class Formbuilder
     simple_format: (x) ->
       x?.replace(/\n/g, '<br />')
 
+  @baseConfig: {
+    'print' : {
+      'fieldTagName' : 'tr',
+      'fieldClassName' : 'field_tr',
+      'wizardTagName' : 'table',
+      'wizardClassName' : 'fb-tab print_form'
+    }
+  }
+
   @options:
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
@@ -128,6 +137,9 @@ class Formbuilder
     for x in ['view', 'edit']
       opts[x] = _.template(opts[x])
 
+    if opts['print']
+      opts['print'] = _.template(opts['print'])
+
     Formbuilder.fields[name] = opts
 
     if opts.type == 'non_input'
@@ -138,13 +150,11 @@ class Formbuilder
   @views:
     wizard_tab: Backbone.View.extend
       className: "fb-tab"
-
       intialize: ->
         @parentView = @options.parentView
 
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
-
       events:
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
@@ -193,7 +203,7 @@ class Formbuilder
               if(set_field.action == 'hide')
                 @$el.addClass("show")
                 $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
+                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
                 @current_state = set_field.action
                 @add_remove_require(true)
               else
@@ -326,11 +336,12 @@ class Formbuilder
         return @
 
       live_render: ->
+        base_templ_suff = if @options.view_type == 'print' then '_print' else ''
         do (
           set_field = {}, i =0,
           action = "show",
           cid = @model.getCid(),
-          base_templ_suff = if @model.is_input() then '' else '_non_input',
+          base_templ_suff =  base_templ_suff + (if @model.is_input() then '' else '_non_input'),
           set_field_class = false
         ) =>
 
@@ -603,6 +614,9 @@ class Formbuilder
           parentView: @
           live: @options.live
           readonly: @options.readonly
+          view_type: @options.view_type
+          tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldTagName else 'div'
+          className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldClassName else 'fb-field-wrapper'
           seedData: responseField.seedData
         if (Formbuilder.options.PRINTVIEW &&
             responseField.attributes.field_type != 'section_break') ||
@@ -693,6 +707,8 @@ class Formbuilder
             if cnt == 1
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
+                tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
+                className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
             else if add_break_to_next && !field_view.is_section_break
               @$responseFields.append wizard_view.$el
@@ -701,7 +717,6 @@ class Formbuilder
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-
             if wizard_view && field_view && !field_view.is_section_break
               wizard_view.$el.append field_view.render().el
             if cnt == fieldViews.length && wizard_view

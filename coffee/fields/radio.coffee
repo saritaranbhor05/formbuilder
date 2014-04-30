@@ -27,6 +27,20 @@ Formbuilder.registerField 'radio',
     <%= Formbuilder.templates['edit/options']({ includeOther: true }) %>
   """
 
+  print: """
+    <div>
+     <% var all_attr =  rf.get('field_values') %>
+     <% var cid =  rf.get('cid') %>
+     <% if(all_attr){ %>
+        <% for(var k in all_attr){ %>
+          <% if(all_attr[k]){ %>
+              <label><%= k %><label>
+          <% } %>
+        <% } %>
+     <% } %>
+    </div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-circle-blank"></span></span> Radio Button
   """
