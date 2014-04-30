@@ -47,6 +47,51 @@ Formbuilder.registerField 'address',
     <%= Formbuilder.templates['edit/default_address']({rf: rf}) %>
   """
 
+  print: """
+    <table class="innerTbl">
+      <tbody>
+        <tr>
+          <td>
+            <label>Street Address</label>
+          </td>
+          <td>
+            <label>Suburb/City</label>
+          </td>
+          <td>
+            <label>State / Province / Region</label>
+          </td>
+          <td>
+            <label>Postal/Zip Code</label>
+          </td>
+          <td>
+            <label>Country</label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type='text' id='address' class='span12' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>"/>
+          </td>
+          <td>
+            <input class="span12" type='text' id='suburb' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>"/>
+          </td>
+          <td>
+            <input class="span12" type='text' id='state' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>"/>
+          </td>
+          <td>
+            <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"
+         value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
+          </td>
+          <td>
+            <select id="file_<%= rf.getCid() %>"
+          data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+          class='span7 dropdown_country bfh-selectbox bfh-countries'
+        ></select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-home"></span></span> Address
   """

@@ -7,6 +7,55 @@ Formbuilder.registerField 'gmap',
 
   edit: ""
 
+  print: """
+    <% if(rf.get('field_type') === 'gmap'){%>
+    <% var lat_long_arr = ['-25.363882','131.044922']%>
+    <% var mapAttr = rf.get('field_values');%>
+    <% if(mapAttr){%>
+      <% if(mapAttr[ rf.get('cid') +'_1']){ %>
+        <% var location = mapAttr[ rf.get('cid') +'_1']; %>
+        <% var lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','); %>
+        <% var lat = lat_long_arr[0]; %>
+        <% var long = lat_long_arr[1]; %>
+      <% } %>
+    <% } %>
+  <% } %>
+    <div class="lat_long_wrapper">
+      <ul>
+        <li>
+          <label class="first_li"> Latitude :</label>
+          <label type="text" id="print_lat_gmap"><%= (lat)? lat : '' %></label>
+        </li>
+        <li>
+          <label class="first_li"> Longitude :</label>
+          <label type="text" id="print_long_gmap" ><%= (long)? long : '' %></label>
+        </li>
+        <li>
+          <%= (location)? location : '' %>
+        </li>
+      </ul>
+    </div>
+    <div id="map-canvas" style="height=300px;width=300px;">
+    </div>
+    <script type="text/javascript">
+    $(function(){
+      var myLatlng = new google.maps.LatLng(
+      $('#print_lat_gmap').val()? $('#print_lat_gmap').val() : '',
+      $('#print_long_gmap').val()? $('#print_long_gmap').val() : '');
+      var mapOptions = {
+        zoom: 13,
+        center: myLatlng
+      }
+      var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      var marker = new google.maps.Marker({
+          position: myLatlng,
+          map: map,
+          title: 'Map Location'
+        });
+      })
+      </script>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-map-marker"></span></span> Geo-Location
   """
