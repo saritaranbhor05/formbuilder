@@ -43,7 +43,7 @@ Formbuilder.registerField 'gmap',
       $('#print_lat_gmap').val()? $('#print_lat_gmap').val() : '',
       $('#print_long_gmap').val()? $('#print_long_gmap').val() : '');
       var mapOptions = {
-        zoom: 13,
+        zoom: 20,
         center: myLatlng
       }
       var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);

@@ -570,6 +570,8 @@
 .submitted .bootstrap-filestyle > label { border-color: red; }
 
 
+@media print {
+
 .print_form {
     table-layout: fixed;
     border: 1px solid;
@@ -653,11 +655,13 @@
     border: none;
     box-shadow: none;
     background-color: white;
-    background-image: none;
+    background-image: none !important;
   }
   ._price {
     label {
       float:left;
     }
   }
+}
+
 }
