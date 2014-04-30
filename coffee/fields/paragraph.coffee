@@ -23,7 +23,8 @@ Formbuilder.registerField 'paragraph',
     attrs.field_options.size = 'medium'
     attrs
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
+    el = field_view.$el.find('textarea')
     if model.get(Formbuilder.options.mappings.MINLENGTH)
       do(min_length = model.get(Formbuilder.options.mappings.MINLENGTH)) ->
         el.attr("pattern", "[a-zA-Z0-9_\\s]{#{min_length},}")
@@ -37,9 +38,15 @@ Formbuilder.registerField 'paragraph',
         $('#grid_div').animate( {
           scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
         }, 1000)
+    if model.get('field_values')
+      el.val(model.get('field_values')["#{model.getCid()}_1"])
 
   clearFields: ($el, model) ->
-    $el.find("[name = " + model.getCid() + "_1]").val("")
+    do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
+      $input.val("")
+      if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
+        $input.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+        $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
@@ -47,7 +54,7 @@ Formbuilder.registerField 'paragraph',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->

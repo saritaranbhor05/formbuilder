@@ -20,7 +20,7 @@ Formbuilder.registerField 'email',
     attrs
 
   clearFields: ($el, model) ->
-  		$el.find("[name = " + model.getCid() + "_1]").val("")
+  	$el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
@@ -28,7 +28,7 @@ Formbuilder.registerField 'email',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result		
   
   add_remove_require:(cid,required) ->

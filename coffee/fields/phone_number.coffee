@@ -28,7 +28,7 @@ Formbuilder.registerField 'phone_number',
       return false
     return cid
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
 	  do(mask_value = false , country_code = false, country_code_set='') =>
 		  country_code = model.get(Formbuilder.options.mappings.COUNTRY_CODE)
 		  mask_value = model.get(Formbuilder.options.mappings.MASK_VALUE)
@@ -44,6 +44,8 @@ Formbuilder.registerField 'phone_number',
 		  	$('#'+model.getCid()+'phone').val(country_code_set+area_code)
 		  if mask_value
 		  	$('#'+model.getCid()+'phone').mask(mask_value)
+    if model.get('field_values')
+      field_view.$el.find('input').val(model.get('field_values')["#{model.getCid()}_1"])
 
   clearFields: ($el, model) ->
   	$el.find("[name = " + model.getCid() + "_1]").val("")
@@ -54,7 +56,7 @@ Formbuilder.registerField 'phone_number',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->

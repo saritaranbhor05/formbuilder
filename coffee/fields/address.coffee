@@ -112,11 +112,11 @@ Formbuilder.registerField 'address',
       return cid
 
   clearFields: ($el, model) ->
-    _that = @
-    $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS))
-    $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY))
-    $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE))
-    $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
+    do(_that = @) =>
+      $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS))
+      $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY))
+      $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE))
+      $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
 
   check_and_return_val: (model, val) ->
     model.get(val) || ''
@@ -134,7 +134,7 @@ Formbuilder.registerField 'address',
                    clicked_element.find("[name="+cid+"_4]") != '' )
       else
         elem_val = clicked_element.find("#address").val()
-        check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+        check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->
@@ -153,3 +153,16 @@ Formbuilder.registerField 'address',
     $("." + cid)
             .find("[name = "+cid+"_5]")
             .attr("required", required)
+
+  setup: (field_view, model) ->
+    do($str_add = field_view.$el.find("#address")) =>
+      if model.attributes.field_values
+        field_view.$el.find("#address").val(model.attributes.field_values["#{model.getCid()}_1"])
+        field_view.$el.find("#suburb").val(model.attributes.field_values["#{model.getCid()}_2"])
+        field_view.$el.find("#state").val(model.attributes.field_values["#{model.getCid()}_3"])
+        field_view.$el.find("#zipcode").val(model.attributes.field_values["#{model.getCid()}_4"])
+        field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_5"])
+      else
+        @clearFields
+      if $str_add.val() != ''
+        field_view.trigger('change_state')

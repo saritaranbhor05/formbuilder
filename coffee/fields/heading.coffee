@@ -46,7 +46,7 @@ Formbuilder.registerField 'heading',
                           .find("#"+cid).text()
       elem_val = elem_val.replace(/(\r\n|\n|\r)/gm,'')
       elem_val = elem_val.trimLeft()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result    
   
   add_remove_require:(cid,required) ->

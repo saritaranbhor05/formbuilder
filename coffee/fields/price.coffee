@@ -60,8 +60,8 @@ Formbuilder.registerField 'price',
                           .find("[name = "+cid+"_1]").val()
       firstValue = parseInt elem_val
       secondValue = parseInt set_value
-      if(eval "#{firstValue} #{condition} #{secondValue}")
-        true
+      check_result = condition(firstValue, secondValue)
+      check_result
 
   add_remove_require:(cid,required) ->
     $("." + cid)

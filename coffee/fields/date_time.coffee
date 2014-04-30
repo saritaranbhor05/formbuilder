@@ -67,7 +67,8 @@ Formbuilder.registerField 'date_time',
       return false
     return cid
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
+    el = field_view.$el.find('input')
     do(today = new Date) =>
       if !model.get('field_values')
         if el.attr('id') is model.getCid()+'_datetime'
@@ -76,6 +77,8 @@ Formbuilder.registerField 'date_time',
           el.datepicker('setDate', (new Date()) )
         else
           el.timepicker('setTime', (new Date()) )
+      else
+        el.val(model.get('field_values')["#{model.getCid()}_1"])
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
       $('#ui-datepicker-div').css('display','none')
