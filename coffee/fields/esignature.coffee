@@ -35,7 +35,7 @@ Formbuilder.registerField 'esignature',
   print: """
     <div class='esign-panel' style="display: inline-block;" >
     <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
-      <img title="click here to change" type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;
+      <img type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;
                       height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>
       <canvas
           id="can"
@@ -45,7 +45,7 @@ Formbuilder.registerField 'esignature',
       />
     <% } else
       if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
-        <img title="click here to change" type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>
+        <img type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>
         <canvas
             id="can"
             width='250px'
