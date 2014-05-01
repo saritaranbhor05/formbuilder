@@ -578,6 +578,9 @@
     border-color: grey;
     height: 100%;
     width: 100%;
+    abbr[title]:after {
+      content: no-close-quote;
+    }
   .field_tr {
     text-align: left;
     vertical-align: top;
@@ -603,7 +606,7 @@
         padding-bottom: 0px;
       }
       .lat_long_wrapper {
-        text-align: left;
+        text-align: center;
         display: initial;
         .first_li {
           float: left;
@@ -611,6 +614,17 @@
       }
       ul {
         list-style-type: none;
+        text-align: center;
+      }
+      img {
+        border: none;
+      }
+      .centered_td {
+        text-align: center;
+        margin: 0px 0px 10px 0px;
+        div {
+          margin: auto;
+        }
       }
     }
     .first_cell {
