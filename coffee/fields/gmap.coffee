@@ -23,6 +23,7 @@ Formbuilder.registerField 'gmap',
       <% } %>
     <% } %>
     <div class="lat_long_wrapper">
+      <a href="http://www.google.com">Click to go to googles</a>
       <ul>
         <li>
           <label type="text" id="print_lat_gmap">Latitude : <%= (lat)? lat : '' %></label>
@@ -36,7 +37,7 @@ Formbuilder.registerField 'gmap',
       </ul>
       <div id="map-canvas">
         <% if(lat_long_str){ %>
-        <img src=<%= "http://maps.googleapis.com/maps/api/staticmap?center="+lat_long_str+"&zoom=13&size=600x400&sensor=false&markers=color:red|"+lat_long_str %> />
+        <img src=<%= "http://maps.googleapis.com/maps/api/staticmap?center="+lat_long_str+"&zoom=13&size=400x400&sensor=false&markers=color:red|"+lat_long_str %> />
         <% } %>
       </div>
     </div>
