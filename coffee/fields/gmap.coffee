@@ -8,52 +8,39 @@ Formbuilder.registerField 'gmap',
   edit: ""
 
   print: """
+  <div class="centered_td">
     <% if(rf.get('field_type') === 'gmap'){%>
     <% var lat_long_arr = ['-25.363882','131.044922']%>
     <% var mapAttr = rf.get('field_values');%>
     <% if(mapAttr){%>
       <% if(mapAttr[ rf.get('cid') +'_1']){ %>
-        <% var location = mapAttr[ rf.get('cid') +'_1']; %>
-        <% var lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','); %>
-        <% var lat = lat_long_arr[0]; %>
-        <% var long = lat_long_arr[1]; %>
+          <% var location = mapAttr[ rf.get('cid') +'_1']; %>
+          <% var lat_long_str = mapAttr[ rf.get('cid') +'_2']; %>
+          <% var lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','); %>
+          <% var lat = lat_long_arr[0]; %>
+          <% var long = lat_long_arr[1]; %>
+        <% } %>
       <% } %>
     <% } %>
-  <% } %>
     <div class="lat_long_wrapper">
       <ul>
         <li>
-          <label class="first_li"> Latitude :</label>
-          <label type="text" id="print_lat_gmap"><%= (lat)? lat : '' %></label>
+          <label type="text" id="print_lat_gmap">Latitude : <%= (lat)? lat : '' %></label>
         </li>
         <li>
-          <label class="first_li"> Longitude :</label>
-          <label type="text" id="print_long_gmap" ><%= (long)? long : '' %></label>
+          <label type="text" id="print_long_gmap" >Longitude : <%= (long)? long : '' %></label>
         </li>
         <li>
           <%= (location)? location : '' %>
         </li>
       </ul>
+      <div id="map-canvas">
+        <% if(lat_long_str){ %>
+        <img src=<%= "http://maps.googleapis.com/maps/api/staticmap?center="+lat_long_str+"&zoom=13&size=600x400&sensor=false&markers=color:red|"+lat_long_str %> />
+        <% } %>
+      </div>
     </div>
-    <div id="map-canvas" style="height=300px;width=300px;">
-    </div>
-    <script type="text/javascript">
-    $(function(){
-      var myLatlng = new google.maps.LatLng(
-      $('#print_lat_gmap').val()? $('#print_lat_gmap').val() : '',
-      $('#print_long_gmap').val()? $('#print_long_gmap').val() : '');
-      var mapOptions = {
-        zoom: 20,
-        center: myLatlng
-      }
-      var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-      var marker = new google.maps.Marker({
-          position: myLatlng,
-          map: map,
-          title: 'Map Location'
-        });
-      })
-      </script>
+  </div>
   """
 
   addButton: """

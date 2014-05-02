@@ -572,12 +572,15 @@
 
 @media print {
 
-  .print_form {
-      table-layout: fixed;
-      border: 1px solid;
-      border-color: grey;
-      height: 100%;
-      width: 100%;
+.print_form {
+    table-layout: fixed;
+    border: 1px solid;
+    border-color: grey;
+    height: 100%;
+    width: 100%;
+    abbr[title]:after {
+      content: no-close-quote;
+    }
     .field_tr {
       text-align: left;
       vertical-align: top;
@@ -587,6 +590,8 @@
       ._fullname, ._address {
         padding: 0px;
       }
+
+
       td, th {
         word-wrap: break-word;
         border: 1px solid;
@@ -603,7 +608,7 @@
           padding-bottom: 0px;
         }
         .lat_long_wrapper {
-          text-align: left;
+          text-align: center;
           display: initial;
           .first_li {
             float: left;
@@ -611,6 +616,20 @@
         }
         ul {
           list-style-type: none;
+          text-align: center;
+        }
+        img {
+          border: none;
+          padding: 5px;
+          width:90%;
+          height: 90%;
+        }
+        .centered_td {
+          text-align: center;
+          margin: 0px 0px 10px 0px;
+          div {
+            margin: auto;
+          }
         }
       }
       .first_cell {
@@ -668,5 +687,6 @@
         text-decoration: underline;
       }
     }
-  }
+}
+
 }

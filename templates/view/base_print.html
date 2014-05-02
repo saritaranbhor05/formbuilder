@@ -4,7 +4,7 @@
 <% if($.inArray(rf.get(Formbuilder.options.mappings.FIELD_TYPE), Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW) != -1){ %>
   <td colspan=2 class="first_cell">
     <span class="print-label">
-      <%= Formbuilder.templates['view/label']({rf: rf}) %>
+      <%= Formbuilder.templates['view/label']({rf: rf, opts: opts}) %>
     </span>
     <span class="print-description">
       <%= Formbuilder.templates['view/description']({rf: rf}) %>
@@ -18,7 +18,7 @@
 <% } else { %>
   <td class="first_cell">
     <span class="print-label">
-    <%= Formbuilder.templates['view/label']({rf: rf}) %>
+    <%= Formbuilder.templates['view/label']({rf: rf, opts: opts}) %>
     </span>
     <span class="print-description">
     <%= Formbuilder.templates['view/description']({rf: rf}) %>
