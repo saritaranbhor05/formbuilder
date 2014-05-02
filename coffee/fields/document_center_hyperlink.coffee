@@ -151,6 +151,22 @@ Formbuilder.registerField 'document_center_hyperlink',
     </script>
   """
 
+  print: """
+    <div id='document_list_<%= rf.getCid() %>'
+      class='document_url_list document_list_<%= rf.getCid() %>'>
+    </div>
+    <script>
+      $(function() {
+        var data = "<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>";
+        if($(".document_list_<%= rf.getCid() %>").length > 1){
+          $($(".document_list_<%= rf.getCid() %>")[1]).html(data);
+        }
+        $("#document_list_<%= rf.getCid() %>").html(data);
+      });
+    </script>
+  """
+
+
   addButton: """
     <span class="symbol"><span class="icon-list"></span></span> Doc. Link
   """

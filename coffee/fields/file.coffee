@@ -77,6 +77,10 @@ Formbuilder.registerField 'file',
     </div>
   """
 
+  print: """
+    <div id="file_upload_link_<%= rf.getCid() %>"></div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-cloud-upload"></span></span> File
   """

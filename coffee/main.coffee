@@ -882,7 +882,7 @@ class Formbuilder
                           for model_in_conditions in field_view.model.get('conditions')
                             if(model_in_collection.getCid() is model_in_conditions.target)
                               has_ckeditor_field = true
-                      
+
                       value = x.value if field_view.field_type == 'radio'||'scale_rating'
                       name = cid.toString() + "_" + index.toString()
                       if $(x).attr('type') == 'radio' and model.get('field_values')
@@ -958,7 +958,7 @@ class Formbuilder
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
           _.each hierarchyViews, (hierarchyView) ->
-            hierarchyView.field.bindChangeEvents(hierarchyView)
+            hierarchyView.field.setValue(hierarchyView)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()

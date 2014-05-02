@@ -1,18 +1,35 @@
 <% if(opts.readonly && opts.view_type != 'print'){ %>
 <div class='cover'></div>
 <% } %>
-<td class="first_cell">
-<span class="print-label">
-<%= Formbuilder.templates['view/label']({rf: rf}) %>
-</span>
-<span class="print-description">
-<%= Formbuilder.templates['view/description']({rf: rf}) %>
-</span>
-</td>
-<td class='_<%= rf.get(Formbuilder.options.mappings.FIELD_TYPE) %>'>
-<% if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ %>
-  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) %>
+<% if($.inArray(rf.get(Formbuilder.options.mappings.FIELD_TYPE), Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW) != -1){ %>
+  <td colspan=2 class="first_cell">
+    <span class="print-label">
+      <%= Formbuilder.templates['view/label']({rf: rf}) %>
+    </span>
+    <span class="print-description">
+      <%= Formbuilder.templates['view/description']({rf: rf}) %>
+    </span>
+    <% if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ %>
+      <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) %>
+    <% } else { %>
+      <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+    <% } %>
+  </td>
 <% } else { %>
-  <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+  <td class="first_cell">
+    <span class="print-label">
+    <%= Formbuilder.templates['view/label']({rf: rf}) %>
+    </span>
+    <span class="print-description">
+    <%= Formbuilder.templates['view/description']({rf: rf}) %>
+    </span>
+  </td>
+  <td class='_<%= rf.get(Formbuilder.options.mappings.FIELD_TYPE) %>'>
+  <% if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ %>
+    <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) %>
+  <% } else { %>
+    <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) %>
+  <% } %>
+  </td>
 <% } %>
-</td>
+
