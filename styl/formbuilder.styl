@@ -576,117 +576,121 @@
     table-layout: fixed;
     border: 1px solid;
     border-color: grey;
-    height: 100%;
     width: 100%;
     abbr[title]:after {
       content: no-close-quote;
     }
-    .field_tr {
+  .field_tr {
+    text-align: left;
+    vertical-align: top;
+    .print-heading{
+      line-height: normal;
+    }
+    ._fullname, ._address {
+      padding: 0px;
+    }
+    td, th {
+      word-wrap: break-word;
+      border: 1px solid;
+      border-color: grey;
       text-align: left;
       vertical-align: top;
-      .print-heading{
-        line-height: normal;
+      line-height: normal;
+      padding: 0px 0px 0px 2px;
+      select {
+        width: 100%;
+        margin-bottom: 0px;
+        padding-right: 0px;
+        padding-left: 0px;
+        padding-bottom: 0px;
       }
-      ._fullname, ._address {
-        padding: 0px;
+      .lat_long_wrapper {
+        text-align: center;
+        display: initial;
+        .first_li {
+          float: left;
+        }
       }
-
-
+      ul {
+        list-style-type: none;
+        text-align: center;
+      }
+      img {
+        border: none;
+        padding: 5px 5px 5px 5px;
+        width: 90%;
+        height: 90%;
+      }
+      .centered_td {
+        text-align: center;
+        margin: 0px 0px 10px 0px;
+        div {
+          margin: auto;
+        }
+      }
+    }
+    .first_cell {
+      width: 30%;
+      .print-label {
+        label span {
+          font-weight:bold;
+          line-height:normal;
+          font-size: 13px;
+        }
+      }
+      .print-description {
+        font-style: italic;
+      }
+    };
+    .innerTbl {
+      table-layout: fixed;
+      width: 100%;
+      height: 100%;
+      padding: 0px;
       td, th {
         word-wrap: break-word;
-        border: 1px solid;
-        border-color: grey;
         text-align: left;
-        vertical-align: top;
-        line-height: normal;
-        padding: 0px 0px 0px 2px;
-        select {
-          width: 100%;
-          margin-bottom: 0px;
-          padding-right: 0px;
-          padding-left: 0px;
-          padding-bottom: 0px;
-        }
-        .lat_long_wrapper {
-          text-align: center;
-          display: initial;
-          .first_li {
-            float: left;
-          }
-        }
-        ul {
-          list-style-type: none;
-          text-align: center;
-        }
-        img {
-          border: none;
-          padding: 5px;
-          width:90%;
-          height: 90%;
-        }
-        .centered_td {
-          text-align: center;
-          margin: 0px 0px 10px 0px;
-          div {
-            margin: auto;
-          }
-        }
-      }
-      .first_cell {
-        width: 30%;
-        .print-label {
-          label span {
-            font-weight:bold;
-            line-height:normal;
-            font-size: 13px;
-          }
-        }
-        .print-description {
-          font-style: italic;
-        }
-      };
-      .innerTbl {
-        table-layout: fixed;
-        width: 100%;
-        height: 100%;
-        padding: 0px;
-        td, th {
-          word-wrap: break-word;
-          text-align: left;
-          vertical-align: middle;
-          border-right: 1px solid;
-        }
-      }
-      .innerTbl tr:first-child td {
-        border-top: 0;
-      }
-      .innerTbl tr:last-child td {
-        border-bottom: 0;
-      }
-      .innerTbl tr td:first-child {
-        border-left: 0;
-      }
-      .innerTbl tr td:last-child {
-        border-right: 0;
+        vertical-align: middle;
+        border-right: 1px solid;
       }
     }
-    input, select {
+    .innerTbl tr:first-child td {
+      border-top: 0;
+    }
+    .innerTbl tr:last-child td {
+      border-bottom: 0;
+    }
+    .innerTbl tr td:first-child {
+      border-left: 0;
+    }
+    .innerTbl tr td:last-child {
+      border-right: 0;
+    }
+  }
+  input, select {
+    border: none;
+    box-shadow: none;
+    background-color: white;
+    background-image: none !important;
+  }
+  ._price {
+    label {
+      float:left;
+    }
+  }
+
+  ._paragraph {
+    textarea {
       border: none;
-      box-shadow: none;
-      background-color: white;
-      background-image: none !important;
     }
-    ._price {
-      label {
-        float:left;
-      }
+  }
+
+  .file_upload_link_div, .document_url_list {
+    margin-bottom: 10px;
+    a {
+      text-decoration: underline;
     }
-    .file_upload_link_div, .document_url_list {
-      margin-bottom: 10px;
-      a {
-        text-decoration: underline;
-      }
-    }
+  }
 }
 
 }
