@@ -99,8 +99,7 @@ Formbuilder.registerField 'fullname',
           </td>
           <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
           <td>
-            <%= rf.$el.find('middle_name_span_' + rf.getCid()).val() %>
-            <input type='text' pattern="[a-zA-Z]+"" class="middle_name_span_' + rf.getCid()" />
+            <input type='text' pattern="[a-zA-Z]+"/>
           </td>
           <% } %>
           <td>

@@ -78,18 +78,19 @@ Formbuilder.registerField 'address',
             <input class="span12" type='text' id='state' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>"/>
           </td>
           <td>
-            <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+"
-         value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
+            <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+" value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
           </td>
           <td>
-            <select id="file_<%= rf.getCid() %>"
-          data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
-          class='span7 dropdown_country bfh-selectbox bfh-countries'
-        ></select>
+            <select id="file_<%= rf.getCid() %>" data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>" class='span7 dropdown_country bfh-selectbox bfh-countries'></select>
           </td>
         </tr>
       </tbody>
     </table>
+    <script>
+      $(function() {
+        $("#file_<%= rf.getCid() %>").bfhcount();
+      });
+    </script>
   """
 
   addButton: """

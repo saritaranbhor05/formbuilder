@@ -23,7 +23,6 @@ Formbuilder.registerField 'gmap',
       <% } %>
     <% } %>
     <div class="lat_long_wrapper">
-      <a href="http://www.google.com">Click to go to googles</a>
       <ul>
         <li>
           <label type="text" id="print_lat_gmap">Latitude : <%= (lat)? lat : '' %></label>
