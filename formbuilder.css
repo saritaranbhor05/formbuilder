@@ -569,13 +569,14 @@
   .print_form {
     table-layout: fixed;
     border: 1px solid;
-    border-color: #808080;
+    border-color: #ccc;
   }
   .print_form abbr[title]:after {
     content: no-close-quote;
   }
   .print_form abbr[title] {
     border-bottom: none;
+    visibility: hidden;
   }
   .print_form .field_tr {
     text-align: left;
@@ -596,7 +597,7 @@
   .print_form .field_tr th {
     word-wrap: break-word;
     border: 1px solid;
-    border-color: #808080;
+    border-color: #ccc;
     text-align: left;
     vertical-align: top;
     line-height: normal;
@@ -664,6 +665,9 @@
     vertical-align: middle;
     border-right: 1px solid;
   }
+  .print_form .field_tr .innerTbl tr:first-child {
+    font-style: italic;
+  }
   .print_form .field_tr .innerTbl tr:first-child td {
     border-top: 0;
   }
@@ -700,6 +704,6 @@
   }
   .print_form .section_break_div hr {
     margin: 15px 10px;
-    border-top: 1.5px dashed #333;
+    border-top: 2.5px dashed #333;
   }
 }
