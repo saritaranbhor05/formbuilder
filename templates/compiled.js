@@ -810,7 +810,7 @@ __p += '<div class=\'subtemplate-wrapper\'>\n  ';
 __p += '\n  <div class=\'cover\'></div>\n  ';
  } ;
 __p += '\n  ' +
-((__t = ( Formbuilder.templates['view/label']({rf: rf}) )) == null ? '' : __t) +
+((__t = ( Formbuilder.templates['view/label']({rf: rf, opts: opts}) )) == null ? '' : __t) +
 '\n\n  ';
  if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
       rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ ;
@@ -857,6 +857,84 @@ __p += '\n</div>\n';
 return __p
 };
 
+this["Formbuilder"]["templates"]["view/base_print"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+
+ if(opts.readonly && opts.view_type != 'print'){ ;
+__p += '\n<div class=\'cover\'></div>\n';
+ } ;
+__p += '\n';
+ if($.inArray(rf.get(Formbuilder.options.mappings.FIELD_TYPE), Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW) != -1){ ;
+__p += '\n  <td colspan=2 class="first_cell">\n    <span class="print-label">\n      ' +
+((__t = ( Formbuilder.templates['view/label']({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    </span>\n    <span class="print-description">\n      ' +
+((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
+'\n    </span>\n    ';
+ if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ ;
+__p += '\n      ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    ';
+ } else { ;
+__p += '\n      ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    ';
+ } ;
+__p += '\n  </td>\n';
+ } else { ;
+__p += '\n  <td class="first_cell">\n    <span class="print-label">\n    ' +
+((__t = ( Formbuilder.templates['view/label']({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n    </span>\n    <span class="print-description">\n    ' +
+((__t = ( Formbuilder.templates['view/description']({rf: rf}) )) == null ? '' : __t) +
+'\n    </span>\n  </td>\n  <td class=\'_' +
+((__t = ( rf.get(Formbuilder.options.mappings.FIELD_TYPE) )) == null ? '' : __t) +
+'\'>\n  ';
+ if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ ;
+__p += '\n    ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n  ';
+ } else { ;
+__p += '\n    ' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf, opts: opts}) )) == null ? '' : __t) +
+'\n  ';
+ } ;
+__p += '\n  </td>\n';
+ } ;
+__p += '\n\n';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["view/base_print_non_input"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '\n<td colspan=2>\n  ';
+ if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ ;
+__p += '\n\t' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf}) )) == null ? '' : __t) +
+'\n  ';
+ } else { ;
+__p += '\n\t' +
+((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) )) == null ? '' : __t) +
+'\n  ';
+ } ;
+__p += '\n  ';
+ if(!opts.live){ ;
+__p += '\n  ' +
+((__t = ( Formbuilder.templates['view/duplicate_remove']({rf: rf}) )) == null ? '' : __t) +
+'\n  ';
+ } ;
+__p += '\n</td>\n';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["view/description"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;
@@ -895,7 +973,9 @@ __p += '<label>\n  <span>' +
 __p += '\n    <abbr title=\'required\'>*</abbr>\n  ';
  } ;
 __p += '\n  ';
- if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'))) { ;
+ if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined')) ) {
+      if(opts.view_type != 'print'){
+   ;
 __p += '\n    ';
  var lbl_info_to_show = 'click here to sign',
         esign_cid = rf.get('cid');
@@ -906,7 +986,8 @@ __p += '\n    ';
 __p += '\n    <span class=\'label_info\'>' +
 ((__t = ( lbl_info_to_show )) == null ? '' : __t) +
 '</span>\n  ';
- } ;
+ }
+  } ;
 __p += '\n</label>\n\n';
 
 }

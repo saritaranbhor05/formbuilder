@@ -14,6 +14,10 @@ Formbuilder.registerField 'paragraph',
     <span class="symbol">&#182;</span> Paragraph
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if($el.find('textarea').val() == "")      
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'
     attrs

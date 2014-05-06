@@ -139,6 +139,10 @@ unless typeof(CKEDITOR) is 'undefined'
       <span class='symbol'><span class='icon-font'></span></span> Free Text HTML
     """
 
+    checkAttributeHasValue: (cid, $el)->
+      return false if($el.find('.freeTextHTMLDiv').is(':empty'))
+      return cid
+
     clearFields: ($el, model) ->
       $el.find('#' + model.getCid()).find('p').text('')
 

@@ -62,6 +62,10 @@ Formbuilder.registerField 'date_time',
     <span class="symbol"><span class="icon-calendar"></span></span> Date and Time
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find("input[type=text]").val() == "")
+    return cid
+
   setup: (field_view, model) ->
     el = field_view.$el.find('input')
     do(today = new Date) =>

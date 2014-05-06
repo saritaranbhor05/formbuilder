@@ -565,3 +565,145 @@
 .submitted .bootstrap-filestyle > label {
   border-color: #f00;
 }
+@media print {
+  .print_form {
+    table-layout: fixed;
+    border: 1px solid;
+    border-color: #ccc;
+  }
+  .print_form abbr[title]:after {
+    content: no-close-quote;
+  }
+  .print_form abbr[title] {
+    border-bottom: none;
+    visibility: hidden;
+  }
+  .print_form .field_tr {
+    text-align: left;
+    vertical-align: top;
+  }
+  .print_form .field_tr .print-heading {
+    line-height: normal;
+  }
+  .print_form .field_tr ._fullname,
+  .print_form .field_tr ._address {
+    padding: 0px;
+  }
+  .print_form .field_tr ._fullname input[type="text"],
+  .print_form .field_tr ._address input[type="text"] {
+    margin-bottom: 0px;
+  }
+  .print_form .field_tr td,
+  .print_form .field_tr th {
+    word-wrap: break-word;
+    border: 1px solid;
+    border-color: #ccc;
+    text-align: left;
+    vertical-align: top;
+    line-height: normal;
+    padding: 0px 0px 0px 2px;
+  }
+  .print_form .field_tr td select,
+  .print_form .field_tr th select {
+    width: 100%;
+    margin-bottom: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
+    padding-bottom: 0px;
+  }
+  .print_form .field_tr td .lat_long_wrapper,
+  .print_form .field_tr th .lat_long_wrapper {
+    text-align: center;
+    display: initial;
+  }
+  .print_form .field_tr td .lat_long_wrapper .first_li,
+  .print_form .field_tr th .lat_long_wrapper .first_li {
+    float: left;
+  }
+  .print_form .field_tr td ul,
+  .print_form .field_tr th ul {
+    list-style-type: none;
+    text-align: center;
+  }
+  .print_form .field_tr td img,
+  .print_form .field_tr th img {
+    border: none;
+    padding: 5px 5px 5px 5px;
+    width: 90%;
+    height: 90%;
+  }
+  .print_form .field_tr td .centered_td,
+  .print_form .field_tr th .centered_td {
+    text-align: center;
+    margin: 0px 0px 10px 0px;
+  }
+  .print_form .field_tr td .centered_td div,
+  .print_form .field_tr th .centered_td div {
+    margin: auto;
+  }
+  .print_form .field_tr .first_cell {
+    width: 30%;
+  }
+  .print_form .field_tr .first_cell .print-label label span {
+    font-weight: bold;
+    line-height: normal;
+    font-size: 13px;
+  }
+  .print_form .field_tr .first_cell .print-description {
+    font-style: italic;
+  }
+  .print_form .field_tr .innerTbl {
+    table-layout: fixed;
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+  }
+  .print_form .field_tr .innerTbl td,
+  .print_form .field_tr .innerTbl th {
+    word-wrap: break-word;
+    text-align: left;
+    vertical-align: middle;
+    border-right: 1px solid;
+  }
+  .print_form .field_tr .innerTbl tr:first-child {
+    font-style: italic;
+  }
+  .print_form .field_tr .innerTbl tr:first-child td {
+    border-top: 0;
+  }
+  .print_form .field_tr .innerTbl tr:last-child td {
+    border-bottom: 0;
+  }
+  .print_form .field_tr .innerTbl tr td:first-child {
+    border-left: 0;
+  }
+  .print_form .field_tr .innerTbl tr td:last-child {
+    border-right: 0;
+  }
+  .print_form input,
+  .print_form select {
+    border: none;
+    box-shadow: none;
+    background-color: #fff;
+    background-image: none !important;
+  }
+  .print_form ._price label {
+    float: left;
+  }
+  .print_form ._paragraph textarea {
+    border: none;
+    resize: none;
+  }
+  .print_form .file_upload_link_div,
+  .print_form .document_url_list {
+    margin-bottom: 10px;
+  }
+  .print_form .file_upload_link_div a,
+  .print_form .document_url_list a {
+    text-decoration: underline;
+  }
+  .print_form .section_break_div hr {
+    margin: 15px 10px;
+    border-top: 2.5px dashed #333;
+  }
+}

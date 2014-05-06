@@ -41,6 +41,10 @@ Formbuilder.registerField 'scale_rating',
     </span> Scale Rating
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find('input:checked').length <= 0)
+    return cid
+
   defaultAttributes: (attrs) ->
     # @todo
     attrs.field_options.options = [

@@ -10,6 +10,10 @@ Formbuilder.registerField 'email',
     <span class="symbol"><span class="icon-envelope-alt"></span></span> Email
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if $el.find('input[type=email]').val() == ''
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'
     attrs

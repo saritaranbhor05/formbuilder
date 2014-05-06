@@ -17,6 +17,10 @@ Formbuilder.registerField 'text',
     <span class='symbol'><span class='icon-font'></span></span> Text Box
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find("input[type=text]").val() == "")
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'
     attrs

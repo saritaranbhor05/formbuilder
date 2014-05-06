@@ -77,9 +77,22 @@ Formbuilder.registerField 'file',
     </div>
   """
 
+  print: """
+    <div id="file_upload_link_<%= rf.getCid() %>"></div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-cloud-upload"></span></span> File
   """
+
+  checkAttributeHasValue: (cid, $el)->
+    do(incomplete = false) =>
+      call_back = (k,v)->
+        incomplete = true if(v.href == "")
+      return false if($el.find('.active_link_doc').length == 0)
+      $el.find('.active_link_doc').each(call_back)
+      return false if(incomplete == true)
+      return cid
 
   add_remove_require:(cid,required) ->
     $("." + cid)

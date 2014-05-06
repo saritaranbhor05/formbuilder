@@ -13,11 +13,21 @@ class Formbuilder
     simple_format: (x) ->
       x?.replace(/\n/g, '<br />')
 
+  @baseConfig: {
+    'print' : {
+      'fieldTagName' : 'tr',
+      'fieldClassName' : 'field_tr',
+      'wizardTagName' : 'table',
+      'wizardClassName' : 'fb-tab print_form'
+    }
+  }
+
   @options:
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
+    PRINT_FIELDS_AS_SINGLE_ROW: ['document_center_hyperlink', 'file', 'take_pic_video_audio']
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
@@ -129,6 +139,9 @@ class Formbuilder
     for x in ['view', 'edit']
       opts[x] = _.template(opts[x])
 
+    if opts['print']
+      opts['print'] = _.template(opts['print'])
+
     Formbuilder.fields[name] = opts
 
     if opts.type == 'non_input'
@@ -139,13 +152,11 @@ class Formbuilder
   @views:
     wizard_tab: Backbone.View.extend
       className: "fb-tab"
-
       intialize: ->
         @parentView = @options.parentView
 
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
-
       events:
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
@@ -333,11 +344,12 @@ class Formbuilder
         return @
 
       live_render: ->
+        base_templ_suff = if @options.view_type == 'print' then '_print' else ''
         do (
           set_field = {}, i =0,
           action = "show",
           cid = @model.getCid(),
-          base_templ_suff = if @model.is_input() then '' else '_non_input',
+          base_templ_suff =  base_templ_suff + (if @model.is_input() then '' else '_non_input'),
           set_field_class = false
         ) =>
 
@@ -387,6 +399,14 @@ class Formbuilder
                     $(x).attr("required", true)
 
                   index
+          else if @is_section_break && @options.view_type == 'print'
+            @$el.addClass('readonly') if @model.get("field_options")
+                                          .state is "readonly"
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
+              .data('cid', cid)
+              .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
+                rf: @model,
+                opts: @options}))
         return @
 
       focusEditView: ->
@@ -620,36 +640,37 @@ class Formbuilder
           parentView: @
           live: @options.live
           readonly: @options.readonly
+          view_type: @options.view_type
+          tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldTagName else 'div'
+          className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldClassName else 'fb-field-wrapper'
           seedData: responseField.seedData
-        if (Formbuilder.options.PRINTVIEW &&
-            responseField.attributes.field_type != 'section_break') ||
-            !Formbuilder.options.PRINTVIEW
-          # Append view to @fieldViews
-          @fieldViews.push(view)
 
-          if !@options.live
-            #####
-            # Calculates where to place this new field.
-            #
-            # Are we replacing a temporarily drag placeholder?
-            if options.$replaceEl?
-              options.$replaceEl.replaceWith(view.render().el)
+        # Append view to @fieldViews
+        @fieldViews.push(view)
 
-            # Are we adding to the bottom?
-            else if !options.position? || options.position == -1
-              @$responseFields.append view.render().el
+        if !@options.live
+          #####
+          # Calculates where to place this new field.
+          #
+          # Are we replacing a temporarily drag placeholder?
+          if options.$replaceEl?
+            options.$replaceEl.replaceWith(view.render().el)
 
-            # Are we adding to the top?
-            else if options.position == 0
-              @$responseFields.prepend view.render().el
+          # Are we adding to the bottom?
+          else if !options.position? || options.position == -1
+            @$responseFields.append view.render().el
 
-            # Are we adding below an existing field?
-            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-              $replacePosition.before view.render().el
+          # Are we adding to the top?
+          else if options.position == 0
+            @$responseFields.prepend view.render().el
 
-            # Catch-all: add to bottom
-            else
-              @$responseFields.append view.render().el
+          # Are we adding below an existing field?
+          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+            $replacePosition.before view.render().el
+
+          # Catch-all: add to bottom
+          else
+            @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -702,7 +723,7 @@ class Formbuilder
             showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment()) =>
           for field_view in fieldViews
-            if (field_view.is_section_break)
+            if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
                 Formbuilder.options.mappings.BACK_VISIBLITY)
               add_break_to_next = true
@@ -714,8 +735,11 @@ class Formbuilder
             if cnt == 1
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
-              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            else if add_break_to_next && !field_view.is_section_break
+                tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
+                className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
+              if @options.view_type != 'print'
+                @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
+            else if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
               wizard_view.$el.append(sub_frag)
               sub_frag = document.createDocumentFragment()
               @$responseFields.append wizard_view.$el
@@ -724,8 +748,7 @@ class Formbuilder
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-
-            if wizard_view && field_view && !field_view.is_section_break
+            if wizard_view && field_view
               sub_frag.appendChild(field_view.render().el)
             if cnt == fieldViews.length && wizard_view
               wizard_view.$el.append(sub_frag)
@@ -867,7 +890,7 @@ class Formbuilder
                           for model_in_conditions in field_view.model.get('conditions')
                             if(model_in_collection.getCid() is model_in_conditions.target)
                               has_ckeditor_field = true
-                      
+
                       value = x.value if field_view.field_type == 'radio'||'scale_rating'
                       name = cid.toString() + "_" + index.toString()
                       if $(x).attr('type') == 'radio' and model.get('field_values')
@@ -943,7 +966,7 @@ class Formbuilder
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
           _.each hierarchyViews, (hierarchyView) ->
-            hierarchyView.field.bindChangeEvents(hierarchyView)
+            hierarchyView.field.setValue(hierarchyView)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
@@ -1045,8 +1068,23 @@ class Formbuilder
                   _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
-
           )
+
+      getVisibleNonEmptyFields: ()->
+        res = []
+        for f in @fieldViews
+          if (f.current_state is 'show' && !f.$el.hasClass('hide')) || f.$el.hasClass('show')
+            obj =
+                field_type: f.model.get('field_type'),
+                label: f.model.get('label'),
+                cid: f.model.get('cid'),
+                complete: false
+            if 'checkAttributeHasValue' of f.field
+              r = f.field.checkAttributeHasValue(f.model.get('cid'),f.$el)
+              if r
+                obj.complete = true
+            res.push(obj)
+        res
 
       formData: ->
         @$('#formbuilder_form').serializeArray()
@@ -1105,6 +1143,9 @@ class Formbuilder
 
   formValid: ->
     @mainView.formValid()
+
+  getVisibleNonEmptyFields: ->
+    @mainView.getVisibleNonEmptyFields()
 
 window.Formbuilder = Formbuilder
 

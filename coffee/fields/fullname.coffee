@@ -62,9 +62,72 @@ Formbuilder.registerField 'fullname',
     </script>
   """
 
+  print: """
+    <table class="innerTbl">
+      <tbody>
+        <tr>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %>
+          </td>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %>
+          </th>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
+            <td>
+              <%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %>
+            </td>
+          <% } %>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %>
+          </td>
+          <% } %>
+        </tr>
+        <tr>
+          <td>
+            <select class='span12'>
+            <%for (i = 0; i < this.perfix.length; i++){%>
+              <option><%= this.perfix[i]%></option>
+            <%}%>
+            </select>
+          </td>
+          <td>
+            <input id='first_name' type='text' pattern="[a-zA-Z]+"/>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
+          <td>
+            <input type='text' pattern="[a-zA-Z]+"/>
+          </td>
+          <% } %>
+          <td>
+            <input id='last_name' type='text' pattern="[a-zA-Z]+"/>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT)) { %>
+          <td>
+            <input id='suffix' type='text'/>
+          </td>
+          <% } %>
+        </tr>
+      </tbody>
+    </table>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-user"></span></span> Full Name
   """
+
+  checkAttributeHasValue: (cid, $el)->
+    do(incomplete = false) =>
+      call_back = ->
+        if($(this).val() == "")
+          incomplete = true
+      $el.find("input[type=text]").each(call_back);
+      incomplete = true if($el.find('select').val() == "")
+      return false if(incomplete == true)
+      return cid
 
   isValid: ($el, model) ->
     do(valid = false) =>

@@ -31,6 +31,31 @@ Formbuilder.registerField 'esignature',
     </div>
   """
 
+
+  print: """
+    <div class='esign-panel' style="display: inline-block;" >
+    <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+      <img type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;
+                      height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>
+      <canvas
+          id="can"
+          width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'
+          height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'
+          style="display:none;" class="esign_canvas"
+      />
+    <% } else
+      if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
+        <img type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>
+        <canvas
+            id="can"
+            width='250px'
+            height='150px'
+            style="display:none;" class="esign_canvas"
+        />
+    <% } %>
+    </div>
+  """
+
   edit: """
     <%= Formbuilder.templates['edit/canvas_options']() %>
   """
@@ -38,6 +63,13 @@ Formbuilder.registerField 'esignature',
   addButton: """
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature
   """
+  checkAttributeHasValue: (cid, $el)->
+    do(incomplete = false) =>
+      call_back = (k,v) ->
+        incomplete = true if(v.src == "")
+      $el.find("img").each(call_back);
+      return false if(incomplete == true)
+      return cid
 
   add_remove_require:(cid,required) ->
     $("." + cid)

@@ -12,6 +12,10 @@ Formbuilder.registerField 'url',
     <span class="symbol"><span class="icon-link"></span></span> URL
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find("input[type=url]").val() == "")
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'
     attrs

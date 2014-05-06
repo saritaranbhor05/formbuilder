@@ -37,12 +37,48 @@ Formbuilder.registerField 'ci-hierarchy',
 
   edit: ""
 
+  print: """
+    <table class="innerTbl">
+      <tbody>
+        <tr>
+          <td><label>Organisation </label>
+          </td>
+          <td>
+            <label>Location </label>
+          </td>
+          <td>
+            <label>Division </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label id="company_id_<%= rf.getCid() %>"></label>
+          </td>
+          <td>
+            <label id="location_id_<%= rf.getCid() %>"></label>
+          </td>
+          <td>
+            <label id="division_id_<%= rf.getCid() %>"></label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  """
+
   addButton: """
     <span class="symbol">
       <span class="icon-caret-down"></span>
     </span> Hierarchy
   """
   selected_comp: null
+
+  checkAttributeHasValue: (cid, $el) ->
+    do(incomplete = false)=>
+      call_back = (k,v) ->
+        incomplete = true if(v.value == '')
+      $el.find('select').each(call_back)
+      return false if(incomplete == true)
+      return cid
 
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'
@@ -215,3 +251,52 @@ Formbuilder.registerField 'ci-hierarchy',
     $("#location_id_" + cid).attr("required", required)
     $("#division_id_" + cid).attr("required", required)
 
+  setValue: (fd_view) ->
+    if fd_view.options.view_type == 'print'
+      @setValForPrint(fd_view)
+    else
+      @bindChangeEvents(fd_view)
+
+  setValForPrint: (fd_view) ->
+    do(cid = null, $company_id = null,
+      $location_id = null, $division_id = null,
+      field_values = null, selected_compId = '',
+      selected_locId = '', selected_divId = '',
+      comp_obj = null, loc_obj = null, div_obj = null,
+      companies = Formbuilder.options.COMPANY_HIERARCHY
+    ) =>
+      cid = fd_view.model.attributes.cid
+      field_values = fd_view.model.attributes.field_values
+      $company_id = fd_view.$("#company_id_" + cid)
+      $location_id = fd_view.$("#location_id_" + cid)
+      $division_id = fd_view.$("#division_id_" + cid)
+      if field_values
+        selected_compId = field_values[cid+'_1'] if $company_id
+        selected_locId = field_values[cid+'_2'] if $location_id
+        selected_divId = field_values[cid+'_3'] if $division_id
+      if selected_compId
+        comp_obj = @findObjFrmData(companies, selected_compId)
+        $company_id.text(comp_obj && comp_obj.name || '')
+        if comp_obj && selected_locId
+            loc_obj = @findObjFrmData(comp_obj.locations, selected_locId)
+            $location_id.text(loc_obj && loc_obj.name || '')
+            if loc_obj && selected_divId
+              div_obj = @findObjFrmData(loc_obj.divisions, selected_divId)
+              $division_id.text(div_obj && div_obj.name || '')
+        else
+          @setEmptyForPrint(fd_view, cid)
+      else
+        @setEmptyForPrint(fd_view, cid)
+
+  findObjFrmData: (data, selected_id) ->
+    do(obj = null) =>
+      _.each data, (obj_hash) ->
+        if obj_hash.id == parseInt(selected_id)
+          obj = obj_hash
+          return false
+      return obj
+
+  setEmptyForPrint: (fd_view, cid) ->
+    fd_view.$("#company_id_" + cid).text('')
+    fd_view.$("#location_id_" + cid).text('')
+    fd_view.$("#division_id_" + cid).text('')

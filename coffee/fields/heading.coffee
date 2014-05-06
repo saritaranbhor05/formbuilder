@@ -22,6 +22,15 @@ Formbuilder.registerField 'heading',
     <%= Formbuilder.templates['edit/size']() %>
   """
 
+  print: """
+    <label id='<%= rf.getCid() %>' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %> print-heading'>
+      <%= rf.get(Formbuilder.options.mappings.LABEL) %>
+    </label>
+    <p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>
+      <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>
+    </p>
+  """
+
   addButton: """
     <span class='symbol'><span class='icon-font'></span></span> Heading
   """

@@ -37,6 +37,10 @@ Formbuilder.registerField 'dropdown',
     <span class="symbol"><span class="icon-caret-down"></span></span> Dropdown
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if $el.find('select').val() == ''
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.options = [
       label: "",
