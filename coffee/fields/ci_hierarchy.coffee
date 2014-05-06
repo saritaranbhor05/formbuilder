@@ -288,8 +288,6 @@ Formbuilder.registerField 'ci-hierarchy',
             if loc_obj && selected_divId
               div_obj = @findObjFrmData(loc_obj.divisions, selected_divId)
               $division_id.text(div_obj && div_obj.name || '')
-
-
         else
           @setEmptyForPrint(fd_view, cid)
       else
