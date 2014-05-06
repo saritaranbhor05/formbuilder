@@ -24,8 +24,7 @@ Formbuilder.registerField 'phone_number',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    if ($el.find('input[type=tel]').val() == "")
-      return false
+    return false if($el.find('input[type=tel]').val() == "")
     return cid
 
   setup: (field_view, model) ->

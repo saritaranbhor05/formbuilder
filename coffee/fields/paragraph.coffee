@@ -15,8 +15,7 @@ Formbuilder.registerField 'paragraph',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    if ($el.find('textarea').val() == "")
-      return false
+    return false if($el.find('textarea').val() == "")      
     return cid
 
   defaultAttributes: (attrs) ->

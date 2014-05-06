@@ -88,18 +88,11 @@ Formbuilder.registerField 'file',
   checkAttributeHasValue: (cid, $el)->
     do(incomplete = false) =>
       call_back = (k,v)->
-        if(v.href == "")
-          incomplete = true
-
-      if $el.find('.active_link_doc').length == 0
-        return false
-
+        incomplete = true if(v.href == "")
+      return false if($el.find('.active_link_doc').length == 0)
       $el.find('.active_link_doc').each(call_back)
-
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      return false if(incomplete == true)
+      return cid
 
   add_remove_require:(cid,required) ->
     $("." + cid)

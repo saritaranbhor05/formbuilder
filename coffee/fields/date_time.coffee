@@ -63,8 +63,7 @@ Formbuilder.registerField 'date_time',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    if $el.find("input[type=text]").val() == ""
-      return false
+    return false if($el.find("input[type=text]").val() == "")
     return cid
 
   setup: (field_view, model) ->

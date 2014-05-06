@@ -75,11 +75,9 @@ Formbuilder.registerField 'ci-hierarchy',
   checkAttributeHasValue: (cid, $el) ->
     do(incomplete = false)=>
       call_back = (k,v) ->
-        if v.value == ''
-          incomplete = true
+        incomplete = true if(v.value == '')
       $el.find('select').each(call_back)
-      if incomplete == true
-        return false
+      return false if(incomplete == true)
       return cid
 
   defaultAttributes: (attrs) ->

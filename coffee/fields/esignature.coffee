@@ -66,14 +66,10 @@ Formbuilder.registerField 'esignature',
   checkAttributeHasValue: (cid, $el)->
     do(incomplete = false) =>
       call_back = (k,v) ->
-        if(v.src == "")
-          incomplete = true
+        incomplete = true if(v.src == "")
       $el.find("img").each(call_back);
-
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      return false if(incomplete == true)
+      return cid
 
   add_remove_require:(cid,required) ->
     $("." + cid)

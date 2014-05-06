@@ -37,14 +37,11 @@ Formbuilder.registerField 'price',
   checkAttributeHasValue: (cid, $el)->
     do(incomplete = false) =>
       call_back = (k,v) ->
-        if(v.value == "")
-          incomplete = true
+        incomplete = true if(v.value == "")
       $el.find("input[type=text]").each(call_back);
 
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      return false if(incomplete == true)
+      return cid
 
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")

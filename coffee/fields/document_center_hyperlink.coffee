@@ -174,10 +174,7 @@ Formbuilder.registerField 'document_center_hyperlink',
   checkAttributeHasValue: (cid, $el)->
     do(incomplete = false) =>
       call_back = (k,v)->
-        if(v.href == "")
-          incomplete = true
+        incomplete = true if(v.href == "")
       $el.find('a').each(call_back);
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      return false if(incomplete == true)
+      return cid

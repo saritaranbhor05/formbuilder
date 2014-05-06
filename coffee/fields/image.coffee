@@ -73,7 +73,5 @@ Formbuilder.registerField 'image',
         if(v.src == "")
           incomplete = true
       $el.find("img").each(call_back);
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      return false if(incomplete == true)
+      return cid

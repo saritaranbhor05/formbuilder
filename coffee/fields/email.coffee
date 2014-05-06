@@ -11,8 +11,7 @@ Formbuilder.registerField 'email',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    if $el.find('input[type=email]').val() == ''
-      return false
+    return false if $el.find('input[type=email]').val() == ''
     return cid
 
   defaultAttributes: (attrs) ->

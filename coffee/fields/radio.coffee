@@ -58,11 +58,10 @@ Formbuilder.registerField 'radio',
     attrs
 
   checkAttributeHasValue: (cid, $el)->
-    if ($el.find('input:checked').length <= 0)
-      return false
+    return false if($el.find('input:checked').length <= 0)
+
     if $el.find('input:checked').val() == '__other__'
-      if $el.find('input:text').val() == ''
-        return false
+      return false if($el.find('input:text').val() == '')
     return cid
 
   isValid: ($el, model) ->

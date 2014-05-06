@@ -38,8 +38,7 @@ Formbuilder.registerField 'dropdown',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    if $el.find('select').val() == ''
-      return false
+    return false if $el.find('select').val() == ''
     return cid
 
   defaultAttributes: (attrs) ->

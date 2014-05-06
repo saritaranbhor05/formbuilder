@@ -125,14 +125,9 @@ Formbuilder.registerField 'fullname',
         if($(this).val() == "")
           incomplete = true
       $el.find("input[type=text]").each(call_back);
-
-      if($el.find('select').val() == "")
-        incomplete = true
-
-      if(incomplete == true)
-        return false
-      else
-        return cid
+      incomplete = true if($el.find('select').val() == "")
+      return false if(incomplete == true)
+      return cid
 
   isValid: ($el, model) ->
     do(valid = false) =>

@@ -13,10 +13,8 @@ Formbuilder.registerField 'url',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    if($el.find("input[type=url]").val() == "")
-      return false
-    else
-      return cid
+    return false if($el.find("input[type=url]").val() == "")
+    return cid
 
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'

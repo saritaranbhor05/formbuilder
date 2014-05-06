@@ -18,10 +18,8 @@ Formbuilder.registerField 'text',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    if($el.find("input[type=text]").val() == "")
-      return false
-    else
-      return cid
+    return false if($el.find("input[type=text]").val() == "")
+    return cid
 
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'medium'

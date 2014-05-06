@@ -19,8 +19,7 @@ Formbuilder.registerField 'number',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    if ($el.find('input[type=number]').val() == "")
-      return false
+    return false if($el.find('input[type=number]').val() == "")
     return cid
 
   defaultAttributes: (attrs) ->

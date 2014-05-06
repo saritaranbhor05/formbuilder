@@ -140,10 +140,8 @@ unless typeof(CKEDITOR) is 'undefined'
     """
 
     checkAttributeHasValue: (cid, $el)->
-      if($el.find('.freeTextHTMLDiv').is(':empty'))
-        return false
-      else
-        return cid
+      return false if($el.find('.freeTextHTMLDiv').is(':empty'))
+      return cid
 
     clearFields: ($el, model) ->
       $el.find('#' + model.getCid()).find('p').text('')

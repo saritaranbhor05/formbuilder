@@ -42,8 +42,7 @@ Formbuilder.registerField 'scale_rating',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    if ($el.find('input:checked').length <= 0)
-      return false
+    return false if($el.find('input:checked').length <= 0)
     return cid
 
   defaultAttributes: (attrs) ->
