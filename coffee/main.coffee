@@ -399,6 +399,14 @@ class Formbuilder
                     $(x).attr("required", true)
 
                   index
+          else if @is_section_break && @options.view_type == 'print'
+            @$el.addClass('readonly') if @model.get("field_options")
+                                          .state is "readonly"
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
+              .data('cid', cid)
+              .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
+                rf: @model,
+                opts: @options}))
         return @
 
       focusEditView: ->
@@ -636,35 +644,33 @@ class Formbuilder
           tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldTagName else 'div'
           className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldClassName else 'fb-field-wrapper'
           seedData: responseField.seedData
-        if (Formbuilder.options.PRINTVIEW &&
-            responseField.attributes.field_type != 'section_break') ||
-            !Formbuilder.options.PRINTVIEW
-          # Append view to @fieldViews
-          @fieldViews.push(view)
 
-          if !@options.live
-            #####
-            # Calculates where to place this new field.
-            #
-            # Are we replacing a temporarily drag placeholder?
-            if options.$replaceEl?
-              options.$replaceEl.replaceWith(view.render().el)
+        # Append view to @fieldViews
+        @fieldViews.push(view)
 
-            # Are we adding to the bottom?
-            else if !options.position? || options.position == -1
-              @$responseFields.append view.render().el
+        if !@options.live
+          #####
+          # Calculates where to place this new field.
+          #
+          # Are we replacing a temporarily drag placeholder?
+          if options.$replaceEl?
+            options.$replaceEl.replaceWith(view.render().el)
 
-            # Are we adding to the top?
-            else if options.position == 0
-              @$responseFields.prepend view.render().el
+          # Are we adding to the bottom?
+          else if !options.position? || options.position == -1
+            @$responseFields.append view.render().el
 
-            # Are we adding below an existing field?
-            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-              $replacePosition.before view.render().el
+          # Are we adding to the top?
+          else if options.position == 0
+            @$responseFields.prepend view.render().el
 
-            # Catch-all: add to bottom
-            else
-              @$responseFields.append view.render().el
+          # Are we adding below an existing field?
+          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+            $replacePosition.before view.render().el
+
+          # Catch-all: add to bottom
+          else
+            @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -717,7 +723,7 @@ class Formbuilder
             showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment()) =>
           for field_view in fieldViews
-            if (field_view.is_section_break)
+            if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
                 Formbuilder.options.mappings.BACK_VISIBLITY)
               add_break_to_next = true
@@ -731,8 +737,9 @@ class Formbuilder
                 parentView: @
                 tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
                 className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
-              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            else if add_break_to_next && !field_view.is_section_break
+              if @options.view_type != 'print'
+                @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
+            else if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
               wizard_view.$el.append(sub_frag)
               sub_frag = document.createDocumentFragment()
               @$responseFields.append wizard_view.$el
@@ -741,7 +748,7 @@ class Formbuilder
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            if wizard_view && field_view && !field_view.is_section_break
+            if wizard_view && field_view
               sub_frag.appendChild(field_view.render().el)
             if cnt == fieldViews.length && wizard_view
               wizard_view.$el.append(sub_frag)
