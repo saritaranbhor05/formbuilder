@@ -573,7 +573,7 @@
 @media print {
 
 .print_form {
-    table-layout: fixed;
+    table-layout: auto;
     border: 1px solid;
     border-color: #ccc;
     abbr[title]:after {
@@ -595,6 +595,16 @@
         margin-bottom: 0px;
       }
     }
+    ._image {
+      img {
+        width: inherit;
+        max-width: 400px !important;
+      }
+      div {
+       height: 300px;
+      }
+    }
+
     td, th {
       word-wrap: break-word;
       border: 1px solid;
@@ -636,7 +646,7 @@
       }
     }
     .first_cell {
-      width: 30%;
+      width:30%;
       .print-label {
         label span {
           font-weight:bold;
@@ -683,6 +693,7 @@
       }
     }
   }
+
   input, select {
     border: none;
     box-shadow: none;
