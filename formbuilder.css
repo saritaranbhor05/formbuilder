@@ -680,6 +680,12 @@
   .print_form .field_tr .innerTbl tr td:last-child {
     border-right: 0;
   }
+  .print_form .field_tr ._ci-hierarchy {
+    padding: 0px;
+  }
+  .print_form .field_tr ._ci-hierarchy .innerTbl tr:last-child td label {
+    min-height: 10px;
+  }
   .print_form input,
   .print_form select {
     border: none;
