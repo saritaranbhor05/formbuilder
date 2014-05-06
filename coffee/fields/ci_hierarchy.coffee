@@ -271,12 +271,9 @@ Formbuilder.registerField 'ci-hierarchy',
       $location_id = fd_view.$("#location_id_" + cid)
       $division_id = fd_view.$("#division_id_" + cid)
       if field_values
-        if $company_id
-          selected_compId = field_values[cid+'_1']
-        if $location_id
-          selected_locId = field_values[cid+'_2']
-        if $division_id
-          selected_divId = field_values[cid+'_3']
+        selected_compId = field_values[cid+'_1'] if $company_id
+        selected_locId = field_values[cid+'_2'] if $location_id
+        selected_divId = field_values[cid+'_3'] if $division_id
       if selected_compId
         comp_obj = @findObjFrmData(companies, selected_compId)
         $company_id.text(comp_obj && comp_obj.name || '')
