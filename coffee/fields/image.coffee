@@ -68,12 +68,12 @@ Formbuilder.registerField 'image',
     <span class="symbol"><span class="icon-picture"></span></span> Image
   """
   checkAttributeHasValue: (cid, $el)->
-    incomplete = false
-    cb = (k,v) ->
-      if(v.src == "")
-        incomplete = true
-    $el.find("img").each(cb);
-    if(incomplete == true)
-      return false
-    else
-      return cid
+    do(incomplete = false) =>
+      call_back = (k,v) ->
+        if(v.src == "")
+          incomplete = true
+      $el.find("img").each(call_back);
+      if(incomplete == true)
+        return false
+      else
+        return cid

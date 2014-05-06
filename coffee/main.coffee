@@ -1073,7 +1073,7 @@ class Formbuilder
       getVisibleNonEmptyFields: ()->
         res = []
         for f in @fieldViews
-          if f.current_state is 'show' || f.$el.hasClass('show')
+          if (f.current_state is 'show' && !f.$el.hasClass('hide')) || f.$el.hasClass('show')
             obj =
                 field_type: f.model.get('field_type'),
                 label: f.model.get('label'),

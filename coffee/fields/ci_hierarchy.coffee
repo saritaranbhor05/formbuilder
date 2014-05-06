@@ -73,14 +73,14 @@ Formbuilder.registerField 'ci-hierarchy',
   selected_comp: null
 
   checkAttributeHasValue: (cid, $el) ->
-    incomplete = false
-    cb = (k,v) ->
-      if v.value == ''
-        incomplete = true
-    $el.find('select').each(cb)
-    if incomplete == true
-      return false
-    return cid
+    do(incomplete = false)=>
+      call_back = (k,v) ->
+        if v.value == ''
+          incomplete = true
+      $el.find('select').each(call_back)
+      if incomplete == true
+        return false
+      return cid
 
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'

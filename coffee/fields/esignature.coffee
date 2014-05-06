@@ -64,11 +64,11 @@ Formbuilder.registerField 'esignature',
     <span class="symbol"><span class="icon-pen"></span></span> E-Signature
   """
   checkAttributeHasValue: (cid, $el)->
-      incomplete = false
-      cb = (k,v) ->
+    do(incomplete = false) =>
+      call_back = (k,v) ->
         if(v.src == "")
           incomplete = true
-      $el.find("img").each(cb);
+      $el.find("img").each(call_back);
 
       if(incomplete == true)
         return false

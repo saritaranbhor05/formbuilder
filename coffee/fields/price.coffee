@@ -35,26 +35,26 @@ Formbuilder.registerField 'price',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    incomplete = false
-    cb = (k,v) ->
-      if(v.value == "")
-        incomplete = true
-    $el.find("input[type=text]").each(cb);
+    do(incomplete = false) =>
+      call_back = (k,v) ->
+        if(v.value == "")
+          incomplete = true
+      $el.find("input[type=text]").each(call_back);
 
-    if(incomplete == true)
-      return false
-    else
-      return cid
+      if(incomplete == true)
+        return false
+      else
+        return cid
 
   clearFields: ($el, model) ->
     $el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do(  
+    do(
        firstValue = '' ,
        check_result = false,
        secondValue = '',
-       is_true = false                  
+       is_true = false
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
@@ -69,4 +69,4 @@ Formbuilder.registerField 'price',
             .attr("required", required)
     $("." + cid)
             .find("[name = "+cid+"_2]")
-            .attr("required", required)                
+            .attr("required", required)

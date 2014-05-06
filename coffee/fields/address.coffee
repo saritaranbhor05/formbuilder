@@ -98,19 +98,19 @@ Formbuilder.registerField 'address',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    incomplete = false
-    cb = ->
-      if($(this).val() == "")
+    do(incomplete = false) =>
+      call_back = ->
+        if($(this).val() == "")
+          incomplete = true
+      $el.find("input[type=text]").each(call_back)
+
+      if ($el.find('select').val() == "")
         incomplete = true
-    $el.find("input[type=text]").each(cb)
 
-    if ($el.find('select').val() == "")
-      incomplete = true
-
-    if(incomplete == true)
-      return false
-    else
-      return cid
+      if(incomplete == true)
+        return false
+      else
+        return cid
 
   clearFields: ($el, model) ->
     do(_that = @) =>
