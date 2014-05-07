@@ -748,7 +748,8 @@ class Formbuilder
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            if wizard_view && field_view
+            if wizard_view && field_view && (!field_view.is_section_break ||
+                @options.view_type == 'print')
               sub_frag.appendChild(field_view.render().el)
             if cnt == fieldViews.length && wizard_view
               wizard_view.$el.append(sub_frag)
