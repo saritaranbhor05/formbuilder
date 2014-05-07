@@ -105,7 +105,7 @@ Formbuilder.registerField 'fullname',
           <td>
             <input id='last_name' type='text' pattern="[a-zA-Z]+"/>
           </td>
-          <% if (rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT)) { %>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
           <td>
             <input id='suffix' type='text'/>
           </td>
