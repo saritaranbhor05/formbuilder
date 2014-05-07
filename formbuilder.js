@@ -2977,7 +2977,7 @@
   Formbuilder.registerField('radio', {
     view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<% for ( var i = 0 ; i < field_options.length ; i++) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='radio' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %>/>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='radio' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
-    print: "<div>\n <% var all_attr =  rf.get('field_values') %>\n <% var cid =  rf.get('cid') %>\n <% if(all_attr){ %>\n    <% for(var k in all_attr){ %>\n      <% if(all_attr[k]){ %>\n          <label><%= k %><label>\n      <% } %>\n    <% } %>\n <% } %>\n</div>",
+    print: "<div>\n <% var all_attr =  rf.get('field_values') %>\n <% var cid =  rf.get('cid') %>\n <% if(all_attr){ %>\n    <% for(var k in all_attr){ %>\n      <% if(all_attr[k]){ %>\n        <label>\n          <% if(k == '__other__') { %>\n            <%= all_attr[cid + '_1'] %>\n          <% } else { %>\n            <%=  k %>\n          <% } %>\n        <label>\n    <% break;} %>\n    <% } %>\n <% } %>\n</div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-circle-blank\"></span></span> Radio Button",
     defaultAttributes: function(attrs) {
       attrs.field_options.options = [
