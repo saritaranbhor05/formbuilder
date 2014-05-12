@@ -21,6 +21,13 @@ Formbuilder.registerField 'text',
     attrs.field_options.size = 'medium'
     attrs
 
+  print: """
+    <label id="text_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#text_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   setup: (el, model, index) ->
     if model.get(Formbuilder.options.mappings.MINLENGTH)
       do(min_length = model.get(Formbuilder.options.mappings.MINLENGTH)) ->
