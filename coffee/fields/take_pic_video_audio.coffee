@@ -118,6 +118,10 @@ Formbuilder.registerField 'take_pic_video_audio',
     <%= Formbuilder.templates['edit/capture']({ rf:rf }) %>
   """
 
+  print: """
+    <div id="capture_link_<%= rf.getCid() %>"></div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-camera"></span></span> Capture
   """

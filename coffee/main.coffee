@@ -13,15 +13,26 @@ class Formbuilder
     simple_format: (x) ->
       x?.replace(/\n/g, '<br />')
 
+  @baseConfig: {
+    'print' : {
+      'fieldTagName' : 'tr',
+      'fieldClassName' : 'field_tr',
+      'wizardTagName' : 'table',
+      'wizardClassName' : 'fb-tab print_form'
+    }
+  }
+
   @options:
     BUTTON_CLASS: 'fb-button'
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
+    PRINT_FIELDS_AS_SINGLE_ROW: ['document_center_hyperlink', 'file', 'take_pic_video_audio']
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
-    PRINTVIEW: false
+    PRINTVIEW: false,
+    EDIT_FS_MODEL: false,
 
     mappings:
       SIZE: 'field_options.size'
@@ -128,6 +139,9 @@ class Formbuilder
     for x in ['view', 'edit']
       opts[x] = _.template(opts[x])
 
+    if opts['print']
+      opts['print'] = _.template(opts['print'])
+
     Formbuilder.fields[name] = opts
 
     if opts.type == 'non_input'
@@ -138,13 +152,11 @@ class Formbuilder
   @views:
     wizard_tab: Backbone.View.extend
       className: "fb-tab"
-
       intialize: ->
         @parentView = @options.parentView
 
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
-
       events:
         'click .subtemplate-wrapper': 'focusEditView'
         'click .js-duplicate': 'duplicate'
@@ -177,35 +189,42 @@ class Formbuilder
 
       show_hide_fields: (check_result, set_field) ->
         do( set_field = set_field) =>
-            if(check_result is true )
-              @$el.addClass(set_field.action)
-              if(set_field.action == 'show')
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data) if @field_type is 'free_text_html'
-                @current_state = set_field.action
-                @add_remove_require(true)
-              else
-                @$el.removeClass('show')
-                @current_state = "hide"
-                @add_remove_require(false)
+          if(check_result is true )
+            @$el.addClass(set_field.action)
+            if(set_field.action == 'show')
+              $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+              if @field_type is 'free_text_html'
+                @$('#'+@model.getCid()).html('')
+                @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
+              @current_state = set_field.action
+              @add_remove_require(true)
             else
-              @$el.removeClass(set_field.action)
-              if(set_field.action == 'hide')
-                @$el.addClass("show")
-                $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
-                $('#'+@model.getCid()).find('p').replaceWith(@model.get('field_options').html_data)  if @field_type is 'free_text_html'
-                @current_state = set_field.action
-                @add_remove_require(true)
-              else
-                @$el.addClass("hide")
-                @add_remove_require(false)
-                @current_state = "hide"
+              @$el.removeClass('show')
+              @current_state = "hide"
+              @add_remove_require(false)
+          else
+            @$el.removeClass(set_field.action)
+            if(set_field.action == 'hide')
+              @$el.addClass("show")
+              $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+              if @field_type is 'free_text_html'
+                @$('#'+@model.getCid()).html('')
+                @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
+              @current_state = set_field.action
+              @add_remove_require(true)
+            else
+              @$el.addClass("hide")
+              @add_remove_require(false)
+              @current_state = "hide"
 
       changeState: ->
         do(
           set_field = {}
           , i =0,and_flag = false
-          , check_match_condtions = new Array()
+          , check_match_condtions = new Array(),
+          _this_model_cid = @model.getCid(),
+          date_field_types = ['date', 'time', 'date_of_birth', 'date_time'],
+          str_condition = false
         ) =>
           and_flag = true if @model.get('field_options')
           .match_conditions is 'and'
@@ -215,34 +234,33 @@ class Formbuilder
               ,elem_val = {},condition = "equals",
               field_type = '', check_result = false
             ) =>
-              if set_field.target is @model.getCid()
+              if set_field.target is _this_model_cid
                 source_model = @model.collection.
                               where({cid: set_field.source})[0]
                 clicked_element = $("." + source_model.getCid())
                 field_type = source_model.get('field_type')
+                str_condition = true if date_field_types.indexOf(field_type) != -1
                 if set_field.condition is "equals"
-                  condition = '=='
+                  condition = @parentView.checkEquals
+                  condition = '==' if str_condition
                 else if set_field.condition is "less than"
-                  condition = '<'
+                  condition = @parentView.checkLessThan
+                  condition = '<' if str_condition
                 else if set_field.condition is "greater than"
-                  condition = '>'
+                  condition = @parentView.checkGreaterThan
+                  condition = '>' if str_condition
                 else
-                  condition = "!="
+                  condition = @parentView.checkNotEqual
+                  condition = '!=' if str_condition
 
                 check_result = @evalCondition(clicked_element,
                     source_model, condition, set_field.value)
                 check_match_condtions.push(check_result)
 
-                if and_flag is true
-                  if check_match_condtions.indexOf(false) == -1
-                    @show_hide_fields(true, set_field)
-                  else
-                    @show_hide_fields('false', set_field)
-                else
-                  if check_match_condtions.indexOf(true) != -1
-                    @show_hide_fields(true, set_field)
-                  else
-                    @show_hide_fields('false', set_field)
+          if (and_flag && check_match_condtions.indexOf(false) == -1) || ( !and_flag && check_match_condtions.indexOf(true) != -1)
+            @show_hide_fields(true, set_field)
+          else
+            @show_hide_fields(false, set_field)
 
         outerHeight = 0
         $(".fb-tab.step.active .fb-field-wrapper:visible").each ->
@@ -326,11 +344,12 @@ class Formbuilder
         return @
 
       live_render: ->
+        base_templ_suff = if @options.view_type == 'print' then '_print' else ''
         do (
           set_field = {}, i =0,
           action = "show",
           cid = @model.getCid(),
-          base_templ_suff = if @model.is_input() then '' else '_non_input',
+          base_templ_suff =  base_templ_suff + (if @model.is_input() then '' else '_non_input'),
           set_field_class = false
         ) =>
 
@@ -342,17 +361,14 @@ class Formbuilder
 
           @$el.addClass("hide") if set_field_class
 
-          if @model.attributes.conditions
-            if !@is_section_break
-              if @model.get("conditions").length
-                for set_field in @model.get("conditions")
-                  do (set_field) =>
-                    if set_field.target is @model.getCid()
-                      for views_name in @parentView.fieldViews
-                        do (views_name,set_field) =>
-                          if views_name.model.get('cid') is set_field.source
-                            @listenTo(views_name, 'change_state', @changeState)
-
+          if !@is_section_break && @model.attributes.conditions
+            for condition_hash in @model.get("conditions")
+              do (condition_hash) =>
+                if condition_hash.target is @model.getCid()
+                  for views_name in @parentView.fieldViews
+                    do (views_name, condition_hash) =>
+                      if views_name.model.get('cid') is condition_hash.source
+                        @listenTo(views_name, 'change_state', @changeState)
 
           if !@is_section_break
             @$el.addClass('readonly') if @model.get("field_options")
@@ -383,6 +399,14 @@ class Formbuilder
                     $(x).attr("required", true)
 
                   index
+          else if @is_section_break && @options.view_type == 'print'
+            @$el.addClass('readonly') if @model.get("field_options")
+                                          .state is "readonly"
+            @$el.addClass('response-field-'+ @field_type + ' '+ @model.getCid())
+              .data('cid', cid)
+              .html(Formbuilder.templates["view/base#{base_templ_suff}"]({
+                rf: @model,
+                opts: @options}))
         return @
 
       focusEditView: ->
@@ -526,6 +550,7 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
           Formbuilder.options.PRINTVIEW = @options.print_view
         @render()
@@ -553,6 +578,18 @@ class Formbuilder
       reset: ->
         @$responseFields.html('')
         @addAll()
+
+      checkEquals: (val1, val2) ->
+        (val1 == val2)
+
+      checkLessThan: (val1, val2) ->
+        (val1 < val2)
+
+      checkGreaterThan: (val1, val2) ->
+        (val1 > val2)
+
+      checkNotEqual: (val1, val2) ->
+        (val1 != val2)
 
       render: ->
         if !@options.alt_parents
@@ -603,36 +640,37 @@ class Formbuilder
           parentView: @
           live: @options.live
           readonly: @options.readonly
+          view_type: @options.view_type
+          tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldTagName else 'div'
+          className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldClassName else 'fb-field-wrapper'
           seedData: responseField.seedData
-        if (Formbuilder.options.PRINTVIEW &&
-            responseField.attributes.field_type != 'section_break') ||
-            !Formbuilder.options.PRINTVIEW
-          # Append view to @fieldViews
-          @fieldViews.push(view)
 
-          if !@options.live
-            #####
-            # Calculates where to place this new field.
-            #
-            # Are we replacing a temporarily drag placeholder?
-            if options.$replaceEl?
-              options.$replaceEl.replaceWith(view.render().el)
+        # Append view to @fieldViews
+        @fieldViews.push(view)
 
-            # Are we adding to the bottom?
-            else if !options.position? || options.position == -1
-              @$responseFields.append view.render().el
+        if !@options.live
+          #####
+          # Calculates where to place this new field.
+          #
+          # Are we replacing a temporarily drag placeholder?
+          if options.$replaceEl?
+            options.$replaceEl.replaceWith(view.render().el)
 
-            # Are we adding to the top?
-            else if options.position == 0
-              @$responseFields.prepend view.render().el
+          # Are we adding to the bottom?
+          else if !options.position? || options.position == -1
+            @$responseFields.append view.render().el
 
-            # Are we adding below an existing field?
-            else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
-              $replacePosition.before view.render().el
+          # Are we adding to the top?
+          else if options.position == 0
+            @$responseFields.prepend view.render().el
 
-            # Catch-all: add to bottom
-            else
-              @$responseFields.append view.render().el
+          # Are we adding below an existing field?
+          else if ($replacePosition = @$responseFields.find(".fb-field-wrapper").eq(options.position))[0]
+            $replacePosition.before view.render().el
+
+          # Catch-all: add to bottom
+          else
+            @$responseFields.append view.render().el
 
       setSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
@@ -669,19 +707,23 @@ class Formbuilder
             $('.form-builder-left-container ').css('overflow', 'auto');
 
       addSectionBreak: (obj_view, cnt, back_visibility) ->
-        obj_view.$el.attr('data-step', cnt)
-        obj_view.$el.attr('show-back', back_visibility)
-        obj_view.$el.attr('data-step-title', "step#{cnt}")
-        obj_view.$el.addClass('step')
-        obj_view.$el.addClass('active') if cnt == 1
+        do($obj_view_el = obj_view.$el) =>
+          $obj_view_el.attr({
+            'data-step': cnt,
+            'show-back': back_visibility,
+            'data-step-title': "step#{cnt}"
+          })
+          $obj_view_el.addClass('step')
+          $obj_view_el.addClass('active') if cnt == 1
 
       applyEasyWizard: ->
         do (field_view = null, cnt = 1, fieldViews = @fieldViews,
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
-            showSubmit = @options.showSubmit) =>
+            showSubmit = @options.showSubmit,
+            sub_frag = document.createDocumentFragment()) =>
           for field_view in fieldViews
-            if (field_view.is_section_break)
+            if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
                 Formbuilder.options.mappings.BACK_VISIBLITY)
               add_break_to_next = true
@@ -693,18 +735,24 @@ class Formbuilder
             if cnt == 1
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
-              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            else if add_break_to_next && !field_view.is_section_break
+                tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
+                className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
+              if @options.view_type != 'print'
+                @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
+            else if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
+              wizard_view.$el.append(sub_frag)
+              sub_frag = document.createDocumentFragment()
               @$responseFields.append wizard_view.$el
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
               wiz_cnt += 1
               add_break_to_next = false if add_break_to_next
               @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-
-            if wizard_view && field_view && !field_view.is_section_break
-              wizard_view.$el.append field_view.render().el
+            if wizard_view && field_view && (!field_view.is_section_break ||
+                @options.view_type == 'print')
+              sub_frag.appendChild(field_view.render().el)
             if cnt == fieldViews.length && wizard_view
+              wizard_view.$el.append(sub_frag)
               @$responseFields.append wizard_view.$el
             cnt += 1
 
@@ -736,10 +784,7 @@ class Formbuilder
                 else if currentStepObj.attr('data-step') != '1'
                     $('.prev').css("display", "block")
                 $('#grid_div').scrollTop(0)
-              if (wizardObj.direction == 'prev')
-                #setTimeout (-> $('.easyWizardButtons').css('clear','both')), 1000
-              else
-                #setTimeout (-> $('.easyWizardButtons').css('clear','none')), 1000
+
               $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
                 $('.easyWizardButtons').outerHeight())
               if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
@@ -763,11 +808,12 @@ class Formbuilder
               count = 0,
               should_incr = (attr) -> attr != 'radio',
               val_set = false,
-              model = field_view.model
-              field_type_method_call = ''
-              field_method_call = ''
+              model = field_view.model,
+              field_type_method_call = '',
+              field_method_call = '',
+              cid = ''
             ) =>
-              initializeCanvas(field_view.model.getCid()) if field_view.field_type is 'esignature'
+
               if(field_view.model.get('field_type') is 'heading' || field_view.model.get('field_type') is 'free_text_html')
                 for x in field_view.$("label")
                   count = do( # set element name, value and call setup
@@ -777,14 +823,8 @@ class Formbuilder
                     name = null,
                     val = null,
                     value = 0,
-                    cid = ''
                   ) =>
-                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
-                    field_method_call = Formbuilder.fields[field_type_method_call]
-                    cid = model.getCid()
-                    val_set = true if $(x).text()
-                    if val_set
-                      field_view.trigger('change_state')
+                    val_set = true if $(x).text() && !val_set
                     index
               else if (field_view.model.get('field_type') is 'take_pic_video_audio')
                 _.each(model.get('field_values'), (value, key) ->
@@ -803,83 +843,75 @@ class Formbuilder
                           $('#capture_link_'+field_view.model.getCid()).append(
                             "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value.url+">"+value.name+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
                           )
-                      $('#capture_link_close_'+key).click( () ->
+                      @$('#capture_link_close_'+key).click( () ->
                         $('#capture_link_div_'+key).remove()
-                      ) if $('#capture_link_close_'+key)
+                      ) if @$('#capture_link_close_'+key)
                 )
               else if (field_view.model.get('field_type') is 'file')
                 _.each(model.get('field_values'), (value, key) ->
                   unless value is ""
-                    if $('#file_upload_link_'+field_view.model.getCid())
-                      if _.isString value
-                        $('#file_upload_link_'+field_view.model.getCid()).html(
-                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a></div>"
+                    do (a_href_val = '', a_text = '') =>
+                      if $('#file_upload_link_'+field_view.model.getCid())
+                        if _.isString value
+                          a_href_val = value
+                          a_text = value.split("/").pop().split("?")[0]
+                        else if _.isObject value
+                          a_href_val = value.url
+                          a_text = value.name
+                        @$('#file_upload_link_'+field_view.model.getCid()).html(
+                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
                         )
-                      else if _.isObject value
-                        $('#file_upload_link_'+field_view.model.getCid()).html(
-                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+value.url+">"+value.name+"</a></div>"
-                        )
-                    $('#file_'+field_view.model.getCid()).attr("required", false);
+                      @$('#file_'+field_view.model.getCid()).attr("required", false);
                 )
               else
-                for x in field_view.$("input, textarea, select, .canvas_img, a")
-                  count = do( # set element name, value and call setup
-                    x,
-                    index = count + (if should_incr($(x)
-                            .attr('type')) then 1 else 0),
-                    name = null,
-                    val = null,
-                    value = 0,
-                    cid = '',
-                    has_heading_field = false,
-                    has_ckeditor_field = false
-                  ) =>
-                    for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
-                      if field_view.model.get('conditions')
-                        for model_in_conditions in field_view.model.get('conditions')
-                          if(model_in_collection.getCid() is model_in_conditions.target)
-                            has_heading_field = true
-                    for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
-                      if field_view.model.get('conditions')
-                        for model_in_conditions in field_view.model.get('conditions')
-                          if(model_in_collection.getCid() is model_in_conditions.target)
-                            has_ckeditor_field = true
-                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
-                    field_method_call = Formbuilder.fields[field_type_method_call]
-                    cid = model.getCid()
-                    value = x.value if field_view.field_type == 'radio'||'scale_rating'
-                    name = cid.toString() + "_" + index.toString()
-                    if $(x).attr('type') == 'radio' and model.get('field_values')
-                      val = model.get('field_values')[value]
-                    else if model.get('field_values')
-                      val = model.get('field_values')[name]
-                    field_method_call.setup($(x), model, index) if field_method_call.setup
-                    val_set = true if $(x).val()
-                    val_set = true if val or has_heading_field or has_ckeditor_field
-                    @setFieldVal($(x), val, model.getCid()) if val
-                    if !val
-                      if(field_view.field_type == 'gmap')
-                        get_user_location = getCurrentLocation(model.getCid());
-                        if get_user_location != 'false'
-                          $("[name = " + model.getCid() + "_1]").text(get_user_location)
-                        else
-                          $("[name = " + model.getCid() + "_1]").text('Select Your Address')
-                    if val_set
-                      field_view.trigger('change_state')
-                    index
+                field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                field_method_call = Formbuilder.fields[field_type_method_call]
+                cid = model.getCid()
+                if field_method_call.setup
+                  field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+                else
+                  for x in field_view.$("input, textarea, select, .canvas_img, a")
+                    count = do( # set element name, value and call setup
+                      x,
+                      index = count + (if should_incr($(x)
+                              .attr('type')) then 1 else 0),
+                      name = null,
+                      val = null,
+                      value = 0,
+                      has_heading_field = false,
+                      has_ckeditor_field = false
+                    ) =>
+                      for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                        if field_view.model.get('conditions')
+                          for model_in_conditions in field_view.model.get('conditions')
+                            if(model_in_collection.getCid() is model_in_conditions.target)
+                              has_heading_field = true
+                      for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
+                        if field_view.model.get('conditions')
+                          for model_in_conditions in field_view.model.get('conditions')
+                            if(model_in_collection.getCid() is model_in_conditions.target)
+                              has_ckeditor_field = true
+
+                      value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                      name = cid.toString() + "_" + index.toString()
+                      if $(x).attr('type') == 'radio' and model.get('field_values')
+                        val = model.get('field_values')[value]
+                      else if model.get('field_values')
+                        val = model.get('field_values')[name]
+                      field_method_call.setup($(x), model, index) if field_method_call.setup
+                      if !val_set
+                        val_set = true if $(x).val()
+                        val_set = true if val or has_heading_field or has_ckeditor_field
+                      @setFieldVal($(x), val, model.getCid()) if val
+
+                      index
+
+                if val_set && Formbuilder.options.EDIT_FS_MODEL
+                  field_view.trigger('change_state')
 
       setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
-            gmap: ->
-              $(elem).text(val)
-            esignature: ->
-              if val
-                $(elem).attr("upload_url", val)
-                $(elem).show()
-              else
-                $(elem).hide()
-              makeRequest(val,$(elem).attr("name"))
             file: ->
               if $('#file_upload_link_'+cid) and val
                 $("#file_upload_link_"+cid).html(
@@ -935,7 +967,7 @@ class Formbuilder
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
           _.each hierarchyViews, (hierarchyView) ->
-            hierarchyView.field.bindChangeEvents(hierarchyView)
+            hierarchyView.field.setValue(hierarchyView)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
@@ -1019,15 +1051,17 @@ class Formbuilder
       addConditions: (model) ->
         unless _.isEmpty(model.attributes.conditions)
           _.each(model.attributes.conditions, (condition) ->
-            do(source = {}, source_condition = {}, target_condition = {}, is_equal = false) =>
+            do(source = {}, source_condition = {}, target_condition = {}, is_equal = false,
+               model_cid = model.getCid()) =>
               unless _.isEmpty(condition.source)
                 source = model.collection.where({cid: condition.source})
-                condition.target = model.getCid() if condition.target is ''
+                condition.target = model_cid if condition.target is ''
                 target_condition = $.extend(true, {}, condition)
                 target_condition.isSource = false
-                source_condition = target_condition if source[0].attributes.conditions.length < 1
+                if !source[0].attributes.conditions || source[0].attributes.conditions.length < 1
+                  source_condition = target_condition
                 _.each(source[0].attributes.conditions, (source_condition) ->
-                  delete source[0].attributes.conditions[source_condition] if source_condition.target is model.getCid()
+                  delete source[0].attributes.conditions[source_condition] if source_condition.target is model_cid
                   if _.isEqual(source_condition,target_condition)
                     is_equal = true
                 )
@@ -1035,8 +1069,23 @@ class Formbuilder
                   _.extend( source_condition, target_condition)
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
-
           )
+
+      getVisibleNonEmptyFields: ()->
+        res = []
+        for f in @fieldViews
+          if (f.current_state is 'show' && !f.$el.hasClass('hide')) || f.$el.hasClass('show')
+            obj =
+                field_type: f.model.get('field_type'),
+                label: f.model.get('label'),
+                cid: f.model.get('cid'),
+                complete: false
+            if 'checkAttributeHasValue' of f.field
+              r = f.field.checkAttributeHasValue(f.model.get('cid'),f.$el)
+              if r
+                obj.complete = true
+            res.push(obj)
+        res
 
       formData: ->
         @$('#formbuilder_form').serializeArray()
@@ -1095,6 +1144,9 @@ class Formbuilder
 
   formValid: ->
     @mainView.formValid()
+
+  getVisibleNonEmptyFields: ->
+    @mainView.getVisibleNonEmptyFields()
 
 window.Formbuilder = Formbuilder
 

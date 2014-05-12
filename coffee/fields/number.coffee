@@ -18,11 +18,16 @@ Formbuilder.registerField 'number',
     <span class="symbol"><span class="icon-number">123</span></span> Number
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if($el.find('input[type=number]').val() == "")
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.size = 'small'
     attrs
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
+    el = field_view.$el.find('input')
     if model.get(Formbuilder.options.mappings.MIN)
       el.attr("min", model.get(Formbuilder.options.mappings.MIN))
     if model.get(Formbuilder.options.mappings.MAX)
@@ -43,8 +48,14 @@ Formbuilder.registerField 'number',
     if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
       el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
+    if model.get('field_values')
+      el.val(model.get('field_values')["#{model.getCid()}_1"])
+
   clearFields: ($el, model) ->
-    $el.find("[name = " + model.getCid() + "_1]").val("")
+    do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
+      $input.val("")
+      if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
+        $input.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do( 
@@ -52,7 +63,7 @@ Formbuilder.registerField 'number',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->

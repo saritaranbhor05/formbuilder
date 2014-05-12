@@ -27,6 +27,20 @@ Formbuilder.registerField 'radio',
     <%= Formbuilder.templates['edit/options']({ includeOther: true }) %>
   """
 
+  print: """
+    <div>
+     <% var all_attr =  rf.get('field_values') %>
+     <% var cid =  rf.get('cid') %>
+     <% if(all_attr){ %>
+        <% for(var k in all_attr){ %>
+          <% if(all_attr[k]){ %>
+              <label><%= k %><label>
+          <% } %>
+        <% } %>
+     <% } %>
+    </div>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-circle-blank"></span></span> Radio Button
   """
@@ -42,6 +56,13 @@ Formbuilder.registerField 'radio',
     ]
 
     attrs
+
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find('input:checked').length <= 0)
+
+    if $el.find('input:checked').val() == '__other__'
+      return false if($el.find('input:text').val() == '')
+    return cid
 
   isValid: ($el, model) ->
     do(valid = false) =>
@@ -63,5 +84,5 @@ Formbuilder.registerField 'radio',
        check_result = false
     ) =>
       elem_val = clicked_element.find("[value = '" + set_value+"']").is(':checked')
-      check_result = eval("'#{elem_val}' #{condition} 'true'")
+      check_result =  condition(elem_val, true)
       check_result

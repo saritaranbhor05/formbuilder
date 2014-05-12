@@ -1,0 +1,11 @@
+
+<td colspan=2>
+  <% if (typeof Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print === 'function'){ %>
+	<%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].print({rf: rf}) %>
+  <% } else { %>
+	<%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].view({rf: rf}) %>
+  <% } %>
+  <% if(!opts.live){ %>
+  <%= Formbuilder.templates['view/duplicate_remove']({rf: rf}) %>
+  <% } %>
+</td>

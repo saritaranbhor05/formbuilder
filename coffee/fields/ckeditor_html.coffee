@@ -139,6 +139,10 @@ unless typeof(CKEDITOR) is 'undefined'
       <span class='symbol'><span class='icon-font'></span></span> Free Text HTML
     """
 
+    checkAttributeHasValue: (cid, $el)->
+      return false if($el.find('.freeTextHTMLDiv').is(':empty'))
+      return cid
+
     clearFields: ($el, model) ->
       $el.find('#' + model.getCid()).find('p').text('')
 
@@ -148,7 +152,7 @@ unless typeof(CKEDITOR) is 'undefined'
       ) =>
         elem_val = clicked_element
                             .find("#"+cid).find('p').text()
-        check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+        check_result = condition("'#{elem_val}'", "'#{set_value}'")
         check_result
 
     add_remove_require:(cid,required) ->

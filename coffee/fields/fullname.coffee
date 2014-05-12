@@ -115,6 +115,16 @@ Formbuilder.registerField 'fullname',
     <span class="symbol"><span class="icon-user"></span></span> Full Name
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    do(incomplete = false) =>
+      call_back = ->
+        if($(this).val() == "")
+          incomplete = true
+      $el.find("input[type=text]").each(call_back);
+      incomplete = true if($el.find('select').val() == "")
+      return false if(incomplete == true)
+      return cid
+
   isValid: ($el, model) ->
     do(valid = false) =>
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
@@ -144,7 +154,7 @@ Formbuilder.registerField 'fullname',
     ) =>
     elem_val = clicked_element
                           .find("#first_name").val()
-    check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+    check_result = condition("'#{elem_val}'", "'#{set_value}'")
     check_result
 
   add_remove_require:(cid,required) ->

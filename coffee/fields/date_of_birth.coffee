@@ -15,7 +15,8 @@ Formbuilder.registerField 'date_of_birth',
     <span class="symbol"><span class="icon-gift"></span></span> Birth Date
   """
 
-  setup: (el, model, index) ->
+  setup: (field_view, model) ->
+    el = field_view.$el.find('input')
     do(today = new Date, restricted_date = new Date) =>
       if model.get(Formbuilder.options.mappings.MINAGE)
         restricted_date.setFullYear(
@@ -37,6 +38,8 @@ Formbuilder.registerField 'date_of_birth',
           yearRange: '-100y:c+nn',
           maxDate: today
         });
+      if model.get('field_values')
+        el.val(model.get('field_values')["#{model.getCid()}_1"])
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
 
@@ -81,7 +84,9 @@ Formbuilder.registerField 'date_of_birth',
       else
         false
 
-
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find("input[type=text]").val() == "")
+    return cid
 
   evalCondition: (clicked_element, cid, condition, set_value, field) ->
     do(

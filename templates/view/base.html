@@ -2,7 +2,7 @@
   <% if(opts.readonly){ %>
   <div class='cover'></div>
   <% } %>
-  <%= Formbuilder.templates['view/label']({rf: rf}) %>
+  <%= Formbuilder.templates['view/label']({rf: rf, opts: opts}) %>
 
   <% if (rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'checkboxes' ||
       rf.get(Formbuilder.options.mappings.FIELD_TYPE) == 'radio'){ %>
