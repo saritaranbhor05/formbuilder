@@ -982,7 +982,7 @@ class Formbuilder
         @handleFormUpdate()
 
       createAndShowEditView: (model) ->
-        $responseFieldEl = @$el.find(".fb-field-wrapper").filter( -> $(@).data('cid') == model.cid )
+        $responseFieldEl = @$el.find(".fb-field-wrapper").filter( -> $(@).data('cid') == model.get('cid'))
         $responseFieldEl.addClass('editing').siblings('.fb-field-wrapper').removeClass('editing')
 
         if @editView
