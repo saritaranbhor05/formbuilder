@@ -869,42 +869,47 @@ class Formbuilder
                 cid = model.getCid()
                 if field_method_call.setup
                   field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+                  if field_method_call.setValForPrint && @options.view_type == 'print'
+                      field_method_call.setValForPrint(field_view, model)
                 else
-                  for x in field_view.$("input, textarea, select, .canvas_img, a")
-                    count = do( # set element name, value and call setup
-                      x,
-                      index = count + (if should_incr($(x)
-                              .attr('type')) then 1 else 0),
-                      name = null,
-                      val = null,
-                      value = 0,
-                      has_heading_field = false,
-                      has_ckeditor_field = false
-                    ) =>
-                      for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
-                        if field_view.model.get('conditions')
-                          for model_in_conditions in field_view.model.get('conditions')
-                            if(model_in_collection.getCid() is model_in_conditions.target)
-                              has_heading_field = true
-                      for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
-                        if field_view.model.get('conditions')
-                          for model_in_conditions in field_view.model.get('conditions')
-                            if(model_in_collection.getCid() is model_in_conditions.target)
-                              has_ckeditor_field = true
+                  if field_method_call.setValForPrint && @options.view_type == 'print'
+                      field_method_call.setValForPrint(field_view, model)
+                  else
+                    for x in field_view.$("input, textarea, select, .canvas_img, a")
+                      count = do( # set element name, value and call setup
+                        x,
+                        index = count + (if should_incr($(x)
+                                .attr('type')) then 1 else 0),
+                        name = null,
+                        val = null,
+                        value = 0,
+                        has_heading_field = false,
+                        has_ckeditor_field = false
+                      ) =>
+                        for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                          if field_view.model.get('conditions')
+                            for model_in_conditions in field_view.model.get('conditions')
+                              if(model_in_collection.getCid() is model_in_conditions.target)
+                                has_heading_field = true
+                        for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
+                          if field_view.model.get('conditions')
+                            for model_in_conditions in field_view.model.get('conditions')
+                              if(model_in_collection.getCid() is model_in_conditions.target)
+                                has_ckeditor_field = true
 
-                      value = x.value if field_view.field_type == 'radio'||'scale_rating'
-                      name = cid.toString() + "_" + index.toString()
-                      if $(x).attr('type') == 'radio' and model.get('field_values')
-                        val = model.get('field_values')[value]
-                      else if model.get('field_values')
-                        val = model.get('field_values')[name]
-                      field_method_call.setup($(x), model, index) if field_method_call.setup
-                      if !val_set
-                        val_set = true if $(x).val()
-                        val_set = true if val or has_heading_field or has_ckeditor_field
-                      @setFieldVal($(x), val, model.getCid()) if val
+                        value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                        name = cid.toString() + "_" + index.toString()
+                        if $(x).attr('type') == 'radio' and model.get('field_values')
+                          val = model.get('field_values')[value]
+                        else if model.get('field_values')
+                          val = model.get('field_values')[name]
+                        field_method_call.setup($(x), model, index) if field_method_call.setup
+                        if !val_set
+                          val_set = true if $(x).val()
+                          val_set = true if val or has_heading_field or has_ckeditor_field
+                        @setFieldVal($(x), val, model.getCid()) if val
 
-                      index
+                        index
 
                 if val_set && Formbuilder.options.EDIT_FS_MODEL
                   field_view.trigger('change_state')
