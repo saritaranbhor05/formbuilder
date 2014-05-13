@@ -67,21 +67,26 @@ Formbuilder.registerField 'address',
             <label>Country</label>
           </td>
         </tr>
-        <tr>
+        <tr id="values">
           <td>
-            <input type='text' id='address' class='span12' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>"/>
+            <label id="address"></label>
           </td>
           <td>
-            <input class="span12" type='text' id='suburb' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>"/>
+            <label id="suburb"></label>
           </td>
           <td>
-            <input class="span12" type='text' id='state' value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>"/>
+            <label id="state"></label>
           </td>
           <td>
-            <input class="span12" id='zipcode' type='text' pattern="[a-zA-Z0-9]+" value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
+            <label id="zipcode"></label>
           </td>
           <td>
-            <select id="file_<%= rf.getCid() %>" data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>" class='span7 dropdown_country bfh-selectbox bfh-countries'></select>
+            <span class="span3">
+              <select id="file_<%= rf.getCid() %>"
+                data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+                class='span7 dropdown_country bfh-selectbox bfh-countries'
+              ></select>
+            </span>
           </td>
         </tr>
       </tbody>
@@ -161,3 +166,12 @@ Formbuilder.registerField 'address',
         @clearFields
       if $str_add.val() != ''
         field_view.trigger('change_state')
+
+  setValForPrint: (field_view, model) ->
+    do (
+      fields = field_view.$el.find('#values').find('label'),
+      values = model.get('field_values'),
+      i = 0
+    ) =>
+      for key of values
+        $(fields[i++]).html(values[key]);

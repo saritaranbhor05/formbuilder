@@ -34,8 +34,14 @@ Formbuilder.registerField 'radio',
      <% if(all_attr){ %>
         <% for(var k in all_attr){ %>
           <% if(all_attr[k]){ %>
-              <label><%= k %><label>
-          <% } %>
+            <label>
+              <% if(k == '__other__') { %>
+                <%= all_attr[cid + '_1'] %>
+              <% } else { %>
+                <%=  k %>
+              <% } %>
+            <label>
+        <% break;} %>
         <% } %>
      <% } %>
     </div>

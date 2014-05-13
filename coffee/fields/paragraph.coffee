@@ -4,6 +4,10 @@ Formbuilder.registerField 'paragraph',
     <textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>
   """
 
+  print: """
+    <label id="paragraph_print"></label>
+  """
+
   edit: """
     <%= Formbuilder.templates['edit/size']() %>
     <%= Formbuilder.templates['edit/min_max_length']({rf:rf}) %>
@@ -46,6 +50,9 @@ Formbuilder.registerField 'paragraph',
       if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
         $input.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
         $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#paragraph_print').html(model.get('field_values')["#{model.getCid()}_1"]);
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
