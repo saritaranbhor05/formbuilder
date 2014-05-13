@@ -1285,7 +1285,7 @@
         createAndShowEditView: function(model) {
           var $newEditEl, $responseFieldEl, oldPadding;
           $responseFieldEl = this.$el.find(".fb-field-wrapper").filter(function() {
-            return $(this).data('cid') === model.cid;
+            return $(this).data('cid') === model.get('cid');
           });
           $responseFieldEl.addClass('editing').siblings('.fb-field-wrapper').removeClass('editing');
           if (this.editView) {
