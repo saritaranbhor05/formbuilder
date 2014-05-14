@@ -3,8 +3,17 @@
   <% if (rf.get(Formbuilder.options.mappings.REQUIRED)) { %>
     <abbr title='required'>*</abbr>
   <% } %>
-  <% if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined'))) { %>
-    <span class='label_info'>click here to change</span>
-  <% } %>
+  <% if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined')) ) {
+      if(opts.view_type != 'print'){
+   %>
+    <% var lbl_info_to_show = 'click here to sign',
+        esign_cid = rf.get('cid');
+      if (rf.get('field_values') && rf.get('field_values')[rf.get('cid')+'_1']){
+        lbl_info_to_show = 'click here to change';
+      }
+    %>
+    <span class='label_info'><%= lbl_info_to_show %></span>
+  <% }
+  } %>
 </label>
 

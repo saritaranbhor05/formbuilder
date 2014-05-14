@@ -22,6 +22,15 @@ Formbuilder.registerField 'heading',
     <%= Formbuilder.templates['edit/size']() %>
   """
 
+  print: """
+    <label id='<%= rf.getCid() %>' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %> print-heading'>
+      <%= rf.get(Formbuilder.options.mappings.LABEL) %>
+    </label>
+    <p class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>
+      <%= rf.get(Formbuilder.options.mappings.DESCRIPTION) %>
+    </p>
+  """
+
   addButton: """
     <span class='symbol'><span class='icon-font'></span></span> Heading
   """
@@ -37,7 +46,7 @@ Formbuilder.registerField 'heading',
                           .find("#"+cid).text()
       elem_val = elem_val.replace(/(\r\n|\n|\r)/gm,'')
       elem_val = elem_val.trimLeft()
-      check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+      check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result    
   
   add_remove_require:(cid,required) ->

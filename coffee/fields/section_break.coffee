@@ -9,13 +9,13 @@ Formbuilder.registerField 'section_break',
       </button>
       <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) != 'false') {
           rf.set(Formbuilder.options.mappings.BACK_VISIBLITY,'true')
-        } 
+        }
       %>
       <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) == 'true'){%>
         <button class="prev btn-danger">
           <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>
         </button>
-      <% } %>  
+      <% } %>
     </div>
   """
 
@@ -34,6 +34,15 @@ Formbuilder.registerField 'section_break',
 
   """
 
+  print: """
+    <div class="section_break_div">
+      <hr>
+    </div>
+  """
+
   addButton: """
     <span class='symbol'><span class='icon-minus'></span></span> Section Break
   """
+
+  checkAttributeHasValue: (cid, $el)->
+    return true;

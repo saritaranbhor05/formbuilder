@@ -41,6 +41,10 @@ Formbuilder.registerField 'scale_rating',
     </span> Scale Rating
   """
 
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find('input:checked').length <= 0)
+    return cid
+
   defaultAttributes: (attrs) ->
     # @todo
     attrs.field_options.options = [
@@ -74,5 +78,5 @@ Formbuilder.registerField 'scale_rating',
       check_result = false
     ) =>
       elem_val = clicked_element.find("[value = " + set_value+"]").is(':checked')
-      check_result = eval("'#{elem_val}' #{condition} 'true'")
+      check_result =  condition("'#{elem_val}'", "'true'")
       check_result

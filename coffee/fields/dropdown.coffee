@@ -37,6 +37,10 @@ Formbuilder.registerField 'dropdown',
     <span class="symbol"><span class="icon-caret-down"></span></span> Dropdown
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if $el.find('select').val() == ''
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.options = [
       label: "",
@@ -59,23 +63,16 @@ Formbuilder.registerField 'dropdown',
     if (typeof elem_val is 'number')
       elem_val = parseInt elem_val
       set_value = parseInt set_value
-    if(condition == '<')
-      if(elem_val < set_value)
-        true
-      else
-        false  
-    else if(condition == '>')
-      if(elem_val > set_value)
-        true
-      else
-        false
-    else
-      if(elem_val is set_value)
-        true
-      else
-        false
+    check_result = condition(elem_val, set_value)
+    check_result
   
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)    
+            .attr("required", required) 
+
+  setup: (field_view, model, edit_fs_model) ->
+    if model.attributes.field_values
+      field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+    if field_view.$el.find('select').val() != '' && edit_fs_model
+      field_view.trigger('change_state')

@@ -12,7 +12,10 @@ Formbuilder.registerField 'date_time',
                   dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
                   stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),
                   addSliderAccess: true,
-                  sliderAccessArgs: { touchonly: false }
+                  sliderAccessArgs: { touchonly: false },
+                  changeMonth : true,
+                  changeYear : true,
+                  yearRange: '-100y:+100y'
                });
         })
       </script>
@@ -38,7 +41,10 @@ Formbuilder.registerField 'date_time',
         $(function() {
           $("#<%= rf.getCid() %>_date")
               .datepicker({
-                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>'
+                  dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
+                  changeMonth : true,
+                  changeYear : true,
+                  yearRange: '-100y:+100y'
                 });
         })
       </script>
@@ -56,7 +62,12 @@ Formbuilder.registerField 'date_time',
     <span class="symbol"><span class="icon-calendar"></span></span> Date and Time
   """
 
-  setup: (el, model, index) ->
+  checkAttributeHasValue: (cid, $el)->
+    return false if($el.find("input[type=text]").val() == "")
+    return cid
+
+  setup: (field_view, model) ->
+    el = field_view.$el.find('input')
     do(today = new Date) =>
       if !model.get('field_values')
         if el.attr('id') is model.getCid()+'_datetime'
@@ -65,6 +76,8 @@ Formbuilder.registerField 'date_time',
           el.datepicker('setDate', (new Date()) )
         else
           el.timepicker('setTime', (new Date()) )
+      else
+        el.val(model.get('field_values')["#{model.getCid()}_1"])
       $(el).click ->
         $("#ui-datepicker-div").css( "z-index", 3 )
       $('#ui-datepicker-div').css('display','none')

@@ -62,9 +62,68 @@ Formbuilder.registerField 'fullname',
     </script>
   """
 
+  print: """
+    <table class="innerTbl">
+      <tbody>
+        <tr>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %>
+          </td>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %>
+          </th>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
+            <td>
+              <%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %>
+            </td>
+          <% } %>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
+          <td>
+            <%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %>
+          </td>
+          <% } %>
+        </tr>
+        <tr id="values">
+          <td>
+            <label id="prefix_print"></label>
+          </td>
+          <td>
+            <label id="first_name_print"></label>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
+          <td>
+            <label id="middle_name_print"></label>
+          </td>
+          <% } %>
+          <td>
+            <label id="last_name_print"></label>
+          </td>
+          <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
+          <td>
+            <label id="suffix_print"></label>
+          </td>
+          <% } %>
+        </tr>
+      </tbody>
+    </table>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-user"></span></span> Full Name
   """
+
+  checkAttributeHasValue: (cid, $el)->
+    do(incomplete = false) =>
+      call_back = ->
+        if($(this).val() == "")
+          incomplete = true
+      $el.find("input[type=text]").each(call_back);
+      incomplete = true if($el.find('select').val() == "")
+      return false if(incomplete == true)
+      return cid
 
   isValid: ($el, model) ->
     do(valid = false) =>
@@ -79,6 +138,15 @@ Formbuilder.registerField 'fullname',
     $el.find("#last_name").val("")
     $el.find("#suffix").val("")
 
+  setValForPrint: (field_view, model) ->
+    do (
+      fields = field_view.$el.find('#values').find('label'),
+      values = model.get('field_values'),
+      i = 0
+    ) => 
+      for key of values
+        $(fields[i++]).html(values[key]);
+
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
        elem_val = '' ,
@@ -86,7 +154,7 @@ Formbuilder.registerField 'fullname',
     ) =>
     elem_val = clicked_element
                           .find("#first_name").val()
-    check_result = eval("'#{elem_val}' #{condition} '#{set_value}'")
+    check_result = condition("'#{elem_val}'", "'#{set_value}'")
     check_result
 
   add_remove_require:(cid,required) ->

@@ -31,6 +31,12 @@ Formbuilder.registerField 'checkboxes',
     <span class="symbol"><span class="icon-check-empty"></span></span> Checkboxes
   """
 
+  checkAttributeHasValue: (cid, $el) ->
+    return false if($el.find('input:checked').length <= 0)
+    if $el.find('input:checked').last().val() == '__other__'
+      return false if($el.find('input:text').val() == '')
+    return cid
+
   defaultAttributes: (attrs) ->
     attrs.field_options.options = [
       label: "",
@@ -61,8 +67,8 @@ Formbuilder.registerField 'checkboxes',
        elem_val = '' ,
        check_result = false
     ) =>
-      elem_val = clicked_element.find("[value = '" + set_value+"']").is(':checked')
-      check_result = eval("'#{elem_val}' #{condition} 'true'")
+      elem_val = clicked_element.find("input[value = '" + set_value+"']").is(':checked')
+      check_result = condition(elem_val, true)
       check_result
 
   add_remove_require:(cid,required) ->
