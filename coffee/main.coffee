@@ -4,7 +4,7 @@ class Formbuilder
       attrs =
         label: "Untitled"
         field_type: field_type
-        required: true
+        required: false
         field_options: {}
         conditions: []
 
