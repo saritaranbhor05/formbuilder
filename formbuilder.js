@@ -1285,7 +1285,7 @@
         createAndShowEditView: function(model) {
           var $newEditEl, $responseFieldEl, oldPadding;
           $responseFieldEl = this.$el.find(".fb-field-wrapper").filter(function() {
-            return $(this).data('cid') === model.cid;
+            return $(this).data('cid') === model.get('cid');
           });
           $responseFieldEl.addClass('editing').siblings('.fb-field-wrapper').removeClass('editing');
           if (this.editView) {
@@ -2412,11 +2412,10 @@
     },
     setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
-        return field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
-      } else {
-        if (field_view.$el.find('select').val() !== '' && edit_fs_model) {
-          return field_view.trigger('change_state');
-        }
+        field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+      }
+      if (field_view.$el.find('select').val() !== '' && edit_fs_model) {
+        return field_view.trigger('change_state');
       }
     }
   });
