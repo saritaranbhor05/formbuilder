@@ -86,28 +86,24 @@ Formbuilder.registerField 'fullname',
           </td>
           <% } %>
         </tr>
-        <tr>
+        <tr id="values">
           <td>
-            <select class='span12'>
-            <%for (i = 0; i < this.perfix.length; i++){%>
-              <option><%= this.perfix[i]%></option>
-            <%}%>
-            </select>
+            <label id="prefix_print"></label>
           </td>
           <td>
-            <input id='first_name' type='text' pattern="[a-zA-Z]+"/>
+            <label id="first_name_print"></label>
           </td>
           <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
           <td>
-            <input type='text' pattern="[a-zA-Z]+"/>
+            <label id="middle_name_print"></label>
           </td>
           <% } %>
           <td>
-            <input id='last_name' type='text' pattern="[a-zA-Z]+"/>
+            <label id="last_name_print"></label>
           </td>
           <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
           <td>
-            <input id='suffix' type='text'/>
+            <label id="suffix_print"></label>
           </td>
           <% } %>
         </tr>
@@ -141,6 +137,15 @@ Formbuilder.registerField 'fullname',
     $el.find("#first_name").val("")
     $el.find("#last_name").val("")
     $el.find("#suffix").val("")
+
+  setValForPrint: (field_view, model) ->
+    do (
+      fields = field_view.$el.find('#values').find('label'),
+      values = model.get('field_values'),
+      i = 0
+    ) => 
+      for key of values
+        $(fields[i++]).html(values[key]);
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(
