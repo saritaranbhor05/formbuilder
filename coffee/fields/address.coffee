@@ -81,12 +81,10 @@ Formbuilder.registerField 'address',
             <label id="zipcode"></label>
           </td>
           <td>
-            <span class="span3">
-              <select id="file_<%= rf.getCid() %>"
-                data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
-                class='span7 dropdown_country bfh-selectbox bfh-countries'
-              ></select>
-            </span>
+            <select id="file_<%= rf.getCid() %>"
+              data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
+              class='span7 dropdown_country bfh-selectbox bfh-countries'
+            ></select>
           </td>
         </tr>
       </tbody>

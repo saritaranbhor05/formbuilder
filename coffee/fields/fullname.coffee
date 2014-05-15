@@ -67,22 +67,22 @@ Formbuilder.registerField 'fullname',
       <tbody>
         <tr>
           <td>
-            <%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %>
+            <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>
           </td>
           <td>
-            <%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %>
+            <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>
           </th>
           <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
             <td>
-              <%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %>
+              <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>
             </td>
           <% } %>
           <td>
-            <%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %>
+            <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>
           </td>
           <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>
           <td>
-            <%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %>
+            <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>
           </td>
           <% } %>
         </tr>
