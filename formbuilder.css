@@ -659,6 +659,10 @@
   .print_form .field_tr .first_cell .print-description {
     font-style: italic;
   }
+  .print_form .field_tr .freeTextHTMLDiv ul {
+    list-style-type: inherit;
+    text-align: inherit;
+  }
   .print_form .field_tr .innerTbl {
     table-layout: fixed;
     width: 100%;
