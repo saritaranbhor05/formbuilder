@@ -27,6 +27,33 @@ Formbuilder.registerField 'checkboxes',
     <%= Formbuilder.templates['edit/options']({ includeOther: true }) %>
   """
 
+
+
+  print: """
+    <% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [] %>
+    <% var cnt = field_options.length %>
+    <% var labelArr = [] %>
+    <% for(var i=0; i<cnt; i++) { %>
+      <%   labelArr.push(rf.get(Formbuilder.options.mappings.OPTIONS)[i].label) %>
+    <% } %>
+    <% var all_attr =  rf.get('field_values') %>
+    <% var cid =  rf.get('cid') %>
+    <% if(all_attr){ %>
+      <%var i=0%>
+      <% for(var k in all_attr){ %>
+        <% if(all_attr[k]){ %>
+          <label>
+            <% if(labelArr[i]) %>
+              <%= labelArr[i] %>
+            <% else if(typeof all_attr[k] == 'string' && all_attr[(rf.get('cid')+"_"+(i))] )%>
+              <%= all_attr[k] %>
+          </label>
+        <% } %>
+        <%i++%>
+      <% } %>
+    <% } %>
+  """
+
   addButton: """
     <span class="symbol"><span class="icon-check-empty"></span></span> Checkboxes
   """
