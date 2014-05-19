@@ -10,6 +10,13 @@ Formbuilder.registerField 'email',
     <span class="symbol"><span class="icon-envelope-alt"></span></span> Email
   """
 
+  print: """
+    <label id="email_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#email_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   checkAttributeHasValue: (cid, $el) ->
     return false if $el.find('input[type=email]').val() == ''
     return cid
