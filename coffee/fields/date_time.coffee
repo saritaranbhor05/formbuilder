@@ -67,15 +67,32 @@ Formbuilder.registerField 'date_time',
     return cid
 
   setup: (field_view, model) ->
-    el = field_view.$el.find('input')
-    do(today = new Date) =>
+    do(today = new Date, el = field_view.$el.find('input')) =>
       if !model.get('field_values')
         if el.attr('id') is model.getCid()+'_datetime'
-          el.datetimepicker('setDate', (new Date()) )
+          if Formbuilder.isMobile()
+            setTimeout (->
+              el.datetimepicker "setDate", new Date()
+              return
+            ), 500
+          else
+            el.datetimepicker('setDate', (new Date()) )
         else if el.attr('id') is model.getCid()+'_date'
-          el.datepicker('setDate', (new Date()) )
+          if Formbuilder.isMobile()
+            setTimeout (->
+              el.datepicker "setDate", new Date()
+              return
+            ), 500
+          else
+            el.datepicker('setDate', (new Date()) )
         else
-          el.timepicker('setTime', (new Date()) )
+          if Formbuilder.isMobile()
+            setTimeout (->
+              el.timepicker "setTime", new Date()
+              return
+            ), 500
+          else
+            el.timepicker('setTime', (new Date()) )
       else
         el.val(model.get('field_values')["#{model.getCid()}_1"])
       $(el).click ->
@@ -206,3 +223,18 @@ Formbuilder.registerField 'date_time',
     $("." + cid)
             .find("[name = "+cid+"_1]")
             .attr("required", required)
+
+  show_or_hide: (field_view, model, check_result, action) ->
+    do($input_el = field_view.$el.find('input')) =>
+      if(check_result) # If condition is true then adding class
+        if (action == 'show')
+          field_view.$el.removeClass('hide').addClass('show')
+        else
+          field_view.$el.removeClass('show').addClass('hide')
+        if $input_el.val() == ''
+          $input_el.datetimepicker "setDate", new Date()
+      else # Reverting an action done
+        if (action == 'show')
+          field_view.$el.removeClass('show').addClass('hide')
+        else
+          field_view.$el.removeClass('hide').addClass('show')
