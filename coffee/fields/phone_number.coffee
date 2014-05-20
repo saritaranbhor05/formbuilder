@@ -23,6 +23,13 @@ Formbuilder.registerField 'phone_number',
     <span class="symbol"><span class="icon-phone"></span></span> Phone Number
   """
 
+  print: """
+    <label id="phone_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#phone_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   checkAttributeHasValue: (cid, $el) ->
     return false if($el.find('input[type=tel]').val() == "")
     return cid

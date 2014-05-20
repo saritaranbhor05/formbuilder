@@ -62,6 +62,13 @@ Formbuilder.registerField 'date_time',
     <span class="symbol"><span class="icon-calendar"></span></span> Date and Time
   """
 
+  print: """
+    <label id="dt_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#dt_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   checkAttributeHasValue: (cid, $el)->
     return false if($el.find("input[type=text]").val() == "")
     return cid
