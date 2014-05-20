@@ -45,11 +45,11 @@ Formbuilder.registerField 'esignature',
       />
     <% } else
       if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>
-        <img type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>
+        <img type='esignature' id='esign' class='canvas_img' style='width:150px;height:100px;float:left;display:none;'></img>
         <canvas
             id="can"
-            width='250px'
-            height='150px'
+            width='150px'
+            height='100px'
             style="display:none;" class="esign_canvas"
         />
     <% } %>
