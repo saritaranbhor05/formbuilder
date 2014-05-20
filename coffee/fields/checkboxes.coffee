@@ -27,8 +27,6 @@ Formbuilder.registerField 'checkboxes',
     <%= Formbuilder.templates['edit/options']({ includeOther: true }) %>
   """
 
-
-
   print: """
     <% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [] %>
     <% var cnt = field_options.length %>
@@ -36,20 +34,20 @@ Formbuilder.registerField 'checkboxes',
     <% _.each(field_options, function(option){ %>
       <%   labelArr.push(option.label) %>
     <% }) %>
-    <% var all_attr =  rf.get('field_values') %>
+    <% var field_values =  rf.get('field_values') %>
     <% var cid =  rf.get('cid') %>
-    <% if(all_attr){ %>
-      <%var i=0%>
-      <% _.each(all_attr, function(k){ %>
-      <%   if(k){ %>
+    <% if(field_values){ %>
+      <%var index=0%>
+      <% _.each(field_values, function(value){ %>
+      <%   if(value){ %>
         <label>
-        <% if(labelArr[i]) %>
-          <%= labelArr[i] %>
-          <% else if(typeof k == 'string' && all_attr[(rf.get('cid')+"_"+(i))]) %>
-          <%= k %>
+        <% if(labelArr[index]) %>
+          <%= labelArr[index] %>
+          <% else if(typeof value == 'string' && field_values[(rf.get('cid')+"_"+(index))]) %>
+          <%= value %>
         </label>
         <%  } %>
-        <% i++ %>
+        <% index++ %>
       <%  }); %>
     <% } %>
   """
