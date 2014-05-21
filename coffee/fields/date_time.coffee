@@ -72,27 +72,27 @@ Formbuilder.registerField 'date_time',
         if el.attr('id') is model.getCid()+'_datetime'
           if Formbuilder.isMobile()
             setTimeout (->
-              el.datetimepicker "setDate", new Date()
+              el.datetimepicker 'setDate', new Date()
               return
             ), 500
           else
-            el.datetimepicker('setDate', (new Date()) )
+            el.datetimepicker 'setDate', new Date()
         else if el.attr('id') is model.getCid()+'_date'
           if Formbuilder.isMobile()
             setTimeout (->
-              el.datepicker "setDate", new Date()
+              el.datepicker 'setDate', new Date()
               return
             ), 500
           else
-            el.datepicker('setDate', (new Date()) )
+            el.datepicker 'setDate', new Date()
         else
           if Formbuilder.isMobile()
             setTimeout (->
-              el.timepicker "setTime", new Date()
+              el.timepicker 'setTime', new Date()
               return
             ), 500
           else
-            el.timepicker('setTime', (new Date()) )
+            el.timepicker 'setTime', new Date()
       else
         el.val(model.get('field_values')["#{model.getCid()}_1"])
       $(el).click ->
@@ -232,7 +232,7 @@ Formbuilder.registerField 'date_time',
         else
           field_view.$el.removeClass('show').addClass('hide')
         if $input_el.val() == ''
-          $input_el.datetimepicker "setDate", new Date()
+          $input_el.datetimepicker 'setDate', new Date()
       else # Reverting an action done
         if (action == 'show')
           field_view.$el.removeClass('show').addClass('hide')

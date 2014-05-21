@@ -188,7 +188,7 @@ class Formbuilder
           @field.add_remove_require(@model.getCid(), required)
 
       show_hide_fields: (check_result, set_field) ->
-        do( set_field = set_field, add_class = '', remove_class = '') =>
+        do( set_field = set_field) =>
           if @field.show_or_hide
             @field.show_or_hide(@, @model, check_result, set_field.action)
           else if check_result

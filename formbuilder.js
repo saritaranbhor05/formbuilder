@@ -262,7 +262,7 @@
         },
         show_hide_fields: function(check_result, set_field) {
           var _this = this;
-          return (function(set_field, add_class, remove_class) {
+          return (function(set_field) {
             if (_this.field.show_or_hide) {
               _this.field.show_or_hide(_this, _this.model, check_result, set_field.action);
             } else if (check_result) {
@@ -283,7 +283,7 @@
             } else {
               return _this.add_remove_require(false);
             }
-          })(set_field, '', '');
+          })(set_field);
         },
         changeState: function() {
           var outerHeight,
@@ -2125,32 +2125,37 @@
         if (!model.get('field_values')) {
           if (el.attr('id') === model.getCid() + '_datetime') {
             if (Formbuilder.isMobile()) {
-              return setTimeout((function() {
-                el.datetimepicker("setDate", new Date());
+              setTimeout((function() {
+                el.datetimepicker('setDate', new Date());
               }), 500);
             } else {
-              return el.datetimepicker('setDate', new Date());
+              el.datetimepicker('setDate', new Date());
             }
           } else if (el.attr('id') === model.getCid() + '_date') {
             if (Formbuilder.isMobile()) {
-              return setTimeout((function() {
-                el.datepicker("setDate", new Date());
+              setTimeout((function() {
+                el.datepicker('setDate', new Date());
               }), 500);
             } else {
-              return el.datepicker('setDate', new Date());
+              el.datepicker('setDate', new Date());
             }
           } else {
             if (Formbuilder.isMobile()) {
-              return setTimeout((function() {
-                el.timepicker("setTime", new Date());
+              setTimeout((function() {
+                el.timepicker('setTime', new Date());
               }), 500);
             } else {
-              return el.timepicker('setTime', new Date());
+              el.timepicker('setTime', new Date());
             }
           }
         } else {
-          return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+          el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
         }
+        $(el).click(function() {
+          return $("#ui-datepicker-div").css("z-index", 3);
+        });
+        $('#ui-datepicker-div').css('display', 'none');
+        return el.blur();
       })(new Date, field_view.$el.find('input'));
     },
     isValid: function($el, model) {
@@ -2277,7 +2282,7 @@
     },
     show_or_hide: function(field_view, model, check_result, action) {
       var _this = this;
-      return (function($input_el, class_to_remove, class_to_add) {
+      return (function($input_el) {
         if (check_result) {
           if (action === 'show') {
             field_view.$el.removeClass('hide').addClass('show');
@@ -2285,7 +2290,7 @@
             field_view.$el.removeClass('show').addClass('hide');
           }
           if ($input_el.val() === '') {
-            return $input_el.datetimepicker("setDate", new Date());
+            return $input_el.datetimepicker('setDate', new Date());
           }
         } else {
           if (action === 'show') {
@@ -2294,7 +2299,7 @@
             return field_view.$el.removeClass('hide').addClass('show');
           }
         }
-      })(field_view.$el.find('input'), 'hide', '');
+      })(field_view.$el.find('input'));
     }
   });
 
