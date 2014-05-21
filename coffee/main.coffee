@@ -902,7 +902,7 @@ class Formbuilder
 
                         index
 
-                if val_set && Formbuilder.options.EDIT_FS_MODEL
+                if val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call == 'checkboxes' || field_type_method_call == 'radio')
                   field_view.trigger('change_state')
 
       setFieldVal: (elem, val, cid) ->
