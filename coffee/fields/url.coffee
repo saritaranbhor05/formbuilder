@@ -12,6 +12,14 @@ Formbuilder.registerField 'url',
     <span class="symbol"><span class="icon-link"></span></span> URL
   """
 
+  print: """
+    <label id="url_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#url_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
+
   checkAttributeHasValue: (cid, $el)->
     return false if($el.find("input[type=url]").val() == "")
     return cid
@@ -35,4 +43,4 @@ Formbuilder.registerField 'url',
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required)      
+            .attr("required", required)

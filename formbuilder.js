@@ -2465,6 +2465,10 @@
     view: "<input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />",
     edit: "",
     addButton: "<span class=\"symbol\"><span class=\"icon-envelope-alt\"></span></span> Email",
+    print: "<label id=\"email_print\"></label>",
+    setValForPrint: function(field_view, model) {
+      return field_view.$el.find('#email_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
+    },
     checkAttributeHasValue: function(cid, $el) {
       if ($el.find('input[type=email]').val() === '') {
         return false;
@@ -3301,6 +3305,10 @@
     view: "<input type='url' pattern=\"https?://.+\" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />",
     edit: "<%= Formbuilder.templates['edit/size']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-link\"></span></span> URL",
+    print: "<label id=\"url_print\"></label>",
+    setValForPrint: function(field_view, model) {
+      return field_view.$el.find('#url_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
+    },
     checkAttributeHasValue: function(cid, $el) {
       if ($el.find("input[type=url]").val() === "") {
         return false;

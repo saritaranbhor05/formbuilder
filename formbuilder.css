@@ -584,6 +584,7 @@
   }
   .print_form .field_tr .print-heading {
     line-height: normal;
+    height: inherit;
   }
   .print_form .field_tr ._fullname,
   .print_form .field_tr ._address {
