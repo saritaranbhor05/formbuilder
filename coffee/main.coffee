@@ -728,6 +728,8 @@ class Formbuilder
                 className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
               if @options.view_type != 'print'
                 @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
+              if @options.view_type == 'print'
+                wizard_view.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
             else if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
               wizard_view.$el.append(sub_frag)
               sub_frag = document.createDocumentFragment()

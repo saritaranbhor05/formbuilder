@@ -40,7 +40,7 @@ Formbuilder.registerField 'radio',
               <% } else { %>
                 <%=  k %>
               <% } %>
-            <label>
+            </label>
         <% break;} %>
         <% } %>
      <% } %>

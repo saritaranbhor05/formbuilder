@@ -37,6 +37,13 @@ Formbuilder.registerField 'dropdown',
     <span class="symbol"><span class="icon-caret-down"></span></span> Dropdown
   """
 
+  print: """
+    <label id="dropdown_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#dropdown_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   checkAttributeHasValue: (cid, $el) ->
     return false if $el.find('select').val() == ''
     return cid

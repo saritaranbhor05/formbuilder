@@ -598,7 +598,7 @@
     max-width: 400px !important;
   }
   .print_form .field_tr ._image div {
-    height: 300px;
+    height: 200px;
   }
   .print_form .field_tr td,
   .print_form .field_tr th {
@@ -637,12 +637,13 @@
     border: none;
     padding: 5px 5px 5px 5px;
     width: 90%;
-    height: 90%;
+    height: 400px;
+    max-height: 90% !important;
   }
   .print_form .field_tr td .centered_td,
   .print_form .field_tr th .centered_td {
     text-align: center;
-    margin: 0px 0px 10px 0px;
+    margin: 0px 0px 0px 0px !important;
   }
   .print_form .field_tr td .centered_td div,
   .print_form .field_tr th .centered_td div {
@@ -658,6 +659,10 @@
   }
   .print_form .field_tr .first_cell .print-description {
     font-style: italic;
+  }
+  .print_form .field_tr .freeTextHTMLDiv ul {
+    list-style-type: inherit;
+    text-align: inherit;
   }
   .print_form .field_tr .innerTbl {
     table-layout: fixed;

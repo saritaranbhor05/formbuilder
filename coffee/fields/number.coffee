@@ -18,6 +18,13 @@ Formbuilder.registerField 'number',
     <span class="symbol"><span class="icon-number">123</span></span> Number
   """
 
+  print: """
+    <label id="number_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#number_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
   checkAttributeHasValue: (cid, $el) ->
     return false if($el.find('input[type=number]').val() == "")
     return cid

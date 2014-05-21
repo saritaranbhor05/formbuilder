@@ -15,6 +15,14 @@ Formbuilder.registerField 'date_of_birth',
     <span class="symbol"><span class="icon-gift"></span></span> Birth Date
   """
 
+  print: """
+    <label id="dob_print"></label>
+  """
+
+  setValForPrint: (field_view, model) ->
+    field_view.$el.find('#dob_print').html(model.get('field_values')["#{model.getCid()}_1"]);
+
+
   setup: (field_view, model) ->
     el = field_view.$el.find('input')
     do(today = new Date, restricted_date = new Date) =>
