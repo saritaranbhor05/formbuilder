@@ -1138,9 +1138,7 @@
                       }
                     }
                   }
-                  if (val_set && Formbuilder.options.EDIT_FS_MODEL) {
-                    return field_view.trigger('change_state');
-                  } else if (val_set && (field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
+                  if (val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
                     return field_view.trigger('change_state');
                   }
                 }
