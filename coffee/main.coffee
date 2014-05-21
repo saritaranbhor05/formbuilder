@@ -904,6 +904,8 @@ class Formbuilder
 
                 if val_set && Formbuilder.options.EDIT_FS_MODEL
                   field_view.trigger('change_state')
+                else if val_set && (field_type_method_call == 'checkboxes' || field_type_method_call == 'radio')
+                  field_view.trigger('change_state')
 
       setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
