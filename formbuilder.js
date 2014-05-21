@@ -264,41 +264,25 @@
         show_hide_fields: function(check_result, set_field) {
           return (function(_this) {
             return function(set_field) {
-              if (check_result === true) {
+              if (_this.field.show_or_hide) {
+                _this.field.show_or_hide(_this, _this.model, check_result, set_field.action);
+              } else if (check_result) {
                 _this.$el.addClass(set_field.action);
-                if (set_field.action === 'show') {
-                  if (_this.field_type === 'heading') {
-                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
-                  }
-                  if (_this.field_type === 'free_text_html') {
-                    _this.$('#' + _this.model.getCid()).html('');
-                    _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
-                  }
-                  _this.current_state = set_field.action;
-                  return _this.add_remove_require(true);
-                } else {
-                  _this.$el.removeClass('show');
-                  _this.current_state = "hide";
-                  return _this.add_remove_require(false);
-                }
               } else {
                 _this.$el.removeClass(set_field.action);
-                if (set_field.action === 'hide') {
-                  _this.$el.addClass("show");
-                  if (_this.field_type === 'heading') {
-                    $('#' + _this.model.getCid()).text(_this.model.get('label'));
-                  }
-                  if (_this.field_type === 'free_text_html') {
-                    _this.$('#' + _this.model.getCid()).html('');
-                    _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
-                  }
-                  _this.current_state = set_field.action;
-                  return _this.add_remove_require(true);
-                } else {
-                  _this.$el.addClass("hide");
-                  _this.add_remove_require(false);
-                  return _this.current_state = "hide";
-                }
+              }
+              if (_this.field_type === 'heading') {
+                $('#' + _this.model.getCid()).text(_this.model.get('label'));
+              }
+              if (_this.field_type === 'free_text_html') {
+                _this.$('#' + _this.model.getCid()).html('');
+                _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
+              }
+              _this.current_state = set_field.action;
+              if ((check_result && set_field.action === 'show') || (!check_result && set_field.action === 'hide')) {
+                return _this.add_remove_require(true);
+              } else {
+                return _this.add_remove_require(false);
               }
             };
           })(this)(set_field);
@@ -2202,17 +2186,33 @@
       return cid;
     },
     setup: function(field_view, model) {
-      var el;
-      el = field_view.$el.find('input');
       return (function(_this) {
-        return function(today) {
+        return function(today, el) {
           if (!model.get('field_values')) {
             if (el.attr('id') === model.getCid() + '_datetime') {
-              el.datetimepicker('setDate', new Date());
+              if (Formbuilder.isMobile()) {
+                setTimeout((function() {
+                  el.datetimepicker('setDate', new Date());
+                }), 500);
+              } else {
+                el.datetimepicker('setDate', new Date());
+              }
             } else if (el.attr('id') === model.getCid() + '_date') {
-              el.datepicker('setDate', new Date());
+              if (Formbuilder.isMobile()) {
+                setTimeout((function() {
+                  el.datepicker('setDate', new Date());
+                }), 500);
+              } else {
+                el.datepicker('setDate', new Date());
+              }
             } else {
-              el.timepicker('setTime', new Date());
+              if (Formbuilder.isMobile()) {
+                setTimeout((function() {
+                  el.timepicker('setTime', new Date());
+                }), 500);
+              } else {
+                el.timepicker('setTime', new Date());
+              }
             }
           } else {
             el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
@@ -2223,7 +2223,7 @@
           $('#ui-datepicker-div').css('display', 'none');
           return el.blur();
         };
-      })(this)(new Date);
+      })(this)(new Date, field_view.$el.find('input'));
     },
     isValid: function($el, model) {
       return (function(_this) {
@@ -2349,6 +2349,28 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    show_or_hide: function(field_view, model, check_result, action) {
+      return (function(_this) {
+        return function($input_el) {
+          if (check_result) {
+            if (action === 'show') {
+              field_view.$el.removeClass('hide').addClass('show');
+            } else {
+              field_view.$el.removeClass('show').addClass('hide');
+            }
+            if ($input_el.val() === '') {
+              return $input_el.datetimepicker('setDate', new Date());
+            }
+          } else {
+            if (action === 'show') {
+              return field_view.$el.removeClass('show').addClass('hide');
+            } else {
+              return field_view.$el.removeClass('hide').addClass('show');
+            }
+          }
+        };
+      })(this)(field_view.$el.find('input'));
     }
   });
 
@@ -2430,7 +2452,7 @@
       if (model.attributes.field_values) {
         field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
       }
-      if (field_view.$el.find('select').val() !== '' && edit_fs_model) {
+      if (field_view.$el.find('select').val() !== '') {
         return field_view.trigger('change_state');
       }
     }

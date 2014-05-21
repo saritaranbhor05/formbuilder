@@ -81,5 +81,5 @@ Formbuilder.registerField 'dropdown',
   setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
       field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
-    if field_view.$el.find('select').val() != '' && edit_fs_model
+    if field_view.$el.find('select').val() != ''
       field_view.trigger('change_state')
