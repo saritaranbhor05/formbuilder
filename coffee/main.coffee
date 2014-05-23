@@ -200,7 +200,10 @@ class Formbuilder
           if @field_type is 'free_text_html'
             @$('#'+@model.getCid()).html('')
             @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
-          @current_state = set_field.action
+          if check_result && set_field.action == 'show'
+            @current_state = 'show'
+          else
+            @current_state = 'hide'
           if (check_result && set_field.action == 'show') || (!check_result && set_field.action == 'hide')
             @add_remove_require(true)
           else

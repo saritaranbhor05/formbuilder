@@ -277,7 +277,11 @@
               _this.$('#' + _this.model.getCid()).html('');
               _this.$('#' + _this.model.getCid()).html(_this.model.get('field_options').html_data);
             }
-            _this.current_state = set_field.action;
+            if (check_result && set_field.action === 'show') {
+              _this.current_state = 'show';
+            } else {
+              _this.current_state = 'hide';
+            }
             if ((check_result && set_field.action === 'show') || (!check_result && set_field.action === 'hide')) {
               return _this.add_remove_require(true);
             } else {
