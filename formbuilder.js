@@ -1356,6 +1356,9 @@
                   });
                   if (!is_equal) {
                     _.extend(source_condition, target_condition);
+                    if (!source[0].attributes.conditions) {
+                      source[0].attributes.conditions = [];
+                    }
                     source[0].attributes.conditions.push(source_condition);
                     return source[0].save();
                   }

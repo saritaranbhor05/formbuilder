@@ -1063,6 +1063,7 @@ class Formbuilder
                 )
                 if !is_equal
                   _.extend( source_condition, target_condition)
+                  source[0].attributes.conditions = [] unless source[0].attributes.conditions
                   source[0].attributes.conditions.push(source_condition)
                   source[0].save()
           )
