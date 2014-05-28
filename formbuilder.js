@@ -1673,9 +1673,9 @@
 
 (function() {
   Formbuilder.registerField('ci-hierarchy', {
-    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
+    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
     edit: "",
-    print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
+    print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n      <td>\n        <label>User </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"user_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> Hierarchy",
     selected_comp: null,
     checkAttributeHasValue: function(cid, $el) {
@@ -1700,12 +1700,13 @@
     },
     bindChangeEvents: function(fd_view) {
       var _this = this;
-      return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
+      return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId, $user_id, selected_userId) {
         cid = fd_view.model.attributes.cid;
         field_values = fd_view.model.attributes.field_values;
         $company_id = fd_view.$("#company_id_" + cid);
         $location_id = fd_view.$("#location_id_" + cid);
         $division_id = fd_view.$("#division_id_" + cid);
+        $user_id = fd_view.$("#user_id_" + cid);
         $company_id.bind('change', {
           that: _this,
           fd_view: fd_view
@@ -1714,6 +1715,10 @@
           that: _this,
           fd_view: fd_view
         }, _this.populateDivisionsByLocId);
+        $division_id.bind('change', {
+          that: _this,
+          fd_view: fd_view
+        }, _this.populateUsersByDivisionId);
         if (field_values) {
           if ($company_id) {
             selected_compId = _this.getSelectedFieldVal($company_id, field_values);
@@ -1724,9 +1729,12 @@
           if ($division_id) {
             selected_divId = _this.getSelectedFieldVal($division_id, field_values);
           }
+          if ($user_id) {
+            selected_userId = _this.getSelectedFieldVal($user_id, field_values);
+          }
         }
-        return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId);
-      })(null, null, null, null, null, '', '', '');
+        return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
+      })(null, null, null, null, null, '', '', '', null, '');
     },
     getSelectedFieldVal: function($ele, fieldValues) {
       var _this = this;
@@ -1736,7 +1744,7 @@
         return selectedId;
       })('', '');
     },
-    populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId) {
+    populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
       var _this = this;
       if (selected_compId == null) {
         selected_compId = '';
@@ -1746,6 +1754,9 @@
       }
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(companies, $company_id, cid) {
         cid = fd_view.model.attributes.cid;
@@ -1757,7 +1768,7 @@
           fd_view.field.appendData($company_id, companies);
           if (selected_compId && selected_compId !== '') {
             $company_id.val(selected_compId);
-            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId);
+            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
           }
         }
       })(Formbuilder.options.COMPANY_HIERARCHY, null, null);
@@ -1768,24 +1779,30 @@
         return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
       })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId) {
+    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
       if (selected_locId == null) {
         selected_locId = '';
       }
       if (selected_divId == null) {
         selected_divId = '';
       }
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
       this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
-      return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
+      return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId, selected_userId);
     },
-    populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
+    populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId, selected_userId) {
       var _this = this;
       if (selected_locId == null) {
         selected_locId = '';
       }
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(locations, $location_id) {
         $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid);
@@ -1797,7 +1814,7 @@
           _this.appendData($location_id, locations);
           if (selected_locId && selected_locId !== '') {
             $location_id.val(selected_locId);
-            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId);
+            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId);
           }
         }
       })([], null);
@@ -1808,39 +1825,85 @@
         return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
       })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId) {
+    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId) {
       var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(selected_loc) {
-        selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
-        return _this.populateDivisions(fd_view, selected_loc, selected_divId);
+        _this.selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+        return _this.populateDivisions(fd_view, _this.selected_loc, selected_divId, selected_userId);
       })(null);
     },
-    populateDivisions: function(fd_view, selected_loc, selected_divId) {
+    populateDivisions: function(fd_view, selected_loc, selected_divId, selected_userId) {
       var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
       }
-      return (function(divisions, $division_id) {
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
+      return (function(divisions, $division_id, $user_id) {
         $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid);
+        $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
         if (selected_loc) {
           divisions = selected_loc.divisions;
         }
         $division_id.empty();
+        $user_id.empty();
         _this.addPlaceHolder($division_id, '--- Select ---');
         if ($division_id && divisions.length > 0) {
           _this.appendData($division_id, divisions);
           if (selected_divId && selected_divId !== '') {
-            return $division_id.val(selected_divId);
+            $division_id.val(selected_divId);
+            return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId);
+          }
+        }
+      })([], null, null);
+    },
+    populateUsersByDivisionId: function(e) {
+      var _this = this;
+      return (function(selected_division_id, that, fd_view) {
+        return that.setSelectedDivAndPopulateUsers(fd_view, selected_division_id);
+      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+    },
+    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId) {
+      var _this = this;
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
+      return (function(selected_div) {
+        selected_div = _this.selected_loc.divisions.getHashObject(selected_divId);
+        return _this.populateUsers(fd_view, selected_div, selected_userId);
+      })(null);
+    },
+    populateUsers: function(fd_view, selected_div, selected_userId) {
+      var _this = this;
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
+      return (function(users, $user_id) {
+        $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
+        if (selected_div) {
+          users = selected_div.users;
+        }
+        $user_id.empty();
+        _this.addPlaceHolder($user_id, '--- Select ---');
+        if ($user_id && users.length > 0) {
+          _this.appendData($user_id, users);
+          if (selected_userId && selected_userId !== '') {
+            return $user_id.val(selected_userId);
           }
         }
       })([], null);
     },
     clearSelectFields: function(fd_view, cid) {
       fd_view.$("#location_id_" + cid).empty();
-      return fd_view.$("#division_id_" + cid).empty();
+      fd_view.$("#division_id_" + cid).empty();
+      return fd_view.$("#user_id_" + cid).empty();
     },
     appendData: function($element, data) {
       var _this = this;
@@ -1861,7 +1924,8 @@
         cid = model.attributes.cid;
         $el.find("#company_id_" + cid).val("");
         $el.find("#location_id_" + cid).val("");
-        return $el.find("#division_id_" + cid).val("");
+        $el.find("#division_id_" + cid).val("");
+        return $el.find("#user_id_" + cid).val("");
       })('');
     },
     isValid: function($el, model) {
@@ -1872,36 +1936,40 @@
           if (!required_attr) {
             return true;
           }
-          return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '';
+          return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
         })(model.get('required'), 0);
         return valid;
       })(false, '');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var _this = this;
-      return (function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, _toLowerCase_set_val) {
+      return (function(check_result, $comp, $loc, $div, $user, comp_name, comp_id, loc_id, div_id, user_id, loc_name, div_name, _toLowerCase_set_val, user_name) {
         $comp = clicked_element.find("#company_id_" + cid);
         $loc = clicked_element.find("#location_id_" + cid);
         $div = clicked_element.find("#division_id_" + cid);
+        $user = clicked_element.find("#user_id_" + cid);
         comp_id = $comp.val();
         loc_id = $loc.val();
         div_id = $div.val();
+        user_id = $user.val();
         comp_name = $comp.find('option:selected').text();
         loc_name = $loc.find('option:selected').text();
         div_name = $div.find('option:selected').text();
+        user_name = $user.find('option:selected').text();
         if (condition === '!=') {
-          check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
+          check_result = comp_id !== '' && loc_id !== '' && div_id !== '' && user_id !== '';
         } else if (condition === '==') {
           _toLowerCase_set_val = set_value.toLowerCase();
-          check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
+          check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val || user_name.toLowerCase() === _LowerCase_set_val;
         }
         return check_result;
-      })(false, null, null, null, '', '', '', '', '', '', '');
+      })(false, null, null, null, null, '', '', '', '', '', '', '', '', '');
     },
     add_remove_require: function(cid, required) {
       $("#company_id_" + cid).attr("required", required);
       $("#location_id_" + cid).attr("required", required);
-      return $("#division_id_" + cid).attr("required", required);
+      $("#division_id_" + cid).attr("required", required);
+      return $("#user_id_" + cid).attr("required", required);
     },
     setValue: function(fd_view) {
       if (fd_view.options.view_type === 'print') {
@@ -1912,12 +1980,13 @@
     },
     setValForPrint: function(fd_view) {
       var _this = this;
-      return (function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId, comp_obj, loc_obj, div_obj, companies) {
+      return (function(cid, $company_id, $location_id, $division_id, $user_id, field_values, selected_compId, selected_locId, selected_divId, selected_userId, comp_obj, loc_obj, div_obj, user_obj, companies) {
         cid = fd_view.model.attributes.cid;
         field_values = fd_view.model.attributes.field_values;
         $company_id = fd_view.$("#company_id_" + cid);
         $location_id = fd_view.$("#location_id_" + cid);
         $division_id = fd_view.$("#division_id_" + cid);
+        $user_id = fd_view.$("#user_id_" + cid);
         if (field_values) {
           if ($company_id) {
             selected_compId = field_values[cid + '_1'];
@@ -1928,6 +1997,9 @@
           if ($division_id) {
             selected_divId = field_values[cid + '_3'];
           }
+          if ($user_id && field_values[cid + '_4']) {
+            selected_userId = field_values[cid + '_4'];
+          }
         }
         if (selected_compId) {
           comp_obj = _this.findObjFrmData(companies, selected_compId);
@@ -1937,7 +2009,11 @@
             $location_id.text(loc_obj && loc_obj.name || '');
             if (loc_obj && selected_divId) {
               div_obj = _this.findObjFrmData(loc_obj.divisions, selected_divId);
-              return $division_id.text(div_obj && div_obj.name || '');
+              $division_id.text(div_obj && div_obj.name || '');
+              if (div_obj && selected_userId) {
+                user_obj = _this.findObjFrmData(div_obj.users, selected_userId);
+                return $user_id.text(user_obj && user_obj.name || '');
+              }
             }
           } else {
             return _this.setEmptyForPrint(fd_view, cid);
@@ -1945,7 +2021,7 @@
         } else {
           return _this.setEmptyForPrint(fd_view, cid);
         }
-      })(null, null, null, null, null, '', '', '', null, null, null, Formbuilder.options.COMPANY_HIERARCHY);
+      })(null, null, null, null, null, null, '', '', '', '', null, null, null, null, Formbuilder.options.COMPANY_HIERARCHY);
     },
     findObjFrmData: function(data, selected_id) {
       var _this = this;
@@ -1962,7 +2038,8 @@
     setEmptyForPrint: function(fd_view, cid) {
       fd_view.$("#company_id_" + cid).text('');
       fd_view.$("#location_id_" + cid).text('');
-      return fd_view.$("#division_id_" + cid).text('');
+      fd_view.$("#division_id_" + cid).text('');
+      return fd_view.$("#user_id_" + cid).text('');
     }
   });
 
