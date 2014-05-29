@@ -45,6 +45,8 @@ Formbuilder.registerField 'text',
       el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT))
     if model.get('field_values')
       el.val(model.get('field_values')["#{model.getCid()}_1"])
+    if field_view.$el.find('input').val() != ''
+      field_view.trigger('change_state')
 
   clearFields: ($el, model) ->
     do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
@@ -59,7 +61,7 @@ Formbuilder.registerField 'text',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result =  condition("'#{elem_val}'", "'set_value'")
+      check_result =  condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->
