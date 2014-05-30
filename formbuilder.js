@@ -279,6 +279,8 @@
             }
             if (check_result && set_field.action === 'show') {
               _this.current_state = 'show';
+            } else if (!check_result && set_field.action === 'hide') {
+              _this.current_state = 'show';
             } else {
               _this.current_state = 'hide';
             }
@@ -3279,7 +3281,10 @@
         el.attr("placeholder", model.get(Formbuilder.options.mappings.HINT));
       }
       if (model.get('field_values')) {
-        return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+        el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+      }
+      if (field_view.$el.find('input').val() !== '') {
+        return field_view.trigger('change_state');
       }
     },
     clearFields: function($el, model) {
@@ -3295,7 +3300,7 @@
       var _this = this;
       return (function(check_result, elem_val) {
         elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-        check_result = condition("'" + elem_val + "'", "'set_value'");
+        check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
         return check_result;
       })(false, '');
     },

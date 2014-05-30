@@ -202,6 +202,8 @@ class Formbuilder
             @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
           if check_result && set_field.action == 'show'
             @current_state = 'show'
+          else if !check_result && set_field.action == 'hide'
+            @current_state = 'show'
           else
             @current_state = 'hide'
           if (check_result && set_field.action == 'show') || (!check_result && set_field.action == 'hide')
