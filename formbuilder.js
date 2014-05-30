@@ -2853,7 +2853,10 @@
         }
       });
       if (model.get('field_values')) {
-        return el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+        el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+      }
+      if (field_view.$el.find('textarea').val() !== '') {
+        return field_view.trigger('change_state');
       }
     },
     clearFields: function($el, model) {
