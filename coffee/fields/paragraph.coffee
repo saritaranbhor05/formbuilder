@@ -19,7 +19,7 @@ Formbuilder.registerField 'paragraph',
   """
 
   checkAttributeHasValue: (cid, $el) ->
-    return false if($el.find('textarea').val() == "")      
+    return false if($el.find('textarea').val() == "")
     return cid
 
   defaultAttributes: (attrs) ->
@@ -43,6 +43,8 @@ Formbuilder.registerField 'paragraph',
         }, 1000)
     if model.get('field_values')
       el.val(model.get('field_values')["#{model.getCid()}_1"])
+    if field_view.$el.find('textarea').val() != ''
+      field_view.trigger('change_state')
 
   clearFields: ($el, model) ->
     do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
