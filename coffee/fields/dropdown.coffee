@@ -1,6 +1,9 @@
 Formbuilder.registerField 'dropdown',
 
   view: """
+    <% if(Formbuilder.isAndroid()) { %>
+      <input id="<%= rf.getCid() %>" name="<%= rf.getCid() %>" readonly="true"></input>
+    <% }else { %>
     <select id="dropdown">
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
         <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>
@@ -14,6 +17,7 @@ Formbuilder.registerField 'dropdown',
         </option>
       <% } %>
     </select>
+    <% } %>
   """
 
   edit: """
@@ -80,6 +84,9 @@ Formbuilder.registerField 'dropdown',
 
   setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
-      field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+      if Formbuilder.isAndroid()
+        field_view.$el.find("input").val(model.attributes.field_values["#{model.getCid()}_1"])
+      else
+        field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
     if field_view.$el.find('select').val() != ''
       field_view.trigger('change_state')
