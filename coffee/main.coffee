@@ -715,7 +715,7 @@ class Formbuilder
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit,
-            sub_frag = document.createDocumentFragment()) =>
+            sub_frag = document.createDocumentFragment(), _that = @) =>
           for field_view in fieldViews
             if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
@@ -759,7 +759,12 @@ class Formbuilder
           fd_views = @fieldViews.filter (fd_view) ->
             fd_view.field_type is "ci-hierarchy"
           @bindHierarchyEvents(fd_views) if fd_views.length > 0
-          @triggerEvent() # triggers event by setting values to respective fields
+
+          # triggers event by setting values to respective fields
+          setTimeout (->
+            _that.triggerEvent()
+            return
+          ), 5
 
           $("#formbuilder_form").easyWizard({
             showSteps: false,
@@ -909,6 +914,8 @@ class Formbuilder
 
                 if val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call == 'checkboxes' || field_type_method_call == 'radio')
                   field_view.trigger('change_state')
+
+          @formBuilder.trigger('render_complete')
 
       setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
