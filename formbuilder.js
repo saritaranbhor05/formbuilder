@@ -296,53 +296,55 @@
             _this = this;
           (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
             var _fn, _i, _len, _ref;
-            if (_this.model.get('field_options').match_conditions === 'and') {
-              and_flag = true;
-            }
-            _ref = _this.model.get("conditions");
-            _fn = function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
-              if (set_field.target === _this_model_cid) {
-                source_model = _this.model.collection.where({
-                  cid: set_field.source
-                })[0];
-                clicked_element = $("." + source_model.getCid());
-                field_type = source_model.get('field_type');
-                if (date_field_types.indexOf(field_type) !== -1) {
-                  str_condition = true;
-                }
-                if (set_field.condition === "equals") {
-                  condition = _this.parentView.checkEquals;
-                  if (str_condition) {
-                    condition = '==';
-                  }
-                } else if (set_field.condition === "less than") {
-                  condition = _this.parentView.checkLessThan;
-                  if (str_condition) {
-                    condition = '<';
-                  }
-                } else if (set_field.condition === "greater than") {
-                  condition = _this.parentView.checkGreaterThan;
-                  if (str_condition) {
-                    condition = '>';
-                  }
-                } else {
-                  condition = _this.parentView.checkNotEqual;
-                  if (str_condition) {
-                    condition = '!=';
-                  }
-                }
-                check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
-                return check_match_condtions.push(check_result);
+            if (_this.options.view_type !== 'print') {
+              if (_this.model.get('field_options').match_conditions === 'and') {
+                and_flag = true;
               }
-            };
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              set_field = _ref[_i];
-              _fn({}, [], {}, "equals", '', false);
-            }
-            if ((and_flag && check_match_condtions.indexOf(false) === -1) || (!and_flag && check_match_condtions.indexOf(true) !== -1)) {
-              return _this.show_hide_fields(true, set_field);
-            } else {
-              return _this.show_hide_fields(false, set_field);
+              _ref = _this.model.get("conditions");
+              _fn = function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
+                if (set_field.target === _this_model_cid) {
+                  source_model = _this.model.collection.where({
+                    cid: set_field.source
+                  })[0];
+                  clicked_element = $("." + source_model.getCid());
+                  field_type = source_model.get('field_type');
+                  if (date_field_types.indexOf(field_type) !== -1) {
+                    str_condition = true;
+                  }
+                  if (set_field.condition === "equals") {
+                    condition = _this.parentView.checkEquals;
+                    if (str_condition) {
+                      condition = '==';
+                    }
+                  } else if (set_field.condition === "less than") {
+                    condition = _this.parentView.checkLessThan;
+                    if (str_condition) {
+                      condition = '<';
+                    }
+                  } else if (set_field.condition === "greater than") {
+                    condition = _this.parentView.checkGreaterThan;
+                    if (str_condition) {
+                      condition = '>';
+                    }
+                  } else {
+                    condition = _this.parentView.checkNotEqual;
+                    if (str_condition) {
+                      condition = '!=';
+                    }
+                  }
+                  check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
+                  return check_match_condtions.push(check_result);
+                }
+              };
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                set_field = _ref[_i];
+                _fn({}, [], {}, "equals", '', false);
+              }
+              if ((and_flag && check_match_condtions.indexOf(false) === -1) || (!and_flag && check_match_condtions.indexOf(true) !== -1)) {
+                return _this.show_hide_fields(true, set_field);
+              } else {
+                return _this.show_hide_fields(false, set_field);
+              }
             }
           })({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
           outerHeight = 0;
