@@ -220,41 +220,42 @@ class Formbuilder
           date_field_types = ['date', 'time', 'date_of_birth', 'date_time'],
           str_condition = false
         ) =>
-          and_flag = true if @model.get('field_options')
-          .match_conditions is 'and'
-          for set_field in @model.get("conditions")
-            do (
-              source_model = {},clicked_element = []
-              ,elem_val = {},condition = "equals",
-              field_type = '', check_result = false
-            ) =>
-              if set_field.target is _this_model_cid
-                source_model = @model.collection.
-                              where({cid: set_field.source})[0]
-                clicked_element = $("." + source_model.getCid())
-                field_type = source_model.get('field_type')
-                str_condition = true if date_field_types.indexOf(field_type) != -1
-                if set_field.condition is "equals"
-                  condition = @parentView.checkEquals
-                  condition = '==' if str_condition
-                else if set_field.condition is "less than"
-                  condition = @parentView.checkLessThan
-                  condition = '<' if str_condition
-                else if set_field.condition is "greater than"
-                  condition = @parentView.checkGreaterThan
-                  condition = '>' if str_condition
-                else
-                  condition = @parentView.checkNotEqual
-                  condition = '!=' if str_condition
+          if @options.view_type != 'print'
+            and_flag = true if @model.get('field_options')
+            .match_conditions is 'and'
+            for set_field in @model.get("conditions")
+              do (
+                source_model = {},clicked_element = []
+                ,elem_val = {},condition = "equals",
+                field_type = '', check_result = false
+              ) =>
+                if set_field.target is _this_model_cid
+                  source_model = @model.collection.
+                                where({cid: set_field.source})[0]
+                  clicked_element = $("." + source_model.getCid())
+                  field_type = source_model.get('field_type')
+                  str_condition = true if date_field_types.indexOf(field_type) != -1
+                  if set_field.condition is "equals"
+                    condition = @parentView.checkEquals
+                    condition = '==' if str_condition
+                  else if set_field.condition is "less than"
+                    condition = @parentView.checkLessThan
+                    condition = '<' if str_condition
+                  else if set_field.condition is "greater than"
+                    condition = @parentView.checkGreaterThan
+                    condition = '>' if str_condition
+                  else
+                    condition = @parentView.checkNotEqual
+                    condition = '!=' if str_condition
 
-                check_result = @evalCondition(clicked_element,
-                    source_model, condition, set_field.value)
-                check_match_condtions.push(check_result)
+                  check_result = @evalCondition(clicked_element,
+                      source_model, condition, set_field.value)
+                  check_match_condtions.push(check_result)
 
-          if (and_flag && check_match_condtions.indexOf(false) == -1) || ( !and_flag && check_match_condtions.indexOf(true) != -1)
-            @show_hide_fields(true, set_field)
-          else
-            @show_hide_fields(false, set_field)
+            if (and_flag && check_match_condtions.indexOf(false) == -1) || ( !and_flag && check_match_condtions.indexOf(true) != -1)
+              @show_hide_fields(true, set_field)
+            else
+              @show_hide_fields(false, set_field)
 
         outerHeight = 0
         $(".fb-tab.step.active .fb-field-wrapper:visible").each ->
