@@ -929,7 +929,7 @@
         },
         applyEasyWizard: function() {
           (function(_this) {
-            return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit, sub_frag) {
+            return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit, sub_frag, _that) {
               var back_visibility, fd_views, _i, _len;
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
@@ -982,7 +982,9 @@
               if (fd_views.length > 0) {
                 _this.bindHierarchyEvents(fd_views);
               }
-              _this.triggerEvent();
+              setTimeout((function() {
+                _that.triggerEvent();
+              }), 5);
               return $("#formbuilder_form").easyWizard({
                 showSteps: false,
                 submitButton: false,
@@ -1017,162 +1019,162 @@
                 }
               });
             });
-          })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit, document.createDocumentFragment());
+          })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit, document.createDocumentFragment(), this);
           return this;
         },
         triggerEvent: function() {
           return (function(_this) {
             return function(field_view, fieldViews, model) {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
-                field_view = fieldViews[_i];
-                _results.push((function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
-                  var _j, _k, _len1, _len2, _ref, _ref1, _results1;
-                  if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
-                    _ref = field_view.$("label");
-                    _results1 = [];
-                    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                      x = _ref[_j];
-                      _results1.push(count = (function(x, index, name, val, value) {
-                        if ($(x).text() && !val_set) {
-                          val_set = true;
-                        }
-                        return index;
-                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
-                    }
-                    return _results1;
-                  } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
-                    return _.each(model.get('field_values'), function(value, key) {
-                      return (function(_this) {
-                        return function(index) {
-                          if (value) {
-                            if ($('#capture_link_' + field_view.model.getCid())) {
-                              if (_.isString(value)) {
-                                if (value.indexOf("data:image") === -1) {
-                                  $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
-                                } else if (value.indexOf("data:image") === 0) {
-                                  $('#record_link_' + field_view.model.getCid()).attr('href', value);
-                                  $('#record_link_' + field_view.model.getCid()).text("View File");
-                                }
-                              } else if (_.isObject(value)) {
-                                $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+              var _fn, _i, _len;
+              _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
+                var _j, _k, _len1, _len2, _ref, _ref1, _results;
+                if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
+                  _ref = field_view.$("label");
+                  _results = [];
+                  for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                    x = _ref[_j];
+                    _results.push(count = (function(x, index, name, val, value) {
+                      if ($(x).text() && !val_set) {
+                        val_set = true;
+                      }
+                      return index;
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
+                  }
+                  return _results;
+                } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
+                  return _.each(model.get('field_values'), function(value, key) {
+                    return (function(_this) {
+                      return function(index) {
+                        if (value) {
+                          if ($('#capture_link_' + field_view.model.getCid())) {
+                            if (_.isString(value)) {
+                              if (value.indexOf("data:image") === -1) {
+                                $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                              } else if (value.indexOf("data:image") === 0) {
+                                $('#record_link_' + field_view.model.getCid()).attr('href', value);
+                                $('#record_link_' + field_view.model.getCid()).text("View File");
                               }
-                            }
-                            if (_this.$('#capture_link_close_' + key)) {
-                              return _this.$('#capture_link_close_' + key).click(function() {
-                                return $('#capture_link_div_' + key).remove();
-                              });
+                            } else if (_.isObject(value)) {
+                              $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
                             }
                           }
-                        };
-                      })(this)(0);
-                    });
-                  } else if (field_view.model.get('field_type') === 'file') {
-                    return _.each(model.get('field_values'), function(value, key) {
-                      if (value !== "") {
-                        return (function(_this) {
-                          return function(a_href_val, a_text) {
-                            if ($('#file_upload_link_' + field_view.model.getCid())) {
-                              if (_.isString(value)) {
-                                a_href_val = value;
-                                a_text = value.split("/").pop().split("?")[0];
-                              } else if (_.isObject(value)) {
-                                a_href_val = value.url;
-                                a_text = value.name;
-                              }
-                              _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
-                            }
-                            return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
-                          };
-                        })(this)('', '');
-                      }
-                    });
-                  } else {
-                    field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                    field_method_call = Formbuilder.fields[field_type_method_call];
-                    cid = model.getCid();
-                    if (field_method_call.setup) {
-                      field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
-                      if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
-                        field_method_call.setValForPrint(field_view, model);
-                      }
-                    } else {
-                      if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
-                        field_method_call.setValForPrint(field_view, model);
-                      } else {
-                        _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
-                        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-                          x = _ref1[_k];
-                          count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
-                            var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
-                            _ref2 = field_view.model.collection.where({
-                              'field_type': 'heading'
+                          if (_this.$('#capture_link_close_' + key)) {
+                            return _this.$('#capture_link_close_' + key).click(function() {
+                              return $('#capture_link_div_' + key).remove();
                             });
-                            for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-                              model_in_collection = _ref2[_l];
-                              if (field_view.model.get('conditions')) {
-                                _ref3 = field_view.model.get('conditions');
-                                for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-                                  model_in_conditions = _ref3[_m];
-                                  if (model_in_collection.getCid() === model_in_conditions.target) {
-                                    has_heading_field = true;
-                                  }
-                                }
-                              }
-                            }
-                            _ref4 = field_view.model.collection.where({
-                              'field_type': 'free_text_html'
-                            });
-                            for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
-                              model_in_collection = _ref4[_n];
-                              if (field_view.model.get('conditions')) {
-                                _ref5 = field_view.model.get('conditions');
-                                for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
-                                  model_in_conditions = _ref5[_o];
-                                  if (model_in_collection.getCid() === model_in_conditions.target) {
-                                    has_ckeditor_field = true;
-                                  }
-                                }
-                              }
-                            }
-                            if (field_view.field_type === 'radio' || 'scale_rating') {
-                              value = x.value;
-                            }
-                            name = cid.toString() + "_" + index.toString();
-                            if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                              val = model.get('field_values')[value];
-                            } else if (model.get('field_values')) {
-                              val = model.get('field_values')[name];
-                            }
-                            if (field_method_call.setup) {
-                              field_method_call.setup($(x), model, index);
-                            }
-                            if (!val_set) {
-                              if ($(x).val()) {
-                                val_set = true;
-                              }
-                              if (val || has_heading_field || has_ckeditor_field) {
-                                val_set = true;
-                              }
-                            }
-                            if (val) {
-                              _this.setFieldVal($(x), val, model.getCid());
-                            }
-                            return index;
-                          })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
+                          }
                         }
-                      }
+                      };
+                    })(this)(0);
+                  });
+                } else if (field_view.model.get('field_type') === 'file') {
+                  return _.each(model.get('field_values'), function(value, key) {
+                    if (value !== "") {
+                      return (function(_this) {
+                        return function(a_href_val, a_text) {
+                          if ($('#file_upload_link_' + field_view.model.getCid())) {
+                            if (_.isString(value)) {
+                              a_href_val = value;
+                              a_text = value.split("/").pop().split("?")[0];
+                            } else if (_.isObject(value)) {
+                              a_href_val = value.url;
+                              a_text = value.name;
+                            }
+                            _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
+                          }
+                          return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
+                        };
+                      })(this)('', '');
                     }
-                    if (val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
-                      return field_view.trigger('change_state');
+                  });
+                } else {
+                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                  field_method_call = Formbuilder.fields[field_type_method_call];
+                  cid = model.getCid();
+                  if (field_method_call.setup) {
+                    field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                    if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
+                      field_method_call.setValForPrint(field_view, model);
+                    }
+                  } else {
+                    if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
+                      field_method_call.setValForPrint(field_view, model);
+                    } else {
+                      _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
+                      for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                        x = _ref1[_k];
+                        count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
+                          var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
+                          _ref2 = field_view.model.collection.where({
+                            'field_type': 'heading'
+                          });
+                          for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                            model_in_collection = _ref2[_l];
+                            if (field_view.model.get('conditions')) {
+                              _ref3 = field_view.model.get('conditions');
+                              for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                                model_in_conditions = _ref3[_m];
+                                if (model_in_collection.getCid() === model_in_conditions.target) {
+                                  has_heading_field = true;
+                                }
+                              }
+                            }
+                          }
+                          _ref4 = field_view.model.collection.where({
+                            'field_type': 'free_text_html'
+                          });
+                          for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
+                            model_in_collection = _ref4[_n];
+                            if (field_view.model.get('conditions')) {
+                              _ref5 = field_view.model.get('conditions');
+                              for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+                                model_in_conditions = _ref5[_o];
+                                if (model_in_collection.getCid() === model_in_conditions.target) {
+                                  has_ckeditor_field = true;
+                                }
+                              }
+                            }
+                          }
+                          if (field_view.field_type === 'radio' || 'scale_rating') {
+                            value = x.value;
+                          }
+                          name = cid.toString() + "_" + index.toString();
+                          if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                            val = model.get('field_values')[value];
+                          } else if (model.get('field_values')) {
+                            val = model.get('field_values')[name];
+                          }
+                          if (field_method_call.setup) {
+                            field_method_call.setup($(x), model, index);
+                          }
+                          if (!val_set) {
+                            if ($(x).val()) {
+                              val_set = true;
+                            }
+                            if (val || has_heading_field || has_ckeditor_field) {
+                              val_set = true;
+                            }
+                          }
+                          if (val) {
+                            _this.setFieldVal($(x), val, model.getCid());
+                          }
+                          return index;
+                        })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
+                      }
                     }
                   }
-                })(null, 0, function(attr) {
+                  if (val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
+                    return field_view.trigger('change_state');
+                  }
+                }
+              };
+              for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
+                field_view = fieldViews[_i];
+                _fn(null, 0, function(attr) {
                   return attr !== 'radio';
-                }, false, field_view.model, '', '', ''));
+                }, false, field_view.model, '', '', '');
               }
-              return _results;
+              return _this.formBuilder.trigger('render_complete');
             };
           })(this)(null, this.fieldViews, "");
         },
@@ -1710,9 +1712,9 @@
 
 (function() {
   Formbuilder.registerField('ci-hierarchy', {
-    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
+    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
     edit: "",
-    print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
+    print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n      <td>\n        <label>User </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"user_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> Hierarchy",
     selected_comp: null,
     checkAttributeHasValue: function(cid, $el) {
@@ -1738,12 +1740,13 @@
     },
     bindChangeEvents: function(fd_view) {
       return (function(_this) {
-        return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId) {
+        return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId, $user_id, selected_userId) {
           cid = fd_view.model.attributes.cid;
           field_values = fd_view.model.attributes.field_values;
           $company_id = fd_view.$("#company_id_" + cid);
           $location_id = fd_view.$("#location_id_" + cid);
           $division_id = fd_view.$("#division_id_" + cid);
+          $user_id = fd_view.$("#user_id_" + cid);
           $company_id.bind('change', {
             that: _this,
             fd_view: fd_view
@@ -1752,6 +1755,10 @@
             that: _this,
             fd_view: fd_view
           }, _this.populateDivisionsByLocId);
+          $division_id.bind('change', {
+            that: _this,
+            fd_view: fd_view
+          }, _this.populateUsersByDivisionId);
           if (field_values) {
             if ($company_id) {
               selected_compId = _this.getSelectedFieldVal($company_id, field_values);
@@ -1762,10 +1769,13 @@
             if ($division_id) {
               selected_divId = _this.getSelectedFieldVal($division_id, field_values);
             }
+            if ($user_id) {
+              selected_userId = _this.getSelectedFieldVal($user_id, field_values);
+            }
           }
-          return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId);
+          return _this.populateCompanies(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
         };
-      })(this)(null, null, null, null, null, '', '', '');
+      })(this)(null, null, null, null, null, '', '', '', null, '');
     },
     getSelectedFieldVal: function($ele, fieldValues) {
       return (function(_this) {
@@ -1776,7 +1786,7 @@
         };
       })(this)('', '');
     },
-    populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId) {
+    populateCompanies: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
       if (selected_compId == null) {
         selected_compId = '';
       }
@@ -1785,6 +1795,9 @@
       }
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(_this) {
         return function(companies, $company_id, cid) {
@@ -1797,7 +1810,7 @@
             fd_view.field.appendData($company_id, companies);
             if (selected_compId && selected_compId !== '') {
               $company_id.val(selected_compId);
-              return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId);
+              return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
             }
           }
         };
@@ -1810,23 +1823,29 @@
         };
       })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId) {
+    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
       if (selected_locId == null) {
         selected_locId = '';
       }
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
       this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
-      return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId);
+      return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId, selected_userId);
     },
-    populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId) {
+    populateLocations: function(fd_view, selected_comp, selected_locId, selected_divId, selected_userId) {
       if (selected_locId == null) {
         selected_locId = '';
       }
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(_this) {
         return function(locations, $location_id) {
@@ -1839,7 +1858,7 @@
             _this.appendData($location_id, locations);
             if (selected_locId && selected_locId !== '') {
               $location_id.val(selected_locId);
-              return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId);
+              return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId);
             }
           }
         };
@@ -1852,33 +1871,81 @@
         };
       })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId) {
+    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId) {
       if (selected_divId == null) {
         selected_divId = '';
+      }
+      if (selected_userId == null) {
+        selected_userId = '';
       }
       return (function(_this) {
         return function(selected_loc) {
-          selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
-          return _this.populateDivisions(fd_view, selected_loc, selected_divId);
+          _this.selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+          return _this.populateDivisions(fd_view, _this.selected_loc, selected_divId, selected_userId);
         };
       })(this)(null);
     },
-    populateDivisions: function(fd_view, selected_loc, selected_divId) {
+    populateDivisions: function(fd_view, selected_loc, selected_divId, selected_userId) {
       if (selected_divId == null) {
         selected_divId = '';
       }
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
       return (function(_this) {
-        return function(divisions, $division_id) {
+        return function(divisions, $division_id, $user_id) {
           $division_id = fd_view.$("#division_id_" + fd_view.model.attributes.cid);
+          $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
           if (selected_loc) {
             divisions = selected_loc.divisions;
           }
           $division_id.empty();
+          $user_id.empty();
           _this.addPlaceHolder($division_id, '--- Select ---');
           if ($division_id && divisions.length > 0) {
             _this.appendData($division_id, divisions);
             if (selected_divId && selected_divId !== '') {
-              return $division_id.val(selected_divId);
+              $division_id.val(selected_divId);
+              return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId);
+            }
+          }
+        };
+      })(this)([], null, null);
+    },
+    populateUsersByDivisionId: function(e) {
+      return (function(_this) {
+        return function(selected_division_id, that, fd_view) {
+          return that.setSelectedDivAndPopulateUsers(fd_view, selected_division_id);
+        };
+      })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+    },
+    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId) {
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
+      return (function(_this) {
+        return function(selected_div) {
+          selected_div = _this.selected_loc.divisions.getHashObject(selected_divId);
+          return _this.populateUsers(fd_view, selected_div, selected_userId);
+        };
+      })(this)(null);
+    },
+    populateUsers: function(fd_view, selected_div, selected_userId) {
+      if (selected_userId == null) {
+        selected_userId = '';
+      }
+      return (function(_this) {
+        return function(users, $user_id) {
+          $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
+          if (selected_div) {
+            users = selected_div.users;
+          }
+          $user_id.empty();
+          _this.addPlaceHolder($user_id, '--- Select ---');
+          if ($user_id && users.length > 0) {
+            _this.appendData($user_id, users);
+            if (selected_userId && selected_userId !== '') {
+              return $user_id.val(selected_userId);
             }
           }
         };
@@ -1886,7 +1953,8 @@
     },
     clearSelectFields: function(fd_view, cid) {
       fd_view.$("#location_id_" + cid).empty();
-      return fd_view.$("#division_id_" + cid).empty();
+      fd_view.$("#division_id_" + cid).empty();
+      return fd_view.$("#user_id_" + cid).empty();
     },
     appendData: function($element, data) {
       return (function(_this) {
@@ -1908,7 +1976,8 @@
           cid = model.attributes.cid;
           $el.find("#company_id_" + cid).val("");
           $el.find("#location_id_" + cid).val("");
-          return $el.find("#division_id_" + cid).val("");
+          $el.find("#division_id_" + cid).val("");
+          return $el.find("#user_id_" + cid).val("");
         };
       })(this)('');
     },
@@ -1920,7 +1989,7 @@
             if (!required_attr) {
               return true;
             }
-            return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '';
+            return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
           })(model.get('required'), 0);
           return valid;
         };
@@ -1928,30 +1997,34 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
-        return function(check_result, $comp, $loc, $div, comp_name, comp_id, loc_id, div_id, loc_name, div_name, _toLowerCase_set_val) {
+        return function(check_result, $comp, $loc, $div, $user, comp_name, comp_id, loc_id, div_id, user_id, loc_name, div_name, _toLowerCase_set_val, user_name) {
           $comp = clicked_element.find("#company_id_" + cid);
           $loc = clicked_element.find("#location_id_" + cid);
           $div = clicked_element.find("#division_id_" + cid);
+          $user = clicked_element.find("#user_id_" + cid);
           comp_id = $comp.val();
           loc_id = $loc.val();
           div_id = $div.val();
+          user_id = $user.val();
           comp_name = $comp.find('option:selected').text();
           loc_name = $loc.find('option:selected').text();
           div_name = $div.find('option:selected').text();
+          user_name = $user.find('option:selected').text();
           if (condition === '!=') {
-            check_result = comp_id !== '' && loc_id !== '' && div_id !== '';
+            check_result = comp_id !== '' && loc_id !== '' && div_id !== '' && user_id !== '';
           } else if (condition === '==') {
             _toLowerCase_set_val = set_value.toLowerCase();
-            check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val;
+            check_result = comp_name.toLowerCase() === _toLowerCase_set_val || loc_name.toLowerCase() === _toLowerCase_set_val || div_name.toLowerCase() === _toLowerCase_set_val || user_name.toLowerCase() === _LowerCase_set_val;
           }
           return check_result;
         };
-      })(this)(false, null, null, null, '', '', '', '', '', '', '');
+      })(this)(false, null, null, null, null, '', '', '', '', '', '', '', '', '');
     },
     add_remove_require: function(cid, required) {
       $("#company_id_" + cid).attr("required", required);
       $("#location_id_" + cid).attr("required", required);
-      return $("#division_id_" + cid).attr("required", required);
+      $("#division_id_" + cid).attr("required", required);
+      return $("#user_id_" + cid).attr("required", required);
     },
     setValue: function(fd_view) {
       if (fd_view.options.view_type === 'print') {
@@ -1962,12 +2035,13 @@
     },
     setValForPrint: function(fd_view) {
       return (function(_this) {
-        return function(cid, $company_id, $location_id, $division_id, field_values, selected_compId, selected_locId, selected_divId, comp_obj, loc_obj, div_obj, companies) {
+        return function(cid, $company_id, $location_id, $division_id, $user_id, field_values, selected_compId, selected_locId, selected_divId, selected_userId, comp_obj, loc_obj, div_obj, user_obj, companies) {
           cid = fd_view.model.attributes.cid;
           field_values = fd_view.model.attributes.field_values;
           $company_id = fd_view.$("#company_id_" + cid);
           $location_id = fd_view.$("#location_id_" + cid);
           $division_id = fd_view.$("#division_id_" + cid);
+          $user_id = fd_view.$("#user_id_" + cid);
           if (field_values) {
             if ($company_id) {
               selected_compId = field_values[cid + '_1'];
@@ -1978,6 +2052,9 @@
             if ($division_id) {
               selected_divId = field_values[cid + '_3'];
             }
+            if ($user_id && field_values[cid + '_4']) {
+              selected_userId = field_values[cid + '_4'];
+            }
           }
           if (selected_compId) {
             comp_obj = _this.findObjFrmData(companies, selected_compId);
@@ -1987,7 +2064,11 @@
               $location_id.text(loc_obj && loc_obj.name || '');
               if (loc_obj && selected_divId) {
                 div_obj = _this.findObjFrmData(loc_obj.divisions, selected_divId);
-                return $division_id.text(div_obj && div_obj.name || '');
+                $division_id.text(div_obj && div_obj.name || '');
+                if (div_obj && selected_userId) {
+                  user_obj = _this.findObjFrmData(div_obj.users, selected_userId);
+                  return $user_id.text(user_obj && user_obj.name || '');
+                }
               }
             } else {
               return _this.setEmptyForPrint(fd_view, cid);
@@ -1996,7 +2077,7 @@
             return _this.setEmptyForPrint(fd_view, cid);
           }
         };
-      })(this)(null, null, null, null, null, '', '', '', null, null, null, Formbuilder.options.COMPANY_HIERARCHY);
+      })(this)(null, null, null, null, null, null, '', '', '', '', null, null, null, null, Formbuilder.options.COMPANY_HIERARCHY);
     },
     findObjFrmData: function(data, selected_id) {
       return (function(_this) {
@@ -2014,7 +2095,8 @@
     setEmptyForPrint: function(fd_view, cid) {
       fd_view.$("#company_id_" + cid).text('');
       fd_view.$("#location_id_" + cid).text('');
-      return fd_view.$("#division_id_" + cid).text('');
+      fd_view.$("#division_id_" + cid).text('');
+      return fd_view.$("#user_id_" + cid).text('');
     }
   });
 
