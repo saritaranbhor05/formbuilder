@@ -26,12 +26,15 @@ Formbuilder.registerField 'address',
          value="<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>"/>
         <label>Postal/Zip Code</label>
       </span>
-
       <span class="span3">
+      <% if(Formbuilder.isAndroid()) { %>
+        <input id="file_<%= rf.getCid() %>" addr_section="country" name="file_<%= rf.getCid() %>" data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>" readonly="true"></input>
+      <% }else { %>
         <select id="file_<%= rf.getCid() %>"
           data-country="<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>"
           class='span7 dropdown_country bfh-selectbox bfh-countries'
         ></select>
+      <% } %>
         <label>Country</label>
       </span>
     </div>
