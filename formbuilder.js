@@ -294,10 +294,11 @@
           })(this)(set_field);
         },
         changeState: function() {
-          var outerHeight;
-          (function(_this) {
-            return (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
-              var _fn, _i, _len, _ref;
+          var outerHeight,
+            _this = this;
+          (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
+            var _fn, _i, _len, _ref;
+            if (_this.options.view_type !== 'print') {
               if (_this.model.get('field_options').match_conditions === 'and') {
                 and_flag = true;
               }
@@ -346,8 +347,8 @@
               } else {
                 return _this.show_hide_fields(false, set_field);
               }
-            });
-          })(this)({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
+            }
+          })({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
           outerHeight = 0;
           $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
             return outerHeight += $(this).height();
@@ -1178,6 +1179,17 @@
             };
           })(this)(null, this.fieldViews, "");
         },
+        initializeEsings: function() {
+          var _this = this;
+          return (function(esigns) {
+            return _.each(esigns, function(el) {
+              var $esig_el, cid;
+              $esig_el = $(el).find("img");
+              cid = $esig_el.attr("name").split("_")[0];
+              initializeCanvas(cid);
+            });
+          })(this.$el.find('.response-field-esignature'));
+        },
         setFieldVal: function(elem, val, cid) {
           return (function(_this) {
             return function(setters, type) {
@@ -1249,6 +1261,7 @@
             $('.easyWizardButtons .prev').addClass('hide btn-danger');
             $('.easyWizardButtons .next').addClass('btn-success');
             this.applyFileStyle();
+            this.initializeEsings();
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
@@ -2638,21 +2651,19 @@
       })(this)(false, null);
     },
     setup: function(field_view, model) {
-      return (function(_this) {
-        return function(model_cid, upload_url, $img) {
-          initializeCanvas(model_cid);
-          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
-            upload_url = model.get('field_values')["" + model_cid + "_1"];
-            $img.attr("upload_url", upload_url);
-            $img.show();
-          } else {
-            $img.hide();
-          }
-          if (upload_url) {
-            return makeRequest(upload_url, $img.attr("name"));
-          }
-        };
-      })(this)(model.getCid(), '', field_view.$el.find('img'));
+      var _this = this;
+      return (function(model_cid, upload_url, $img) {
+        if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
+          upload_url = model.get('field_values')["" + model_cid + "_1"];
+          $img.attr("upload_url", upload_url);
+          $img.show();
+        } else {
+          $img.hide();
+        }
+        if (upload_url) {
+          return makeRequest(upload_url, $img.attr("name"));
+        }
+      })(model.getCid(), '', field_view.$el.find('img'));
     }
   });
 
