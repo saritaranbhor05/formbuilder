@@ -800,7 +800,7 @@ class Formbuilder
 
       triggerEvent:->
         do (field_view = null,
-            fieldViews = @fieldViews
+            fieldViews = @fieldViews,
             model = ""
         ) =>
           for field_view in fieldViews
@@ -917,6 +917,14 @@ class Formbuilder
 
           @formBuilder.trigger('render_complete')
 
+      initializeEsings:->
+        do (esigns = @$el.find('.response-field-esignature')) =>
+          _.each esigns, (el) ->
+            $esig_el = $(el).find("img")
+            cid = $esig_el.attr("name").split("_")[0]
+            initializeCanvas cid
+            return
+
       setFieldVal: (elem, val, cid) ->
         do(setters = null, type = $(elem).attr('type')) =>
           setters =
@@ -968,6 +976,7 @@ class Formbuilder
           $('.easyWizardButtons .prev').addClass('hide btn-danger')
           $('.easyWizardButtons .next').addClass('btn-success')
           @applyFileStyle()
+          @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
           @setSortable()

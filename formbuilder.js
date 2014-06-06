@@ -1157,6 +1157,17 @@
             return _this.formBuilder.trigger('render_complete');
           })(null, this.fieldViews, "");
         },
+        initializeEsings: function() {
+          var _this = this;
+          return (function(esigns) {
+            return _.each(esigns, function(el) {
+              var $esig_el, cid;
+              $esig_el = $(el).find("img");
+              cid = $esig_el.attr("name").split("_")[0];
+              initializeCanvas(cid);
+            });
+          })(this.$el.find('.response-field-esignature'));
+        },
         setFieldVal: function(elem, val, cid) {
           var _this = this;
           return (function(setters, type) {
@@ -1227,6 +1238,7 @@
             $('.easyWizardButtons .prev').addClass('hide btn-danger');
             $('.easyWizardButtons .next').addClass('btn-success');
             this.applyFileStyle();
+            this.initializeEsings();
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
             return this.setSortable();
@@ -2569,7 +2581,6 @@
     setup: function(field_view, model) {
       var _this = this;
       return (function(model_cid, upload_url, $img) {
-        initializeCanvas(model_cid);
         if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
           upload_url = model.get('field_values')["" + model_cid + "_1"];
           $img.attr("upload_url", upload_url);
