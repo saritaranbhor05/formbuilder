@@ -43,7 +43,7 @@ Formbuilder.registerField 'checkboxes',
         <label>
         <% if(labelArr[index]) %>
           <%= labelArr[index] %>
-          <% else if(typeof value == 'string' && field_values[(rf.get('cid')+"_"+(index))]) %>
+          <% else if(typeof value == 'string' && value.trim() != '') %>
           <%= value %>
         </label>
         <%  } %>
