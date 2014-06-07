@@ -9,7 +9,7 @@
 <div class='subtemplate-wrapper' >
   <div class='condition' data-rv-each-condition='model.conditions'>
     <div class='row-fluid' data-rv-show="condition:isSource">
-      <span class='fb-field-label fb-field-condition-label span1'> If </span>
+      <span class='fb-field-label fb-field-condition-label span1 fb-min-width-10'> If </span>
       <div class="span8">
         <select data-rv-value='condition:source'>
           <option value="">Select Field</option>
@@ -33,16 +33,16 @@
         </select>
       </div>
       <input class='span5 pull-right' data-rv-input='condition:value' type='text'/>
-      <span class='fb-field-label fb-field-condition-label span2'> then </span>
-      <div class="span3">
+      <span class='fb-field-label fb-field-condition-label span2 fb-min-width-40'> then </span>
+      <div class="span8">
         <select data-rv-value='condition:action'>
             <option value="">Select Action</option>
             <option>show</option>
             <option>hide</option>
         </select>
       </div>
-      <div class="span8">
-        <input type='text' disabled value='This Field'>
+      <div class="span8 fb-this-field-div">
+        <input type='text' class='fb-this-field-input' disabled value='This Field'>
       </div>
       <a class="pull-right js-remove-condition <%= Formbuilder.options.BUTTON_CLASS %>" title="Remove Condition"><i class='icon-minus-sign'></i></a>
     </div>
