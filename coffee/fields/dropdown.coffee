@@ -3,7 +3,7 @@ Formbuilder.registerField 'dropdown',
   view: """
     <% if(Formbuilder.isAndroid()) { %>
       <input id="<%= rf.getCid() %>" name="<%= rf.getCid() %>" readonly="true"></input>
-    <% }else { %>
+    <% } else { %>
     <select id="dropdown">
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
         <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>
@@ -85,8 +85,21 @@ Formbuilder.registerField 'dropdown',
   setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
       if Formbuilder.isAndroid()
-        field_view.$el.find("input").val(model.attributes.field_values["#{model.getCid()}_1"])
+        if model.attributes.field_values["#{model.getCid()}_1"] == '' && model.attributes.field_options.include_blank_option
+          field_view.$el.find("input").val(model.attributes.field_options.empty_option_text)
+        else
+          field_view.$el.find("input").val(model.attributes.field_values["#{model.getCid()}_1"])
       else
         field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+    else if model.attributes.field_options && Formbuilder.isAndroid()
+      do(opt = model.attributes.field_options.options) ->
+        if opt[0]
+          field_view.$el.find("input").val(opt[0].label)
+        if model.attributes.field_options.include_blank_option
+          field_view.$el.find("input").val(model.attributes.field_options.empty_option_text)
+        for e in opt
+          do(e) ->
+            if e.checked
+              field_view.$el.find("input").val(e.label)
     if field_view.$el.find('select').val() != ''
       field_view.trigger('change_state')
