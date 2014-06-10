@@ -1,13 +1,21 @@
 Formbuilder.registerField 'fullname',
-  perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.']
+  prefix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.']
   view: """
     <div class='input-line'>
       <span>
+      <% if(Formbuilder.isAndroid()) { %>
+        <% var opt={}, index=0;%>
+        <% _.each(this.prefix, function(o){ %>
+        <% var temp = {}; temp[o] = o ; opt[index++] = temp; %>
+        <% }) %>
+        <input id="prefix_option_<%= rf.getCid()%>" value="<%= this.prefix[0] %>" readonly="readonly" data-prefixlist='<%= JSON.stringify(opt) %>'></input>
+      <%} else { %>
         <select class='span12'>
-          <%for (i = 0; i < this.perfix.length; i++){%>
-            <option><%= this.perfix[i]%></option>
+          <%for (i = 0; i < this.prefix.length; i++){%>
+            <option><%= this.prefix[i]%></option>
           <%}%>
         </select>
+      <% } %>
         <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>
       </span>
 
