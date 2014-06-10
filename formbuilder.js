@@ -1044,6 +1044,7 @@
                   }
                   return _results;
                 } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
+                  $('#capture_link_' + field_view.model.getCid()).html('');
                   return _.each(model.get('field_values'), function(value, key) {
                     return (function(_this) {
                       return function(index) {

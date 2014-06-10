@@ -829,6 +829,7 @@ class Formbuilder
                     val_set = true if $(x).text() && !val_set
                     index
               else if (field_view.model.get('field_type') is 'take_pic_video_audio')
+                $('#capture_link_'+field_view.model.getCid()).html('')
                 _.each(model.get('field_values'), (value, key) ->
                   do(index=0) =>
                     if value
