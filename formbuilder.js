@@ -294,61 +294,62 @@
           })(this)(set_field);
         },
         changeState: function() {
-          var outerHeight,
-            _this = this;
-          (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
-            var _fn, _i, _len, _ref;
-            if (_this.options.view_type !== 'print') {
-              if (_this.model.get('field_options').match_conditions === 'and') {
-                and_flag = true;
-              }
-              _ref = _this.model.get("conditions");
-              _fn = function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
-                if (set_field.target === _this_model_cid) {
-                  source_model = _this.model.collection.where({
-                    cid: set_field.source
-                  })[0];
-                  clicked_element = $("." + source_model.getCid());
-                  field_type = source_model.get('field_type');
-                  if (date_field_types.indexOf(field_type) !== -1) {
-                    str_condition = true;
-                  }
-                  if (set_field.condition === "equals") {
-                    condition = _this.parentView.checkEquals;
-                    if (str_condition) {
-                      condition = '==';
-                    }
-                  } else if (set_field.condition === "less than") {
-                    condition = _this.parentView.checkLessThan;
-                    if (str_condition) {
-                      condition = '<';
-                    }
-                  } else if (set_field.condition === "greater than") {
-                    condition = _this.parentView.checkGreaterThan;
-                    if (str_condition) {
-                      condition = '>';
-                    }
-                  } else {
-                    condition = _this.parentView.checkNotEqual;
-                    if (str_condition) {
-                      condition = '!=';
-                    }
-                  }
-                  check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
-                  return check_match_condtions.push(check_result);
+          var outerHeight;
+          (function(_this) {
+            return (function(set_field, i, and_flag, check_match_condtions, _this_model_cid, date_field_types, str_condition) {
+              var _fn, _i, _len, _ref;
+              if (_this.options.view_type !== 'print') {
+                if (_this.model.get('field_options').match_conditions === 'and') {
+                  and_flag = true;
                 }
-              };
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                set_field = _ref[_i];
-                _fn({}, [], {}, "equals", '', false);
+                _ref = _this.model.get("conditions");
+                _fn = function(source_model, clicked_element, elem_val, condition, field_type, check_result) {
+                  if (set_field.target === _this_model_cid) {
+                    source_model = _this.model.collection.where({
+                      cid: set_field.source
+                    })[0];
+                    clicked_element = $("." + source_model.getCid());
+                    field_type = source_model.get('field_type');
+                    if (date_field_types.indexOf(field_type) !== -1) {
+                      str_condition = true;
+                    }
+                    if (set_field.condition === "equals") {
+                      condition = _this.parentView.checkEquals;
+                      if (str_condition) {
+                        condition = '==';
+                      }
+                    } else if (set_field.condition === "less than") {
+                      condition = _this.parentView.checkLessThan;
+                      if (str_condition) {
+                        condition = '<';
+                      }
+                    } else if (set_field.condition === "greater than") {
+                      condition = _this.parentView.checkGreaterThan;
+                      if (str_condition) {
+                        condition = '>';
+                      }
+                    } else {
+                      condition = _this.parentView.checkNotEqual;
+                      if (str_condition) {
+                        condition = '!=';
+                      }
+                    }
+                    check_result = _this.evalCondition(clicked_element, source_model, condition, set_field.value);
+                    return check_match_condtions.push(check_result);
+                  }
+                };
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  set_field = _ref[_i];
+                  _fn({}, [], {}, "equals", '', false);
+                }
+                if ((and_flag && check_match_condtions.indexOf(false) === -1) || (!and_flag && check_match_condtions.indexOf(true) !== -1)) {
+                  return _this.show_hide_fields(true, set_field);
+                } else {
+                  return _this.show_hide_fields(false, set_field);
+                }
               }
-              if ((and_flag && check_match_condtions.indexOf(false) === -1) || (!and_flag && check_match_condtions.indexOf(true) !== -1)) {
-                return _this.show_hide_fields(true, set_field);
-              } else {
-                return _this.show_hide_fields(false, set_field);
-              }
-            }
-          })({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
+            });
+          })(this)({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
           outerHeight = 0;
           $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
             return outerHeight += $(this).height();
@@ -1180,15 +1181,16 @@
           })(this)(null, this.fieldViews, "");
         },
         initializeEsings: function() {
-          var _this = this;
-          return (function(esigns) {
-            return _.each(esigns, function(el) {
-              var $esig_el, cid;
-              $esig_el = $(el).find("img");
-              cid = $esig_el.attr("name").split("_")[0];
-              initializeCanvas(cid);
-            });
-          })(this.$el.find('.response-field-esignature'));
+          return (function(_this) {
+            return function(esigns) {
+              return _.each(esigns, function(el) {
+                var $esig_el, cid;
+                $esig_el = $(el).find("img");
+                cid = $esig_el.attr("name").split("_")[0];
+                initializeCanvas(cid);
+              });
+            };
+          })(this)(this.$el.find('.response-field-esignature'));
         },
         setFieldVal: function(elem, val, cid) {
           return (function(_this) {
@@ -1221,8 +1223,14 @@
                   }
                 },
                 "default": function() {
-                  if (val) {
-                    return $(elem).val(val);
+                  if (Formbuilder.isAndroid() && $(elem).attr('ci_hierarchy_section')) {
+                    if (val) {
+                      return $(elem).data('id', val);
+                    }
+                  } else {
+                    if (val) {
+                      return $(elem).val(val);
+                    }
                   }
                 }
               };
@@ -1725,7 +1733,7 @@
 
 (function() {
   Formbuilder.registerField('ci-hierarchy', {
-    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
+    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"company_id_<%= rf.getCid() %>\" name=\"company_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"org\" ></input>\n    <% }else { %>\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"location_id_<%= rf.getCid() %>\" name=\"location_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"loc\" ></input>\n    <% }else { %>\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"division_id_<%= rf.getCid() %>\" name=\"division_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"div\" ></input>\n    <% }else { %>\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"user_id_<%= rf.getCid() %>\" name=\"user_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"user\">\n    </input>\n    <% }else { %>\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n</div>",
     edit: "",
     print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n      <td>\n        <label>User </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"user_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> Hierarchy",
@@ -1817,13 +1825,21 @@
           cid = fd_view.model.attributes.cid;
           $company_id = fd_view.$("#company_id_" + cid);
           if ($company_id && companies && companies.length > 0) {
-            $company_id.empty();
+            if (Formbuilder.isAndroid()) {
+              _this.clearInputFiledForAndroid($company_id);
+            } else {
+              $company_id.empty();
+            }
             fd_view.field.clearSelectFields(fd_view, cid);
             fd_view.field.addPlaceHolder($company_id, '--- Select ---');
             fd_view.field.appendData($company_id, companies);
             if (selected_compId && selected_compId !== '') {
-              $company_id.val(selected_compId);
-              return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
+              if (Formbuilder.isAndroid()) {
+                $company_id.data('id', selected_compId);
+              } else {
+                $company_id.val(selected_compId);
+              }
+              return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId, $company_id);
             }
           }
         };
@@ -1831,12 +1847,16 @@
     },
     populateLocationsByCompanyId: function(e) {
       return (function(_this) {
-        return function(selected_company_id, that, fd_view) {
+        return function(selected_company_id, that, fd_view, e) {
+          if (Formbuilder.isAndroid()) {
+            selected_company_id = $(e.currentTarget).data('id');
+            console.log('new company id = ', selected_company_id);
+          }
           return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
         };
-      })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+      })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view, e);
     },
-    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
+    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId, $company_div) {
       if (selected_locId == null) {
         selected_locId = '';
       }
@@ -1846,7 +1866,13 @@
       if (selected_userId == null) {
         selected_userId = '';
       }
+      if ($company_div == null) {
+        $company_div = null;
+      }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
+      if (Formbuilder.isAndroid() && $company_div) {
+        $company_div.val(this.selected_comp.name);
+      }
       this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
       return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId, selected_userId);
     },
@@ -1870,8 +1896,12 @@
             _this.addPlaceHolder($location_id, '--- Select ---');
             _this.appendData($location_id, locations);
             if (selected_locId && selected_locId !== '') {
-              $location_id.val(selected_locId);
-              return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId);
+              if (Formbuilder.isAndroid()) {
+                $location_id.data('id', selected_locId);
+              } else {
+                $location_id.val(selected_locId);
+              }
+              return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId, $location_id);
             }
           }
         };
@@ -1880,20 +1910,30 @@
     populateDivisionsByLocId: function(e) {
       return (function(_this) {
         return function(selected_location_id, that, fd_view) {
+          if (Formbuilder.isAndroid()) {
+            selected_location_id = $(e.currentTarget).data('id');
+            console.log('new location id = ', selected_location_id);
+          }
           return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
         };
       })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId) {
+    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId, $location_div) {
       if (selected_divId == null) {
         selected_divId = '';
       }
       if (selected_userId == null) {
         selected_userId = '';
       }
+      if ($location_div == null) {
+        $location_div = null;
+      }
       return (function(_this) {
         return function(selected_loc) {
           _this.selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+          if (Formbuilder.isAndroid() && $location_div) {
+            $location_div.val(_this.selected_loc.name);
+          }
           return _this.populateDivisions(fd_view, _this.selected_loc, selected_divId, selected_userId);
         };
       })(this)(null);
@@ -1912,14 +1952,23 @@
           if (selected_loc) {
             divisions = selected_loc.divisions;
           }
-          $division_id.empty();
-          $user_id.empty();
+          if (Formbuilder.isAndroid()) {
+            _this.clearInputFiledForAndroid($division_id);
+            _this.clearInputFiledForAndroid($user_id);
+          } else {
+            $division_id.empty();
+            $user_id.empty();
+          }
           _this.addPlaceHolder($division_id, '--- Select ---');
           if ($division_id && divisions.length > 0) {
             _this.appendData($division_id, divisions);
             if (selected_divId && selected_divId !== '') {
-              $division_id.val(selected_divId);
-              return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId);
+              if (Formbuilder.isAndroid()) {
+                $division_id.data('id', selected_divId);
+              } else {
+                $division_id.val(selected_divId);
+              }
+              return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId, $division_id);
             }
           }
         };
@@ -1928,17 +1977,27 @@
     populateUsersByDivisionId: function(e) {
       return (function(_this) {
         return function(selected_division_id, that, fd_view) {
+          if (Formbuilder.isAndroid()) {
+            selected_division_id = $(e.currentTarget).data('id');
+            console.log('new division id = ', selected_division_id);
+          }
           return that.setSelectedDivAndPopulateUsers(fd_view, selected_division_id);
         };
       })(this)($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId) {
+    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId, $division_div) {
       if (selected_userId == null) {
         selected_userId = '';
+      }
+      if ($division_div == null) {
+        $division_div = null;
       }
       return (function(_this) {
         return function(selected_div) {
           selected_div = _this.selected_loc.divisions.getHashObject(selected_divId);
+          if (Formbuilder.isAndroid() && $division_div) {
+            $division_div.val(selected_div.name);
+          }
           return _this.populateUsers(fd_view, selected_div, selected_userId);
         };
       })(this)(null);
@@ -1949,39 +2008,81 @@
       }
       return (function(_this) {
         return function(users, $user_id) {
+          var selected_user_obj;
           $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
           if (selected_div) {
             users = selected_div.users;
           }
-          $user_id.empty();
+          if (Formbuilder.isAndroid()) {
+            _this.clearInputFiledForAndroid($user_id);
+          } else {
+            $user_id.empty();
+          }
           _this.addPlaceHolder($user_id, '--- Select ---');
           if ($user_id && users.length > 0) {
             _this.appendData($user_id, users);
             if (selected_userId && selected_userId !== '') {
-              return $user_id.val(selected_userId);
+              if (Formbuilder.isAndroid()) {
+                $user_id.data('id', selected_userId);
+                selected_user_obj = users.getHashObject(selected_userId);
+                if (selected_user_obj) {
+                  return $user_id.val(selected_user_obj.name);
+                }
+              } else {
+                return $user_id.val(selected_userId);
+              }
             }
           }
         };
       })(this)([], null);
     },
     clearSelectFields: function(fd_view, cid) {
-      fd_view.$("#location_id_" + cid).empty();
-      fd_view.$("#division_id_" + cid).empty();
-      return fd_view.$("#user_id_" + cid).empty();
+      if (Formbuilder.isAndroid()) {
+        this.clearInputFiledForAndroid(fd_view.$("#location_id_" + cid));
+        this.clearInputFiledForAndroid(fd_view.$("#division_id_" + cid));
+        return this.clearInputFiledForAndroid(fd_view.$("#user_id_" + cid));
+      } else {
+        fd_view.$("#location_id_" + cid).empty();
+        fd_view.$("#division_id_" + cid).empty();
+        return fd_view.$("#user_id_" + cid).empty();
+      }
+    },
+    clearInputFiledForAndroid: function(elem) {
+      elem.removeAttr('placeholder');
+      elem.removeData('id');
+      elem.removeData('options');
+      return elem.val('');
     },
     appendData: function($element, data) {
-      return (function(_this) {
-        return function(appendString) {
-          return _.each(data, function(obj_hash) {
-            this.appendString = "<option value='" + obj_hash.id + "'>";
-            this.appendString += obj_hash.name + "</option>";
-            return $element.append(this.appendString);
+      if (Formbuilder.isAndroid()) {
+        return (function(formatted_arr, index) {
+          _.each(data, function(obj_hash) {
+            return (function(temp) {
+              temp[obj_hash.id] = obj_hash.name;
+              return formatted_arr[index++] = temp;
+            })({});
           });
-        };
-      })(this)('');
+          return $element.data('options', formatted_arr);
+        })({}, 0);
+      } else {
+        return (function(_this) {
+          return function(appendString) {
+            return _.each(data, function(obj_hash) {
+              this.appendString = "<option value='" + obj_hash.id + "'>";
+              this.appendString += obj_hash.name + "</option>";
+              return $element.append(this.appendString);
+            });
+          };
+        })(this)('');
+      }
     },
     addPlaceHolder: function($element, name) {
-      return $element.html("<option value=''>" + name + "</option>");
+      if (Formbuilder.isAndroid()) {
+        $element.attr("placeholder", name);
+        return $element.data('id', '');
+      } else {
+        return $element.html("<option value=''>" + name + "</option>");
+      }
     },
     clearFields: function($el, model) {
       return (function(_this) {
@@ -2002,7 +2103,11 @@
             if (!required_attr) {
               return true;
             }
-            return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
+            if (Formbuilder.isAndroid()) {
+              return $el.find("#company_id_" + cid).data('id') !== '' && $el.find("#location_id_" + cid).data('id') !== '' && $el.find("#division_id_" + cid).data('id') !== '' && $el.find("#user_id_" + cid).data('id') !== '';
+            } else {
+              return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
+            }
           })(model.get('required'), 0);
           return valid;
         };
@@ -2015,14 +2120,25 @@
           $loc = clicked_element.find("#location_id_" + cid);
           $div = clicked_element.find("#division_id_" + cid);
           $user = clicked_element.find("#user_id_" + cid);
-          comp_id = $comp.val();
-          loc_id = $loc.val();
-          div_id = $div.val();
-          user_id = $user.val();
-          comp_name = $comp.find('option:selected').text();
-          loc_name = $loc.find('option:selected').text();
-          div_name = $div.find('option:selected').text();
-          user_name = $user.find('option:selected').text();
+          if (Formbuilder.isAndroid()) {
+            comp_id = $comp.data('id');
+            loc_id = $loc.data('id');
+            div_id = $div.data('id');
+            user_id = $user.data('id');
+            comp_name = $comp.val();
+            loc_name = $loc.val();
+            div_name = $div.val();
+            user_name = $user.val();
+          } else {
+            comp_id = $comp.val();
+            loc_id = $loc.val();
+            div_id = $div.val();
+            user_id = $user.val();
+            comp_name = $comp.find('option:selected').text();
+            loc_name = $loc.find('option:selected').text();
+            div_name = $div.find('option:selected').text();
+            user_name = $user.find('option:selected').text();
+          }
           if (condition === '!=') {
             check_result = comp_id !== '' && loc_id !== '' && div_id !== '' && user_id !== '';
           } else if (condition === '==') {
@@ -2509,7 +2625,7 @@
 
 (function() {
   Formbuilder.registerField('dropdown', {
-    view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% }else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
+    view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');\n      if ($target.is(':checked')) {\n        $empty_option_div.show();\n      } else {\n        $empty_option_div.hide();\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",
     print: "<label id=\"dropdown_print\"></label>",
@@ -2555,14 +2671,47 @@
     setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
         if (Formbuilder.isAndroid()) {
-          field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          if (model.attributes.field_values["" + (model.getCid()) + "_1"] === '' && model.attributes.field_options.include_blank_option) {
+            field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
+          } else {
+            field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            field_view.$el.find("input").data('id', model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          }
         } else {
           field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
         }
+      } else if (model.attributes.field_options && Formbuilder.isAndroid()) {
+        (function(opt) {
+          var e, _i, _len, _results;
+          if (opt[0]) {
+            field_view.$el.find("input").val(opt[0].label);
+            field_view.$el.find("input").data('id', opt[0].label);
+          }
+          if (model.attributes.field_options.include_blank_option) {
+            field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
+          }
+          _results = [];
+          for (_i = 0, _len = opt.length; _i < _len; _i++) {
+            e = opt[_i];
+            _results.push((function(e) {
+              if (e.checked) {
+                field_view.$el.find("input").val(e.label);
+                return field_view.$el.find("input").data('id', e.label);
+              }
+            })(e));
+          }
+          return _results;
+        })(model.attributes.field_options.options);
       }
-      if (field_view.$el.find('select').val() !== '') {
-        return field_view.trigger('change_state');
-      }
+      return (function(field_dom) {
+        if (field_dom.length > 0 && field_dom.val() !== '') {
+          return field_view.trigger('change_state');
+        } else if (Formbuilder.isAndroid() && field_view.$el.find('input').val() !== "") {
+          return field_view.trigger('change_state');
+        }
+      })(field_view.$el.find('select'));
     }
   });
 
@@ -2651,19 +2800,20 @@
       })(this)(false, null);
     },
     setup: function(field_view, model) {
-      var _this = this;
-      return (function(model_cid, upload_url, $img) {
-        if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
-          upload_url = model.get('field_values')["" + model_cid + "_1"];
-          $img.attr("upload_url", upload_url);
-          $img.show();
-        } else {
-          $img.hide();
-        }
-        if (upload_url) {
-          return makeRequest(upload_url, $img.attr("name"));
-        }
-      })(model.getCid(), '', field_view.$el.find('img'));
+      return (function(_this) {
+        return function(model_cid, upload_url, $img) {
+          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
+            upload_url = model.get('field_values')["" + model_cid + "_1"];
+            $img.attr("upload_url", upload_url);
+            $img.show();
+          } else {
+            $img.hide();
+          }
+          if (upload_url) {
+            return makeRequest(upload_url, $img.attr("name"));
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('img'));
     }
   });
 
