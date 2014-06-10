@@ -106,5 +106,8 @@ Formbuilder.registerField 'dropdown',
             if e.checked
               field_view.$el.find("input").val(e.label)
               field_view.$el.find("input").data('id',e.label)
-    if field_view.$el.find('select').val() != ''
-      field_view.trigger('change_state')
+    do(field_dom = field_view.$el.find('select')) ->
+      if field_dom.length > 0 && field_dom.val() != ''
+        field_view.trigger('change_state')
+      else if Formbuilder.isAndroid() && field_view.$el.find('input').val() != ""
+        field_view.trigger('change_state')

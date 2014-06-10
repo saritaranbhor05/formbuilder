@@ -2705,9 +2705,13 @@
           return _results;
         })(model.attributes.field_options.options);
       }
-      if (field_view.$el.find('select').val() !== '') {
-        return field_view.trigger('change_state');
-      }
+      return (function(field_dom) {
+        if (field_dom.length > 0 && field_dom.val() !== '') {
+          return field_view.trigger('change_state');
+        } else if (Formbuilder.isAndroid() && field_view.$el.find('input').val() !== "") {
+          return field_view.trigger('change_state');
+        }
+      })(field_view.$el.find('select'));
     }
   });
 
