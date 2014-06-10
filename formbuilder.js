@@ -2673,8 +2673,10 @@
         if (Formbuilder.isAndroid()) {
           if (model.attributes.field_values["" + (model.getCid()) + "_1"] === '' && model.attributes.field_options.include_blank_option) {
             field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
           } else {
             field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            field_view.$el.find("input").data('id', model.attributes.field_values["" + (model.getCid()) + "_1"]);
           }
         } else {
           field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
@@ -2684,16 +2686,19 @@
           var e, _i, _len, _results;
           if (opt[0]) {
             field_view.$el.find("input").val(opt[0].label);
+            field_view.$el.find("input").data('id', opt[0].label);
           }
           if (model.attributes.field_options.include_blank_option) {
             field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
           }
           _results = [];
           for (_i = 0, _len = opt.length; _i < _len; _i++) {
             e = opt[_i];
             _results.push((function(e) {
               if (e.checked) {
-                return field_view.$el.find("input").val(e.label);
+                field_view.$el.find("input").val(e.label);
+                return field_view.$el.find("input").data('id', e.label);
               }
             })(e));
           }
