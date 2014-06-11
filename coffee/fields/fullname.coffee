@@ -5,13 +5,13 @@ Formbuilder.registerField 'fullname',
       <span>
       <% if(Formbuilder.isAndroid()) { %>
         <% var opt={};%>
-        <% _.each(this.prefix, function(val,key){ %>
-        <% var temp = {}; temp[val] = val ; opt[key] = temp; %>
+        <% _.each(this.prefix, function(val,index){ %>
+        <% var temp = {}; temp[val] = val ; opt[index] = temp; %>
         <% }); %>
         <input id="prefix_option_<%= rf.getCid()%>" value="<%= this.prefix[0] %>" readonly="readonly" data-prefixlist='<%= JSON.stringify(opt) %>'></input>
       <%} else { %>
         <select class='span12'>
-          <% _.each(this.prefix, function(val,key){ %>
+          <% _.each(this.prefix, function(val){ %>
             <option><%= val %></option>
           <% }); %>
         </select>
