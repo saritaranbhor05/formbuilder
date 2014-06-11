@@ -5,41 +5,58 @@ Formbuilder.registerField 'ci-hierarchy',
       <div class="control-group">
         <label class="control-label">Organisation </label>
         <div class="controls">
+        <% if(Formbuilder.isAndroid()) { %>
+        <input id="company_id_<%= rf.getCid() %>" name="company_id_<%= rf.getCid() %>" readonly="true" ci_hierarchy_section="org" ></input>
+        <% }else { %>
           <select id="company_id_<%= rf.getCid() %>">
             <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
               <option value=''></option>
             <% } %>
           </select>
+        <% } %>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label">Location </label>
         <div class="controls">
+        <% if(Formbuilder.isAndroid()) { %>
+        <input id="location_id_<%= rf.getCid() %>" name="location_id_<%= rf.getCid() %>" readonly="true" ci_hierarchy_section="loc" ></input>
+        <% }else { %>
           <select id="location_id_<%= rf.getCid() %>">
             <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
               <option value=''></option>
             <% } %>
           </select>
+        <% } %>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label">Division </label>
         <div class="controls">
+        <% if(Formbuilder.isAndroid()) { %>
+        <input id="division_id_<%= rf.getCid() %>" name="division_id_<%= rf.getCid() %>" readonly="true" ci_hierarchy_section="div" ></input>
+        <% }else { %>
           <select id="division_id_<%= rf.getCid() %>">
             <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
               <option value=''></option>
             <% } %>
           </select>
+        <% } %>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label">User </label>
         <div class="controls">
+        <% if(Formbuilder.isAndroid()) { %>
+        <input id="user_id_<%= rf.getCid() %>" name="user_id_<%= rf.getCid() %>" readonly="true" ci_hierarchy_section="user">
+        </input>
+        <% }else { %>
           <select id="user_id_<%= rf.getCid() %>">
             <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
               <option value=''></option>
             <% } %>
           </select>
+        <% } %>
         </div>
       </div>
     </div>
@@ -145,30 +162,42 @@ Formbuilder.registerField 'ci-hierarchy',
       cid = fd_view.model.attributes.cid
       $company_id = fd_view.$("#company_id_" + cid)
       if($company_id && companies && companies.length > 0)
-        $company_id.empty()
+        if Formbuilder.isAndroid()
+          @clearInputFiledForAndroid($company_id)
+        else
+          $company_id.empty()
         fd_view.field.clearSelectFields(fd_view, cid)
         fd_view.field.addPlaceHolder($company_id, '--- Select ---')
         fd_view.field.appendData($company_id, companies)
         if selected_compId && selected_compId != ''
-          $company_id.val selected_compId
+          if Formbuilder.isAndroid()
+            $company_id.data('id',selected_compId)
+          else
+            $company_id.val selected_compId
           @setSelectedCompAndPopulateLocs(fd_view, selected_compId,
-                                          selected_locId, selected_divId, selected_userId)
+                                          selected_locId, selected_divId, selected_userId,$company_id)
 
   populateLocationsByCompanyId: (e) ->
     do(selected_company_id = $(e.currentTarget).val(),
       that = e.data.that,
-      fd_view = e.data.fd_view
+      fd_view = e.data.fd_view,
+      e = e
     ) =>
+      if Formbuilder.isAndroid()
+        selected_company_id = $(e.currentTarget).data('id')
+        console.log('new company id = ', selected_company_id)
       that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id)
 
   setSelectedCompAndPopulateLocs: (fd_view, selected_compId,
                                    selected_locId = '', selected_divId = '',
-                                   selected_userId = '') ->
+                                   selected_userId = '', $company_div=null) ->
     @selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(
       selected_compId)
+    if Formbuilder.isAndroid() && $company_div
+      $company_div.val @selected_comp.name
     @clearSelectFields(fd_view, fd_view.model.attributes.cid)
     @populateLocations(
-      fd_view, this.selected_comp, selected_locId, selected_divId, selected_userId)
+      fd_view, @selected_comp, selected_locId, selected_divId, selected_userId)
 
   populateLocations: (fd_view, selected_comp,
                       selected_locId = '', selected_divId = '',
@@ -179,26 +208,33 @@ Formbuilder.registerField 'ci-hierarchy',
       $location_id = fd_view.$("#location_id_" + fd_view.model.attributes.cid)
       if selected_comp
         locations = selected_comp.locations
-
       if($location_id && locations.length > 0)
         @addPlaceHolder($location_id, '--- Select ---')
         @appendData($location_id, locations)
         if selected_locId && selected_locId != ''
-          $location_id.val selected_locId
+          if Formbuilder.isAndroid()
+            $location_id.data('id',selected_locId)
+          else
+            $location_id.val selected_locId
           @setSelectedLocAndPopulateDivs(fd_view, selected_locId,
-                                         selected_divId, selected_userId)
+                                         selected_divId, selected_userId,$location_id)
 
   populateDivisionsByLocId: (e) ->
     do(selected_location_id = $(e.currentTarget).val(),
       that = e.data.that,
       fd_view = e.data.fd_view
     ) =>
+      if Formbuilder.isAndroid()
+        selected_location_id = $(e.currentTarget).data('id')
+        console.log('new location id = ', selected_location_id)
       that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id)
 
   setSelectedLocAndPopulateDivs: (fd_view, selected_locId,
-                                  selected_divId = '', selected_userId = '') ->
+                                  selected_divId = '', selected_userId = '',$location_div=null) ->
     do(selected_loc = null)=>
       @selected_loc = @selected_comp.locations.getHashObject(selected_locId)
+      if Formbuilder.isAndroid() && $location_div
+        $location_div.val @selected_loc.name
       @populateDivisions(fd_view, @selected_loc, selected_divId, selected_userId)
 
   populateDivisions: (fd_view, selected_loc, selected_divId = '',
@@ -210,27 +246,39 @@ Formbuilder.registerField 'ci-hierarchy',
       $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid)
       if selected_loc
         divisions = selected_loc.divisions
-      $division_id.empty()
-      $user_id.empty()
+      if Formbuilder.isAndroid()
+          @clearInputFiledForAndroid($division_id)
+          @clearInputFiledForAndroid($user_id)
+      else
+        $division_id.empty()
+        $user_id.empty()
       @addPlaceHolder($division_id, '--- Select ---')
       if $division_id && divisions.length > 0
         @appendData($division_id, divisions)
         if selected_divId && selected_divId != ''
-          $division_id.val selected_divId
+          if Formbuilder.isAndroid()
+            $division_id.data('id',selected_divId)
+          else
+            $division_id.val selected_divId
           @setSelectedDivAndPopulateUsers(fd_view, selected_divId,
-                                          selected_userId)
+                                          selected_userId, $division_id)
 
   populateUsersByDivisionId: (e) ->
     do(selected_division_id = $(e.currentTarget).val(),
       that = e.data.that,
       fd_view = e.data.fd_view
     ) =>
+      if Formbuilder.isAndroid()
+        selected_division_id = $(e.currentTarget).data('id')
+        console.log('new division id = ', selected_division_id)
       that.setSelectedDivAndPopulateUsers(fd_view, selected_division_id)
 
   setSelectedDivAndPopulateUsers: (fd_view, selected_divId,
-                                  selected_userId = '') ->
+                                  selected_userId = '', $division_div=null) ->
     do(selected_div = null)=>
       selected_div = @selected_loc.divisions.getHashObject(selected_divId)
+      if Formbuilder.isAndroid() && $division_div
+        $division_div.val selected_div.name
       @populateUsers(fd_view, selected_div, selected_userId)
 
   populateUsers: (fd_view, selected_div, selected_userId = '') ->
@@ -240,27 +288,59 @@ Formbuilder.registerField 'ci-hierarchy',
       $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid)
       if selected_div
         users = selected_div.users
-      $user_id.empty()
+      if Formbuilder.isAndroid()
+        @clearInputFiledForAndroid($user_id)
+      else
+        $user_id.empty()
       @addPlaceHolder($user_id, '--- Select ---')
       if $user_id && users.length > 0
         @appendData($user_id, users)
         if selected_userId && selected_userId != ''
-          $user_id.val selected_userId
+          if Formbuilder.isAndroid()
+            $user_id.data('id',selected_userId)
+            selected_user_obj = users.getHashObject(selected_userId)
+            if selected_user_obj
+              $user_id.val selected_user_obj.name
+          else
+            $user_id.val selected_userId
 
   clearSelectFields: (fd_view, cid) ->
-    fd_view.$("#location_id_"+ cid).empty()
-    fd_view.$("#division_id_"+ cid).empty()
-    fd_view.$("#user_id_"+ cid).empty()
+    if Formbuilder.isAndroid()
+      @clearInputFiledForAndroid(fd_view.$("#location_id_"+ cid))
+      @clearInputFiledForAndroid(fd_view.$("#division_id_"+ cid))
+      @clearInputFiledForAndroid(fd_view.$("#user_id_"+ cid))
+    else
+      fd_view.$("#location_id_"+ cid).empty()
+      fd_view.$("#division_id_"+ cid).empty()
+      fd_view.$("#user_id_"+ cid).empty()
+
+  clearInputFiledForAndroid: (elem) ->
+    elem.removeAttr('placeholder')
+    elem.removeData('id')
+    elem.removeData('options')
+    elem.val('')
 
   appendData: ($element, data) ->
-    do(appendString = '') =>
-      _.each data, (obj_hash) ->
-        @appendString = "<option value='" + obj_hash.id + "'>"
-        @appendString += obj_hash.name + "</option>"
-        $element.append @appendString
+    if Formbuilder.isAndroid()
+      do(formatted_arr={},index=0) ->
+        _.each data, (obj_hash) ->
+          do(temp={}) ->
+            temp[obj_hash.id] = obj_hash.name
+            formatted_arr[index++] = temp
+        $element.data('options',formatted_arr)
+    else
+      do(appendString = '') =>
+        _.each data, (obj_hash) ->
+          @appendString = "<option value='" + obj_hash.id + "'>"
+          @appendString += obj_hash.name + "</option>"
+          $element.append @appendString
 
   addPlaceHolder: ($element, name) ->
-    $element.html("<option value=''>"+ name + "</option>")
+    if Formbuilder.isAndroid()
+      $element.attr("placeholder",name)
+      $element.data('id','')
+    else
+      $element.html("<option value=''>"+ name + "</option>")
 
   clearFields: ($el, model) ->
     do(cid = '') =>
@@ -275,10 +355,16 @@ Formbuilder.registerField 'ci-hierarchy',
       cid = model.attributes.cid
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) ->
         return true if !required_attr
-        return ($el.find("#company_id_" + cid).val() != '' &&
-                $el.find("#location_id_" + cid).val() != '' &&
-                $el.find("#division_id_" + cid).val() != '' &&
-                $el.find("#user_id_"+ cid).val() != '')
+        if Formbuilder.isAndroid()
+          return ($el.find("#company_id_" + cid).data('id') != '' &&
+                  $el.find("#location_id_" + cid).data('id') != '' &&
+                  $el.find("#division_id_" + cid).data('id') != '' &&
+                  $el.find("#user_id_"+ cid).data('id') != '')
+        else
+          return ($el.find("#company_id_" + cid).val() != '' &&
+                  $el.find("#location_id_" + cid).val() != '' &&
+                  $el.find("#division_id_" + cid).val() != '' &&
+                  $el.find("#user_id_"+ cid).val() != '')
       valid
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
@@ -290,14 +376,24 @@ Formbuilder.registerField 'ci-hierarchy',
       $loc = clicked_element.find("#location_id_" + cid)
       $div = clicked_element.find("#division_id_" + cid)
       $user = clicked_element.find("#user_id_" + cid)
-      comp_id = $comp.val()
-      loc_id = $loc.val()
-      div_id = $div.val()
-      user_id = $user.val()
-      comp_name = $comp.find('option:selected').text()
-      loc_name = $loc.find('option:selected').text()
-      div_name = $div.find('option:selected').text()
-      user_name = $user.find('option:selected').text()
+      if Formbuilder.isAndroid()
+        comp_id = $comp.data('id')
+        loc_id = $loc.data('id')
+        div_id = $div.data('id')
+        user_id = $user.data('id')
+        comp_name = $comp.val()
+        loc_name = $loc.val()
+        div_name = $div.val()
+        user_name = $user.val()
+      else
+        comp_id = $comp.val()
+        loc_id = $loc.val()
+        div_id = $div.val()
+        user_id = $user.val()
+        comp_name = $comp.find('option:selected').text()
+        loc_name = $loc.find('option:selected').text()
+        div_name = $div.find('option:selected').text()
+        user_name = $user.find('option:selected').text()
       if condition == '!='
         check_result = (comp_id != '' && loc_id != '' &&
                         div_id != '' && user_id != '')

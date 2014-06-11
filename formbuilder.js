@@ -1020,6 +1020,7 @@
                 }
                 return _results;
               } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
+                $('#capture_link_' + field_view.model.getCid()).html('');
                 return _.each(model.get('field_values'), function(value, key) {
                   var _this = this;
                   return (function(index) {
@@ -1195,8 +1196,14 @@
                 }
               },
               "default": function() {
-                if (val) {
-                  return $(elem).val(val);
+                if (Formbuilder.isAndroid() && $(elem).attr('ci_hierarchy_section')) {
+                  if (val) {
+                    return $(elem).data('id', val);
+                  }
+                } else {
+                  if (val) {
+                    return $(elem).val(val);
+                  }
                 }
               }
             };
@@ -1520,7 +1527,7 @@
 
 (function() {
   Formbuilder.registerField('address', {
-    view: "<div class='input-line'>\n  <span class=\"span6\">\n    <input type='text' id='address' class='span12' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>\"/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='suburb' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>\"/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='state' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>\"/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span class=\"span3\">\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"\n     value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n\n  <span class=\"span3\">\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
+    view: "<div class='input-line'>\n  <span class=\"span6\">\n    <input type='text' id='address' class='span12' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ADDRESS)%>\"/>\n    <label>Street Address</label>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='suburb' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_CITY)%>\"/>\n    <label>Suburb/City</label>\n  </span>\n\n  <span class=\"span3\">\n    <input class=\"span12\" type='text' id='state' value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_STATE)%>\"/>\n    <label>State / Province / Region</label>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span class=\"span3\">\n    <input class=\"span12\" id='zipcode' type='text' pattern=\"[a-zA-Z0-9]+\"\n     value=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_ZIPCODE)%>\"/>\n    <label>Postal/Zip Code</label>\n  </span>\n  <span class=\"span3\">\n  <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"file_<%= rf.getCid() %>\" addr_section=\"country\" name=\"file_<%= rf.getCid() %>\" data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\" readonly=\"true\"></input>\n  <% }else { %>\n    <select id=\"file_<%= rf.getCid() %>\"\n      data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n      class='span7 dropdown_country bfh-selectbox bfh-countries'\n    ></select>\n  <% } %>\n    <label>Country</label>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
     edit: "<%= Formbuilder.templates['edit/default_address']({rf: rf}) %>",
     print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td>\n        <label>Street Address</label>\n      </td>\n      <td>\n        <label>Suburb/City</label>\n      </td>\n      <td>\n        <label>State / Province / Region</label>\n      </td>\n      <td>\n        <label>Postal/Zip Code</label>\n      </td>\n      <td>\n        <label>Country</label>\n      </td>\n    </tr>\n    <tr id=\"values\">\n      <td>\n        <label id=\"address\"></label>\n      </td>\n      <td>\n        <label id=\"suburb\"></label>\n      </td>\n      <td>\n        <label id=\"state\"></label>\n      </td>\n      <td>\n        <label id=\"zipcode\"></label>\n      </td>\n      <td>\n        <select id=\"file_<%= rf.getCid() %>\"\n          data-country=\"<%= rf.get(Formbuilder.options.mappings.DEFAULT_COUNTRY)%>\"\n          class='span7 dropdown_country bfh-selectbox bfh-countries'\n        ></select>\n      </td>\n    </tr>\n  </tbody>\n</table>\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").bfhcount();\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
@@ -1610,7 +1617,7 @@
   Formbuilder.registerField('checkboxes', {
     view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<% for ( var i = 0 ; i < field_options.length ; i++) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='checkbox' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label%>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %> />\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='checkbox' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
-    print: "<% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [] %>\n<% var cnt = field_options.length %>\n<% var labelArr = [] %>\n<% _.each(field_options, function(option){ %>\n  <%   labelArr.push(option.label) %>\n<% }) %>\n<% var field_values =  rf.get('field_values') %>\n<% var cid =  rf.get('cid') %>\n<% if(field_values){ %>\n  <%var index=0%>\n  <% _.each(field_values, function(value){ %>\n  <%   if(value){ %>\n    <label>\n    <% if(labelArr[index]) %>\n      <%= labelArr[index] %>\n      <% else if(typeof value == 'string' && field_values[(rf.get('cid')+\"_\"+(index))]) %>\n      <%= value %>\n    </label>\n    <%  } %>\n    <% index++ %>\n  <%  }); %>\n<% } %>",
+    print: "<% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [] %>\n<% var cnt = field_options.length %>\n<% var labelArr = [] %>\n<% _.each(field_options, function(option){ %>\n  <%   labelArr.push(option.label) %>\n<% }) %>\n<% var field_values =  rf.get('field_values') %>\n<% var cid =  rf.get('cid') %>\n<% if(field_values){ %>\n  <%var index=0%>\n  <% _.each(field_values, function(value){ %>\n  <%   if(value){ %>\n    <label>\n    <% if(labelArr[index]) %>\n      <%= labelArr[index] %>\n      <% else if(typeof value == 'string' && value.trim() != '') %>\n      <%= value %>\n    </label>\n    <%  } %>\n    <% index++ %>\n  <%  }); %>\n<% } %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-check-empty\"></span></span> Checkboxes",
     checkAttributeHasValue: function(cid, $el) {
       if ($el.find('input:checked').length <= 0) {
@@ -1688,7 +1695,7 @@
 
 (function() {
   Formbuilder.registerField('ci-hierarchy', {
-    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    </div>\n  </div>\n</div>",
+    view: "<div class=\"row-fluid\">\n  <div class=\"control-group\">\n    <label class=\"control-label\">Organisation </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"company_id_<%= rf.getCid() %>\" name=\"company_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"org\" ></input>\n    <% }else { %>\n      <select id=\"company_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Location </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"location_id_<%= rf.getCid() %>\" name=\"location_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"loc\" ></input>\n    <% }else { %>\n      <select id=\"location_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">Division </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"division_id_<%= rf.getCid() %>\" name=\"division_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"div\" ></input>\n    <% }else { %>\n      <select id=\"division_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n  <div class=\"control-group\">\n    <label class=\"control-label\">User </label>\n    <div class=\"controls\">\n    <% if(Formbuilder.isAndroid()) { %>\n    <input id=\"user_id_<%= rf.getCid() %>\" name=\"user_id_<%= rf.getCid() %>\" readonly=\"true\" ci_hierarchy_section=\"user\">\n    </input>\n    <% }else { %>\n      <select id=\"user_id_<%= rf.getCid() %>\">\n        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n          <option value=''></option>\n        <% } %>\n      </select>\n    <% } %>\n    </div>\n  </div>\n</div>",
     edit: "",
     print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td><label>Organisation </label>\n      </td>\n      <td>\n        <label>Location </label>\n      </td>\n      <td>\n        <label>Division </label>\n      </td>\n      <td>\n        <label>User </label>\n      </td>\n    </tr>\n    <tr>\n      <td>\n        <label id=\"company_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"location_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"division_id_<%= rf.getCid() %>\"></label>\n      </td>\n      <td>\n        <label id=\"user_id_<%= rf.getCid() %>\"></label>\n      </td>\n    </tr>\n  </tbody>\n</table>",
     addButton: "<span class=\"symbol\">\n  <span class=\"icon-caret-down\"></span>\n</span> Hierarchy",
@@ -1777,24 +1784,36 @@
         cid = fd_view.model.attributes.cid;
         $company_id = fd_view.$("#company_id_" + cid);
         if ($company_id && companies && companies.length > 0) {
-          $company_id.empty();
+          if (Formbuilder.isAndroid()) {
+            _this.clearInputFiledForAndroid($company_id);
+          } else {
+            $company_id.empty();
+          }
           fd_view.field.clearSelectFields(fd_view, cid);
           fd_view.field.addPlaceHolder($company_id, '--- Select ---');
           fd_view.field.appendData($company_id, companies);
           if (selected_compId && selected_compId !== '') {
-            $company_id.val(selected_compId);
-            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId);
+            if (Formbuilder.isAndroid()) {
+              $company_id.data('id', selected_compId);
+            } else {
+              $company_id.val(selected_compId);
+            }
+            return _this.setSelectedCompAndPopulateLocs(fd_view, selected_compId, selected_locId, selected_divId, selected_userId, $company_id);
           }
         }
       })(Formbuilder.options.COMPANY_HIERARCHY, null, null);
     },
     populateLocationsByCompanyId: function(e) {
       var _this = this;
-      return (function(selected_company_id, that, fd_view) {
+      return (function(selected_company_id, that, fd_view, e) {
+        if (Formbuilder.isAndroid()) {
+          selected_company_id = $(e.currentTarget).data('id');
+          console.log('new company id = ', selected_company_id);
+        }
         return that.setSelectedCompAndPopulateLocs(fd_view, selected_company_id);
-      })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
+      })($(e.currentTarget).val(), e.data.that, e.data.fd_view, e);
     },
-    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId) {
+    setSelectedCompAndPopulateLocs: function(fd_view, selected_compId, selected_locId, selected_divId, selected_userId, $company_div) {
       if (selected_locId == null) {
         selected_locId = '';
       }
@@ -1804,7 +1823,13 @@
       if (selected_userId == null) {
         selected_userId = '';
       }
+      if ($company_div == null) {
+        $company_div = null;
+      }
       this.selected_comp = Formbuilder.options.COMPANY_HIERARCHY.getHashObject(selected_compId);
+      if (Formbuilder.isAndroid() && $company_div) {
+        $company_div.val(this.selected_comp.name);
+      }
       this.clearSelectFields(fd_view, fd_view.model.attributes.cid);
       return this.populateLocations(fd_view, this.selected_comp, selected_locId, selected_divId, selected_userId);
     },
@@ -1828,8 +1853,12 @@
           _this.addPlaceHolder($location_id, '--- Select ---');
           _this.appendData($location_id, locations);
           if (selected_locId && selected_locId !== '') {
-            $location_id.val(selected_locId);
-            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId);
+            if (Formbuilder.isAndroid()) {
+              $location_id.data('id', selected_locId);
+            } else {
+              $location_id.val(selected_locId);
+            }
+            return _this.setSelectedLocAndPopulateDivs(fd_view, selected_locId, selected_divId, selected_userId, $location_id);
           }
         }
       })([], null);
@@ -1837,10 +1866,14 @@
     populateDivisionsByLocId: function(e) {
       var _this = this;
       return (function(selected_location_id, that, fd_view) {
+        if (Formbuilder.isAndroid()) {
+          selected_location_id = $(e.currentTarget).data('id');
+          console.log('new location id = ', selected_location_id);
+        }
         return that.setSelectedLocAndPopulateDivs(fd_view, selected_location_id);
       })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId) {
+    setSelectedLocAndPopulateDivs: function(fd_view, selected_locId, selected_divId, selected_userId, $location_div) {
       var _this = this;
       if (selected_divId == null) {
         selected_divId = '';
@@ -1848,8 +1881,14 @@
       if (selected_userId == null) {
         selected_userId = '';
       }
+      if ($location_div == null) {
+        $location_div = null;
+      }
       return (function(selected_loc) {
         _this.selected_loc = _this.selected_comp.locations.getHashObject(selected_locId);
+        if (Formbuilder.isAndroid() && $location_div) {
+          $location_div.val(_this.selected_loc.name);
+        }
         return _this.populateDivisions(fd_view, _this.selected_loc, selected_divId, selected_userId);
       })(null);
     },
@@ -1867,14 +1906,23 @@
         if (selected_loc) {
           divisions = selected_loc.divisions;
         }
-        $division_id.empty();
-        $user_id.empty();
+        if (Formbuilder.isAndroid()) {
+          _this.clearInputFiledForAndroid($division_id);
+          _this.clearInputFiledForAndroid($user_id);
+        } else {
+          $division_id.empty();
+          $user_id.empty();
+        }
         _this.addPlaceHolder($division_id, '--- Select ---');
         if ($division_id && divisions.length > 0) {
           _this.appendData($division_id, divisions);
           if (selected_divId && selected_divId !== '') {
-            $division_id.val(selected_divId);
-            return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId);
+            if (Formbuilder.isAndroid()) {
+              $division_id.data('id', selected_divId);
+            } else {
+              $division_id.val(selected_divId);
+            }
+            return _this.setSelectedDivAndPopulateUsers(fd_view, selected_divId, selected_userId, $division_id);
           }
         }
       })([], null, null);
@@ -1882,16 +1930,26 @@
     populateUsersByDivisionId: function(e) {
       var _this = this;
       return (function(selected_division_id, that, fd_view) {
+        if (Formbuilder.isAndroid()) {
+          selected_division_id = $(e.currentTarget).data('id');
+          console.log('new division id = ', selected_division_id);
+        }
         return that.setSelectedDivAndPopulateUsers(fd_view, selected_division_id);
       })($(e.currentTarget).val(), e.data.that, e.data.fd_view);
     },
-    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId) {
+    setSelectedDivAndPopulateUsers: function(fd_view, selected_divId, selected_userId, $division_div) {
       var _this = this;
       if (selected_userId == null) {
         selected_userId = '';
       }
+      if ($division_div == null) {
+        $division_div = null;
+      }
       return (function(selected_div) {
         selected_div = _this.selected_loc.divisions.getHashObject(selected_divId);
+        if (Formbuilder.isAndroid() && $division_div) {
+          $division_div.val(selected_div.name);
+        }
         return _this.populateUsers(fd_view, selected_div, selected_userId);
       })(null);
     },
@@ -1901,37 +1959,79 @@
         selected_userId = '';
       }
       return (function(users, $user_id) {
+        var selected_user_obj;
         $user_id = fd_view.$("#user_id_" + fd_view.model.attributes.cid);
         if (selected_div) {
           users = selected_div.users;
         }
-        $user_id.empty();
+        if (Formbuilder.isAndroid()) {
+          _this.clearInputFiledForAndroid($user_id);
+        } else {
+          $user_id.empty();
+        }
         _this.addPlaceHolder($user_id, '--- Select ---');
         if ($user_id && users.length > 0) {
           _this.appendData($user_id, users);
           if (selected_userId && selected_userId !== '') {
-            return $user_id.val(selected_userId);
+            if (Formbuilder.isAndroid()) {
+              $user_id.data('id', selected_userId);
+              selected_user_obj = users.getHashObject(selected_userId);
+              if (selected_user_obj) {
+                return $user_id.val(selected_user_obj.name);
+              }
+            } else {
+              return $user_id.val(selected_userId);
+            }
           }
         }
       })([], null);
     },
     clearSelectFields: function(fd_view, cid) {
-      fd_view.$("#location_id_" + cid).empty();
-      fd_view.$("#division_id_" + cid).empty();
-      return fd_view.$("#user_id_" + cid).empty();
+      if (Formbuilder.isAndroid()) {
+        this.clearInputFiledForAndroid(fd_view.$("#location_id_" + cid));
+        this.clearInputFiledForAndroid(fd_view.$("#division_id_" + cid));
+        return this.clearInputFiledForAndroid(fd_view.$("#user_id_" + cid));
+      } else {
+        fd_view.$("#location_id_" + cid).empty();
+        fd_view.$("#division_id_" + cid).empty();
+        return fd_view.$("#user_id_" + cid).empty();
+      }
+    },
+    clearInputFiledForAndroid: function(elem) {
+      elem.removeAttr('placeholder');
+      elem.removeData('id');
+      elem.removeData('options');
+      return elem.val('');
     },
     appendData: function($element, data) {
       var _this = this;
-      return (function(appendString) {
-        return _.each(data, function(obj_hash) {
-          this.appendString = "<option value='" + obj_hash.id + "'>";
-          this.appendString += obj_hash.name + "</option>";
-          return $element.append(this.appendString);
-        });
-      })('');
+      if (Formbuilder.isAndroid()) {
+        return (function(formatted_arr, index) {
+          _.each(data, function(obj_hash) {
+            return (function(temp) {
+              temp[obj_hash.id] = obj_hash.name;
+              return formatted_arr[index++] = temp;
+            })({});
+          });
+          return $element.data('options', formatted_arr);
+        })({}, 0);
+      } else {
+        return (function(appendString) {
+          return _.each(data, function(obj_hash) {
+            this.appendString = "<option value='" + obj_hash.id + "'>";
+            this.appendString += obj_hash.name + "</option>";
+            return $element.append(this.appendString);
+          });
+        })('');
+      }
     },
     addPlaceHolder: function($element, name) {
-      return $element.html("<option value=''>" + name + "</option>");
+      if (Formbuilder.isAndroid()) {
+        $element.attr("placeholder", name);
+        return $element.data('id', '');
+      } else {
+        return $element.html("<option value=''>" + name + "</option>");
+      }
     },
     clearFields: function($el, model) {
       var _this = this;
@@ -1951,7 +2051,11 @@
           if (!required_attr) {
             return true;
           }
-          return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
+          if (Formbuilder.isAndroid()) {
+            return $el.find("#company_id_" + cid).data('id') !== '' && $el.find("#location_id_" + cid).data('id') !== '' && $el.find("#division_id_" + cid).data('id') !== '' && $el.find("#user_id_" + cid).data('id') !== '';
+          } else {
+            return $el.find("#company_id_" + cid).val() !== '' && $el.find("#location_id_" + cid).val() !== '' && $el.find("#division_id_" + cid).val() !== '' && $el.find("#user_id_" + cid).val() !== '';
+          }
         })(model.get('required'), 0);
         return valid;
       })(false, '');
@@ -1963,14 +2067,25 @@
         $loc = clicked_element.find("#location_id_" + cid);
         $div = clicked_element.find("#division_id_" + cid);
         $user = clicked_element.find("#user_id_" + cid);
-        comp_id = $comp.val();
-        loc_id = $loc.val();
-        div_id = $div.val();
-        user_id = $user.val();
-        comp_name = $comp.find('option:selected').text();
-        loc_name = $loc.find('option:selected').text();
-        div_name = $div.find('option:selected').text();
-        user_name = $user.find('option:selected').text();
+        if (Formbuilder.isAndroid()) {
+          comp_id = $comp.data('id');
+          loc_id = $loc.data('id');
+          div_id = $div.data('id');
+          user_id = $user.data('id');
+          comp_name = $comp.val();
+          loc_name = $loc.val();
+          div_name = $div.val();
+          user_name = $user.val();
+        } else {
+          comp_id = $comp.val();
+          loc_id = $loc.val();
+          div_id = $div.val();
+          user_id = $user.val();
+          comp_name = $comp.find('option:selected').text();
+          loc_name = $loc.find('option:selected').text();
+          div_name = $div.find('option:selected').text();
+          user_name = $user.find('option:selected').text();
+        }
         if (condition === '!=') {
           check_result = comp_id !== '' && loc_id !== '' && div_id !== '' && user_id !== '';
         } else if (condition === '==') {
@@ -2444,7 +2559,7 @@
 
 (function() {
   Formbuilder.registerField('dropdown', {
-    view: "<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>",
+    view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');\n      if ($target.is(':checked')) {\n        $empty_option_div.show();\n      } else {\n        $empty_option_div.hide();\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",
     print: "<label id=\"dropdown_print\"></label>",
@@ -2488,11 +2603,48 @@
     },
     setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
-        field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+        if (Formbuilder.isAndroid()) {
+          if (model.attributes.field_values["" + (model.getCid()) + "_1"] === '' && model.attributes.field_options.include_blank_option) {
+            field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
+          } else {
+            field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            field_view.$el.find("input").data('id', model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          }
+        } else {
+          field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+        }
+      } else if (model.attributes.field_options && Formbuilder.isAndroid()) {
+        (function(opt) {
+          var e, _i, _len, _results;
+          if (opt[0]) {
+            field_view.$el.find("input").val(opt[0].label);
+            field_view.$el.find("input").data('id', opt[0].label);
+          }
+          if (model.attributes.field_options.include_blank_option) {
+            field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+            field_view.$el.find("input").data('id', '');
+          }
+          _results = [];
+          for (_i = 0, _len = opt.length; _i < _len; _i++) {
+            e = opt[_i];
+            _results.push((function(e) {
+              if (e.checked) {
+                field_view.$el.find("input").val(e.label);
+                return field_view.$el.find("input").data('id', e.label);
+              }
+            })(e));
+          }
+          return _results;
+        })(model.attributes.field_options.options);
       }
-      if (field_view.$el.find('select').val() !== '') {
-        return field_view.trigger('change_state');
-      }
+      return (function(field_dom) {
+        if (field_dom.length > 0 && field_dom.val() !== '') {
+          return field_view.trigger('change_state');
+        } else if (Formbuilder.isAndroid() && field_view.$el.find('input').val() !== "") {
+          return field_view.trigger('change_state');
+        }
+      })(field_view.$el.find('select'));
     }
   });
 
@@ -2631,8 +2783,8 @@
 
 (function() {
   Formbuilder.registerField('fullname', {
-    perfix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
-    view: "<div class='input-line'>\n  <span>\n    <select class='span12'>\n      <%for (i = 0; i < this.perfix.length; i++){%>\n        <option><%= this.perfix[i]%></option>\n      <%}%>\n    </select>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n    <span>\n      <input id='suffix' type='text'/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n    </span>\n  <% } %>\n</div>",
+    prefix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.'],
+    view: "<div class='input-line'>\n  <span>\n  <% if(Formbuilder.isAndroid()) { %>\n    <% var opt={};%>\n    <% _.each(this.prefix, function(val,index){ %>\n    <% var temp = {}; temp[val] = val ; opt[index] = temp; %>\n    <% }); %>\n    <input id=\"prefix_option_<%= rf.getCid()%>\" value=\"<%= this.prefix[0] %>\" readonly=\"readonly\" data-prefixlist='<%= JSON.stringify(opt) %>'></input>\n  <%} else { %>\n    <select class='span12'>\n      <% _.each(this.prefix, function(val){ %>\n        <option><%= val %></option>\n      <% }); %>\n    </select>\n  <% } %>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n  </span>\n\n  <span>\n    <input id='first_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n    <span id='middle_name_span_<%= rf.getCid() %>'>\n      <input type='text' pattern=\"[a-zA-Z]+\"/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n    </span>\n  <% } %>\n\n  <span>\n    <input id='last_name' type='text' pattern=\"[a-zA-Z]+\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n  </span>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n    <span>\n      <input id='suffix' type='text'/>\n      <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n    </span>\n  <% } %>\n</div>",
     edit: "<%= Formbuilder.templates['edit/middle']({ includeOther: true, rf:rf }) %>\n<%= Formbuilder.templates['edit/suffix']({ includeSuffix: false, rf:rf }) %>\n<%= Formbuilder.templates['edit/full_name_label_values']({ rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_middle_name_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $parent_middle_div = $('#middle_name_div_<%= rf.getCid() %>'),\n      $middle_name_ip = $parent_middle_div.find('input'),\n      $view_middle_name_lbl = $('#middle_name_span_<%= rf.getCid() %> label'),\n      middle_text = '<%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) %>';\n      if ($target.is(':checked')) {\n        $parent_middle_div.show();\n        $middle_name_ip.val(middle_text);\n        $view_middle_name_lbl.text(middle_text || 'Middle');\n      } else {\n        $parent_middle_div.hide();\n        $middle_name_ip.val('');\n      }\n    });\n  });\n</script>",
     print: "<table class=\"innerTbl\">\n  <tbody>\n    <tr>\n      <td>\n        <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_PREFIX_TEXT) || 'Prefix' %></label>\n      </td>\n      <td>\n        <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_FIRST_TEXT) || 'First' %></label>\n      </th>\n      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n        <td>\n          <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>\n        </td>\n      <% } %>\n      <td>\n        <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_LAST_TEXT) || 'Last' %></label>\n      </td>\n      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n      <td>\n        <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_SUFFIX_TEXT) || 'Suffix' %></label>\n      </td>\n      <% } %>\n    </tr>\n    <tr id=\"values\">\n      <td>\n        <label id=\"prefix_print\"></label>\n      </td>\n      <td>\n        <label id=\"first_name_print\"></label>\n      </td>\n      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n      <td>\n        <label id=\"middle_name_print\"></label>\n      </td>\n      <% } %>\n      <td>\n        <label id=\"last_name_print\"></label>\n      </td>\n      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_SUFFIX)) { %>\n      <td>\n        <label id=\"suffix_print\"></label>\n      </td>\n      <% } %>\n    </tr>\n  </tbody>\n</table>",
     addButton: "<span class=\"symbol\"><span class=\"icon-user\"></span></span> Full Name",
