@@ -2,7 +2,11 @@ Formbuilder.registerField 'fullname',
   prefix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.']
   view: """
     <div class='input-line'>
+    <% if(Formbuilder.isAndroid()) { %>
+      <span class="rf-size-mini">
+    <%}else {%>
       <span>
+    <% } %>
       <% if(Formbuilder.isAndroid()) { %>
         <% var opt={};%>
         <% _.each(this.prefix, function(val,index){ %>
