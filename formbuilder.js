@@ -1236,16 +1236,12 @@
         },
         addAll: function() {
           this.collection.each(this.addOne, this);
-          if (this.options.live) {
-            this.applyEasyWizard();
-            $('.easyWizardButtons .prev').addClass('hide btn-danger');
-            $('.easyWizardButtons .next').addClass('btn-success');
-            this.applyFileStyle();
-            this.initializeEsings();
-            return $('.readonly').find('input, textarea, select').attr('disabled', true);
-          } else {
-
-          }
+          this.applyEasyWizard();
+          $('.easyWizardButtons .prev').addClass('hide btn-danger');
+          $('.easyWizardButtons .next').addClass('btn-success');
+          this.applyFileStyle();
+          this.initializeEsings();
+          return $('.readonly').find('input, textarea, select').attr('disabled', true);
         },
         bindHierarchyEvents: function(hierarchyViews) {
           var _this = this;

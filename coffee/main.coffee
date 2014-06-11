@@ -974,15 +974,12 @@ class Formbuilder
 
       addAll: ->
         @collection.each @addOne, @
-        if @options.live
-          @applyEasyWizard()
-          $('.easyWizardButtons .prev').addClass('hide btn-danger')
-          $('.easyWizardButtons .next').addClass('btn-success')
-          @applyFileStyle()
-          @initializeEsings()
-          $('.readonly').find('input, textarea, select').attr('disabled', true);
-        else
-          #@setSortable()
+        @applyEasyWizard()
+        $('.easyWizardButtons .prev').addClass('hide btn-danger')
+        $('.easyWizardButtons .next').addClass('btn-success')
+        @applyFileStyle()
+        @initializeEsings()
+        $('.readonly').find('input, textarea, select').attr('disabled', true);
 
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
