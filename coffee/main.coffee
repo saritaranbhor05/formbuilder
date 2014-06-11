@@ -406,6 +406,7 @@ class Formbuilder
 
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
+        @parentView.setSortable()
 
       clear: ->
         do (index = 0, that = @) ->
@@ -673,9 +674,6 @@ class Formbuilder
           forcePlaceholderSize: true
           placeholder: 'sortable-placeholder'
           stop: (e, ui) =>
-            if ui.item.data('field-type')
-              rf = @collection.create Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {$replaceEl: ui.item}
-              @createAndShowEditView(rf)
             $('.form-builder-left-container ').css('overflow', 'auto')
             @handleFormUpdate()
             return true
@@ -980,7 +978,7 @@ class Formbuilder
           @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
-          @setSortable()
+          #@setSortable()
 
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
@@ -1038,6 +1036,7 @@ class Formbuilder
         @$fbLeft.data('locked', false)
 
       handleFormUpdate: ->
+        @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
         return if @updatingBatch
         @formSaved = false
         @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM) if @saveFormButton

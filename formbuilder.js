@@ -533,8 +533,9 @@
         },
         focusEditView: function() {
           if (!this.options.live) {
-            return this.parentView.createAndShowEditView(this.model);
+            this.parentView.createAndShowEditView(this.model);
           }
+          return this.parentView.setSortable();
         },
         clear: function() {
           return (function(index, that) {
@@ -858,13 +859,6 @@
             forcePlaceholderSize: true,
             placeholder: 'sortable-placeholder',
             stop: function(e, ui) {
-              var rf;
-              if (ui.item.data('field-type')) {
-                rf = _this.collection.create(Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {
-                  $replaceEl: ui.item
-                });
-                _this.createAndShowEditView(rf);
-              }
               $('.form-builder-left-container ').css('overflow', 'auto');
               _this.handleFormUpdate();
               return true;
@@ -1243,7 +1237,7 @@
             this.initializeEsings();
             return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
-            return this.setSortable();
+
           }
         },
         bindHierarchyEvents: function(hierarchyViews) {
@@ -1307,6 +1301,9 @@
           return this.$fbLeft.data('locked', false);
         },
         handleFormUpdate: function() {
+          if (this.$responseFields.hasClass('ui-sortable')) {
+            this.$responseFields.sortable('destroy');
+          }
           if (this.updatingBatch) {
             return;
           }
