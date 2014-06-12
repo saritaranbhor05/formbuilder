@@ -405,8 +405,9 @@ class Formbuilder
         return @
 
       focusEditView: ->
-        @parentView.createAndShowEditView(@model) if !@options.live
-        @parentView.setSortable()
+        if !@options.live
+          @parentView.createAndShowEditView(@model)
+          @parentView.setSortable()
 
       clear: ->
         do (index = 0, that = @) ->
