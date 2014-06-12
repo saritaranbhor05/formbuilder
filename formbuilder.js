@@ -856,7 +856,7 @@
           if (this.$responseFields.hasClass('ui-sortable')) {
             this.$responseFields.sortable('destroy');
           }
-          this.$responseFields.sortable({
+          return this.$responseFields.sortable({
             forcePlaceholderSize: true,
             placeholder: 'sortable-placeholder',
             stop: function(e, ui) {
@@ -878,7 +878,6 @@
               }
             }
           });
-          return this.setDraggable();
         },
         setDraggable: function() {
           var $addFieldButtons,

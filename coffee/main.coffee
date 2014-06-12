@@ -685,7 +685,6 @@ class Formbuilder
           update: (e, ui) =>
             # ensureEditViewScrolled, unless we're updating from the draggable
             @ensureEditViewScrolled() unless ui.item.data('field-type')
-        @setDraggable()
 
       setDraggable: ->
         $addFieldButtons = @$el.find("[data-field-type]")
