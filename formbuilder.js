@@ -685,7 +685,8 @@
         events: {
           'click .js-save-form': 'saveForm',
           'click .fb-tabs a': 'showTab',
-          'click .fb-add-field-types a': 'addField'
+          'click .fb-add-field-types a': 'addField',
+          'mousedown .fb-add-field-types a': 'enableSortable'
         },
         initialize: function() {
           var _base;
@@ -859,8 +860,16 @@
             forcePlaceholderSize: true,
             placeholder: 'sortable-placeholder',
             stop: function(e, ui) {
+              var rf;
+              if (ui.item.data('field-type')) {
+                rf = _this.collection.create(Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {
+                  $replaceEl: ui.item
+                });
+                _this.createAndShowEditView(rf);
+              }
               $('.form-builder-left-container ').css('overflow', 'auto');
               _this.handleFormUpdate();
+              _this.removeSortable();
               return true;
             },
             update: function(e, ui) {
@@ -1242,8 +1251,11 @@
             $('.easyWizardButtons .next').addClass('btn-success');
             this.applyFileStyle();
             this.initializeEsings();
-            return $('.readonly').find('input, textarea, select').attr('disabled', true);
+            $('.readonly').find('input, textarea, select').attr('disabled', true);
+          } else {
+
           }
+          return this.setDraggable();
         },
         bindHierarchyEvents: function(hierarchyViews) {
           var _this = this;
@@ -1255,6 +1267,9 @@
         },
         hideShowNoResponseFields: function() {
           return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 ? 'hide' : 'show']();
+        },
+        enableSortable: function() {
+          return this.setSortable();
         },
         addField: function(e) {
           var field_type;
@@ -1305,10 +1320,12 @@
         unlockLeftWrapper: function() {
           return this.$fbLeft.data('locked', false);
         },
-        handleFormUpdate: function() {
+        removeSortable: function() {
           if (this.$responseFields.hasClass('ui-sortable')) {
-            this.$responseFields.sortable('destroy');
+            return this.$responseFields.sortable('destroy');
           }
+        },
+        handleFormUpdate: function() {
           if (this.updatingBatch) {
             return;
           }

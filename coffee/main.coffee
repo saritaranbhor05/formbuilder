@@ -528,6 +528,7 @@ class Formbuilder
         'click .js-save-form': 'saveForm'
         'click .fb-tabs a': 'showTab'
         'click .fb-add-field-types a': 'addField'
+        'mousedown .fb-add-field-types a': 'enableSortable'
 
       initialize: ->
         @$el = $(@options.selector)
@@ -674,13 +675,16 @@ class Formbuilder
           forcePlaceholderSize: true
           placeholder: 'sortable-placeholder'
           stop: (e, ui) =>
+            if ui.item.data('field-type')
+              rf = @collection.create Formbuilder.helpers.defaultFieldAttrs(ui.item.data('field-type')), {$replaceEl: ui.item}
+              @createAndShowEditView(rf)
             $('.form-builder-left-container ').css('overflow', 'auto')
             @handleFormUpdate()
+            @removeSortable()
             return true
           update: (e, ui) =>
             # ensureEditViewScrolled, unless we're updating from the draggable
             @ensureEditViewScrolled() unless ui.item.data('field-type')
-
         @setDraggable()
 
       setDraggable: ->
@@ -981,6 +985,8 @@ class Formbuilder
           @applyFileStyle()
           @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
+        else
+        @setDraggable()
 
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
@@ -989,6 +995,9 @@ class Formbuilder
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
+
+      enableSortable: ->
+        @setSortable()
 
       addField: (e) ->
         field_type = $(e.currentTarget).data('field-type')
@@ -1037,8 +1046,10 @@ class Formbuilder
       unlockLeftWrapper: ->
         @$fbLeft.data('locked', false)
 
-      handleFormUpdate: ->
+      removeSortable: ->
         @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
+
+      handleFormUpdate: ->
         return if @updatingBatch
         @formSaved = false
         @saveFormButton.removeAttr('disabled').text(Formbuilder.options.dict.SAVE_FORM) if @saveFormButton
