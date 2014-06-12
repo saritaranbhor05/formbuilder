@@ -534,8 +534,8 @@
         focusEditView: function() {
           if (!this.options.live) {
             this.parentView.createAndShowEditView(this.model);
+            return this.parentView.setSortable();
           }
-          return this.parentView.setSortable();
         },
         clear: function() {
           return (function(index, that) {
