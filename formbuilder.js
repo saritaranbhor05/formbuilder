@@ -1251,11 +1251,10 @@
             $('.easyWizardButtons .next').addClass('btn-success');
             this.applyFileStyle();
             this.initializeEsings();
-            $('.readonly').find('input, textarea, select').attr('disabled', true);
+            return $('.readonly').find('input, textarea, select').attr('disabled', true);
           } else {
-
+            return this.setDraggable();
           }
-          return this.setDraggable();
         },
         bindHierarchyEvents: function(hierarchyViews) {
           var _this = this;

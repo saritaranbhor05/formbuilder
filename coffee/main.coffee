@@ -986,7 +986,7 @@ class Formbuilder
           @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
-        @setDraggable()
+          @setDraggable()
 
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
