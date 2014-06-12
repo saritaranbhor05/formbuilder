@@ -406,6 +406,7 @@ class Formbuilder
 
       focusEditView: ->
         @parentView.createAndShowEditView(@model) if !@options.live
+        @parentView.setSortable()
 
       clear: ->
         do (index = 0, that = @) ->
@@ -527,6 +528,7 @@ class Formbuilder
         'click .js-save-form': 'saveForm'
         'click .fb-tabs a': 'showTab'
         'click .fb-add-field-types a': 'addField'
+        'mousedown .fb-add-field-types a': 'enableSortable'
 
       initialize: ->
         @$el = $(@options.selector)
@@ -678,12 +680,11 @@ class Formbuilder
               @createAndShowEditView(rf)
             $('.form-builder-left-container ').css('overflow', 'auto')
             @handleFormUpdate()
+            @removeSortable()
             return true
           update: (e, ui) =>
             # ensureEditViewScrolled, unless we're updating from the draggable
             @ensureEditViewScrolled() unless ui.item.data('field-type')
-
-        @setDraggable()
 
       setDraggable: ->
         $addFieldButtons = @$el.find("[data-field-type]")
@@ -984,7 +985,7 @@ class Formbuilder
           @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
         else
-          @setSortable()
+          @setDraggable()
 
       bindHierarchyEvents: (hierarchyViews) ->
         do(cid='') =>
@@ -993,6 +994,9 @@ class Formbuilder
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
+
+      enableSortable: ->
+        @setSortable()
 
       addField: (e) ->
         field_type = $(e.currentTarget).data('field-type')
@@ -1040,6 +1044,9 @@ class Formbuilder
 
       unlockLeftWrapper: ->
         @$fbLeft.data('locked', false)
+
+      removeSortable: ->
+        @$responseFields.sortable('destroy') if @$responseFields.hasClass('ui-sortable')
 
       handleFormUpdate: ->
         return if @updatingBatch
