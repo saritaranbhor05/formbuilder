@@ -155,9 +155,9 @@ Formbuilder.registerField 'fullname',
       fields = field_view.$el.find('#values').find('label'),
       values = model.get('field_values'),
       i = 0
-    ) => 
+    ) =>
       for key of values
-        $(fields[i++]).html(values[key]);
+        $(fields[i]).html(values["#{model.getCid()}_#{++i}"]);
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(

@@ -28,27 +28,27 @@ Formbuilder.registerField 'checkboxes',
   """
 
   print: """
-    <% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [] %>
-    <% var cnt = field_options.length %>
-    <% var labelArr = [] %>
+    <% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [],
+       cnt = field_options.length,
+       labelArr = [],
+       field_values =  rf.get('field_values'),
+       cid =  rf.get('cid');
+    %>
     <% _.each(field_options, function(option){ %>
-      <%   labelArr.push(option.label) %>
+      <% labelArr.push(option.label) %>
     <% }) %>
-    <% var field_values =  rf.get('field_values') %>
-    <% var cid =  rf.get('cid') %>
     <% if(field_values){ %>
-      <%var index=0%>
-      <% _.each(field_values, function(value){ %>
-      <%   if(value){ %>
-        <label>
-        <% if(labelArr[index]) %>
-          <%= labelArr[index] %>
-          <% else if(typeof value == 'string' && value.trim() != '') %>
-          <%= value %>
-        </label>
-        <%  } %>
-        <% index++ %>
-      <%  }); %>
+      <% for(var index = 0, values_length = Object.keys(field_values).length; index < values_length; index++) { %>
+        <% var input_val = field_values[cid + '_'+ (index+1)]; %>
+        <% if(input_val){ %>
+          <label>
+          <% if(labelArr[index]) %>
+            <%= labelArr[index] %>
+          <% else if(typeof(input_val) == 'string' && input_val.trim() != '') %>
+            <%= input_val %>
+          </label>
+        <% } %>
+      <% } %>
     <% } %>
   """
 

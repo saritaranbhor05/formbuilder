@@ -29,10 +29,18 @@ Formbuilder.registerField 'radio',
 
   print: """
     <div>
-     <% var all_attr =  rf.get('field_values') %>
-     <% var cid =  rf.get('cid') %>
-     <% if(all_attr){ %>
-        <% for(var k in all_attr){ %>
+      <% var field_options = rf.get(Formbuilder.options.mappings.OPTIONS) || [],
+          all_attr =  rf.get('field_values'),
+          labelArr = [], opt1, opt2, cid =  rf.get('cid');
+        _.each(field_options, function(option){
+          labelArr.push(option.label)
+        });
+        opt1 = _.pick(all_attr, labelArr);
+        opt2 = _.pick(all_attr, ['__other__', cid + '_1']);
+        _.extend(opt1, opt2);
+      %>
+      <% if(opt1){ %>
+        <% for(var k in opt1){ %>
           <% if(all_attr[k]){ %>
             <label>
               <% if(k == '__other__') { %>
@@ -41,9 +49,9 @@ Formbuilder.registerField 'radio',
                 <%=  k %>
               <% } %>
             </label>
-        <% break;} %>
+          <% break;} %>
         <% } %>
-     <% } %>
+      <% } %>
     </div>
   """
 

@@ -9,16 +9,18 @@ Formbuilder.registerField 'gmap',
 
   print: """
   <div class="centered_td">
-    <% if(rf.get('field_type') === 'gmap'){%>
-    <% var lat_long_arr = ['-25.363882','131.044922']%>
-    <% var mapAttr = rf.get('field_values');%>
-    <% if(mapAttr){%>
-      <% if(mapAttr[ rf.get('cid') +'_1']){ %>
-          <% var location = mapAttr[ rf.get('cid') +'_1']; %>
-          <% var lat_long_str = mapAttr[ rf.get('cid') +'_2']; %>
-          <% var lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','); %>
-          <% var lat = lat_long_arr[0]; %>
-          <% var long = lat_long_arr[1]; %>
+    <% if(rf.get('field_type') === 'gmap') { %>
+      <% var lat_long_arr = ['-25.363882','131.044922'],
+         mapAttr = rf.get('field_values');
+      %>
+      <% if(mapAttr){ %>
+        <% if(mapAttr[ rf.get('cid') +'_1']){ %>
+          <% var location = mapAttr[ rf.get('cid') +'_1'],
+             lat_long_str = mapAttr[ rf.get('cid') +'_2'],
+             lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','),
+             lat = lat_long_arr[0],
+             long = lat_long_arr[1];
+          %>
         <% } %>
       <% } %>
     <% } %>
@@ -85,7 +87,7 @@ Formbuilder.registerField 'gmap',
     do($input = field_view.$el.find($("[name = " + model.getCid() + "_2]"))) =>
       if model.attributes.field_values
         field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["#{model.getCid()}_1"])
-        $input.val(model.attributes.field_values["#{model.getCid()}_2"])    
+        $input.val(model.attributes.field_values["#{model.getCid()}_2"])
       else
         if !(model.get('field_values') && model.get('field_values')[name])
           get_user_location = getCurrentLocation(model.getCid());

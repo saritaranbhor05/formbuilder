@@ -175,4 +175,4 @@ Formbuilder.registerField 'address',
       i = 0
     ) =>
       for key of values
-        $(fields[i++]).html(values[key]);
+        $(fields[i]).html(values["#{model.getCid()}_#{++i}"]);
