@@ -19,8 +19,9 @@ Formbuilder.registerField 'price',
 
   print: """
     <div>
-     <% var all_attr =  rf.get('field_values') %>
-     <% var cid =  rf.get('cid') %>
+     <% var all_attr =  rf.get('field_values'),
+        cid =  rf.get('cid');
+     %>
      <% if(all_attr){ %>
      <label class='above-line'>$</label>
      <label><%= (all_attr[cid + '_1'] && all_attr[cid + '_1'] || '') %></label>
