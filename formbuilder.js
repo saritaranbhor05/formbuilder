@@ -2843,7 +2843,7 @@
         var key, _results;
         _results = [];
         for (key in values) {
-          _results.push($(fields[i++]).html(values["" + (model.getCid()) + "_" + (i++)]));
+          _results.push($(fields[i]).html(values["" + (model.getCid()) + "_" + (++i)]));
         }
         return _results;
       })(field_view.$el.find('#values').find('label'), model.get('field_values'), 0);
