@@ -994,7 +994,7 @@ class Formbuilder
             hierarchyView.field.setValue(hierarchyView)
 
       hideShowNoResponseFields: ->
-        @$el.find(".fb-no-response-fields")[if @collection.length > 0 then 'hide' else 'show']()
+        @$el.find(".fb-no-response-fields")[if (@collection.length > 0 || @options.live) then 'hide' else 'show']()
 
       enableSortable: ->
         @setSortable()

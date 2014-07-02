@@ -1264,7 +1264,7 @@
           })('');
         },
         hideShowNoResponseFields: function() {
-          return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 ? 'hide' : 'show']();
+          return this.$el.find(".fb-no-response-fields")[this.collection.length > 0 || this.options.live ? 'hide' : 'show']();
         },
         enableSortable: function() {
           return this.setSortable();
