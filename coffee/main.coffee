@@ -33,6 +33,8 @@ class Formbuilder
     COMPANY_HIERARCHY: []
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
+    EXTERNAL_FIELDS: [],
+    EXTERNAL_FIELDS_TYPES: [],
 
     mappings:
       SIZE: 'field_options.size'
@@ -136,11 +138,8 @@ class Formbuilder
       model.attributes.cid = model.cid
 
   @registerField: (name, opts) ->
-    for x in ['view', 'edit']
-      opts[x] = _.template(opts[x])
-
-    if opts['print']
-      opts['print'] = _.template(opts['print'])
+    for x in ['view', 'edit', 'print']
+      opts[x] = _.template(opts[x]) if _.isString(opts[x])
 
     Formbuilder.fields[name] = opts
 
@@ -548,6 +547,15 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
+        Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
+        do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
+          if(!_.isEmpty(Formbuilder.options.EXTERNAL_FIELDS))
+            _.each reg_fields, (fl_opts, fl_name) ->
+              Formbuilder.registerField(fl_name, fl_opts)
+              Formbuilder.options.EXTERNAL_FIELDS_TYPES.push(fl_name)
+            return
+
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
           Formbuilder.options.PRINTVIEW = @options.print_view
@@ -760,8 +768,8 @@ class Formbuilder
 
           # check for ci-hierarchy type
           fd_views = @fieldViews.filter (fd_view) ->
-            fd_view.field_type is "ci-hierarchy"
-          @bindHierarchyEvents(fd_views) if fd_views.length > 0
+            Formbuilder.options.EXTERNAL_FIELDS_TYPES.indexOf(fd_view.field_type) != -1
+          @bindExternalFieldsEvents(fd_views) if fd_views.length > 0
 
           # triggers event by setting values to respective fields
           setTimeout (->
@@ -988,10 +996,12 @@ class Formbuilder
         else
           @setDraggable()
 
-      bindHierarchyEvents: (hierarchyViews) ->
-        do(cid='') =>
-          _.each hierarchyViews, (hierarchyView) ->
-            hierarchyView.field.setValue(hierarchyView)
+      # Bind events for externally registered fields if there is a method
+      # named as bindEventsNSetValues'
+      bindExternalFieldsEvents: (external_field_views) ->
+        _.each external_field_views, (external_field_view) ->
+          if external_field_view.field.bindEventsNSetValues
+            external_field_view.field.bindEventsNSetValues(external_field_view)
 
       hideShowNoResponseFields: ->
         @$el.find(".fb-no-response-fields")[if (@collection.length > 0 || @options.live) then 'hide' else 'show']()
@@ -1178,6 +1188,7 @@ class Formbuilder
 
   getVisibleNonEmptyFields: ->
     @mainView.getVisibleNonEmptyFields()
+
 
 window.Formbuilder = Formbuilder
 
