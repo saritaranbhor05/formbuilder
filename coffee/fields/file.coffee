@@ -89,7 +89,10 @@ Formbuilder.registerField 'file',
     do(incomplete = false) =>
       call_back = (k,v)->
         incomplete = true if(v.href == "")
-      return false if($el.find('.active_link_doc').length == 0)
+      call_back_create_mode = (k,v)->
+        incomplete = true if(v.innerHTML == "")
+      return false if($el.find('.active_link_doc').length == 0 && $el.find('#file_name_'+cid).length == 0)
+      $el.find('#file_name_'+cid).each(call_back_create_mode)
       $el.find('.active_link_doc').each(call_back)
       return false if(incomplete == true)
       return cid

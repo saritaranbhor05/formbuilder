@@ -1374,9 +1374,7 @@
           }
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
-          this.collection.sort();
-          this.collection.each(this.removeSourceConditions, this);
-          this.collection.each(this.addConditions, this);
+          this.sortRemoveAddConditions;
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -1384,6 +1382,22 @@
             this.doAjaxSave(payload);
           }
           return this.formBuilder.trigger('save', payload);
+        },
+        saveTemplate: function(e) {
+          var payload;
+          this.sortRemoveAddConditions;
+          payload = JSON.stringify({
+            fields: this.collection.toJSON()
+          });
+          if (Formbuilder.options.HTTP_ENDPOINT) {
+            this.doAjaxSave(payload);
+          }
+          return this.formBuilder.trigger('saveTemplate', payload);
+        },
+        sortRemoveAddConditions: function() {
+          this.collection.sort();
+          this.collection.each(this.removeSourceConditions, this);
+          return this.collection.each(this.addConditions, this);
         },
         removeSourceConditions: function(model) {
           if (!_.isEmpty(model.attributes.conditions)) {
@@ -2323,15 +2337,21 @@
     checkAttributeHasValue: function(cid, $el) {
       return (function(_this) {
         return function(incomplete) {
-          var call_back;
+          var call_back, call_back_create_mode;
           call_back = function(k, v) {
             if (v.href === "") {
               return incomplete = true;
             }
           };
-          if ($el.find('.active_link_doc').length === 0) {
+          call_back_create_mode = function(k, v) {
+            if (v.innerHTML === "") {
+              return incomplete = true;
+            }
+          };
+          if ($el.find('.active_link_doc').length === 0 && $el.find('#file_name_' + cid).length === 0) {
             return false;
           }
+          $el.find('#file_name_' + cid).each(call_back_create_mode);
           $el.find('.active_link_doc').each(call_back);
           if (incomplete === true) {
             return false;
