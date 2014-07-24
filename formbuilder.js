@@ -1239,14 +1239,8 @@
                   }
                 },
                 "default": function() {
-                  if (Formbuilder.isAndroid() && $(elem).attr('ci_hierarchy_section')) {
-                    if (val) {
-                      return $(elem).data('id', val);
-                    }
-                  } else {
-                    if (val) {
-                      return $(elem).val(val);
-                    }
+                  if (val) {
+                    return $(elem).val(val);
                   }
                 }
               };

@@ -958,10 +958,7 @@ class Formbuilder
             radio: ->
               $(elem).attr("checked", true) if val
             default: ->
-              if Formbuilder.isAndroid() && $(elem).attr('ci_hierarchy_section')
-                $(elem).data('id',val) if val
-              else
-                $(elem).val(val) if val
+              $(elem).val(val) if val
 
           (setters[type] || setters['default'])(elem, val)
 
