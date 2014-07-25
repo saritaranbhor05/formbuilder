@@ -27,7 +27,7 @@ class Formbuilder
     HTTP_ENDPOINT: ''
     HTTP_METHOD: 'POST'
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating']
-    PRINT_FIELDS_AS_SINGLE_ROW: ['document_center_hyperlink', 'file', 'take_pic_video_audio']
+    PRINT_FIELDS_AS_SINGLE_ROW: ['file', 'take_pic_video_audio']
     CKEDITOR_CONFIG: ' '
     HIERARCHYSELECTORVIEW: ' '
     COMPANY_HIERARCHY: []
@@ -547,6 +547,7 @@ class Formbuilder
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
+        # Register external fields which are specific to the requirements.
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
         do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
@@ -555,6 +556,15 @@ class Formbuilder
               Formbuilder.registerField(fl_name, fl_opts)
               Formbuilder.options.EXTERNAL_FIELDS_TYPES.push(fl_name)
             return
+
+        # Send 'print_ext_fields_as_single_row' as a parameter to formbuilder
+        # constructor if you want a single row of values for these fields
+        # while printing in PDF format.
+        # Merging this array in the PRINT_FIELDS_AS_SINGLE_ROW
+        if(!_.isEmpty(@options.print_ext_fields_as_single_row))
+          Array::push.apply Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW,
+            @options.print_ext_fields_as_single_row
+          console.log(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW)
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view

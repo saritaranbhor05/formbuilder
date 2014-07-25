@@ -75,7 +75,7 @@
       HTTP_ENDPOINT: '',
       HTTP_METHOD: 'POST',
       FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio', 'scale_rating'],
-      PRINT_FIELDS_AS_SINGLE_ROW: ['document_center_hyperlink', 'file', 'take_pic_video_audio'],
+      PRINT_FIELDS_AS_SINGLE_ROW: ['file', 'take_pic_video_audio'],
       CKEDITOR_CONFIG: ' ',
       HIERARCHYSELECTORVIEW: ' ',
       COMPANY_HIERARCHY: [],
@@ -724,6 +724,10 @@
               }
             });
           })(this)(Formbuilder.options.EXTERNAL_FIELDS);
+          if (!_.isEmpty(this.options.print_ext_fields_as_single_row)) {
+            Array.prototype.push.apply(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW, this.options.print_ext_fields_as_single_row);
+            console.log(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW);
+          }
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
             Formbuilder.options.PRINTVIEW = this.options.print_view;
