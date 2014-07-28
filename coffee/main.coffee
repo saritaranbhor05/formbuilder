@@ -35,7 +35,8 @@ class Formbuilder
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
     EXTERNAL_FIELDS_TYPES: [],
-    FILE_UPLOAD_URL: ''
+    FILE_UPLOAD_URL: '',
+    ESIGNATURE_UPLOAD_URL: ''
 
     mappings:
       SIZE: 'field_options.size'
@@ -570,6 +571,10 @@ class Formbuilder
         # Set file upload url to upload files. If there is file field in the form,
         # then use this url to upload files.
         Formbuilder.options.FILE_UPLOAD_URL = @options.file_upload_url
+
+        # Set esignature upload url to upload esignatures.
+        # If there is esignature field in the form, then use this url to upload.
+        Formbuilder.options.ESIGNATURE_UPLOAD_URL = @options.esignature_upload_url
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
@@ -1113,6 +1118,56 @@ class Formbuilder
                       return
                   return
               return
+
+      isBase64Data: (str) ->
+        regex4esign = /^data:image\/png;base64/
+        regex4esign.test str
+
+      uploadEsignatures: ->
+        do (_that = @, esig_field_views = @fieldViews.filter (fd_view) =>
+            fd_view.field_type is 'esignature') =>
+          _.each esig_field_views, (fd_view) ->
+            do($obj_elts = _that.$("[name^=" + fd_view.model.getCid() + "_]")) =>
+              _.each $obj_elts, (el) ->
+                if ($(el).attr('type') == 'esignature' && $(el).attr("src"))
+                  do (base64_data = $("[name="+$(el).attr('name')+']').attr("src")) =>
+                    if _that.isBase64Data(base64_data) && !$(el).attr("upload_url")
+                      _that.uploadImage(base64_data, $(el).attr('name'));
+                    else
+                      $(el).attr('uploaded_url', $(el).attr("upload_url"))
+                    return
+                return
+            return
+
+      uploadImage: (base64_data, field_name) ->
+        do(_that = @, base64_data = encodeURIComponent(base64_data.split(",")[1])) =>
+          $.ajaxSetup headers:
+            "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
+
+          $.ajax
+            url: Formbuilder.options.ESIGNATURE_UPLOAD_URL
+            type: 'POST'
+            data:
+              base64_data: base64_data
+              field_name: field_name
+            dataType: 'json'
+            async: false
+            success: (data) ->
+              if data.errors
+                # While uploading esignatures, if there are any errors occurred,
+                # then formbuilder will trigger the event 'fileUploadError'
+                _that.formBuilder.trigger 'fileUploadError', data.errors
+              else
+                do(uploaded_url = data.image.uploaded_url.split("?")[0]) =>
+                  $("[name=" + data.image.field_name + "]").attr "uploaded_url", uploaded_url
+              return
+            error: (jqXHR, textStatus, errorThrown) ->
+              do( response = jqXHR.responseText; error = (if response isnt '' then JSON.parse(response).error else '')) =>
+                # While uploading esignatures, if there are any errors occurred,
+                # then formbuilder will trigger the event 'fileUploadError'
+                _that.formBuilder.trigger 'fileUploadError', error
+              return
+          return
 
       saveTemplate: (e) ->
         @sortRemoveAddConditions

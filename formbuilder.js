@@ -84,6 +84,7 @@
       EXTERNAL_FIELDS: [],
       EXTERNAL_FIELDS_TYPES: [],
       FILE_UPLOAD_URL: '',
+      ESIGNATURE_UPLOAD_URL: '',
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -730,6 +731,7 @@
             console.log(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW);
           }
           Formbuilder.options.FILE_UPLOAD_URL = this.options.file_upload_url;
+          Formbuilder.options.ESIGNATURE_UPLOAD_URL = this.options.esignature_upload_url;
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
             Formbuilder.options.PRINTVIEW = this.options.print_view;
@@ -1417,6 +1419,79 @@
               return fd_view.field_type === 'file';
             }));
           }
+        },
+        isBase64Data: function(str) {
+          var regex4esign;
+          regex4esign = /^data:image\/png;base64/;
+          return regex4esign.test(str);
+        },
+        uploadEsignatures: function() {
+          return (function(_this) {
+            return function(_that, esig_field_views) {
+              return _.each(esig_field_views, function(fd_view) {
+                (function(_this) {
+                  return (function($obj_elts) {
+                    return _.each($obj_elts, function(el) {
+                      if ($(el).attr('type') === 'esignature' && $(el).attr("src")) {
+                        (function(_this) {
+                          return (function(base64_data) {
+                            if (_that.isBase64Data(base64_data) && !$(el).attr("upload_url")) {
+                              _that.uploadImage(base64_data, $(el).attr('name'));
+                            } else {
+                              $(el).attr('uploaded_url', $(el).attr("upload_url"));
+                            }
+                          });
+                        })(this)($("[name=" + $(el).attr('name') + ']').attr("src"));
+                      }
+                    });
+                  });
+                })(this)(_that.$("[name^=" + fd_view.model.getCid() + "_]"));
+              });
+            };
+          })(this)(this, this.fieldViews.filter((function(_this) {
+            return function(fd_view) {
+              return fd_view.field_type === 'esignature';
+            };
+          })(this)));
+        },
+        uploadImage: function(base64_data, field_name) {
+          return (function(_this) {
+            return function(_that, base64_data) {
+              $.ajaxSetup({
+                headers: {
+                  "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
+                }
+              });
+              $.ajax({
+                url: Formbuilder.options.ESIGNATURE_UPLOAD_URL,
+                type: 'POST',
+                data: {
+                  base64_data: base64_data,
+                  field_name: field_name
+                },
+                dataType: 'json',
+                async: false,
+                success: function(data) {
+                  if (data.errors) {
+                    _that.formBuilder.trigger('fileUploadError', data.errors);
+                  } else {
+                    (function(_this) {
+                      return (function(uploaded_url) {
+                        return $("[name=" + data.image.field_name + "]").attr("uploaded_url", uploaded_url);
+                      });
+                    })(this)(data.image.uploaded_url.split("?")[0]);
+                  }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  (function(_this) {
+                    return (function(response, error) {
+                      return _that.formBuilder.trigger('fileUploadError', error);
+                    });
+                  })(this)(jqXHR.responseText, (response !== '' ? JSON.parse(response).error : ''));
+                }
+              });
+            };
+          })(this)(this, encodeURIComponent(base64_data.split(",")[1]));
         },
         saveTemplate: function(e) {
           var payload;
