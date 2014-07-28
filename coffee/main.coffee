@@ -35,6 +35,7 @@ class Formbuilder
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
     EXTERNAL_FIELDS_TYPES: [],
+    FILE_UPLOAD_URL: ''
 
     mappings:
       SIZE: 'field_options.size'
@@ -566,6 +567,10 @@ class Formbuilder
             @options.print_ext_fields_as_single_row
           console.log(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW)
 
+        # Set file upload url to upload files. If there is file field in the form,
+        # then use this url to upload files.
+        Formbuilder.options.FILE_UPLOAD_URL = @options.file_upload_url
+
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
           Formbuilder.options.PRINTVIEW = @options.print_view
@@ -1080,6 +1085,34 @@ class Formbuilder
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
+
+      # This method will check for file fields. If file field exists, then it will upload files.
+      uploadFile: ->
+        if Formbuilder.options.FILE_UPLOAD_URL != ''
+          console.log(Formbuilder.options.FILE_UPLOAD_URL);
+          do (_that = @, file_field_views = @fieldViews.filter (fd_view) ->
+            fd_view.field_type is 'file') =>
+            unless _.isEmpty(file_field_views)
+              $.ajaxSetup headers:
+                "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
+
+              @$("#formbuilder_form").ajaxSubmit
+                url: Formbuilder.options.FILE_UPLOAD_URL
+                async: false
+                success: (data) ->
+                  if data.errors
+                    # While uploading files, if there are any errors occurred,
+                    # then formbuilder will trigger the event 'fileUploadError'
+                    _that.formBuilder.trigger 'fileUploadError', data.errors
+                  else
+                    _.each data.files, (response) ->
+                      $("input[name=" + response.field_name + "]").val ""
+                      if response.upload_obj
+                        $("input[name=" + response.field_name + "]").attr "file_url", response.upload_obj.url
+                        $("input[name=" + response.field_name + "]").attr "file_name", response.upload_obj.name
+                      return
+                  return
+              return
 
       saveTemplate: (e) ->
         @sortRemoveAddConditions

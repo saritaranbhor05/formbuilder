@@ -83,6 +83,7 @@
       EDIT_FS_MODEL: false,
       EXTERNAL_FIELDS: [],
       EXTERNAL_FIELDS_TYPES: [],
+      FILE_UPLOAD_URL: '',
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -728,6 +729,7 @@
             Array.prototype.push.apply(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW, this.options.print_ext_fields_as_single_row);
             console.log(Formbuilder.options.PRINT_FIELDS_AS_SINGLE_ROW);
           }
+          Formbuilder.options.FILE_UPLOAD_URL = this.options.file_upload_url;
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
             Formbuilder.options.PRINTVIEW = this.options.print_view;
@@ -1380,6 +1382,41 @@
             this.doAjaxSave(payload);
           }
           return this.formBuilder.trigger('save', payload);
+        },
+        uploadFile: function() {
+          if (Formbuilder.options.FILE_UPLOAD_URL !== '') {
+            console.log(Formbuilder.options.FILE_UPLOAD_URL);
+            return (function(_this) {
+              return function(_that, file_field_views) {
+                if (!_.isEmpty(file_field_views)) {
+                  $.ajaxSetup({
+                    headers: {
+                      "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
+                    }
+                  });
+                  _this.$("#formbuilder_form").ajaxSubmit({
+                    url: Formbuilder.options.FILE_UPLOAD_URL,
+                    async: false,
+                    success: function(data) {
+                      if (data.errors) {
+                        _that.formBuilder.trigger('fileUploadError', data.errors);
+                      } else {
+                        _.each(data.files, function(response) {
+                          $("input[name=" + response.field_name + "]").val("");
+                          if (response.upload_obj) {
+                            $("input[name=" + response.field_name + "]").attr("file_url", response.upload_obj.url);
+                            $("input[name=" + response.field_name + "]").attr("file_name", response.upload_obj.name);
+                          }
+                        });
+                      }
+                    }
+                  });
+                }
+              };
+            })(this)(this, this.fieldViews.filter(function(fd_view) {
+              return fd_view.field_type === 'file';
+            }));
+          }
         },
         saveTemplate: function(e) {
           var payload;
