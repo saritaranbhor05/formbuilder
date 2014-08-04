@@ -36,7 +36,8 @@ class Formbuilder
     EXTERNAL_FIELDS: [],
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
-    ESIGNATURE_UPLOAD_URL: ''
+    ESIGNATURE_UPLOAD_URL: '',
+    ESIGNATURE_UPLOAD_DATA: {}
 
     mappings:
       SIZE: 'field_options.size'
@@ -575,6 +576,9 @@ class Formbuilder
         # Set esignature upload url to upload esignatures.
         # If there is esignature field in the form, then use this url to upload.
         Formbuilder.options.ESIGNATURE_UPLOAD_URL = @options.esignature_upload_url
+
+        if(!_.isEmpty(@options.esignature_upload_data))
+          Formbuilder.options.ESIGNATURE_UPLOAD_DATA = @options.esignature_upload_data
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
@@ -1140,16 +1144,17 @@ class Formbuilder
             return
 
       uploadImage: (base64_data, field_name) ->
-        do(_that = @, base64_data = encodeURIComponent(base64_data.split(",")[1])) =>
+        do(_that = @, esig_data = {}, base64_data = encodeURIComponent(base64_data.split(",")[1])) =>
           $.ajaxSetup headers:
             "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
+
+          $.extend(esig_data, Formbuilder.options.ESIGNATURE_UPLOAD_DATA)
+          $.extend(esig_data, {base64_data: base64_data, field_name: field_name})
 
           $.ajax
             url: Formbuilder.options.ESIGNATURE_UPLOAD_URL
             type: 'POST'
-            data:
-              base64_data: base64_data
-              field_name: field_name
+            data: esig_data
             dataType: 'json'
             async: false
             success: (data) ->

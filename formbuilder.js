@@ -85,6 +85,7 @@
       EXTERNAL_FIELDS_TYPES: [],
       FILE_UPLOAD_URL: '',
       ESIGNATURE_UPLOAD_URL: '',
+      ESIGNATURE_UPLOAD_DATA: {},
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -732,6 +733,9 @@
           }
           Formbuilder.options.FILE_UPLOAD_URL = this.options.file_upload_url;
           Formbuilder.options.ESIGNATURE_UPLOAD_URL = this.options.esignature_upload_url;
+          if (!_.isEmpty(this.options.esignature_upload_data)) {
+            Formbuilder.options.ESIGNATURE_UPLOAD_DATA = this.options.esignature_upload_data;
+          }
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
             Formbuilder.options.PRINTVIEW = this.options.print_view;
@@ -1456,19 +1460,21 @@
         },
         uploadImage: function(base64_data, field_name) {
           return (function(_this) {
-            return function(_that, base64_data) {
+            return function(_that, esig_data, base64_data) {
               $.ajaxSetup({
                 headers: {
                   "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
                 }
               });
+              $.extend(esig_data, Formbuilder.options.ESIGNATURE_UPLOAD_DATA);
+              $.extend(esig_data, {
+                base64_data: base64_data,
+                field_name: field_name
+              });
               $.ajax({
                 url: Formbuilder.options.ESIGNATURE_UPLOAD_URL,
                 type: 'POST',
-                data: {
-                  base64_data: base64_data,
-                  field_name: field_name
-                },
+                data: esig_data,
                 dataType: 'json',
                 async: false,
                 success: function(data) {
@@ -1491,7 +1497,7 @@
                 }
               });
             };
-          })(this)(this, encodeURIComponent(base64_data.split(",")[1]));
+          })(this)(this, {}, encodeURIComponent(base64_data.split(",")[1]));
         },
         saveTemplate: function(e) {
           var payload;
