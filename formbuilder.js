@@ -1056,23 +1056,23 @@
             return function(field_view, fieldViews, model) {
               var _fn, _i, _len;
               _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
-                var _j, _k, _len1, _len2, _ref, _ref1, _results;
+                var _j, _k, _len1, _len2, _ref, _ref1;
+                field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
+                field_method_call = Formbuilder.fields[field_type_method_call];
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
                   _ref = field_view.$("label");
-                  _results = [];
                   for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
                     x = _ref[_j];
-                    _results.push(count = (function(x, index, name, val, value) {
+                    count = (function(x, index, name, val, value) {
                       if ($(x).text() && !val_set) {
                         val_set = true;
                       }
                       return index;
-                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0));
+                    })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0);
                   }
-                  return _results;
                 } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
                   $('#capture_link_' + field_view.model.getCid()).html('');
-                  return _.each(model.get('field_values'), function(value, key) {
+                  _.each(model.get('field_values'), function(value, key) {
                     return (function(_this) {
                       return function(index) {
                         if (value) {
@@ -1098,7 +1098,7 @@
                     })(this)(0);
                   });
                 } else if (field_view.model.get('field_type') === 'file') {
-                  return _.each(model.get('field_values'), function(value, key) {
+                  _.each(model.get('field_values'), function(value, key) {
                     if (value !== "") {
                       return (function(_this) {
                         return function(a_href_val, a_text) {
@@ -1118,11 +1118,15 @@
                     }
                   });
                 } else {
-                  field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
-                  field_method_call = Formbuilder.fields[field_type_method_call];
                   cid = model.getCid();
-                  if (field_method_call.setup) {
-                    field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                  if (field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup) {
+                    if (Formbuilder.isAndroid() && field_method_call.android_setup) {
+                      field_method_call.android_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                    } else if (Formbuilder.isIos() && field_method_call.ios_setup) {
+                      field_method_call.ios_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                    } else {
+                      field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                    }
                     if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
                       field_method_call.setValForPrint(field_view, model);
                     }
@@ -1194,8 +1198,15 @@
                     }
                   }
                   if (val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
-                    return field_view.trigger('change_state');
+                    field_view.trigger('change_state');
                   }
+                }
+                if (Formbuilder.isAndroid() && field_method_call.android_bindevents) {
+                  return field_method_call.android_bindevents(field_view);
+                } else if (Formbuilder.isIos() && field_method_call.ios_bindevents) {
+                  return field_method_call.ios_bindevents(field_view);
+                } else if (field_method_call.bindevents) {
+                  return field_method_call.bindevents(field_view);
                 }
               };
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
@@ -2251,6 +2262,7 @@
 (function() {
   Formbuilder.registerField('dropdown', {
     view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option value=\"<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\" <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
+    android_view: "<input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');\n      if ($target.is(':checked')) {\n        $empty_option_div.show();\n      } else {\n        $empty_option_div.hide();\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",
     print: "<label id=\"dropdown_print\"></label>",
@@ -2293,20 +2305,16 @@
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
     },
-    setup: function(field_view, model, edit_fs_model) {
+    android_setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
-        if (Formbuilder.isAndroid()) {
-          if (model.attributes.field_values["" + (model.getCid()) + "_1"] === '' && model.attributes.field_options.include_blank_option) {
-            field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
-            field_view.$el.find("input").data('id', '');
-          } else {
-            field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
-            field_view.$el.find("input").data('id', model.attributes.field_values["" + (model.getCid()) + "_1"]);
-          }
+        if (model.attributes.field_values["" + (model.getCid()) + "_1"] === '' && model.attributes.field_options.include_blank_option) {
+          field_view.$el.find("input").val(model.attributes.field_options.empty_option_text);
+          field_view.$el.find("input").data('id', '');
         } else {
-          field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          field_view.$el.find("input").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+          field_view.$el.find("input").data('id', model.attributes.field_values["" + (model.getCid()) + "_1"]);
         }
-      } else if (model.attributes.field_options && Formbuilder.isAndroid()) {
+      } else if (model.attributes.field_options) {
         (function(opt) {
           var e, _i, _len, _results;
           if (opt[0]) {
@@ -2333,7 +2341,15 @@
       return (function(field_dom) {
         if (field_dom.length > 0 && field_dom.val() !== '') {
           return field_view.trigger('change_state');
-        } else if (Formbuilder.isAndroid() && field_view.$el.find('input').val() !== "") {
+        }
+      })(field_view.$el.find('input'));
+    },
+    setup: function(field_view, model, edit_fs_model) {
+      if (model.attributes.field_values) {
+        field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+      }
+      return (function(field_dom) {
+        if (field_dom.length > 0 && field_dom.val() !== '') {
           return field_view.trigger('change_state');
         }
       })(field_view.$el.find('select'));
@@ -2762,6 +2778,19 @@
       attrs.field_options.size = 'medium';
       return attrs;
     },
+    android_bindevents: function(field_view) {
+      return (function(_this) {
+        return function(el) {
+          return el.focus(function(event) {
+            console.log("in paragraphs android_bindevents");
+            el.css('width', '100%');
+            return $('#grid_div').animate({
+              scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
+            }, 1000);
+          });
+        };
+      })(this)(field_view.$el.find('textarea'));
+    },
     setup: function(field_view, model) {
       var el;
       el = field_view.$el.find('textarea');
@@ -2776,16 +2805,6 @@
       if (model.get(Formbuilder.options.mappings.DEFAULT_VALUE)) {
         el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE));
       }
-      el.focus((function(_this) {
-        return function(event) {
-          if (Formbuilder.isAndroid()) {
-            el.css('width', '100%');
-            return $('#grid_div').animate({
-              scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
-            }, 1000);
-          }
-        };
-      })(this));
       if (model.get('field_values')) {
         el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
       }

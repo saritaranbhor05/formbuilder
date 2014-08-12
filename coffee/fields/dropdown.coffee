@@ -20,6 +20,10 @@ Formbuilder.registerField 'dropdown',
     <% } %>
   """
 
+  android_view: """
+    <input id="<%= rf.getCid() %>" dropdown="dropdown" name="<%= rf.getCid() %>" readonly="true"></input>
+  """
+
   edit: """
     <%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>
     <script >
@@ -82,18 +86,15 @@ Formbuilder.registerField 'dropdown',
             .find("[name = "+cid+"_1]")
             .attr("required", required) 
 
-  setup: (field_view, model, edit_fs_model) ->
+  android_setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
-      if Formbuilder.isAndroid()
-        if model.attributes.field_values["#{model.getCid()}_1"] == '' && model.attributes.field_options.include_blank_option
-          field_view.$el.find("input").val(model.attributes.field_options.empty_option_text)
-          field_view.$el.find("input").data('id','')
-        else
-          field_view.$el.find("input").val(model.attributes.field_values["#{model.getCid()}_1"])
-          field_view.$el.find("input").data('id',model.attributes.field_values["#{model.getCid()}_1"])
+      if model.attributes.field_values["#{model.getCid()}_1"] == '' && model.attributes.field_options.include_blank_option
+        field_view.$el.find("input").val(model.attributes.field_options.empty_option_text)
+        field_view.$el.find("input").data('id','')
       else
-        field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
-    else if model.attributes.field_options && Formbuilder.isAndroid()
+        field_view.$el.find("input").val(model.attributes.field_values["#{model.getCid()}_1"])
+        field_view.$el.find("input").data('id',model.attributes.field_values["#{model.getCid()}_1"])
+    else if model.attributes.field_options
       do(opt = model.attributes.field_options.options) ->
         if opt[0]
           field_view.$el.find("input").val(opt[0].label)
@@ -106,8 +107,14 @@ Formbuilder.registerField 'dropdown',
             if e.checked
               field_view.$el.find("input").val(e.label)
               field_view.$el.find("input").data('id',e.label)
-    do(field_dom = field_view.$el.find('select')) ->
+    do(field_dom = field_view.$el.find('input')) ->
       if field_dom.length > 0 && field_dom.val() != ''
         field_view.trigger('change_state')
-      else if Formbuilder.isAndroid() && field_view.$el.find('input').val() != ""
+
+  setup: (field_view, model, edit_fs_model) ->
+    if model.attributes.field_values
+      field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+
+    do(field_dom = field_view.$el.find('select')) ->
+      if field_dom.length > 0 && field_dom.val() != ''
         field_view.trigger('change_state')

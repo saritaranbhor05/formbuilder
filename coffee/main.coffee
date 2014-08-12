@@ -850,6 +850,9 @@ class Formbuilder
               cid = ''
             ) =>
 
+              field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+              field_method_call = Formbuilder.fields[field_type_method_call]
+
               if(field_view.model.get('field_type') is 'heading' || field_view.model.get('field_type') is 'free_text_html')
                 for x in field_view.$("label")
                   count = do( # set element name, value and call setup
@@ -901,11 +904,17 @@ class Formbuilder
                       @$('#file_'+field_view.model.getCid()).attr("required", false);
                 )
               else
-                field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
-                field_method_call = Formbuilder.fields[field_type_method_call]
+                #field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
+                #field_method_call = Formbuilder.fields[field_type_method_call]
                 cid = model.getCid()
-                if field_method_call.setup
-                  field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+
+                if field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup
+                  if Formbuilder.isAndroid() && field_method_call.android_setup
+                    field_method_call.android_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+                  else if Formbuilder.isIos() && field_method_call.ios_setup
+                    field_method_call.ios_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+                  else
+                    field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
                   if field_method_call.setValForPrint && @options.view_type == 'print'
                       field_method_call.setValForPrint(field_view, model)
                 else
@@ -950,6 +959,13 @@ class Formbuilder
 
                 if val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call == 'checkboxes' || field_type_method_call == 'radio')
                   field_view.trigger('change_state')
+
+              if Formbuilder.isAndroid() && field_method_call.android_bindevents
+                field_method_call.android_bindevents(field_view)
+              else if Formbuilder.isIos() && field_method_call.ios_bindevents
+                field_method_call.ios_bindevents(field_view)
+              else if field_method_call.bindevents
+                field_method_call.bindevents(field_view)
 
           @formBuilder.trigger('render_complete')
 

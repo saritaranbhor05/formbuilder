@@ -26,6 +26,15 @@ Formbuilder.registerField 'paragraph',
     attrs.field_options.size = 'medium'
     attrs
 
+  android_bindevents: (field_view) ->
+    do(el = field_view.$el.find('textarea')) =>
+      el.focus (event) =>
+        console.log("in paragraphs android_bindevents");
+        el.css('width', '100%')
+        $('#grid_div').animate( {
+          scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
+        }, 1000)
+
   setup: (field_view, model) ->
     el = field_view.$el.find('textarea')
     if model.get(Formbuilder.options.mappings.MINLENGTH)
@@ -35,12 +44,6 @@ Formbuilder.registerField 'paragraph',
       el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH))
     if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
       el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
-    el.focus (event) =>
-      if Formbuilder.isAndroid()
-        el.css('width', '100%')
-        $('#grid_div').animate( {
-          scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
-        }, 1000)
     if model.get('field_values')
       el.val(model.get('field_values')["#{model.getCid()}_1"])
     if field_view.$el.find('textarea').val() != ''
