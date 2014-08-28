@@ -152,17 +152,63 @@ class Formbuilder
     else
       Formbuilder.inputFields[name] = opts
 
+  @make_wizard: (elem, prev_text, next_text, before_cb, after_cb) ->
+    elem.easyWizard({
+      showSteps: false,
+      submitButton: false,
+      prevButton: prev_text,
+      nextButton: next_text
+    })
+
   @views:
     wizard_tab: Backbone.View.extend
+      tagName: 'div'
       className: "fb-tab"
       initialize: ->
         @parentView = @options.parentView
         @frag = document.createDocumentFragment()
+        @recurring = @options.recurring
+        if @options.view_type != 'print'
+          @setSectionProps(@options.index, @options.back_visibility)
+        if @options.view_type == 'print'
+          $el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
       make_live: ->
-        @$el.append(@frag)
+        @$el.append(if @recurring then wrap_section(@frag) else @frag)
         @$el
       append_child: (child) ->
         @frag.appendChild(child)
+      dummy_step: (cnt) ->
+        elem = $('<div></div>')
+        @setSectionProps(cnt, true, elem)
+        elem
+      wrap_section: (el) ->
+        do (inner_wiz_step = $('<div data-step-id></div>')
+            inner1 = new Formbuilder.views.wizard_tab
+              parentView: @
+              view_type: @options.view_type
+              index: 1
+              back_visibility: back_visibility
+            inner2 = new Formbuilder.views.wizard_tab
+              parentView: @
+              view_type: @options.view_type
+              index: 2
+              back_visibility: back_visibility) ->
+          inner_wiz = $('<div></div>')
+          inner_wiz.append(inner1)
+          inner_wiz.append(inner2)
+          Formbuilder.make_wizzard(inner_wiz, "Prev entry", "New entry")
+          inner_wiz_step.append(inner_wiz)
+          inner_wiz_step
+      setSectionProps:  (cnt, back_visibility, elem) ->
+        elem = elem || @$el
+        elem.attr({
+          'data-step': cnt,
+          'show-back': back_visibility,
+          'data-step-title': "step#{cnt}"
+        }).addClass('step')
+        elem.addClass('active') if cnt == 1
+ 
+
 
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
@@ -176,7 +222,7 @@ class Formbuilder
         'mouseover #can': 'onCanvas'
 
       onCanvas: ->
-          reinitializeCanvas(@model.getCid())
+        reinitializeCanvas(@model.getCid())
 
       initialize: ->
         @current_state = 'show'
@@ -188,8 +234,10 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       add_remove_require:(required) ->
-        @clearFields() and @changeStateSource() if !required
-        @changeStateSource() if required and @field_type is 'heading' || @field_type is 'free_text_html'
+        @clearFields() and @changeStateSource() unless required
+        if required and
+            @field_type is 'heading' || @field_type is 'free_text_html'
+          @changeStateSource()
         if @model.get(Formbuilder.options.mappings.REQUIRED) &&
             $.inArray(@field_type,
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION) == -1
@@ -205,7 +253,8 @@ class Formbuilder
           else
             @$el.removeClass(set_field.action)
 
-          $('#'+@model.getCid()).text(@model.get('label')) if @field_type is 'heading'
+          if @field_type is 'heading'
+            $('#'+@model.getCid()).text(@model.get('label'))
           if @field_type is 'free_text_html'
             @$('#'+@model.getCid()).html('')
             @$('#'+@model.getCid()).html(@model.get('field_options').html_data)
@@ -215,7 +264,8 @@ class Formbuilder
             @current_state = 'show'
           else
             @current_state = 'hide'
-          if (check_result && set_field.action == 'show') || (!check_result && set_field.action == 'hide')
+          if (check_result && set_field.action == 'show') or
+              (!check_result && set_field.action == 'hide')
             @add_remove_require(true)
           else
             @add_remove_require(false)
@@ -243,7 +293,8 @@ class Formbuilder
                                 where({cid: set_field.source})[0]
                   clicked_element = $("." + source_model.getCid())
                   field_type = source_model.get('field_type')
-                  str_condition = true if date_field_types.indexOf(field_type) != -1
+                  if date_field_types.indexOf(field_type) != -1
+                    str_condition = true
                   if set_field.condition is "equals"
                     condition = @parentView.checkEquals
                     condition = '==' if str_condition
@@ -256,16 +307,16 @@ class Formbuilder
                   else
                     condition = @parentView.checkNotEqual
                     condition = '!=' if str_condition
-
                   check_result = @evalCondition(clicked_element,
                       source_model, condition, set_field.value)
                   check_match_condtions.push(check_result)
 
-            if (and_flag && check_match_condtions.indexOf(false) == -1) || ( !and_flag && check_match_condtions.indexOf(true) != -1)
+            if (and_flag && check_match_condtions.indexOf(false) == -1) or
+                (!and_flag && check_match_condtions.indexOf(true) != -1)
               @show_hide_fields(true, set_field)
             else
               @show_hide_fields(false, set_field)
-
+# TODO: Move this inside the do?
         outerHeight = 0
         $(".fb-tab.step.active .fb-field-wrapper:visible").each ->
           outerHeight += $(this).height()
@@ -304,21 +355,19 @@ class Formbuilder
         })
 
         $("#gmapModal").on "shown", (e) ->
-            gmap_button_value = $("[name = " + getCid() + "_2]").val()
-            initialize();
-            $( "#gmap_address" ).keypress (event) ->
-              set_prev_lat_lng($('#gmap_latlng').val())
-              if(event.keyCode == 13)
-                codeAddress();
-
-            $( "#gmap_latlng" ).keypress (event) ->
-              set_prev_address($("#gmap_address").val())
-              if(event.keyCode == 13)
-                codeLatLng()
-
-            if( gmap_button_value != '')
-              set_prev_lat_lng(gmap_button_value)
-              codeLatLng(gmap_button_value)
+          gmap_button_value = $("[name = " + getCid() + "_2]").val()
+          initialize();
+          $( "#gmap_address" ).keypress (event) ->
+            set_prev_lat_lng($('#gmap_latlng').val())
+            if(event.keyCode == 13)
+              codeAddress();
+          $( "#gmap_latlng" ).keypress (event) ->
+            set_prev_address($("#gmap_address").val())
+            if(event.keyCode == 13)
+              codeLatLng()
+          if( gmap_button_value != '')
+            set_prev_lat_lng(gmap_button_value)
+            codeLatLng(gmap_button_value)
 
         $('#gmapModal').on 'hidden.bs.modal', (e) ->
           $('#gmapModal').off('shown').on('shown')
@@ -740,7 +789,7 @@ class Formbuilder
             $helper
 
           stop: =>
-            $('.form-builder-left-container ').css('overflow', 'auto');
+            $('.form-builder-left-container ').css('overflow', 'auto')
 
       applyEasyWizard: ->
         setSectionProps = (obj_view, cnt, back_visibility) ->
@@ -755,18 +804,21 @@ class Formbuilder
   
 
         do (field_view = null, fieldViews = @fieldViews,
-            add_break_to_next = false, wizard_view = null,
+            add_break_to_next = false, wizard_step = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment(), _that = @) =>
-          wizard_view = new Formbuilder.views.wizard_tab # wizar_tab is easywizard step
+          wizard_step = new Formbuilder.views.wizard_tab
             parentView: @
             tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
             className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
-          if @options.view_type != 'print'
-            setSectionProps(wizard_view, wiz_cnt, back_visibility)
-          if @options.view_type == 'print'
-            wizard_view.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
+            view_type: @options.view_type
+            index: wiz_cnt
+            back_visibility: back_visibility
+#          if @options.view_type != 'print'
+#            setSectionProps(wizard_step, wiz_cnt, back_visibility)
+#          if @options.view_type == 'print'
+#            wizard_step.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
 
           for field_view in fieldViews
             field_view.$el.attr('data-step-id', wiz_cnt) unless field_view.is_section_break
@@ -777,19 +829,22 @@ class Formbuilder
                 Formbuilder.options.mappings.PREV_BUTTON_TEXT)
               next_btn_text = field_view.model.get(
                 Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
-              add_break_to_next = true 
-
+              add_break_to_next = true
+            # nothing should be rendered since it is an actionable section break
             if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
-              @$responseFields.append wizard_view.make_live()
-              wizard_view = new Formbuilder.views.wizard_tab
-                parentView: @
+              @$responseFields.append wizard_step.make_live()
               wiz_cnt += 1
               add_break_to_next = false
-              setSectionProps(wizard_view, wiz_cnt, back_visibility) # set easywizard properties for step
-            if !add_break_to_next # nothing should be rendered since it is an actionable section break
-              wizard_view.append_child(field_view.render().el)
+              wizard_step = new Formbuilder.views.wizard_tab
+                parentView: @
+                view_type: @options.view_type
+                index: wiz_cnt
+                back_visibility: back_visibility
+#              setSectionProps(wizard_step, wiz_cnt, back_visibility) # set easywizard properties for step
+            if !add_break_to_next 
+              wizard_step.append_child(field_view.render().el)
 
-          @$responseFields.append wizard_view.make_live()
+          @$responseFields.append wizard_step.make_live()
           # TODO: Remove this call by calling this function from the setup
           # of individual fields
           fd_views = @fieldViews.filter (fd_view) ->
@@ -802,13 +857,13 @@ class Formbuilder
             _that.triggerEvent()
             return
           ), 5
-
-          $("#formbuilder_form").easyWizard({
-            showSteps: false,
-            submitButton: false,
-            prevButton: prev_btn_text,
-            nextButton: next_btn_text,
-            after: (wizardObj, prevStepObj, currentStepObj) ->
+          
+          Formbuilder.make_wizard(
+            $("#formbuilder_form"),
+            prev_btn_text,
+            next_btn_text,
+            null,
+            (wizardObj, prevStepObj, currentStepObj) ->
               prev_clicked = false
               if currentStepObj.children(':visible').length is 0
                 $activeStep.css({ height: '1px' })
@@ -820,7 +875,7 @@ class Formbuilder
                 if $nextStep.attr('show-back') == 'false'
                   $('.prev').css("display", "none")
                 else if currentStepObj.attr('data-step') != '1'
-                    $('.prev').css("display", "block")
+                  $('.prev').css("display", "block")
                 $('#grid_div').scrollTop(0)
 
               $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
@@ -830,7 +885,36 @@ class Formbuilder
                 wizardObj.parents('.form-panel').find('.update-button').show()
               else
                 wizardObj.parents('.form-panel').find('.update-button').hide()
-          })
+          )
+#
+#          $("#formbuilder_form").easyWizard({
+#            showSteps: false,
+#            submitButton: false,
+#            prevButton: prev_btn_text,
+#            nextButton: next_btn_text,
+#            after: (wizardObj, prevStepObj, currentStepObj) ->
+#              prev_clicked = false
+#              if currentStepObj.children(':visible').length is 0
+#                $activeStep.css({ height: '1px' })
+#                if prev_clicked = wizardObj.direction == 'prev'
+#                  $('.easyWizardButtons .prev').trigger('click')
+#                else
+#                  $('.easyWizardButtons .next').trigger('click')
+#              else
+#                if $nextStep.attr('show-back') == 'false'
+#                  $('.prev').css("display", "none")
+#                else if currentStepObj.attr('data-step') != '1'
+#                    $('.prev').css("display", "block")
+#                $('#grid_div').scrollTop(0)
+#
+#              $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
+#                $('.easyWizardButtons').outerHeight())
+#              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+#                 showSubmit
+#                wizardObj.parents('.form-panel').find('.update-button').show()
+#              else
+#                wizardObj.parents('.form-panel').find('.update-button').hide()
+#          })
 
         return @
 
