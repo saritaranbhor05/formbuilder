@@ -1391,7 +1391,7 @@
           }
           this.formSaved = true;
           this.saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED);
-          this.sortRemoveAddConditions;
+          this.sortRemoveAddConditions();
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
@@ -1512,7 +1512,7 @@
         },
         saveTemplate: function(e) {
           var payload;
-          this.sortRemoveAddConditions;
+          this.sortRemoveAddConditions();
           payload = JSON.stringify({
             fields: this.collection.toJSON()
           });
