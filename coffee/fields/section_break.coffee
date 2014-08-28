@@ -30,8 +30,13 @@ Formbuilder.registerField 'section_break',
       "model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>"
       value='Back'/>
 
-      <%= Formbuilder.templates['edit/back_visiblity']() %>
+    <%= Formbuilder.templates['edit/back_visiblity']() %>
+    <div class='fb-edit-section-header'>Recurring section</div>
 
+    <label>
+      <input type='checkbox' data-rv-checked='model.<%= Formbuilder.options.mappings.RECURRING_SECTION %>' />
+  Allow multiple entries for this section
+    </label>
   """
 
   print: """

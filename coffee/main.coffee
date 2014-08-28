@@ -99,6 +99,7 @@ class Formbuilder
       DEFAULT_ZIPCODE: 'field_options.default_zipcode'
       OPTIONAL_FIELD: 'field_options.optional_field'
       EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
+      RECURRING_SECTION: 'field_options.recurring_section'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -154,8 +155,14 @@ class Formbuilder
   @views:
     wizard_tab: Backbone.View.extend
       className: "fb-tab"
-      intialize: ->
+      initialize: ->
         @parentView = @options.parentView
+        @frag = document.createDocumentFragment()
+      make_live: ->
+        @$el.append(@frag)
+        @$el
+      append_child: (child) ->
+        @frag.appendChild(child)
 
     view_field: Backbone.View.extend
       className: "fb-field-wrapper"
@@ -735,67 +742,62 @@ class Formbuilder
           stop: =>
             $('.form-builder-left-container ').css('overflow', 'auto');
 
-      addSectionBreak: (obj_view, cnt, back_visibility) ->
-        do($obj_view_el = obj_view.$el) =>
-          $obj_view_el.attr({
-            'data-step': cnt,
-            'show-back': back_visibility,
-            'data-step-title': "step#{cnt}"
-          })
-          $obj_view_el.addClass('step')
-          $obj_view_el.addClass('active') if cnt == 1
-
       applyEasyWizard: ->
-        do (field_view = null, cnt = 1, fieldViews = @fieldViews,
+        setSectionProps = (obj_view, cnt, back_visibility) ->
+          do($obj_view_el = obj_view.$el) =>
+            $obj_view_el.attr({
+              'data-step': cnt,
+              'show-back': back_visibility,
+              'data-step-title': "step#{cnt}"
+            })
+            $obj_view_el.addClass('step')
+            $obj_view_el.addClass('active') if cnt == 1
+  
+
+        do (field_view = null, fieldViews = @fieldViews,
             add_break_to_next = false, wizard_view = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment(), _that = @) =>
+          wizard_view = new Formbuilder.views.wizard_tab # wizar_tab is easywizard step
+            parentView: @
+            tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
+            className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
+          if @options.view_type != 'print'
+            setSectionProps(wizard_view, wiz_cnt, back_visibility)
+          if @options.view_type == 'print'
+            wizard_view.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
+
           for field_view in fieldViews
+            field_view.$el.attr('data-step-id', wiz_cnt) unless field_view.is_section_break
             if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
                 Formbuilder.options.mappings.BACK_VISIBLITY)
-              add_break_to_next = true
               prev_btn_text = field_view.model.get(
                 Formbuilder.options.mappings.PREV_BUTTON_TEXT)
               next_btn_text = field_view.model.get(
                 Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
+              add_break_to_next = true 
 
-            if cnt == 1
-              wizard_view = new Formbuilder.views.wizard_tab
-                parentView: @
-                tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardTagName else 'div'
-                className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].wizardClassName else 'fb-tab'
-              if @options.view_type != 'print'
-                @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-              if @options.view_type == 'print'
-                wizard_view.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
-            else if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
-              wizard_view.$el.append(sub_frag)
-              sub_frag = document.createDocumentFragment()
-              @$responseFields.append wizard_view.$el
+            if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
+              @$responseFields.append wizard_view.make_live()
               wizard_view = new Formbuilder.views.wizard_tab
                 parentView: @
               wiz_cnt += 1
-              add_break_to_next = false if add_break_to_next
-              @addSectionBreak(wizard_view, wiz_cnt, back_visibility)
-            if wizard_view && field_view && (!field_view.is_section_break ||
-                @options.view_type == 'print')
-              sub_frag.appendChild(field_view.render().el)
-            if cnt == fieldViews.length && wizard_view
-              wizard_view.$el.append(sub_frag)
-              @$responseFields.append wizard_view.$el
-            cnt += 1
+              add_break_to_next = false
+              setSectionProps(wizard_view, wiz_cnt, back_visibility) # set easywizard properties for step
+            if !add_break_to_next # nothing should be rendered since it is an actionable section break
+              wizard_view.append_child(field_view.render().el)
 
-            if !field_view.is_section_break
-              field_view.$el.attr('data-step-id', wiz_cnt)
-
-          # check for ci-hierarchy type
+          @$responseFields.append wizard_view.make_live()
+          # TODO: Remove this call by calling this function from the setup
+          # of individual fields
           fd_views = @fieldViews.filter (fd_view) ->
             Formbuilder.options.EXTERNAL_FIELDS_TYPES.indexOf(fd_view.field_type) != -1
           @bindExternalFieldsEvents(fd_views) if fd_views.length > 0
 
           # triggers event by setting values to respective fields
+          # TODO: Try moving this to after easyWizard call with timeout of 0
           setTimeout (->
             _that.triggerEvent()
             return
@@ -908,54 +910,46 @@ class Formbuilder
                 #field_method_call = Formbuilder.fields[field_type_method_call]
                 cid = model.getCid()
 
-                if field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup
-                  if Formbuilder.isAndroid() && field_method_call.android_setup
-                    field_method_call.android_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
-                  else if Formbuilder.isIos() && field_method_call.ios_setup
-                    field_method_call.ios_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
-                  else
-                    field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL)
-                  if field_method_call.setValForPrint && @options.view_type == 'print'
-                      field_method_call.setValForPrint(field_view, model)
-                else
-                  if field_method_call.setValForPrint && @options.view_type == 'print'
-                      field_method_call.setValForPrint(field_view, model)
-                  else
-                    for x in field_view.$("input, textarea, select, .canvas_img, a")
-                      count = do( # set element name, value and call setup
-                        x,
-                        index = count + (if should_incr($(x)
-                                .attr('type')) then 1 else 0),
-                        name = null,
-                        val = null,
-                        value = 0,
-                        has_heading_field = false,
-                        has_ckeditor_field = false
-                      ) =>
-                        for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
-                          if field_view.model.get('conditions')
-                            for model_in_conditions in field_view.model.get('conditions')
-                              if(model_in_collection.getCid() is model_in_conditions.target)
-                                has_heading_field = true
-                        for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
-                          if field_view.model.get('conditions')
-                            for model_in_conditions in field_view.model.get('conditions')
-                              if(model_in_collection.getCid() is model_in_conditions.target)
-                                has_ckeditor_field = true
+                method = field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup
+                method(field_view, model, Formbuilder.options.EDIT_FS_MODEL) if method
+                if field_method_call.setValForPrint && @options.view_type == 'print'
+                  field_method_call.setValForPrint(field_view, model)
+                else if !method
+                  for x in field_view.$("input, textarea, select, .canvas_img, a")
+                    count = do( # set element name, value and call setup
+                      x,
+                      index = count + (if should_incr($(x)
+                              .attr('type')) then 1 else 0),
+                      name = null,
+                      val = null,
+                      value = 0,
+                      has_heading_field = false,
+                      has_ckeditor_field = false
+                    ) =>
+                      for model_in_collection in field_view.model.collection.where({'field_type':'heading'})
+                        if field_view.model.get('conditions')
+                          for model_in_conditions in field_view.model.get('conditions')
+                            if(model_in_collection.getCid() is model_in_conditions.target)
+                              has_heading_field = true
+                      for model_in_collection in field_view.model.collection.where({'field_type':'free_text_html'})
+                        if field_view.model.get('conditions')
+                          for model_in_conditions in field_view.model.get('conditions')
+                            if(model_in_collection.getCid() is model_in_conditions.target)
+                              has_ckeditor_field = true
 
-                        value = x.value if field_view.field_type == 'radio'||'scale_rating'
-                        name = cid.toString() + "_" + index.toString()
-                        if $(x).attr('type') == 'radio' and model.get('field_values')
-                          val = model.get('field_values')[value]
-                        else if model.get('field_values')
-                          val = model.get('field_values')[name]
-                        field_method_call.setup($(x), model, index) if field_method_call.setup
-                        if !val_set
-                          val_set = true if $(x).val()
-                          val_set = true if val or has_heading_field or has_ckeditor_field
-                        @setFieldVal($(x), val, model.getCid()) if val
+                      value = x.value if field_view.field_type == 'radio'||'scale_rating'
+                      name = cid.toString() + "_" + index.toString()
+                      if $(x).attr('type') == 'radio' and model.get('field_values')
+                        val = model.get('field_values')[value]
+                      else if model.get('field_values')
+                        val = model.get('field_values')[name]
+                      field_method_call.setup($(x), model, index) if field_method_call.setup
+                      if !val_set
+                        val_set = true if $(x).val()
+                        val_set = true if val or has_heading_field or has_ckeditor_field
+                      @setFieldVal($(x), val, model.getCid()) if val
 
-                        index
+                      index
 
                 if val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call == 'checkboxes' || field_type_method_call == 'radio')
                   field_view.trigger('change_state')
@@ -1035,6 +1029,7 @@ class Formbuilder
 
       # Bind events for externally registered fields if there is a method
       # named as bindEventsNSetValues'
+      # TODO: Move this call to the setup of the individual fields
       bindExternalFieldsEvents: (external_field_views) ->
         _.each external_field_views, (external_field_view) ->
           if external_field_view.field.bindEventsNSetValues

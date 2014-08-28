@@ -10,7 +10,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-cssmin')
   grunt.loadNpmTasks('grunt-contrib-jst')
   grunt.loadNpmTasks('grunt-contrib-stylus')
-  grunt.loadNpmTasks('grunt-contrib-uglify')
+#  grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-watch')
 
   grunt.initConfig
@@ -49,10 +49,10 @@ module.exports = (grunt) ->
         files:
           'formbuilder.css': 'styl/formbuilder.styl'
 
-    uglify:
-      dist:
-        files:
-          'formbuilder-min.js': 'formbuilder.js'
+#    uglify:
+#      dist:
+#        files:
+#          'formbuilder-min.js': 'formbuilder.js'
 
     watch:
       all:
@@ -60,4 +60,4 @@ module.exports = (grunt) ->
         tasks: ALL_TASKS
 
   grunt.registerTask 'default', ALL_TASKS
-  grunt.registerTask 'dist', ['cssmin:dist', 'uglify:dist']
+  grunt.registerTask 'dist', ['cssmin:dist']
