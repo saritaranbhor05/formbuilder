@@ -1058,14 +1058,14 @@ class Formbuilder
         return if @formSaved
         @formSaved = true
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
-        @sortRemoveAddConditions
+        @sortRemoveAddConditions()
         payload = JSON.stringify fields: @collection.toJSON()
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'save', payload
 
       saveTemplate: (e) ->
-        @sortRemoveAddConditions
+        @sortRemoveAddConditions()
         payload = JSON.stringify fields: @collection.toJSON()
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'saveTemplate', payload
