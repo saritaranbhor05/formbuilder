@@ -99,6 +99,9 @@ class Formbuilder
       DEFAULT_ZIPCODE: 'field_options.default_zipcode'
       OPTIONAL_FIELD: 'field_options.optional_field'
       EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
+      START_DATE_TIME_TEXT: 'field_options.start_date_time_text'
+      END_DATE_TIME_TEXT: 'field_options.end_date_time_text'
+      DATETIME_DIFFERENCE_TEXT: 'field_options.datetime_difference_text'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'

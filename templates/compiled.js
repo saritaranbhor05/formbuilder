@@ -225,6 +225,22 @@ __p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <inp
 return __p
 };
 
+this["Formbuilder"]["templates"]["edit/datetime_difference_labels"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Labels</div>\n<div class="control-group">\n  <label class="control-label">First Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.START_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Start Date Time\' placeholder="Start Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Second Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.END_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'End Date Time\' placeholder="End Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Difference</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Difference\' placeholder="Difference"/>\n  </div>\n</div>';
+
+}
+return __p
+};
+
 this["Formbuilder"]["templates"]["edit/default_address"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape;

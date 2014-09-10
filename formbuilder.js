@@ -145,7 +145,10 @@
         DEFAULT_STATE: 'field_options.default_state',
         DEFAULT_ZIPCODE: 'field_options.default_zipcode',
         OPTIONAL_FIELD: 'field_options.optional_field',
-        EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
+        EMPTY_OPTION_TEXT: 'field_options.empty_option_text',
+        START_DATE_TIME_TEXT: 'field_options.start_date_time_text',
+        END_DATE_TIME_TEXT: 'field_options.end_date_time_text',
+        DATETIME_DIFFERENCE_TEXT: 'field_options.datetime_difference_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -2260,6 +2263,166 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('date_time_difference', {
+    view: "<div class='input-line'>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_startDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n\n    <label><%= rf.get(Formbuilder.options.mappings.START_DATE_TIME_TEXT) || 'Start Date Time' %></label>\n  </span>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_endDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n    <label><%= rf.get(Formbuilder.options.mappings.END_DATE_TIME_TEXT) || 'End Date Time' %></label>\n  </span>\n  <span>\n    <input id='<%= rf.getCid()%>_differenceDateTimeDifference' type='text' readonly data-text=\"qwerty\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT) || 'Difference' %></label>\n  </span>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_startDateTimeDifference\")\n          .datetimepicker({\n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n              addSliderAccess: true,\n              sliderAccessArgs: { touchonly: false },\n              changeMonth : true,\n              changeYear : true,\n              yearRange: '-100y:+100y'\n           });\n      $(\"#<%= rf.getCid() %>_endDateTimeDifference\")\n            .datetimepicker({\n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n                addSliderAccess: true,\n                sliderAccessArgs: { touchonly: false },\n                changeMonth : true,\n                changeYear : true,\n                yearRange: '-100y:+100y'\n             });\n    })\n  </script>\n</div>",
+    setup: function(field_view, model) {
+      var dateTimeFields;
+      dateTimeFields = [field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference'), field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference')];
+      _.each(dateTimeFields, (function(_this) {
+        return function(el) {
+          if (Formbuilder.isMobile()) {
+            setTimeout((function() {
+              el.datetimepicker('setDate', new Date());
+            }), 500);
+          } else {
+            el.datetimepicker('setDate', new Date());
+          }
+          $(el).click(function() {
+            return $("#ui-datepicker-div").css("z-index", 3);
+          });
+          $('#ui-datepicker-div').css('display', 'none');
+          return el.blur();
+        };
+      })(this));
+      if (model.get('field_values')) {
+        field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+        field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+        field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
+      }
+      return _.each(dateTimeFields, (function(_this) {
+        return function(el) {
+          return el.change({
+            ele: field_view.$el,
+            fmt: model.get('field_options').date_format,
+            cid: model.getCid()
+          }, _this.changeEventHandler);
+        };
+      })(this));
+    },
+    changeEventHandler: (function(_this) {
+      return function(event, data) {
+        if (typeof data === "undefined") {
+          data = event.data;
+        }
+        console.log(data);
+        return (function(cid, v1, v2, diff_str, fmt, v3) {
+          var cd, ch, d, d1, d2, diff_time, h, m, t1, t2;
+          if (v1 && v2) {
+            v1 = (fmt === "dd/mm/yy" ? v1.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v1);
+            v2 = (fmt === "dd/mm/yy" ? v2.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v2);
+            d1 = new Date(v1);
+            d2 = new Date(v2);
+            t1 = d1.getTime();
+            t2 = d2.getTime();
+            cd = 24 * 60 * 60 * 1000;
+            ch = 60 * 60 * 1000;
+            diff_time = t2 - t1;
+            diff_time = (diff_time < 0 ? diff_time * (-1) : diff_time);
+            d = Math.floor(diff_time / cd);
+            h = Math.floor((diff_time - d * cd) / ch);
+            m = Math.round((diff_time - d * cd - h * ch) / 60000);
+            diff_str = d + "d " + h + "h " + m + "m";
+          }
+          return v3.val(diff_str);
+        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
+      };
+    })(this),
+    edit: "<%= Formbuilder.templates['edit/datetime_difference_labels']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date Time Difference",
+    print: "<label id=\"st_dt_print\"></label>\n<label id=\"end_dt_print\"></label>\n<label id=\"diff_dt_print\"></label>",
+    setValForPrint: function(field_view, model) {
+      field_view.$el.find('#st_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
+      field_view.$el.find('#end_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_2"]);
+      return field_view.$el.find('#diff_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_3"]);
+    },
+    checkAttributeHasValue: function(cid, $el) {
+      return (function(_this) {
+        return function(incomplete) {
+          var call_back;
+          call_back = function() {
+            if ($(this).val() === "") {
+              return incomplete = true;
+            }
+          };
+          $el.find("input[type=text]").each(call_back);
+          if ($el.find('select').val() === "") {
+            incomplete = true;
+          }
+          if (incomplete === true) {
+            return false;
+          }
+          return cid;
+        };
+      })(this)(false);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, cid) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find("#" + cid + "_startDateTimeDifference").val() !== '' && $el.find("#" + cid + "_endDateTimeDifference").val() !== '' && $el.find("#" + cid + "_differenceDateTimeDifference").val() !== '';
+          })(model.get('required'), model.getCid());
+          return valid;
+        };
+      })(this)(false);
+    },
+    clearFields: function($el, model) {
+      (function(_this) {
+        return (function(targetFields) {});
+      })(this)([$el.find("[name = " + model.getCid() + "_1]"), $el.find("[name = " + model.getCid() + "_2]"), $el.find("[name = " + model.getCid() + "_3]")]);
+      return _.each(targetFields, (function(_this) {
+        return function(el) {
+          return el.val("");
+        };
+      })(this));
+    },
+    convertToMili: function(dhmStr) {
+      return (function(_this) {
+        return function(d, h, m, res, parts) {
+          var val, _fn, _i, _len;
+          _fn = function(val) {
+            switch (val.substring(val.length, val.length - 1)) {
+              case 'd':
+                return d = val.substring(0, val.length - 1);
+              case 'h':
+                return h = val.substring(0, val.length - 1);
+              case 'm':
+                return m = val.substring(0, val.length - 1);
+            }
+          };
+          for (_i = 0, _len = parts.length; _i < _len; _i++) {
+            val = parts[_i];
+            _fn(val);
+          }
+          if (isNaN(d) || isNaN(d) || isNaN(d)) {
+            res = 0;
+          } else {
+            res = d * 86400000 + h * 3600000 + m * 60000;
+          }
+          return res;
+        };
+      })(this)(0, 0, 0, 0, dhmStr.split(" "));
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var check_result, elem_val;
+      console.log("checking...now");
+      console.log(clicked_element, cid, condition, set_value);
+      (function(_this) {
+        return (function(elem_val, check_result) {});
+      })(this)('', false);
+      elem_val = clicked_element.find("#" + cid + "_differenceDateTimeDifference").val();
+      elem_val = this.convertToMili(elem_val);
+      set_value = this.convertToMili(set_value);
+      check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
+      return check_result;
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('dropdown', {
     view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option value=\"<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\" <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
     android_view: "<input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>",
@@ -3476,6 +3639,22 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
 '\' />\n  only date field\n</label>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/datetime_difference_labels"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Labels</div>\n<div class="control-group">\n  <label class="control-label">First Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.START_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Start Date Time\' placeholder="Start Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Second Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.END_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'End Date Time\' placeholder="End Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Difference</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Difference\' placeholder="Difference"/>\n  </div>\n</div>';
 
 }
 return __p
