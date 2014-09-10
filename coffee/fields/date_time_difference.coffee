@@ -43,38 +43,36 @@ Formbuilder.registerField 'date_time_difference',
   """
 
   setup: (field_view, model) ->
-    dateTimeFields = [ field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference'),
-      field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference')
-    ]
-    _.each dateTimeFields, (el) =>
-      if Formbuilder.isMobile()
-        setTimeout (->
+    do( dateTimeFields = [ field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference'),
+        field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference') ]) =>
+      _.each dateTimeFields, (el) =>
+        if Formbuilder.isMobile()
+          setTimeout (->
+            el.datetimepicker 'setDate', new Date()
+            return
+          ), 500
+        else
           el.datetimepicker 'setDate', new Date()
-          return
-        ), 500
-      else
-        el.datetimepicker 'setDate', new Date()
-      $(el).click ->
-        $("#ui-datepicker-div").css( "z-index", 3 )
-      $('#ui-datepicker-div').css('display','none')
-      el.blur()
+        $(el).click ->
+          $("#ui-datepicker-div").css( "z-index", 3 )
+        $('#ui-datepicker-div').css('display','none')
+        el.blur()
 
-    if model.get('field_values')
-      field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_1"])
-      field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_2"])
-      field_view.$el.find('#'+model.getCid()+'_differenceDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_3"])
+      if model.get('field_values')
+        field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_1"])
+        field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_2"])
+        field_view.$el.find('#'+model.getCid()+'_differenceDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_3"])
 
-    _.each dateTimeFields, (el) =>
-      el.change {ele: field_view.$el, fmt: model.get('field_options').date_format, cid:model.getCid() }, @changeEventHandler
+      _.each dateTimeFields, (el) =>
+        el.change {ele: field_view.$el, fmt: model.get('field_options').date_format, cid:model.getCid() }, @changeEventHandler
 
   changeEventHandler: (event, data) =>
     data = event.data if typeof data is "undefined"
-    console.log(data)
     do( cid = data.cid,
         v1 = data.ele.find("#" + data.cid + "_startDateTimeDifference").val(),
         v2 = data.ele.find("#" + data.cid + "_endDateTimeDifference").val(),
         diff_str = "",
-        fmt = data.fmt,
+        fmt = data.fmt, t1 = "", t2 = "", cd = 24 * 60 * 60 * 1000, ch = 60 * 60 * 1000,
         v3 = data.ele.find("#" + data.cid + "_differenceDateTimeDifference") ) =>
         if v1 && v2
           v1 = (if (fmt is "dd/mm/yy") then v1.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") else v1)
@@ -83,8 +81,6 @@ Formbuilder.registerField 'date_time_difference',
           d2 = new Date(v2)
           t1 = d1.getTime()
           t2 = d2.getTime()
-          cd = 24 * 60 * 60 * 1000
-          ch = 60 * 60 * 1000
           diff_time = t2 - t1
           diff_time = (if (diff_time < 0) then (diff_time*(-1)) else diff_time)
           d = Math.floor(diff_time / cd)
@@ -162,8 +158,6 @@ Formbuilder.registerField 'date_time_difference',
       res
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    console.log("checking...now")
-    console.log(clicked_element,  cid, condition, set_value)
     do(
        elem_val = '' ,
        check_result = false

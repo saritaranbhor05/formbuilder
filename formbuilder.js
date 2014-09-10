@@ -2266,47 +2266,44 @@
   Formbuilder.registerField('date_time_difference', {
     view: "<div class='input-line'>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_startDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n\n    <label><%= rf.get(Formbuilder.options.mappings.START_DATE_TIME_TEXT) || 'Start Date Time' %></label>\n  </span>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_endDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n    <label><%= rf.get(Formbuilder.options.mappings.END_DATE_TIME_TEXT) || 'End Date Time' %></label>\n  </span>\n  <span>\n    <input id='<%= rf.getCid()%>_differenceDateTimeDifference' type='text' readonly data-text=\"qwerty\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT) || 'Difference' %></label>\n  </span>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_startDateTimeDifference\")\n          .datetimepicker({\n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n              addSliderAccess: true,\n              sliderAccessArgs: { touchonly: false },\n              changeMonth : true,\n              changeYear : true,\n              yearRange: '-100y:+100y'\n           });\n      $(\"#<%= rf.getCid() %>_endDateTimeDifference\")\n            .datetimepicker({\n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n                addSliderAccess: true,\n                sliderAccessArgs: { touchonly: false },\n                changeMonth : true,\n                changeYear : true,\n                yearRange: '-100y:+100y'\n             });\n    })\n  </script>\n</div>",
     setup: function(field_view, model) {
-      var dateTimeFields;
-      dateTimeFields = [field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference'), field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference')];
-      _.each(dateTimeFields, (function(_this) {
-        return function(el) {
-          if (Formbuilder.isMobile()) {
-            setTimeout((function() {
+      return (function(_this) {
+        return function(dateTimeFields) {
+          _.each(dateTimeFields, function(el) {
+            if (Formbuilder.isMobile()) {
+              setTimeout((function() {
+                el.datetimepicker('setDate', new Date());
+              }), 500);
+            } else {
               el.datetimepicker('setDate', new Date());
-            }), 500);
-          } else {
-            el.datetimepicker('setDate', new Date());
-          }
-          $(el).click(function() {
-            return $("#ui-datepicker-div").css("z-index", 3);
+            }
+            $(el).click(function() {
+              return $("#ui-datepicker-div").css("z-index", 3);
+            });
+            $('#ui-datepicker-div').css('display', 'none');
+            return el.blur();
           });
-          $('#ui-datepicker-div').css('display', 'none');
-          return el.blur();
+          if (model.get('field_values')) {
+            field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+            field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
+          }
+          return _.each(dateTimeFields, function(el) {
+            return el.change({
+              ele: field_view.$el,
+              fmt: model.get('field_options').date_format,
+              cid: model.getCid()
+            }, _this.changeEventHandler);
+          });
         };
-      })(this));
-      if (model.get('field_values')) {
-        field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
-        field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
-        field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
-      }
-      return _.each(dateTimeFields, (function(_this) {
-        return function(el) {
-          return el.change({
-            ele: field_view.$el,
-            fmt: model.get('field_options').date_format,
-            cid: model.getCid()
-          }, _this.changeEventHandler);
-        };
-      })(this));
+      })(this)([field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference'), field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference')]);
     },
     changeEventHandler: (function(_this) {
       return function(event, data) {
         if (typeof data === "undefined") {
           data = event.data;
         }
-        console.log(data);
-        return (function(cid, v1, v2, diff_str, fmt, v3) {
-          var cd, ch, d, d1, d2, diff_time, h, m, t1, t2;
+        return (function(cid, v1, v2, diff_str, fmt, t1, t2, cd, ch, v3) {
+          var d, d1, d2, diff_time, h, m;
           if (v1 && v2) {
             v1 = (fmt === "dd/mm/yy" ? v1.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v1);
             v2 = (fmt === "dd/mm/yy" ? v2.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v2);
@@ -2314,8 +2311,6 @@
             d2 = new Date(v2);
             t1 = d1.getTime();
             t2 = d2.getTime();
-            cd = 24 * 60 * 60 * 1000;
-            ch = 60 * 60 * 1000;
             diff_time = t2 - t1;
             diff_time = (diff_time < 0 ? diff_time * (-1) : diff_time);
             d = Math.floor(diff_time / cd);
@@ -2324,7 +2319,7 @@
             diff_str = d + "d " + h + "h " + m + "m";
           }
           return v3.val(diff_str);
-        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
+        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, "", "", 24 * 60 * 60 * 1000, 60 * 60 * 1000, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
       };
     })(this),
     edit: "<%= Formbuilder.templates['edit/datetime_difference_labels']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
@@ -2407,8 +2402,6 @@
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       var check_result, elem_val;
-      console.log("checking...now");
-      console.log(clicked_element, cid, condition, set_value);
       (function(_this) {
         return (function(elem_val, check_result) {});
       })(this)('', false);
