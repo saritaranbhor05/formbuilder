@@ -152,13 +152,9 @@ class Formbuilder
     else
       Formbuilder.inputFields[name] = opts
 
-  @make_wizard: (elem, prev_text, next_text, before_cb, after_cb) ->
-    elem.easyWizard({
-      showSteps: false,
-      submitButton: false,
-      prevButton: prev_text,
-      nextButton: next_text
-    })
+  @make_wizard: (elem, opts) ->
+    do(defaults = { showSteps: false, submitButton: true}) ->
+      elem.easyWizard(_.extend(defaults,opts))
 
   @views:
     wizard_tab: Backbone.View.extend
@@ -182,21 +178,28 @@ class Formbuilder
         @setSectionProps(cnt, true, elem)
         elem
       wrap_section: (el) ->
-        do (inner_wiz_step = $('<div data-step-id></div>')
+        do (inner_wiz_step = $('<div data-step-id></div>'),
             inner1 = new Formbuilder.views.wizard_tab
               parentView: @
               view_type: @options.view_type
               index: 1
-              back_visibility: back_visibility
+              back_visibility: back_visibility,
             inner2 = new Formbuilder.views.wizard_tab
               parentView: @
               view_type: @options.view_type
               index: 2
               back_visibility: back_visibility) ->
+          inner1.append_child(el)
           inner_wiz = $('<div></div>')
           inner_wiz.append(inner1)
           inner_wiz.append(inner2)
-          Formbuilder.make_wizzard(inner_wiz, "Prev entry", "New entry")
+          Formbuilder.make_wizzard(inner_wiz,
+            {
+              prevButton: "Prev entry",
+              nextButton: "New entry",
+              showSteps: true,
+              submitButton: false
+            })
           inner_wiz_step.append(inner_wiz)
           inner_wiz_step
       setSectionProps:  (cnt, back_visibility, elem) ->
@@ -860,32 +863,32 @@ class Formbuilder
           
           Formbuilder.make_wizard(
             $("#formbuilder_form"),
-            prev_btn_text,
-            next_btn_text,
-            null,
-            (wizardObj, prevStepObj, currentStepObj) ->
-              prev_clicked = false
-              if currentStepObj.children(':visible').length is 0
-                $activeStep.css({ height: '1px' })
-                if prev_clicked = wizardObj.direction == 'prev'
-                  $('.easyWizardButtons .prev').trigger('click')
-                else
-                  $('.easyWizardButtons .next').trigger('click')
-              else
-                if $nextStep.attr('show-back') == 'false'
-                  $('.prev').css("display", "none")
-                else if currentStepObj.attr('data-step') != '1'
-                  $('.prev').css("display", "block")
-                $('#grid_div').scrollTop(0)
+            {
+              prevButton: prev_btn_text,
+              nextButton: next_btn_text,
+              after: (wizardObj, prevStepObj, currentStepObj) ->
+                        prev_clicked = false
+                        if currentStepObj.children(':visible').length is 0
+                          $activeStep.css({ height: '1px' })
+                          if prev_clicked = wizardObj.direction == 'prev'
+                            $('.easyWizardButtons .prev').trigger('click')
+                          else
+                            $('.easyWizardButtons .next').trigger('click')
+                        else
+                          if $nextStep.attr('show-back') == 'false'
+                            $('.prev').css("display", "none")
+                          else if currentStepObj.attr('data-step') != '1'
+                            $('.prev').css("display", "block")
+                          $('#grid_div').scrollTop(0)
 
-              $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
-                $('.easyWizardButtons').outerHeight())
-              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                 showSubmit
-                wizardObj.parents('.form-panel').find('.update-button').show()
-              else
-                wizardObj.parents('.form-panel').find('.update-button').hide()
-          )
+                        $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
+                          $('.easyWizardButtons').outerHeight())
+                        if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                           showSubmit
+                          wizardObj.parents('.form-panel').find('.update-button').show()
+                        else
+                          wizardObj.parents('.form-panel').find('.update-button').hide()
+            })
 #
 #          $("#formbuilder_form").easyWizard({
 #            showSteps: false,

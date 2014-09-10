@@ -145,7 +145,8 @@
         DEFAULT_STATE: 'field_options.default_state',
         DEFAULT_ZIPCODE: 'field_options.default_zipcode',
         OPTIONAL_FIELD: 'field_options.optional_field',
-        EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
+        EMPTY_OPTION_TEXT: 'field_options.empty_option_text',
+        RECURRING_SECTION: 'field_options.recurring_section'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -221,11 +222,80 @@
       }
     };
 
+    Formbuilder.make_wizard = function(elem, opts) {
+      return (function(defaults) {
+        return elem.easyWizard(_.extend(defaults, opts));
+      })({
+        showSteps: false,
+        submitButton: true
+      });
+    };
+
     Formbuilder.views = {
       wizard_tab: Backbone.View.extend({
+        tagName: 'div',
         className: "fb-tab",
-        intialize: function() {
-          return this.parentView = this.options.parentView;
+        initialize: function() {
+          this.parentView = this.options.parentView;
+          this.frag = document.createDocumentFragment();
+          this.recurring = this.options.recurring;
+          if (this.options.view_type !== 'print') {
+            this.setSectionProps(this.options.index, this.options.back_visibility);
+          }
+          if (this.options.view_type === 'print') {
+            return $el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>');
+          }
+        },
+        make_live: function() {
+          this.$el.append(this.recurring ? wrap_section(this.frag) : this.frag);
+          return this.$el;
+        },
+        append_child: function(child) {
+          return this.frag.appendChild(child);
+        },
+        dummy_step: function(cnt) {
+          var elem;
+          elem = $('<div></div>');
+          this.setSectionProps(cnt, true, elem);
+          return elem;
+        },
+        wrap_section: function(el) {
+          return (function(inner_wiz_step, inner1, inner2) {
+            var inner_wiz;
+            inner1.append_child(el);
+            inner_wiz = $('<div></div>');
+            inner_wiz.append(inner1);
+            inner_wiz.append(inner2);
+            Formbuilder.make_wizzard(inner_wiz, {
+              prevButton: "Prev entry",
+              nextButton: "New entry",
+              showSteps: true,
+              submitButton: false
+            });
+            inner_wiz_step.append(inner_wiz);
+            return inner_wiz_step;
+          })($('<div data-step-id></div>'), new Formbuilder.views.wizard_tab({
+            parentView: this,
+            view_type: this.options.view_type,
+            index: 1,
+            back_visibility: back_visibility
+          }), new Formbuilder.views.wizard_tab({
+            parentView: this,
+            view_type: this.options.view_type,
+            index: 2,
+            back_visibility: back_visibility
+          }));
+        },
+        setSectionProps: function(cnt, back_visibility, elem) {
+          elem = elem || this.$el;
+          elem.attr({
+            'data-step': cnt,
+            'show-back': back_visibility,
+            'data-step-title': "step" + cnt
+          }).addClass('step');
+          if (cnt === 1) {
+            return elem.addClass('active');
+          }
         }
       }),
       view_field: Backbone.View.extend({
@@ -941,70 +1011,61 @@
             })(this)
           });
         },
-        addSectionBreak: function(obj_view, cnt, back_visibility) {
-          return (function(_this) {
-            return function($obj_view_el) {
-              $obj_view_el.attr({
-                'data-step': cnt,
-                'show-back': back_visibility,
-                'data-step-title': "step" + cnt
-              });
-              $obj_view_el.addClass('step');
-              if (cnt === 1) {
-                return $obj_view_el.addClass('active');
-              }
-            };
-          })(this)(obj_view.$el);
-        },
         applyEasyWizard: function() {
+          var setSectionProps;
+          setSectionProps = function(obj_view, cnt, back_visibility) {
+            return (function(_this) {
+              return function($obj_view_el) {
+                $obj_view_el.attr({
+                  'data-step': cnt,
+                  'show-back': back_visibility,
+                  'data-step-title': "step" + cnt
+                });
+                $obj_view_el.addClass('step');
+                if (cnt === 1) {
+                  return $obj_view_el.addClass('active');
+                }
+              };
+            })(this)(obj_view.$el);
+          };
           (function(_this) {
-            return (function(field_view, cnt, fieldViews, add_break_to_next, wizard_view, wiz_cnt, prev_btn_text, next_btn_text, showSubmit, sub_frag, _that) {
+            return (function(field_view, fieldViews, add_break_to_next, wizard_step, wiz_cnt, prev_btn_text, next_btn_text, showSubmit, sub_frag, _that) {
               var back_visibility, fd_views, _i, _len;
+              wizard_step = new Formbuilder.views.wizard_tab({
+                parentView: _this,
+                tagName: Formbuilder.baseConfig[_this.options.view_type] ? Formbuilder.baseConfig[_this.options.view_type].wizardTagName : 'div',
+                className: Formbuilder.baseConfig[_this.options.view_type] ? Formbuilder.baseConfig[_this.options.view_type].wizardClassName : 'fb-tab',
+                view_type: _this.options.view_type,
+                index: wiz_cnt,
+                back_visibility: back_visibility
+              });
               for (_i = 0, _len = fieldViews.length; _i < _len; _i++) {
                 field_view = fieldViews[_i];
-                if (field_view.is_section_break && _this.options.view_type !== 'print') {
-                  back_visibility = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
-                  add_break_to_next = true;
-                  prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
-                  next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
-                }
-                if (cnt === 1) {
-                  wizard_view = new Formbuilder.views.wizard_tab({
-                    parentView: _this,
-                    tagName: Formbuilder.baseConfig[_this.options.view_type] ? Formbuilder.baseConfig[_this.options.view_type].wizardTagName : 'div',
-                    className: Formbuilder.baseConfig[_this.options.view_type] ? Formbuilder.baseConfig[_this.options.view_type].wizardClassName : 'fb-tab'
-                  });
-                  if (_this.options.view_type !== 'print') {
-                    _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
-                  }
-                  if (_this.options.view_type === 'print') {
-                    wizard_view.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>');
-                  }
-                } else if (add_break_to_next && !field_view.is_section_break && _this.options.view_type !== 'print') {
-                  wizard_view.$el.append(sub_frag);
-                  sub_frag = document.createDocumentFragment();
-                  _this.$responseFields.append(wizard_view.$el);
-                  wizard_view = new Formbuilder.views.wizard_tab({
-                    parentView: _this
-                  });
-                  wiz_cnt += 1;
-                  if (add_break_to_next) {
-                    add_break_to_next = false;
-                  }
-                  _this.addSectionBreak(wizard_view, wiz_cnt, back_visibility);
-                }
-                if (wizard_view && field_view && (!field_view.is_section_break || _this.options.view_type === 'print')) {
-                  sub_frag.appendChild(field_view.render().el);
-                }
-                if (cnt === fieldViews.length && wizard_view) {
-                  wizard_view.$el.append(sub_frag);
-                  _this.$responseFields.append(wizard_view.$el);
-                }
-                cnt += 1;
                 if (!field_view.is_section_break) {
                   field_view.$el.attr('data-step-id', wiz_cnt);
                 }
+                if (field_view.is_section_break && _this.options.view_type !== 'print') {
+                  back_visibility = field_view.model.get(Formbuilder.options.mappings.BACK_VISIBLITY);
+                  prev_btn_text = field_view.model.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT);
+                  next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
+                  add_break_to_next = true;
+                }
+                if (add_break_to_next && !field_view.is_section_break && _this.options.view_type !== 'print') {
+                  _this.$responseFields.append(wizard_step.make_live());
+                  wiz_cnt += 1;
+                  add_break_to_next = false;
+                  wizard_step = new Formbuilder.views.wizard_tab({
+                    parentView: _this,
+                    view_type: _this.options.view_type,
+                    index: wiz_cnt,
+                    back_visibility: back_visibility
+                  });
+                }
+                if (!add_break_to_next) {
+                  wizard_step.append_child(field_view.render().el);
+                }
               }
+              _this.$responseFields.append(wizard_step.make_live());
               fd_views = _this.fieldViews.filter(function(fd_view) {
                 return Formbuilder.options.EXTERNAL_FIELDS_TYPES.indexOf(fd_view.field_type) !== -1;
               });
@@ -1014,9 +1075,7 @@
               setTimeout((function() {
                 _that.triggerEvent();
               }), 5);
-              return $("#formbuilder_form").easyWizard({
-                showSteps: false,
-                submitButton: false,
+              return Formbuilder.make_wizard($("#formbuilder_form"), {
                 prevButton: prev_btn_text,
                 nextButton: next_btn_text,
                 after: function(wizardObj, prevStepObj, currentStepObj) {
@@ -1048,7 +1107,7 @@
                 }
               });
             });
-          })(this)(null, 1, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit, document.createDocumentFragment(), this);
+          })(this)(null, this.fieldViews, false, null, 1, 'Back', 'Next', this.options.showSubmit, document.createDocumentFragment(), this);
           return this;
         },
         triggerEvent: function() {
@@ -1056,7 +1115,7 @@
             return function(field_view, fieldViews, model) {
               var _fn, _i, _len;
               _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
-                var _j, _k, _len1, _len2, _ref, _ref1;
+                var method, _j, _k, _len1, _len2, _ref, _ref1;
                 field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                 field_method_call = Formbuilder.fields[field_type_method_call];
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
@@ -1119,82 +1178,73 @@
                   });
                 } else {
                   cid = model.getCid();
-                  if (field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup) {
-                    if (Formbuilder.isAndroid() && field_method_call.android_setup) {
-                      field_method_call.android_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
-                    } else if (Formbuilder.isIos() && field_method_call.ios_setup) {
-                      field_method_call.ios_setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
-                    } else {
-                      field_method_call.setup(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
-                    }
-                    if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
-                      field_method_call.setValForPrint(field_view, model);
-                    }
-                  } else {
-                    if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
-                      field_method_call.setValForPrint(field_view, model);
-                    } else {
-                      _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
-                      for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-                        x = _ref1[_k];
-                        count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
-                          var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
-                          _ref2 = field_view.model.collection.where({
-                            'field_type': 'heading'
-                          });
-                          for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-                            model_in_collection = _ref2[_l];
-                            if (field_view.model.get('conditions')) {
-                              _ref3 = field_view.model.get('conditions');
-                              for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-                                model_in_conditions = _ref3[_m];
-                                if (model_in_collection.getCid() === model_in_conditions.target) {
-                                  has_heading_field = true;
-                                }
+                  method = field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup;
+                  if (method) {
+                    method(field_view, model, Formbuilder.options.EDIT_FS_MODEL);
+                  }
+                  if (field_method_call.setValForPrint && _this.options.view_type === 'print') {
+                    field_method_call.setValForPrint(field_view, model);
+                  } else if (!method) {
+                    _ref1 = field_view.$("input, textarea, select, .canvas_img, a");
+                    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                      x = _ref1[_k];
+                      count = (function(x, index, name, val, value, has_heading_field, has_ckeditor_field) {
+                        var model_in_collection, model_in_conditions, _l, _len3, _len4, _len5, _len6, _m, _n, _o, _ref2, _ref3, _ref4, _ref5;
+                        _ref2 = field_view.model.collection.where({
+                          'field_type': 'heading'
+                        });
+                        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                          model_in_collection = _ref2[_l];
+                          if (field_view.model.get('conditions')) {
+                            _ref3 = field_view.model.get('conditions');
+                            for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
+                              model_in_conditions = _ref3[_m];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_heading_field = true;
                               }
                             }
                           }
-                          _ref4 = field_view.model.collection.where({
-                            'field_type': 'free_text_html'
-                          });
-                          for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
-                            model_in_collection = _ref4[_n];
-                            if (field_view.model.get('conditions')) {
-                              _ref5 = field_view.model.get('conditions');
-                              for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
-                                model_in_conditions = _ref5[_o];
-                                if (model_in_collection.getCid() === model_in_conditions.target) {
-                                  has_ckeditor_field = true;
-                                }
+                        }
+                        _ref4 = field_view.model.collection.where({
+                          'field_type': 'free_text_html'
+                        });
+                        for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
+                          model_in_collection = _ref4[_n];
+                          if (field_view.model.get('conditions')) {
+                            _ref5 = field_view.model.get('conditions');
+                            for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+                              model_in_conditions = _ref5[_o];
+                              if (model_in_collection.getCid() === model_in_conditions.target) {
+                                has_ckeditor_field = true;
                               }
                             }
                           }
-                          if (field_view.field_type === 'radio' || 'scale_rating') {
-                            value = x.value;
+                        }
+                        if (field_view.field_type === 'radio' || 'scale_rating') {
+                          value = x.value;
+                        }
+                        name = cid.toString() + "_" + index.toString();
+                        if ($(x).attr('type') === 'radio' && model.get('field_values')) {
+                          val = model.get('field_values')[value];
+                        } else if (model.get('field_values')) {
+                          val = model.get('field_values')[name];
+                        }
+                        if (field_method_call.setup) {
+                          field_method_call.setup($(x), model, index);
+                        }
+                        if (!val_set) {
+                          if ($(x).val()) {
+                            val_set = true;
                           }
-                          name = cid.toString() + "_" + index.toString();
-                          if ($(x).attr('type') === 'radio' && model.get('field_values')) {
-                            val = model.get('field_values')[value];
-                          } else if (model.get('field_values')) {
-                            val = model.get('field_values')[name];
+                          if (val || has_heading_field || has_ckeditor_field) {
+                            val_set = true;
                           }
-                          if (field_method_call.setup) {
-                            field_method_call.setup($(x), model, index);
-                          }
-                          if (!val_set) {
-                            if ($(x).val()) {
-                              val_set = true;
-                            }
-                            if (val || has_heading_field || has_ckeditor_field) {
-                              val_set = true;
-                            }
-                          }
-                          if (val) {
-                            _this.setFieldVal($(x), val, model.getCid());
-                          }
-                          return index;
-                        })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
-                      }
+                        }
+                        if (val) {
+                          _this.setFieldVal($(x), val, model.getCid());
+                        }
+                        return index;
+                      })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0, false, false);
                     }
                   }
                   if (val_set && (Formbuilder.options.EDIT_FS_MODEL || field_type_method_call === 'checkboxes' || field_type_method_call === 'radio')) {
@@ -3109,7 +3159,7 @@
   Formbuilder.registerField('section_break', {
     type: 'non_input',
     view: "<div class=\"easyWizardButtons\" style=\"clear: both;\">\n  <button class=\"next btn-success\">\n    <%= rf.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT) || 'Next' %>\n  </button>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) != 'false') {\n      rf.set(Formbuilder.options.mappings.BACK_VISIBLITY,'true')\n    }\n  %>\n  <% if(rf.get(Formbuilder.options.mappings.BACK_VISIBLITY) == 'true'){%>\n    <button class=\"prev btn-danger\">\n      <%= rf.get(Formbuilder.options.mappings.PREV_BUTTON_TEXT) || 'Back' %>\n    </button>\n  <% } %>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Next button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n  value='Next'/>\n\n<div class='fb-edit-section-header'>Back button</div>\n<input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n  \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n  value='Back'/>\n\n  <%= Formbuilder.templates['edit/back_visiblity']() %>\n",
+    edit: "  <div class='fb-edit-section-header'>Next button</div>\n  <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n    \"model.<%= Formbuilder.options.mappings.NEXT_BUTTON_TEXT %>\"\n    value='Next'/>\n\n  <div class='fb-edit-section-header'>Back button</div>\n  <input type=\"text\" pattern=\"[a-zA-Z0-9_\\s]+\" data-rv-input=\n    \"model.<%= Formbuilder.options.mappings.PREV_BUTTON_TEXT %>\"\n    value='Back'/>\n\n  <%= Formbuilder.templates['edit/back_visiblity']() %>\n  <div class='fb-edit-section-header'>Recurring section</div>\n\n  <label>\n    <input type='checkbox' data-rv-checked='model.<%= Formbuilder.options.mappings.RECURRING_SECTION %>' />\nAllow multiple entries for this section\n  </label>",
     print: "<div class=\"section_break_div\">\n  <hr>\n</div>",
     addButton: "<span class='symbol'><span class='icon-minus'></span></span> Section Break",
     checkAttributeHasValue: function(cid, $el) {

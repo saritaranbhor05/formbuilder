@@ -50,4 +50,4 @@ Formbuilder.registerField 'section_break',
   """
 
   checkAttributeHasValue: (cid, $el)->
-    return true;
+    true
