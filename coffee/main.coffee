@@ -552,6 +552,7 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
         do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
@@ -590,7 +591,6 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
-        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view unless _.isUndefined(@options.hierarchy_selector_view)
 
       getCurrentView: ->

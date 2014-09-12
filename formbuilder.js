@@ -716,6 +716,7 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          Formbuilder.options.FIELD_CONFIGS = this.options.field_configs;
           Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, this.options.external_fields);
           Formbuilder.options.EXTERNAL_FIELDS_TYPES = [];
           (function(_this) {
@@ -749,7 +750,6 @@
             this.initAutosave();
           }
           Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
-          Formbuilder.options.FIELD_CONFIGS = this.options.field_configs;
           if (!_.isUndefined(this.options.hierarchy_selector_view)) {
             return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
           }
