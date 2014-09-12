@@ -38,7 +38,8 @@ class Formbuilder
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
-    ESIGNATURE_UPLOAD_DATA: {}
+    ESIGNATURE_UPLOAD_DATA: {},
+    SHOW_ADMIN_ONLY: true,
 
     mappings:
       SIZE: 'field_options.size'
@@ -581,6 +582,11 @@ class Formbuilder
 
         if(!_.isEmpty(@options.esignature_upload_data))
           Formbuilder.options.ESIGNATURE_UPLOAD_DATA = @options.esignature_upload_data
+
+        # Set SHOW_ADMIN_ONLY flag to show/hide Admin Only Access checkbox
+        # in edit template
+        unless(_.isUndefined(@options.show_admin_only) && !@options.show_admin_only)
+          Formbuilder.options.SHOW_ADMIN_ONLY = @options.show_admin_only
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view

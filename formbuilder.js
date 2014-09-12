@@ -87,6 +87,7 @@
       FILE_UPLOAD_URL: '',
       ESIGNATURE_UPLOAD_URL: '',
       ESIGNATURE_UPLOAD_DATA: {},
+      SHOW_ADMIN_ONLY: true,
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -737,6 +738,9 @@
           Formbuilder.options.ESIGNATURE_UPLOAD_URL = this.options.esignature_upload_url;
           if (!_.isEmpty(this.options.esignature_upload_data)) {
             Formbuilder.options.ESIGNATURE_UPLOAD_DATA = this.options.esignature_upload_data;
+          }
+          if (!(_.isUndefined(this.options.show_admin_only) && !this.options.show_admin_only)) {
+            Formbuilder.options.SHOW_ADMIN_ONLY = this.options.show_admin_only;
           }
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
@@ -3391,13 +3395,18 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/checkboxes"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.REQUIRED )) == null ? '' : __t) +
-'\' />\n  Required\n</label>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+'\' />\n  Required\n</label>\n';
+ if(Formbuilder.options.SHOW_ADMIN_ONLY) { ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.ADMIN_ONLY )) == null ? '' : __t) +
-'\' />\n  Admin only access\n</label>';
+'\' />\n    Admin only access\n  </label>\n';
+ } ;
+
 
 }
 return __p
