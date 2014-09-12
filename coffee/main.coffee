@@ -34,6 +34,7 @@ class Formbuilder
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
+    FIELD_CONFIGS: {},
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
@@ -551,6 +552,7 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
         do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
