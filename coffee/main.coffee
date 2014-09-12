@@ -38,7 +38,8 @@ class Formbuilder
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
-    ESIGNATURE_UPLOAD_DATA: {}
+    ESIGNATURE_UPLOAD_DATA: {},
+    SHOW_ADMIN_ONLY: true,
 
     mappings:
       SIZE: 'field_options.size'
@@ -582,6 +583,11 @@ class Formbuilder
         if(!_.isEmpty(@options.esignature_upload_data))
           Formbuilder.options.ESIGNATURE_UPLOAD_DATA = @options.esignature_upload_data
 
+        # Set SHOW_ADMIN_ONLY flag to show/hide Admin Only Access checkbox
+        # in edit template
+        unless(_.isUndefined(@options.show_admin_only) && !@options.show_admin_only)
+          Formbuilder.options.SHOW_ADMIN_ONLY = @options.show_admin_only
+
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
           Formbuilder.options.PRINTVIEW = @options.print_view
@@ -1107,7 +1113,7 @@ class Formbuilder
         return if @formSaved
         @formSaved = true
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
-        @sortRemoveAddConditions
+        @sortRemoveAddConditions()
         payload = JSON.stringify fields: @collection.toJSON()
 
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
@@ -1193,7 +1199,7 @@ class Formbuilder
           return
 
       saveTemplate: (e) ->
-        @sortRemoveAddConditions
+        @sortRemoveAddConditions()
         payload = JSON.stringify fields: @collection.toJSON()
         if Formbuilder.options.HTTP_ENDPOINT then @doAjaxSave(payload)
         @formBuilder.trigger 'saveTemplate', payload
