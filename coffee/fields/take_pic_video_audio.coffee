@@ -2,15 +2,26 @@ Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
-      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>
+      <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>
+        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>
+          <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid="<%= rf.getCid() %>" id="btn_image_<%= rf.getCid() %>"></button>
+        <% } %>
+
+        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>
+          <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid="<%= rf.getCid() %>" id="btn_video_<%= rf.getCid() %>"></button>
+        <% } %>
+
+        <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>
+          <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid="<%= rf.getCid() %>" id="btn_audio_<%= rf.getCid() %>"></button>
+        <% } %>
+      <% } %>
+      <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'photo')){ %>
         <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid="<%= rf.getCid() %>" id="btn_image_<%= rf.getCid() %>"></button>
       <% } %>
-
-      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>
+      <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'video')){ %>
         <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid="<%= rf.getCid() %>" id="btn_video_<%= rf.getCid() %>"></button>
       <% } %>
-
-      <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>
+      <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'audio')){ %>
         <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid="<%= rf.getCid() %>" id="btn_audio_<%= rf.getCid() %>"></button>
       <% } %>
 

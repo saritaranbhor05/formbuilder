@@ -34,6 +34,7 @@ class Formbuilder
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
+    FIELD_CONFIGS: {},
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
@@ -589,6 +590,7 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
+        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view unless _.isUndefined(@options.hierarchy_selector_view)
 
       getCurrentView: ->
