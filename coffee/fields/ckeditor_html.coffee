@@ -6,7 +6,7 @@ unless typeof(CKEDITOR) is 'undefined'
     view: """
       <%
         if(rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){
-            
+
           if($("#title_"+rf.getCid()).is(':disabled')){
             $("#title_"+rf.getCid()).attr("disabled",false);
           }
@@ -38,14 +38,14 @@ unless typeof(CKEDITOR) is 'undefined'
       <%= Formbuilder.templates['edit/optional_title']() %>
       </br>
 
-      <input id="title_<%= rf.getCid() %>" type='text' 
-        <% 
+      <input id="title_<%= rf.getCid() %>" type='text'
+        <%
         if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){
           disabled="true"
         }
         %>
       data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
-      
+
 
       <div class='inline'>
         <span>Edit Here:</span>
@@ -58,7 +58,7 @@ unless typeof(CKEDITOR) is 'undefined'
       </div>
 
       <div id="open_model_<%= rf.getCid() %>"
-        class="modal hide fade modal_style" tabindex="-1"
+        class="modal fade modal_style free_text_html_modal" tabindex="-1"
         role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal"
@@ -81,20 +81,20 @@ unless typeof(CKEDITOR) is 'undefined'
           $(document).ready( function() {
             $("#button_<%= rf.getCid() %>").click( function() {
 
-              $("#open_model_<%= rf.getCid() %>").on('shown', function() {
+              $("#open_model_<%= rf.getCid() %>").on('shown.bs.modal', function() {
                 var that = $(this).data('modal');
                 $(document).off('focusin.modal').on('focusin.modal', function (e) {
-                  // Add this line 
-                  if( e.target.className && e.target.className.indexOf('cke_') == 0 ) return; 
-                  // Original 
-                  if (that.$element[0] !== e.target && !that.$element.has(e.target).length) { 
-                  that.$element.focus() } 
+                  // Add this line
+                  if( e.target.className && e.target.className.indexOf('cke_') == 0 ) return;
+                  // Original
+                  if (that.$element[0] !== e.target && !that.$element.has(e.target).length) {
+                  that.$element.focus() }
                 });
               });
 
               $("#open_model_<%= rf.getCid() %>").modal('show');
 
-              $("#open_model_<%= rf.getCid() %>").on('hidden', function() {
+              $("#open_model_<%= rf.getCid() %>").on('hidden.bs.modal', function() {
                 $("#ck_<%= rf.getCid() %>").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, "").replace(/\"/g,"'"));
                 $("#ck_<%= rf.getCid() %>").trigger("change");
                 $(this).unbind('shown');
@@ -121,7 +121,7 @@ unless typeof(CKEDITOR) is 'undefined'
                         targetTab.children[0].items.splice(4,3);
                         targetTab.children[0].items.splice(0,3);
                         targetTab.children[0].default = "_blank";
-                      }                      
+                      }
                     }
                   }
                 }
