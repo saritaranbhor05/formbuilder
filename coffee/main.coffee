@@ -34,10 +34,12 @@ class Formbuilder
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
+    FIELD_CONFIGS: {},
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
-    ESIGNATURE_UPLOAD_DATA: {}
+    ESIGNATURE_UPLOAD_DATA: {},
+    SHOW_ADMIN_ONLY: true,
 
     mappings:
       SIZE: 'field_options.size'
@@ -554,6 +556,7 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
         do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
@@ -582,6 +585,11 @@ class Formbuilder
 
         if(!_.isEmpty(@options.esignature_upload_data))
           Formbuilder.options.ESIGNATURE_UPLOAD_DATA = @options.esignature_upload_data
+
+        # Set SHOW_ADMIN_ONLY flag to show/hide Admin Only Access checkbox
+        # in edit template
+        unless(_.isUndefined(@options.show_admin_only) && !@options.show_admin_only)
+          Formbuilder.options.SHOW_ADMIN_ONLY = @options.show_admin_only
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view

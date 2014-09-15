@@ -106,21 +106,26 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/capture"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n  <input id=\'include_middle_name_' +
+
+ if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ ;
+__p += '\n  <div class=\'fb-edit-section-header\'>Options</div>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_PHOTO )) == null ? '' : __t) +
-'\' />\n  Include "Photo"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+'\' />\n    Include "Photo"\n  </label>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_VIDEO )) == null ? '' : __t) +
-'\' />\n  Include "Video"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+'\' />\n    Include "Video"\n  </label>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_AUDIO )) == null ? '' : __t) +
-'\' />\n  Include "Audio"\n</label>\n';
+'\' />\n    Include "Audio"\n  </label>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -128,13 +133,18 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/checkboxes"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.REQUIRED )) == null ? '' : __t) +
-'\' />\n  Required\n</label>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+'\' />\n  Required\n</label>\n';
+ if(Formbuilder.options.SHOW_ADMIN_ONLY) { ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.ADMIN_ONLY )) == null ? '' : __t) +
-'\' />\n  Admin only access\n</label>';
+'\' />\n    Admin only access\n  </label>\n';
+ } ;
+
 
 }
 return __p
