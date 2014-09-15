@@ -59,8 +59,8 @@ Formbuilder.registerField 'date_time_difference',
         el.blur()
 
       if model.get('field_values')
-        field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_1"])
-        field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_2"])
+        _.each dateTimeFields, (el) =>
+          el.val(model.attributes.field_values["#{model.getCid()}_1"])
         field_view.$el.find('#'+model.getCid()+'_differenceDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_3"])
 
       _.each dateTimeFields, (el) =>
@@ -69,25 +69,27 @@ Formbuilder.registerField 'date_time_difference',
   changeEventHandler: (event, data) =>
     data = event.data if typeof data is "undefined"
     do( cid = data.cid,
-        v1 = data.ele.find("#" + data.cid + "_startDateTimeDifference").val(),
-        v2 = data.ele.find("#" + data.cid + "_endDateTimeDifference").val(),
+        st_date_str = data.ele.find("#" + data.cid + "_startDateTimeDifference").val(),
+        end_date_str = data.ele.find("#" + data.cid + "_endDateTimeDifference").val(),
         diff_str = "",
-        fmt = data.fmt, t1 = "", t2 = "", cd = 24 * 60 * 60 * 1000, ch = 60 * 60 * 1000,
-        v3 = data.ele.find("#" + data.cid + "_differenceDateTimeDifference") ) =>
-        if v1 && v2
-          v1 = (if (fmt is "dd/mm/yy") then v1.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") else v1)
-          v2 = (if (fmt is "dd/mm/yy") then v2.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") else v2)
-          d1 = new Date(v1)
-          d2 = new Date(v2)
-          t1 = d1.getTime()
-          t2 = d2.getTime()
-          diff_time = t2 - t1
+        fmt = data.fmt, days = 0, hrs = 0, mins = 0, st_date_obj = "",
+        end_date_obj = "", st_date_mili = "", end_date_mili = "",
+        one_day_mili = 24 * 60 * 60 * 1000, one_hour_mili = 60 * 60 * 1000,
+        diff_field = data.ele.find("#" + data.cid + "_differenceDateTimeDifference") ) =>
+        if st_date_str && end_date_str
+          st_date_str = (if (fmt is "dd/mm/yy") then st_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") else st_date_str)
+          end_date_str = (if (fmt is "dd/mm/yy") then end_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") else end_date_str)
+          st_date_obj = new Date(st_date_str)
+          end_date_obj = new Date(end_date_str)
+          st_date_mili = st_date_obj.getTime()
+          end_date_mili = end_date_obj.getTime()
+          diff_time = end_date_mili - st_date_mili
           diff_time = (if (diff_time < 0) then (diff_time*(-1)) else diff_time)
-          d = Math.floor(diff_time / cd)
-          h = Math.floor( (diff_time - d * cd) / ch)
-          m = Math.round( (diff_time - d * cd - h * ch) / 60000)
-          diff_str = d + "d " + h + "h " + m + "m"
-        v3.val(diff_str)
+          days = Math.floor(diff_time / one_day_mili)
+          hrs = Math.floor( (diff_time - days * one_day_mili) / one_hour_mili)
+          mins = Math.round( (diff_time - days * one_day_mili - hrs * one_hour_mili) / 60000)
+          diff_str = days + "d " + hrs + "h " + mins + "m"
+        diff_field.val(diff_str)
 
   edit: """
     <%= Formbuilder.templates['edit/datetime_difference_labels']() %>
