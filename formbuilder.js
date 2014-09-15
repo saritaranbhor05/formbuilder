@@ -2289,8 +2289,9 @@
             return el.blur();
           });
           if (model.get('field_values')) {
-            field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
-            field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+            _.each(dateTimeFields, function(el) {
+              return el.val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            });
             field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
           }
           return _.each(dateTimeFields, function(el) {
@@ -2308,24 +2309,24 @@
         if (typeof data === "undefined") {
           data = event.data;
         }
-        return (function(cid, v1, v2, diff_str, fmt, t1, t2, cd, ch, v3) {
-          var d, d1, d2, diff_time, h, m;
-          if (v1 && v2) {
-            v1 = (fmt === "dd/mm/yy" ? v1.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v1);
-            v2 = (fmt === "dd/mm/yy" ? v2.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : v2);
-            d1 = new Date(v1);
-            d2 = new Date(v2);
-            t1 = d1.getTime();
-            t2 = d2.getTime();
-            diff_time = t2 - t1;
+        return (function(cid, st_date_str, end_date_str, diff_str, fmt, days, hrs, mins, st_date_obj, end_date_obj, st_date_mili, end_date_mili, one_day_mili, one_hour_mili, diff_field) {
+          var diff_time;
+          if (st_date_str && end_date_str) {
+            st_date_str = (fmt === "dd/mm/yy" ? st_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : st_date_str);
+            end_date_str = (fmt === "dd/mm/yy" ? end_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : end_date_str);
+            st_date_obj = new Date(st_date_str);
+            end_date_obj = new Date(end_date_str);
+            st_date_mili = st_date_obj.getTime();
+            end_date_mili = end_date_obj.getTime();
+            diff_time = end_date_mili - st_date_mili;
             diff_time = (diff_time < 0 ? diff_time * (-1) : diff_time);
-            d = Math.floor(diff_time / cd);
-            h = Math.floor((diff_time - d * cd) / ch);
-            m = Math.round((diff_time - d * cd - h * ch) / 60000);
-            diff_str = d + "d " + h + "h " + m + "m";
+            days = Math.floor(diff_time / one_day_mili);
+            hrs = Math.floor((diff_time - days * one_day_mili) / one_hour_mili);
+            mins = Math.round((diff_time - days * one_day_mili - hrs * one_hour_mili) / 60000);
+            diff_str = days + "d " + hrs + "h " + mins + "m";
           }
-          return v3.val(diff_str);
-        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, "", "", 24 * 60 * 60 * 1000, 60 * 60 * 1000, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
+          return diff_field.val(diff_str);
+        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, 0, 0, 0, "", "", "", "", 24 * 60 * 60 * 1000, 60 * 60 * 1000, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
       };
     })(this),
     edit: "<%= Formbuilder.templates['edit/datetime_difference_labels']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
