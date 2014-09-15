@@ -295,7 +295,7 @@ class Formbuilder
 
       openGMap: ->
         if $('#gmapModal').length is 0
-          @field.addRequiredConditions() if @field.addRequiredConditions
+          @field.addRequiredConditions(@model) if @field.addRequiredConditions
         $('#gmap_ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
