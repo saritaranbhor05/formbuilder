@@ -1043,8 +1043,10 @@
                   } else {
                     if ($nextStep.attr('show-back') === 'false') {
                       $('.prev').css("display", "none");
+                      $('.prev').addClass('hide');
                     } else if (currentStepObj.attr('data-step') !== '1') {
                       $('.prev').css("display", "block");
+                      $('.prev').removeClass('hide');
                     }
                     $('#grid_div').scrollTop(0);
                   }
