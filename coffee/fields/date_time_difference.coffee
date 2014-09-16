@@ -64,7 +64,7 @@ Formbuilder.registerField 'date_time_difference',
         field_view.$el.find('#'+model.getCid()+'_differenceDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_3"])
 
       _.each dateTimeFields, (el) =>
-        el.change {ele: field_view.$el, fmt: model.get('field_options').date_format, cid:model.getCid() }, @changeEventHandler
+        el.change {ele: field_view.$el, fmt: model.get('field_options').date_format || 'dd/mm/yy', cid:model.getCid() }, @changeEventHandler
 
   changeEventHandler: (event, data) =>
     data = event.data if typeof data is "undefined"

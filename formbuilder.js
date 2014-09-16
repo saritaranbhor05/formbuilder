@@ -2299,7 +2299,7 @@
           return _.each(dateTimeFields, function(el) {
             return el.change({
               ele: field_view.$el,
-              fmt: model.get('field_options').date_format,
+              fmt: model.get('field_options').date_format || 'dd/mm/yy',
               cid: model.getCid()
             }, _this.changeEventHandler);
           });
