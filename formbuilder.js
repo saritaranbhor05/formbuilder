@@ -392,7 +392,7 @@
         openGMap: function() {
           if ($('#gmapModal').length === 0) {
             if (this.field.addRequiredConditions) {
-              this.field.addRequiredConditions();
+              this.field.addRequiredConditions(this.model);
             }
           }
           $('#gmap_ok').val(this.model.getCid());
@@ -2746,8 +2746,13 @@
     edit: "",
     print: "<div class=\"centered_td\">\n  <% if(rf.get('field_type') === 'gmap') { %>\n    <% var lat_long_arr = ['-25.363882','131.044922'],\n       mapAttr = rf.get('field_values');\n    %>\n    <% if(mapAttr){ %>\n      <% if(mapAttr[ rf.get('cid') +'_1']){ %>\n        <% var location = mapAttr[ rf.get('cid') +'_1'],\n           lat_long_str = mapAttr[ rf.get('cid') +'_2'],\n           lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','),\n           lat = lat_long_arr[0],\n           long = lat_long_arr[1];\n        %>\n      <% } %>\n    <% } %>\n  <% } %>\n  <div class=\"lat_long_wrapper\">\n    <ul>\n      <li>\n        <label type=\"text\" id=\"print_lat_gmap\">Latitude : <%= (lat)? lat : '' %></label>\n      </li>\n      <li>\n        <label type=\"text\" id=\"print_long_gmap\" >Longitude : <%= (long)? long : '' %></label>\n      </li>\n      <li>\n        <%= (location)? location : '' %>\n      </li>\n    </ul>\n    <div id=\"map-canvas\">\n      <% if(lat_long_str){ %>\n      <img src=<%= \"http://maps.googleapis.com/maps/api/staticmap?center=\"+lat_long_str+\"&zoom=13&size=400x400&sensor=false&markers=color:red|\"+lat_long_str %> />\n      <% } %>\n    </div>\n  </div>\n</div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
-    addRequiredConditions: function() {
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox"/> <input type="button" value="Location" onclick="codeAddress()"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button> </div> </div> </div> </div>').appendTo('body');
+    addRequiredConditions: function(model) {
+      var close_button, disabled, hide_class, read_only;
+      read_only = (Formbuilder.options.FIELD_CONFIGS ? Formbuilder.options.FIELD_CONFIGS[model.get('field_type')]['read_only'] : false);
+      disabled = (read_only ? "disabled" : "");
+      hide_class = (read_only ? "hide" : "");
+      close_button = (read_only ? "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" : "");
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
       return (function(_this) {
