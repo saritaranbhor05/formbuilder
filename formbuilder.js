@@ -2612,6 +2612,8 @@
             upload_url = model.get('field_values')["" + model_cid + "_1"];
             $img.attr("upload_url", upload_url);
             $img.show();
+          } else if ($img.attr('src') && $img.attr('src') !== '') {
+            $img.show();
           } else {
             $img.hide();
           }
