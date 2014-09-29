@@ -34,10 +34,12 @@ class Formbuilder
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
+    FIELD_CONFIGS: {},
     EXTERNAL_FIELDS_TYPES: [],
     FILE_UPLOAD_URL: '',
     ESIGNATURE_UPLOAD_URL: '',
-    ESIGNATURE_UPLOAD_DATA: {}
+    ESIGNATURE_UPLOAD_DATA: {},
+    SHOW_ADMIN_ONLY: true,
 
     mappings:
       SIZE: 'field_options.size'
@@ -100,6 +102,9 @@ class Formbuilder
       OPTIONAL_FIELD: 'field_options.optional_field'
       EMPTY_OPTION_TEXT: 'field_options.empty_option_text'
       RECURRING_SECTION: 'field_options.recurring_section'
+      START_DATE_TIME_TEXT: 'field_options.start_date_time_text'
+      END_DATE_TIME_TEXT: 'field_options.end_date_time_text'
+      DATETIME_DIFFERENCE_TEXT: 'field_options.datetime_difference_text'
 
     dict:
       ALL_CHANGES_SAVED: 'All changes saved'
@@ -392,7 +397,7 @@ class Formbuilder
 
       openGMap: ->
         if $('#gmapModal').length is 0
-          @field.addRequiredConditions() if @field.addRequiredConditions
+          @field.addRequiredConditions(@model) if @field.addRequiredConditions
         $('#gmap_ok').val(this.model.getCid())
         $('#gmapModal').modal({
           show: true
@@ -703,6 +708,7 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
         do (reg_fields = Formbuilder.options.EXTERNAL_FIELDS) =>
@@ -731,6 +737,11 @@ class Formbuilder
 
         if(!_.isEmpty(@options.esignature_upload_data))
           Formbuilder.options.ESIGNATURE_UPLOAD_DATA = @options.esignature_upload_data
+
+        # Set SHOW_ADMIN_ONLY flag to show/hide Admin Only Access checkbox
+        # in edit template
+        unless(_.isUndefined(@options.show_admin_only) && !@options.show_admin_only)
+          Formbuilder.options.SHOW_ADMIN_ONLY = @options.show_admin_only
 
         Formbuilder.options.EDIT_FS_MODEL = @options.edit_fs_model
         if @options.print_view
@@ -963,6 +974,7 @@ class Formbuilder
             return
           ), 5
 
+
           Formbuilder.make_wizard(
             $("#formbuilder_form"),
             {
@@ -981,8 +993,10 @@ class Formbuilder
                     else
                       if $nextStep.attr('show-back') == 'false'
                         wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').css("display", "none")
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').addClass('hide')
                       else if currentStepObj.attr('data-step') != '1'
                         wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').css("display", "block")
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').removeClass('hide')
                       $('#grid_div').scrollTop(0)
 
                     $("#formbuilder_form").height($('.easyWizardWrapper .active').outerHeight() +
@@ -993,36 +1007,6 @@ class Formbuilder
                     else
                       wizardObj.parents('.form-panel').find('.update-button').hide()
             })
-#
-#          $("#formbuilder_form").easyWizard({
-#            showSteps: false,
-#            submitButton: false,
-#            prevButton: prev_btn_text,
-#            nextButton: next_btn_text,
-#            after: (wizardObj, prevStepObj, currentStepObj) ->
-#              prev_clicked = false
-#              if currentStepObj.children(':visible').length is 0
-#                $activeStep.css({ height: '1px' })
-#                if prev_clicked = wizardObj.direction == 'prev'
-#                  $('.easyWizardButtons .prev').trigger('click')
-#                else
-#                  $('.easyWizardButtons .next').trigger('click')
-#              else
-#                if $nextStep.attr('show-back') == 'false'
-#                  $('.prev').css("display", "none")
-#                else if currentStepObj.attr('data-step') != '1'
-#                    $('.prev').css("display", "block")
-#                $('#grid_div').scrollTop(0)
-#
-#              $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
-#                $('.easyWizardButtons').outerHeight())
-#              if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-#                 showSubmit
-#                wizardObj.parents('.form-panel').find('.update-button').show()
-#              else
-#                wizardObj.parents('.form-panel').find('.update-button').hide()
-#          })
-
         return @
 
 

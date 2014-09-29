@@ -82,10 +82,12 @@
       PRINTVIEW: false,
       EDIT_FS_MODEL: false,
       EXTERNAL_FIELDS: [],
+      FIELD_CONFIGS: {},
       EXTERNAL_FIELDS_TYPES: [],
       FILE_UPLOAD_URL: '',
       ESIGNATURE_UPLOAD_URL: '',
       ESIGNATURE_UPLOAD_DATA: {},
+      SHOW_ADMIN_ONLY: true,
       mappings: {
         SIZE: 'field_options.size',
         UNITS: 'field_options.units',
@@ -146,7 +148,10 @@
         DEFAULT_ZIPCODE: 'field_options.default_zipcode',
         OPTIONAL_FIELD: 'field_options.optional_field',
         EMPTY_OPTION_TEXT: 'field_options.empty_option_text',
-        RECURRING_SECTION: 'field_options.recurring_section'
+        RECURRING_SECTION: 'field_options.recurring_section',
+        START_DATE_TIME_TEXT: 'field_options.start_date_time_text',
+        END_DATE_TIME_TEXT: 'field_options.end_date_time_text',
+        DATETIME_DIFFERENCE_TEXT: 'field_options.datetime_difference_text'
       },
       dict: {
         ALL_CHANGES_SAVED: 'All changes saved',
@@ -497,7 +502,7 @@
         openGMap: function() {
           if ($('#gmapModal').length === 0) {
             if (this.field.addRequiredConditions) {
-              this.field.addRequiredConditions();
+              this.field.addRequiredConditions(this.model);
             }
           }
           $('#gmap_ok').val(this.model.getCid());
@@ -901,6 +906,7 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          Formbuilder.options.FIELD_CONFIGS = this.options.field_configs;
           Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, this.options.external_fields);
           Formbuilder.options.EXTERNAL_FIELDS_TYPES = [];
           (function(_this) {
@@ -921,6 +927,9 @@
           Formbuilder.options.ESIGNATURE_UPLOAD_URL = this.options.esignature_upload_url;
           if (!_.isEmpty(this.options.esignature_upload_data)) {
             Formbuilder.options.ESIGNATURE_UPLOAD_DATA = this.options.esignature_upload_data;
+          }
+          if (!(_.isUndefined(this.options.show_admin_only) && !this.options.show_admin_only)) {
+            Formbuilder.options.SHOW_ADMIN_ONLY = this.options.show_admin_only;
           }
           Formbuilder.options.EDIT_FS_MODEL = this.options.edit_fs_model;
           if (this.options.print_view) {
@@ -1220,8 +1229,10 @@
                       } else {
                         if ($nextStep.attr('show-back') === 'false') {
                           wizardObj.find('.easyWizardButtons.' + thisSettings.stepClassName + ' .prev').css("display", "none");
+                          wizardObj.find('.easyWizardButtons.' + thisSettings.stepClassName + ' .prev').addClass('hide');
                         } else if (currentStepObj.attr('data-step') !== '1') {
                           wizardObj.find('.easyWizardButtons.' + thisSettings.stepClassName + ' .prev').css("display", "block");
+                          wizardObj.find('.easyWizardButtons.' + thisSettings.stepClassName + ' .prev').removeClass('hide');
                         }
                         $('#grid_div').scrollTop(0);
                       }
@@ -2135,8 +2146,8 @@
   if (typeof CKEDITOR !== 'undefined') {
     Formbuilder.registerField('free_text_html', {
       type: 'non_input',
-      view: "<%\n  if(rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){\n      \n    if($(\"#title_\"+rf.getCid()).is(':disabled')){\n      $(\"#title_\"+rf.getCid()).attr(\"disabled\",false);\n    }\n\n    if(!$(\"#title_\"+rf.getCid()).is(':focus')){\n      $(\"#title_\"+rf.getCid()).val(rf.get(Formbuilder.options.mappings.LABEL));\n      $(\"#title_\"+rf.getCid()).focus();\n    }\n%>\n  <label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n    <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n  </label>\n<% }else{\n    $(\"#title_\"+rf.getCid()).val(\"\");\n    $(\"#title_\"+rf.getCid()).attr(\"disabled\",true);\n} %>\n<div class=\"freeTextHTMLDiv\" id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n\n",
-      edit: "<%= Formbuilder.templates['edit/optional_title']() %>\n</br>\n\n<input id=\"title_<%= rf.getCid() %>\" type='text' \n  <% \n  if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){\n    disabled=\"true\"\n  }\n  %>\ndata-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>\n\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <div class='fb-bottom-add'>\n    <a id='button_<%= rf.getCid() %>'\n      class=\"js-add-document <%= Formbuilder.options.BUTTON_CLASS %>\">\n        Edit\n    </a>\n  </div>\n</div>\n\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n    </textarea>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      $(\"#button_<%= rf.getCid() %>\").click( function() {\n\n        $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n          var that = $(this).data('modal');\n          $(document).off('focusin.modal').on('focusin.modal', function (e) {\n            // Add this line \n            if( e.target.className && e.target.className.indexOf('cke_') == 0 ) return; \n            // Original \n            if (that.$element[0] !== e.target && !that.$element.has(e.target).length) { \n            that.$element.focus() } \n          });\n        });\n\n        $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n\n        $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n          $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\").replace(/\"/g,\"'\"));\n          $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n          $(this).unbind('shown');\n          $(this).unbind('hidden');\n        });\n      });\n      CKEDITOR.disableAutoInline = true;\n      // this event fired when any popup is opened inside ckeditor\n      CKEDITOR.on('dialogDefinition', function(ev){\n          var dialogName = ev.data.name;\n          var dialogDef  = ev.data.definition;\n          // check if link popup is opened\n          if(dialogName === \"link\"){\n            // remove unwanted link types\n            dialogDef.getContents('info').get('linkType')['items'].splice(1,2);\n            // remove unwanted protocols\n            dialogDef.getContents('info').get('protocol')['items'].splice(2,5);\n            // select another tab called as target\n            var targetTab = dialogDef.getContents('target').elements[0];\n            if(typeof targetTab.children === \"object\" && typeof targetTab.children[0] === \"object\"){\n              if(typeof targetTab.children[0].items === \"object\"){\n                // validate and then remove unwanted options in target tab\n                if(targetTab.children[0].items.length > 1){\n                  targetTab.children[0].items.splice(4,3);\n                  targetTab.children[0].items.splice(0,3);\n                  targetTab.children[0].default = \"_blank\";\n                }                      \n              }\n            }\n          }\n        });\n      editor_<%= rf.getCid() %> = CKEDITOR.replace(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n    });\n  });\n</script>\n",
+      view: "<%\n  if(rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){\n\n    if($(\"#title_\"+rf.getCid()).is(':disabled')){\n      $(\"#title_\"+rf.getCid()).attr(\"disabled\",false);\n    }\n\n    if(!$(\"#title_\"+rf.getCid()).is(':focus')){\n      $(\"#title_\"+rf.getCid()).val(rf.get(Formbuilder.options.mappings.LABEL));\n      $(\"#title_\"+rf.getCid()).focus();\n    }\n%>\n  <label class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'>\n    <%= rf.get(Formbuilder.options.mappings.LABEL) %>\n  </label>\n<% }else{\n    $(\"#title_\"+rf.getCid()).val(\"\");\n    $(\"#title_\"+rf.getCid()).attr(\"disabled\",true);\n} %>\n<div class=\"freeTextHTMLDiv\" id='<%= rf.getCid() %>'></div>\n<script>\n  $(function() {\n    var data = \"<%=rf.get(Formbuilder.options.mappings.HTML_DATA)%>\"\n    $(\"#<%= rf.getCid() %>\").html(data);\n  });\n</script>\n\n",
+      edit: "<%= Formbuilder.templates['edit/optional_title']() %>\n</br>\n\n<input id=\"title_<%= rf.getCid() %>\" type='text'\n  <%\n  if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){\n    disabled=\"true\"\n  }\n  %>\ndata-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>\n\n\n<div class='inline'>\n  <span>Edit Here:</span>\n  <div class='fb-bottom-add'>\n    <a id='button_<%= rf.getCid() %>'\n      class=\"js-add-document <%= Formbuilder.options.BUTTON_CLASS %>\">\n        Edit\n    </a>\n  </div>\n</div>\n\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal fade modal_style free_text_html_modal\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Select Documents</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <textarea id='ck_<%= rf.getCid() %>' contenteditable=\"true\" data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'>\n    </textarea>\n  </div>\n  <div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Done\n    </button>\n  </div>\n</div>\n\n<script>\n  $(function() {\n    $(document).ready( function() {\n      $(\"#button_<%= rf.getCid() %>\").click( function() {\n\n        $(\"#open_model_<%= rf.getCid() %>\").on('shown.bs.modal', function() {\n          var that = $(this).data('modal');\n          $(document).off('focusin.modal').on('focusin.modal', function (e) {\n            // Add this line\n            if( e.target.className && e.target.className.indexOf('cke_') == 0 ) return;\n            // Original\n            if (that.$element[0] !== e.target && !that.$element.has(e.target).length) {\n            that.$element.focus() }\n          });\n        });\n\n        $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n\n        $(\"#open_model_<%= rf.getCid() %>\").on('hidden.bs.modal', function() {\n          $(\"#ck_<%= rf.getCid() %>\").val(editor_<%= rf.getCid() %>.getData().replace(/(\\r\\n|\\n|\\r)/gm, \"\").replace(/\"/g,\"'\"));\n          $(\"#ck_<%= rf.getCid() %>\").trigger(\"change\");\n          $(this).unbind('shown');\n          $(this).unbind('hidden');\n        });\n      });\n      CKEDITOR.disableAutoInline = true;\n      // this event fired when any popup is opened inside ckeditor\n      CKEDITOR.on('dialogDefinition', function(ev){\n          var dialogName = ev.data.name;\n          var dialogDef  = ev.data.definition;\n          // check if link popup is opened\n          if(dialogName === \"link\"){\n            // remove unwanted link types\n            dialogDef.getContents('info').get('linkType')['items'].splice(1,2);\n            // remove unwanted protocols\n            dialogDef.getContents('info').get('protocol')['items'].splice(2,5);\n            // select another tab called as target\n            var targetTab = dialogDef.getContents('target').elements[0];\n            if(typeof targetTab.children === \"object\" && typeof targetTab.children[0] === \"object\"){\n              if(typeof targetTab.children[0].items === \"object\"){\n                // validate and then remove unwanted options in target tab\n                if(targetTab.children[0].items.length > 1){\n                  targetTab.children[0].items.splice(4,3);\n                  targetTab.children[0].items.splice(0,3);\n                  targetTab.children[0].default = \"_blank\";\n                }\n              }\n            }\n          }\n        });\n      editor_<%= rf.getCid() %> = CKEDITOR.replace(document.getElementById(\"ck_<%= rf.getCid() %>\"),\n        Formbuilder.options.CKEDITOR_CONFIG\n      );\n    });\n  });\n</script>\n",
       addButton: "<span class='symbol'><span class='icon-font'></span></span> Free Text HTML",
       checkAttributeHasValue: function(cid, $el) {
         if ($el.find('.freeTextHTMLDiv').is(':empty')) {
@@ -2497,6 +2508,160 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('date_time_difference', {
+    view: "<div class='input-line'>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_startDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n\n    <label><%= rf.get(Formbuilder.options.mappings.START_DATE_TIME_TEXT) || 'Start Date Time' %></label>\n  </span>\n  <span>\n    <input class=\"hasDateTimepicker\" id='<%= rf.getCid()%>_endDateTimeDifference' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n    <label><%= rf.get(Formbuilder.options.mappings.END_DATE_TIME_TEXT) || 'End Date Time' %></label>\n  </span>\n  <span>\n    <input id='<%= rf.getCid()%>_differenceDateTimeDifference' type='text' readonly data-text=\"qwerty\"/>\n    <label><%= rf.get(Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT) || 'Difference' %></label>\n  </span>\n  <script>\n    $(function() {\n      $(\"#<%= rf.getCid() %>_startDateTimeDifference\")\n          .datetimepicker({\n              dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n              stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n              addSliderAccess: true,\n              sliderAccessArgs: { touchonly: false },\n              changeMonth : true,\n              changeYear : true,\n              yearRange: '-100y:+100y'\n           });\n      $(\"#<%= rf.getCid() %>_endDateTimeDifference\")\n            .datetimepicker({\n                dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',\n                stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),\n                addSliderAccess: true,\n                sliderAccessArgs: { touchonly: false },\n                changeMonth : true,\n                changeYear : true,\n                yearRange: '-100y:+100y'\n             });\n    })\n  </script>\n</div>",
+    setup: function(field_view, model) {
+      return (function(_this) {
+        return function(dateTimeFields) {
+          _.each(dateTimeFields, function(el) {
+            if (Formbuilder.isMobile()) {
+              setTimeout((function() {
+                el.datetimepicker('setDate', new Date());
+              }), 500);
+            } else {
+              el.datetimepicker('setDate', new Date());
+            }
+            $(el).click(function() {
+              return $("#ui-datepicker-div").css("z-index", 3);
+            });
+            $('#ui-datepicker-div').css('display', 'none');
+            return el.blur();
+          });
+          if (model.get('field_values')) {
+            _.each(dateTimeFields, function(el) {
+              return el.val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            });
+            field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
+          }
+          return _.each(dateTimeFields, function(el) {
+            return el.change({
+              ele: field_view.$el,
+              fmt: model.get('field_options').date_format || 'dd/mm/yy',
+              cid: model.getCid()
+            }, _this.changeEventHandler);
+          });
+        };
+      })(this)([field_view.$el.find('#' + model.getCid() + '_startDateTimeDifference'), field_view.$el.find('#' + model.getCid() + '_endDateTimeDifference')]);
+    },
+    changeEventHandler: (function(_this) {
+      return function(event, data) {
+        if (typeof data === "undefined") {
+          data = event.data;
+        }
+        return (function(cid, st_date_str, end_date_str, diff_str, fmt, days, hrs, mins, st_date_obj, end_date_obj, st_date_mili, end_date_mili, one_day_mili, one_hour_mili, diff_field) {
+          var diff_time;
+          if (st_date_str && end_date_str) {
+            st_date_str = (fmt === "dd/mm/yy" ? st_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : st_date_str);
+            end_date_str = (fmt === "dd/mm/yy" ? end_date_str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3") : end_date_str);
+            st_date_obj = new Date(st_date_str);
+            end_date_obj = new Date(end_date_str);
+            st_date_mili = st_date_obj.getTime();
+            end_date_mili = end_date_obj.getTime();
+            diff_time = end_date_mili - st_date_mili;
+            diff_time = (diff_time < 0 ? diff_time * (-1) : diff_time);
+            days = Math.floor(diff_time / one_day_mili);
+            hrs = Math.floor((diff_time - days * one_day_mili) / one_hour_mili);
+            mins = Math.round((diff_time - days * one_day_mili - hrs * one_hour_mili) / 60000);
+            diff_str = days + "d " + hrs + "h " + mins + "m";
+          }
+          return diff_field.val(diff_str);
+        })(data.cid, data.ele.find("#" + data.cid + "_startDateTimeDifference").val(), data.ele.find("#" + data.cid + "_endDateTimeDifference").val(), "", data.fmt, 0, 0, 0, "", "", "", "", 24 * 60 * 60 * 1000, 60 * 60 * 1000, data.ele.find("#" + data.cid + "_differenceDateTimeDifference"));
+      };
+    })(this),
+    edit: "<%= Formbuilder.templates['edit/datetime_difference_labels']() %>\n<%= Formbuilder.templates['edit/date_format']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-calendar\"></span></span> Date Time Difference",
+    print: "<label id=\"st_dt_print\"></label>\n<label id=\"end_dt_print\"></label>\n<label id=\"diff_dt_print\"></label>",
+    setValForPrint: function(field_view, model) {
+      field_view.$el.find('#st_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
+      field_view.$el.find('#end_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_2"]);
+      return field_view.$el.find('#diff_dt_print').html(model.get('field_values')["" + (model.getCid()) + "_3"]);
+    },
+    checkAttributeHasValue: function(cid, $el) {
+      return (function(_this) {
+        return function(incomplete) {
+          var call_back;
+          call_back = function() {
+            if ($(this).val() === "") {
+              return incomplete = true;
+            }
+          };
+          $el.find("input[type=text]").each(call_back);
+          if ($el.find('select').val() === "") {
+            incomplete = true;
+          }
+          if (incomplete === true) {
+            return false;
+          }
+          return cid;
+        };
+      })(this)(false);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, cid) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find("#" + cid + "_startDateTimeDifference").val() !== '' && $el.find("#" + cid + "_endDateTimeDifference").val() !== '' && $el.find("#" + cid + "_differenceDateTimeDifference").val() !== '';
+          })(model.get('required'), model.getCid());
+          return valid;
+        };
+      })(this)(false);
+    },
+    clearFields: function($el, model) {
+      (function(_this) {
+        return (function(targetFields) {});
+      })(this)([$el.find("[name = " + model.getCid() + "_1]"), $el.find("[name = " + model.getCid() + "_2]"), $el.find("[name = " + model.getCid() + "_3]")]);
+      return _.each(targetFields, (function(_this) {
+        return function(el) {
+          return el.val("");
+        };
+      })(this));
+    },
+    convertToMili: function(dhmStr) {
+      return (function(_this) {
+        return function(d, h, m, res, parts) {
+          var val, _fn, _i, _len;
+          _fn = function(val) {
+            switch (val.substring(val.length, val.length - 1)) {
+              case 'd':
+                return d = val.substring(0, val.length - 1);
+              case 'h':
+                return h = val.substring(0, val.length - 1);
+              case 'm':
+                return m = val.substring(0, val.length - 1);
+            }
+          };
+          for (_i = 0, _len = parts.length; _i < _len; _i++) {
+            val = parts[_i];
+            _fn(val);
+          }
+          if (isNaN(d) || isNaN(d) || isNaN(d)) {
+            res = 0;
+          } else {
+            res = d * 86400000 + h * 3600000 + m * 60000;
+          }
+          return res;
+        };
+      })(this)(0, 0, 0, 0, dhmStr.split(" "));
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      var check_result, elem_val;
+      (function(_this) {
+        return (function(elem_val, check_result) {});
+      })(this)('', false);
+      elem_val = clicked_element.find("#" + cid + "_differenceDateTimeDifference").val();
+      elem_val = this.convertToMili(elem_val);
+      set_value = this.convertToMili(set_value);
+      check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
+      return check_result;
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('dropdown', {
     view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option value=\"<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\" <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
     android_view: "<input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>",
@@ -2684,6 +2849,8 @@
             upload_url = model.get('field_values')["" + model_cid + "_1"];
             $img.attr("upload_url", upload_url);
             $img.show();
+          } else if ($img.attr('src') && $img.attr('src') !== '') {
+            $img.show();
           } else {
             $img.hide();
           }
@@ -2818,8 +2985,13 @@
     edit: "",
     print: "<div class=\"centered_td\">\n  <% if(rf.get('field_type') === 'gmap') { %>\n    <% var lat_long_arr = ['-25.363882','131.044922'],\n       mapAttr = rf.get('field_values');\n    %>\n    <% if(mapAttr){ %>\n      <% if(mapAttr[ rf.get('cid') +'_1']){ %>\n        <% var location = mapAttr[ rf.get('cid') +'_1'],\n           lat_long_str = mapAttr[ rf.get('cid') +'_2'],\n           lat_long_arr = (mapAttr[ rf.get('cid') +'_2']).split(','),\n           lat = lat_long_arr[0],\n           long = lat_long_arr[1];\n        %>\n      <% } %>\n    <% } %>\n  <% } %>\n  <div class=\"lat_long_wrapper\">\n    <ul>\n      <li>\n        <label type=\"text\" id=\"print_lat_gmap\">Latitude : <%= (lat)? lat : '' %></label>\n      </li>\n      <li>\n        <label type=\"text\" id=\"print_long_gmap\" >Longitude : <%= (long)? long : '' %></label>\n      </li>\n      <li>\n        <%= (location)? location : '' %>\n      </li>\n    </ul>\n    <div id=\"map-canvas\">\n      <% if(lat_long_str){ %>\n      <img src=<%= \"http://maps.googleapis.com/maps/api/staticmap?center=\"+lat_long_str+\"&zoom=13&size=400x400&sensor=false&markers=color:red|\"+lat_long_str %> />\n      <% } %>\n    </div>\n  </div>\n</div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-map-marker\"></span></span> Geo-Location",
-    addRequiredConditions: function() {
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox"/> <input type="button" value="Location" onclick="codeAddress()"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button> </div> </div> </div> </div>').appendTo('body');
+    addRequiredConditions: function(model) {
+      var close_button, disabled, hide_class, read_only;
+      read_only = (Formbuilder.options.FIELD_CONFIGS ? Formbuilder.options.FIELD_CONFIGS[model.get('field_type')]['read_only'] : false);
+      disabled = (read_only ? "disabled" : "");
+      hide_class = (read_only ? "hide" : "");
+      close_button = (read_only ? "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" : "");
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
       return (function(_this) {
@@ -3358,7 +3530,7 @@
 
 (function() {
   Formbuilder.registerField('take_pic_video_audio', {
-    view: "<div class='input-line'>\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>\n    <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>\n    <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>\n    <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n  <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").text(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n      $('#record_link_<%= rf.getCid() %>').text('View File');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
+    view: "<div class='input-line'>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>\n      <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>\n      <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>\n      <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n    <% } %>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'photo')){ %>\n    <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'video')){ %>\n    <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'audio')){ %>\n    <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n  <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").text(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n      $('#record_link_<%= rf.getCid() %>').text('View File');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
     edit: "<%= Formbuilder.templates['edit/capture']({ rf:rf }) %>",
     print: "<div id=\"capture_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
@@ -3599,21 +3771,26 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/capture"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-edit-section-header\'>Options</div>\n\n<label>\n  <input id=\'include_middle_name_' +
+
+ if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ ;
+__p += '\n  <div class=\'fb-edit-section-header\'>Options</div>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_PHOTO )) == null ? '' : __t) +
-'\' />\n  Include "Photo"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+'\' />\n    Include "Photo"\n  </label>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_VIDEO )) == null ? '' : __t) +
-'\' />\n  Include "Video"\n</label>\n\n<label>\n  <input id=\'include_middle_name_' +
+'\' />\n    Include "Video"\n  </label>\n\n  <label>\n    <input id=\'include_middle_name_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '\' type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.INCLUDE_AUDIO )) == null ? '' : __t) +
-'\' />\n  Include "Audio"\n</label>\n';
+'\' />\n    Include "Audio"\n  </label>\n';
+ } ;
+__p += '\n';
 
 }
 return __p
@@ -3621,13 +3798,18 @@ return __p
 
 this["Formbuilder"]["templates"]["edit/checkboxes"] = function(obj) {
 obj || (obj = {});
-var __t, __p = '', __e = _.escape;
+var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.REQUIRED )) == null ? '' : __t) +
-'\' />\n  Required\n</label>\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
+'\' />\n  Required\n</label>\n';
+ if(Formbuilder.options.SHOW_ADMIN_ONLY) { ;
+__p += '\n  <label>\n    <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.ADMIN_ONLY )) == null ? '' : __t) +
-'\' />\n  Admin only access\n</label>';
+'\' />\n    Admin only access\n  </label>\n';
+ } ;
+
 
 }
 return __p
@@ -3713,6 +3895,22 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Date Only</div>\n\n<label>\n  <input type=\'checkbox\' data-rv-checked=\'model.' +
 ((__t = ( Formbuilder.options.mappings.DATE_ONLY )) == null ? '' : __t) +
 '\' />\n  only date field\n</label>';
+
+}
+return __p
+};
+
+this["Formbuilder"]["templates"]["edit/datetime_difference_labels"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class=\'fb-edit-section-header\'>Labels</div>\n<div class="control-group">\n  <label class="control-label">First Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.START_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Start Date Time\' placeholder="Start Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Second Value</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.END_DATE_TIME_TEXT )) == null ? '' : __t) +
+'"\n      value=\'End Date Time\' placeholder="End Date Time"/>\n  </div>\n</div>\n<div class="control-group">\n  <label class="control-label">Difference</label>\n  <div class="controls">\n    <input type="text" pattern="^[\\w]+[\\w\\s ]*" data-rv-input=\n      "model.' +
+((__t = ( Formbuilder.options.mappings.DATETIME_DIFFERENCE_TEXT )) == null ? '' : __t) +
+'"\n      value=\'Difference\' placeholder="Difference"/>\n  </div>\n</div>';
 
 }
 return __p

@@ -49,7 +49,11 @@ Formbuilder.registerField 'gmap',
     <span class="symbol"><span class="icon-map-marker"></span></span> Geo-Location
   """
 
-  addRequiredConditions: ->
+  addRequiredConditions: (model) ->
+    read_only = (if Formbuilder.options.FIELD_CONFIGS then Formbuilder.options.FIELD_CONFIGS[model.get('field_type')]['read_only'] else false)
+    disabled = (if read_only then "disabled" else "")
+    hide_class = (if read_only then "hide" else "")
+    close_button = (if read_only then "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" else "")
     $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -57,11 +61,13 @@ Formbuilder.registerField 'gmap',
               <div class="geo-location-panel top-panel1">
               <table>
               <tr><td>
-                <input id="gmap_latlng" class="geo-location-panel1" type="textbox"/>
-                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"/>
+                <input id="gmap_latlng" class="geo-location-panel1" type="textbox" '+disabled+'
+                />
+                <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()"
+                class="'+hide_class+'"/>
               </td></tr><tr><td>
-                <input id="gmap_address" class="geo-location-panel1" type="textbox"/>
-                <input type="button" value="Location" onclick="codeAddress()"/>
+                <input id="gmap_address" class="geo-location-panel1" type="textbox" '+disabled+' />
+                <input type="button" value="Location" onclick="codeAddress()" class="'+hide_class+'"/>
               </td></tr>
               </table>
             </div>
@@ -69,7 +75,8 @@ Formbuilder.registerField 'gmap',
               <div id="map-canvas"/>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default btn-success" id="gmap_ok" data-dismiss="modal">Ok</button>
+              <button type="button" class="btn btn-default btn-success '+hide_class+'" id="gmap_ok" data-dismiss="modal">Ok</button>
+                '+close_button+'
             </div>
           </div>
         </div>
