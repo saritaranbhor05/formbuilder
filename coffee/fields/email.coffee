@@ -29,14 +29,14 @@ Formbuilder.registerField 'email',
   	$el.find("[name = " + model.getCid() + "_1]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
       check_result = condition("'#{elem_val}'", "'#{set_value}'")
-      check_result		
-  
+      check_result
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")

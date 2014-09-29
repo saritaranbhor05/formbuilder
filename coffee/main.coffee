@@ -153,7 +153,7 @@ class Formbuilder
       Formbuilder.inputFields[name] = opts
 
   @make_wizard: (elem, opts) ->
-    do(defaults = { showSteps: false, submitButton: true}) ->
+    do(defaults = { showSteps: false, submitButton: false}) ->
       elem.easyWizard(_.extend(defaults,opts))
 
   @views:
@@ -163,13 +163,17 @@ class Formbuilder
       initialize: ->
         @parentView = @options.parentView
         @frag = document.createDocumentFragment()
-        @recurring = @options.recurring
+        @recurring = @options.recurring_section
+        @first_field_index = @options.first_field_index
+        @total_responses = @options.total_responses_for_this_section
+        @field_views = @options.field_views
+        @section_break_field_model = @options.section_break_field_model
         if @options.view_type != 'print'
           @setSectionProps(@options.index, @options.back_visibility)
         if @options.view_type == 'print'
           $el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
-      make_live: ->
-        @$el.append(if @recurring then wrap_section(@frag) else @frag)
+      make_live: (last_field_index)->
+        @$el.append(if @recurring then @wrap_section(last_field_index) else @frag)
         @$el
       append_child: (child) ->
         @frag.appendChild(child)
@@ -177,31 +181,68 @@ class Formbuilder
         elem = $('<div></div>')
         @setSectionProps(cnt, true, elem)
         elem
-      wrap_section: (el) ->
-        do (inner_wiz_step = $('<div data-step-id></div>'),
+      wrap_section: (last_field_index) ->
+        do( that = @,
+            view_index = 0,
+            inner_wiz = $('<div></div>'),
+            wrap_inner_0 = $('<div class="mystep">Ohh Am I Fake PREV</div>'),
+            wrap_inner_1 = $('<div class="mystep"></div>'),
+            wrap_inner_2 = $('<div class="mystep">Ohh Am I Fake NEXT</div>'),
             inner1 = new Formbuilder.views.wizard_tab
               parentView: @
               view_type: @options.view_type
               index: 1
-              back_visibility: back_visibility,
+              back_visibility: true,
             inner2 = new Formbuilder.views.wizard_tab
               parentView: @
               view_type: @options.view_type
               index: 2
-              back_visibility: back_visibility) ->
-          inner1.append_child(el)
-          inner_wiz = $('<div></div>')
-          inner_wiz.append(inner1)
-          inner_wiz.append(inner2)
-          Formbuilder.make_wizzard(inner_wiz,
+              back_visibility: false) ->
+          inner1.append_child(that.frag)
+          wrap_inner_1.append(inner1.frag)
+          inner_wiz.append(wrap_inner_0)
+          inner_wiz.append(wrap_inner_1)
+          inner_wiz.append(wrap_inner_2)
+          that.parentView.$el.append(inner_wiz)
+          Formbuilder.make_wizard(inner_wiz,
             {
+              stepClassName: "mystep",
               prevButton: "Prev entry",
-              nextButton: "New entry",
-              showSteps: true,
-              submitButton: false
+              nextButton: "Save and New entry",
+              showSteps: false,
+              submitButton: false,
+              before: (wiz, curobj, nextobj) ->
+                do( cur_step = curobj.data('step'),
+                    next_step = nextobj.data('step'),
+                    temp_index = that.first_field_index,
+                    combined_obj = []
+                    ) =>
+                    if(next_step == 2)
+                      return true
+                    that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index)
+                    if(next_step > cur_step)
+                      view_index++
+                      if view_index <= that.total_responses
+                        that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
+                      else
+                        that.parentView.setup_new_page(that.first_field_index, last_field_index)
+                      if view_index > that.total_responses
+                        that.total_responses++
+                    else
+                      view_index--
+                      that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
+                    that.section_break_field_model.set('response_cnt', that.total_responses)
+                    if(next_step == 1 && view_index == 0)
+                      wiz.find(".easyWizardButtons.mystep .prev").hide()
+                    else
+                      wiz.find(".easyWizardButtons.mystep .prev").show()
+                    console.log("You are at view no ", view_index )
+                    return false
             })
-          inner_wiz_step.append(inner_wiz)
-          inner_wiz_step
+          inner_wiz.easyWizard('goToStep', 2)
+          inner_wiz.find(".easyWizardButtons.mystep .prev").addClass('hide btn-danger')
+          inner_wiz.find(".easyWizardButtons.mystep .next").addClass('btn-success')
+          inner_wiz
       setSectionProps:  (cnt, back_visibility, elem) ->
         elem = elem || @$el
         elem.attr({
@@ -210,7 +251,7 @@ class Formbuilder
           'data-step-title': "step#{cnt}"
         }).addClass('step')
         elem.addClass('active') if cnt == 1
- 
+
 
 
     view_field: Backbone.View.extend
@@ -324,9 +365,9 @@ class Formbuilder
         $(".fb-tab.step.active .fb-field-wrapper:visible").each ->
           outerHeight += $(this).height()
 
-        $('.easyWizardButtons').css('position', 'static');
-        $('.easyWizardButtons').css('top',outerHeight);
-        $('.easyWizardButtons').css('width',$('.easyPager').width()-20);
+        $('.easyWizardButtons.step').css('position', 'static');
+        $('.easyWizardButtons.step').css('top',outerHeight);
+        $('.easyWizardButtons.step').css('width',$('.easyPager').width()-20);
 
         return @
 
@@ -592,6 +633,58 @@ class Formbuilder
         'click .fb-add-field-types a': 'addField'
         'mousedown .fb-add-field-types a': 'enableSortable'
 
+      setup_new_page: (section_st_index, section_end_index) ->
+        while section_st_index <= section_end_index
+          do( that = this,
+              fv = this.fieldViews[section_st_index], all_field_vals ={}) ->
+            _.extend(all_field_vals, fv.model.get('field_values'))
+            if fv.field.clearFields then fv.field.clearFields(fv.$el, fv.model) else that.default_clear_fields(fv)
+            if fv.field.setup
+              fv.model.unset('field_values', {silent:true})
+              fv.field.setup(fv, fv.model)
+              fv.model.set({'field_values': all_field_vals}, {silent:true})
+          section_st_index++
+
+      load_values_for_index: (section_st_index, section_end_index, load_index) ->
+        while section_st_index <= section_end_index
+          do( that = this,
+            fv = this.fieldViews[section_st_index]
+            )->
+            do( all_field_vals = fv.model.attributes.field_values,
+                req_field_vals = fv.model.attributes.field_values[load_index]
+              ) ->
+              if fv.field.setup
+                fv.model.attributes.field_values = req_field_vals
+                fv.field.setup(fv, fv.model)
+                fv.model.attributes.field_values = all_field_vals
+              else
+                that.default_setup(fv, fv.model.attributes.field_values[load_index])
+          section_st_index++
+
+      save_field_values_at_index: (section_st_index, section_end_index, save_at_index) ->
+        while section_st_index <= section_end_index
+          do( fv = this.fieldViews[section_st_index] )->
+            do( serialized_values = {},
+                arr = fv.model.attributes.field_values || [],
+                computed_obj = {}
+              ) ->
+                if fv.field.fieldToValue
+                  computed_obj = fv.field.fieldToValue(fv.$el, fv.model)
+                else
+                  serialized_values = fv.$el.find('input, textarea, select, .canvas_img, a').serializeArray()
+                  _.each serialized_values, (val) ->
+                    computed_obj[val.name] = val.value
+                arr[save_at_index] = computed_obj
+                fv.model.attributes.field_values = arr
+          section_st_index++
+
+      default_clear_fields: (fieldView) ->
+        fieldView.$el.find('input, textarea, select, .canvas_img, a').val("")
+
+      default_setup: (fieldView, field_values) ->
+        _.each field_values, (val, key)->
+          fieldView.$el.find("[name=#{key}]").val(val)
+
       initialize: ->
         @$el = $(@options.selector)
         @formBuilder = @options.formBuilder
@@ -804,10 +897,8 @@ class Formbuilder
             })
             $obj_view_el.addClass('step')
             $obj_view_el.addClass('active') if cnt == 1
-  
-
         do (field_view = null, fieldViews = @fieldViews,
-            add_break_to_next = false, wizard_step = null,
+            add_break_to_next = false, recurring_section=false, total_responses_for_this_section = 0, wizard_step = null, sb_field = null,
             wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
             showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment(), _that = @) =>
@@ -823,7 +914,7 @@ class Formbuilder
 #          if @options.view_type == 'print'
 #            wizard_step.$el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
 
-          for field_view in fieldViews
+          for field_view, field_index in fieldViews
             field_view.$el.attr('data-step-id', wiz_cnt) unless field_view.is_section_break
             if (field_view.is_section_break && @options.view_type != 'print')
               back_visibility = field_view.model.get(
@@ -833,21 +924,32 @@ class Formbuilder
               next_btn_text = field_view.model.get(
                 Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
               add_break_to_next = true
+              recurring_section = field_view.model.get('field_options').recurring_section
+              total_responses_for_this_section	= field_view.model.get('field_values')
+              section_break_field_model = field_view.model
             # nothing should be rendered since it is an actionable section break
             if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
-              @$responseFields.append wizard_step.make_live()
+              @$responseFields.append wizard_step.make_live(field_index-2)
               wiz_cnt += 1
-              add_break_to_next = false
+              field_view.model.set('in_recursive', true)
               wizard_step = new Formbuilder.views.wizard_tab
                 parentView: @
                 view_type: @options.view_type
                 index: wiz_cnt
                 back_visibility: back_visibility
+                recurring_section: recurring_section
+                total_responses_for_this_section: total_responses_for_this_section || 0
+                first_field_index: field_index
+                section_break_field_model: section_break_field_model
+              add_break_to_next = false
 #              setSectionProps(wizard_step, wiz_cnt, back_visibility) # set easywizard properties for step
-            if !add_break_to_next 
+            if !add_break_to_next
+              if(wizard_step.recurring)
+                field_view.model.set('i_am_in_recurring_section', true)
               wizard_step.append_child(field_view.render().el)
 
-          @$responseFields.append wizard_step.make_live()
+
+          @$responseFields.append wizard_step.make_live(fieldViews.length-1)
           # TODO: Remove this call by calling this function from the setup
           # of individual fields
           fd_views = @fieldViews.filter (fd_view) ->
@@ -860,34 +962,36 @@ class Formbuilder
             _that.triggerEvent()
             return
           ), 5
-          
+
           Formbuilder.make_wizard(
             $("#formbuilder_form"),
             {
               prevButton: prev_btn_text,
               nextButton: next_btn_text,
               after: (wizardObj, prevStepObj, currentStepObj) ->
-                        prev_clicked = false
-                        if currentStepObj.children(':visible').length is 0
-                          $activeStep.css({ height: '1px' })
-                          if prev_clicked = wizardObj.direction == 'prev'
-                            $('.easyWizardButtons .prev').trigger('click')
-                          else
-                            $('.easyWizardButtons .next').trigger('click')
-                        else
-                          if $nextStep.attr('show-back') == 'false'
-                            $('.prev').css("display", "none")
-                          else if currentStepObj.attr('data-step') != '1'
-                            $('.prev').css("display", "block")
-                          $('#grid_div').scrollTop(0)
+                do( prev_clicked = false,
+                    thisSettings = wizardObj.data('settings')
+                  ) =>
+                    if currentStepObj.children(':visible').length is 0
+                      $activeStep.css({ height: '1px' })
+                      if prev_clicked = wizardObj.direction == 'prev'
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').trigger('click')
+                      else
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .next').trigger('click')
+                    else
+                      if $nextStep.attr('show-back') == 'false'
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').css("display", "none")
+                      else if currentStepObj.attr('data-step') != '1'
+                        wizardObj.find('.easyWizardButtons.'+thisSettings.stepClassName+' .prev').css("display", "block")
+                      $('#grid_div').scrollTop(0)
 
-                        $('.easyPager').height($('.easyWizardWrapper .active').outerHeight() +
-                          $('.easyWizardButtons').outerHeight())
-                        if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
-                           showSubmit
-                          wizardObj.parents('.form-panel').find('.update-button').show()
-                        else
-                          wizardObj.parents('.form-panel').find('.update-button').hide()
+                    $("#formbuilder_form").height($('.easyWizardWrapper .active').outerHeight() +
+                      $('.easyWizardButtons').outerHeight())
+                    if parseInt($nextStep.attr('data-step')) == thisSettings.steps &&
+                       showSubmit
+                      wizardObj.parents('.form-panel').find('.update-button').show()
+                    else
+                      wizardObj.parents('.form-panel').find('.update-button').hide()
             })
 #
 #          $("#formbuilder_form").easyWizard({
@@ -997,8 +1101,21 @@ class Formbuilder
                 #field_method_call = Formbuilder.fields[field_type_method_call]
                 cid = model.getCid()
 
-                method = field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup
-                method(field_view, model, Formbuilder.options.EDIT_FS_MODEL) if method
+                method = (field_method_call.android_setup && Formbuilder.isAndroid() )  || (field_method_call.ios_setup && Formbuilder.isIos() )  || field_method_call.setup
+                do(all_field_values = model.get('field_values')) ->
+                  if all_field_values && all_field_values[0]
+                    model.unset('field_values', {silent:true})
+                    model.set({'field_values': all_field_values[0]}, {silent:true})
+                    if method
+                    	method.call(field_method_call, field_view, model, Formbuilder.options.EDIT_FS_MODEL)
+                    else
+                    	do( fv = model.get("field_values")) ->
+                    		_.each fv, (val, key) ->
+                    			field_view.$el.find("[name=#{key}]").val(val)
+                    model.unset('field_values', {silent:true})
+                    model.set({'field_values': all_field_values}, {silent:true})
+                  else
+                    method.call(field_method_call, field_view, model, Formbuilder.options.EDIT_FS_MODEL) if method
                 if field_method_call.setValForPrint && @options.view_type == 'print'
                   field_method_call.setValForPrint(field_view, model)
                 else if !method
@@ -1106,8 +1223,8 @@ class Formbuilder
         @collection.each @addOne, @
         if @options.live
           @applyEasyWizard()
-          $('.easyWizardButtons .prev').addClass('hide btn-danger')
-          $('.easyWizardButtons .next').addClass('btn-success')
+          $('.easyWizardButtons.step .prev').addClass('hide btn-danger')
+          $('.easyWizardButtons.step .next').addClass('btn-success')
           @applyFileStyle()
           @initializeEsings()
           $('.readonly').find('input, textarea, select').attr('disabled', true);
@@ -1339,7 +1456,7 @@ class Formbuilder
 
       formValid: ->
         do(valid = false) =>
-          valid = do(el = @$('#formbuilder_form')[0]) ->
+          valid = do(el =@$('#formbuilder_form')[0]) ->
             !el.checkValidity || el.checkValidity()
           if !valid
             @$('#formbuilder_form')[0].classList.add('submitted')

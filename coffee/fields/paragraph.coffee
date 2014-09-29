@@ -43,7 +43,7 @@ Formbuilder.registerField 'paragraph',
     if model.get(Formbuilder.options.mappings.MAXLENGTH)
       el.attr("maxlength", model.get(Formbuilder.options.mappings.MAXLENGTH))
     if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
-      el.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+      el.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
     if model.get('field_values')
       el.val(model.get('field_values')["#{model.getCid()}_1"])
     if field_view.$el.find('textarea').val() != ''
@@ -53,7 +53,7 @@ Formbuilder.registerField 'paragraph',
     do($input = $el.find("[name = " + model.getCid() + "_1]")) =>
       $input.val("")
       if model.get(Formbuilder.options.mappings.DEFAULT_VALUE)
-        $input.text(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
+        $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
         $input.val(model.get(Formbuilder.options.mappings.DEFAULT_VALUE))
 
   setValForPrint: (field_view, model) ->

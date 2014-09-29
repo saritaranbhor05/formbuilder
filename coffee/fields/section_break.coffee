@@ -35,7 +35,7 @@ Formbuilder.registerField 'section_break',
 
     <label>
       <input type='checkbox' data-rv-checked='model.<%= Formbuilder.options.mappings.RECURRING_SECTION %>' />
-  Allow multiple entries for this section
+  Allow multiple entries for following section
     </label>
   """
 

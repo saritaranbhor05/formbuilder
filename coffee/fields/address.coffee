@@ -156,7 +156,7 @@ Formbuilder.registerField 'address',
             .attr("required", required)
 
   setup: (field_view, model) ->
-    do($str_add = field_view.$el.find("#address")) =>
+    do(that = @, $str_add = field_view.$el.find("#address")) =>
       if model.attributes.field_values
         field_view.$el.find("#address").val(model.attributes.field_values["#{model.getCid()}_1"])
         field_view.$el.find("#suburb").val(model.attributes.field_values["#{model.getCid()}_2"])
@@ -164,7 +164,7 @@ Formbuilder.registerField 'address',
         field_view.$el.find("#zipcode").val(model.attributes.field_values["#{model.getCid()}_4"])
         field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_5"])
       else
-        @clearFields
+        that.clearFields(field_view.$el, model)
       if $str_add.val() != ''
         field_view.trigger('change_state')
 

@@ -39,7 +39,7 @@ Formbuilder.registerField 'heading',
     $el.find('#' + model.getCid()).text('')
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
     ) =>
       elem_val = clicked_element
@@ -47,8 +47,8 @@ Formbuilder.registerField 'heading',
       elem_val = elem_val.replace(/(\r\n|\n|\r)/gm,'')
       elem_val = elem_val.trimLeft()
       check_result = condition("'#{elem_val}'", "'#{set_value}'")
-      check_result    
-  
+      check_result
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("#"+cid)

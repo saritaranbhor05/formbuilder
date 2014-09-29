@@ -45,7 +45,7 @@ Formbuilder.registerField 'price',
       return cid
 
   clearFields: ($el, model) ->
-    $el.find("[name = " + model.getCid() + "_1]").val("")
+    $el.find("[name^=" + model.getCid() + "_]").val("")
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(

@@ -70,7 +70,7 @@ Formbuilder.registerField 'dropdown',
     attrs
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
     ) =>
     elem_val = clicked_element
@@ -80,11 +80,11 @@ Formbuilder.registerField 'dropdown',
       set_value = parseInt set_value
     check_result = condition(elem_val, set_value)
     check_result
-  
+
   add_remove_require:(cid,required) ->
     $("." + cid)
             .find("[name = "+cid+"_1]")
-            .attr("required", required) 
+            .attr("required", required)
 
   android_setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
