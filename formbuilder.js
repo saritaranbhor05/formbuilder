@@ -2063,33 +2063,6 @@
       ];
       return attrs;
     },
-    fieldToValue: function($el, model) {
-      return (function(values, other_field, checkbox_fields) {
-        _.each(checkbox_fields, function(val) {
-          return values[val.name] = val.checked;
-        });
-        if (other_field) {
-          values[other_field.attr('name')] = other_field.val();
-        }
-        console.log(values);
-        return values;
-      })({}, $el.find("input:text"), $el.find("input:checkbox:checked"));
-    },
-    setup: function(field_view, model) {
-      if (model.get('field_values')) {
-        return (function(field_values) {
-          return _.each(field_values, function(value, key) {
-            return (function(field) {
-              if (field.attr('type') === "text") {
-                return field.val(value);
-              } else {
-                return field.attr("checked", true);
-              }
-            })(field_view.$el.find("[name=" + key + "]"));
-          });
-        })(model.get('field_values'));
-      }
-    },
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
@@ -2108,15 +2081,14 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref;
+      var elem, _i, _len, _ref, _results;
       _ref = $el.find('input:checked');
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elem = _ref[_i];
-        elem.checked = false;
+        _results.push(elem.checked = false);
       }
-      if ($el.find('input:text')) {
-        return $el.find('input:text').val('');
-      }
+      return _results;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
