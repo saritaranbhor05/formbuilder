@@ -238,8 +238,10 @@ class Formbuilder
                     that.section_break_field_model.set('response_cnt', that.total_responses)
                     if(next_step == 1 && view_index == 0)
                       wiz.find(".easyWizardButtons.mystep .prev").hide()
+                      wiz.find(".easyWizardButtons.mystep .prev").addClass('hide')
                     else
                       wiz.find(".easyWizardButtons.mystep .prev").show()
+                      wiz.find(".easyWizardButtons.mystep .prev").removeClass('hide')
                     console.log("You are at view no ", view_index )
                     return false
             })
@@ -669,7 +671,7 @@ class Formbuilder
         while section_st_index <= section_end_index
           do( fv = this.fieldViews[section_st_index] )->
             do( serialized_values = {},
-                arr = fv.model.attributes.field_values || {},
+                fl_val_hash = fv.model.attributes.field_values || {},
                 computed_obj = {}
               ) ->
                 if fv.field.fieldToValue
@@ -678,8 +680,8 @@ class Formbuilder
                   serialized_values = fv.$el.find('input, textarea, select, .canvas_img, a').serializeArray()
                   _.each serialized_values, (val) ->
                     computed_obj[val.name] = val.value
-                arr[save_at_index] = computed_obj
-                fv.model.attributes.field_values = arr
+                fl_val_hash[save_at_index] = computed_obj
+                fv.model.attributes.field_values = fl_val_hash
           section_st_index++
 
       default_clear_fields: (fieldView) ->
@@ -935,8 +937,8 @@ class Formbuilder
                 Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
               add_break_to_next = true
               recurring_section = field_view.model.get('field_options').recurring_section
-              if field_view.model.get('field_values') && field_view.model.get('field_values')['count_1']
-                total_responses_for_this_section	= field_view.model.get('field_values')['count_1']
+              if field_view.model.get('field_values') && field_view.model.get('field_values')['response_count']
+                total_responses_for_this_section	= field_view.model.get('field_values')['response_count']
               field_view.model.set('response_cnt', total_responses_for_this_section)
               section_break_field_model = field_view.model
             # nothing should be rendered since it is an actionable section break

@@ -306,8 +306,10 @@
                     that.section_break_field_model.set('response_cnt', that.total_responses);
                     if (next_step === 1 && view_index === 0) {
                       wiz.find(".easyWizardButtons.mystep .prev").hide();
+                      wiz.find(".easyWizardButtons.mystep .prev").addClass('hide');
                     } else {
                       wiz.find(".easyWizardButtons.mystep .prev").show();
+                      wiz.find(".easyWizardButtons.mystep .prev").removeClass('hide');
                     }
                     console.log("You are at view no ", view_index);
                     return false;
@@ -864,7 +866,7 @@
           _results = [];
           while (section_st_index <= section_end_index) {
             (function(fv) {
-              return (function(serialized_values, arr, computed_obj) {
+              return (function(serialized_values, fl_val_hash, computed_obj) {
                 if (fv.field.fieldToValue) {
                   computed_obj = fv.field.fieldToValue(fv.$el, fv.model);
                 } else {
@@ -873,8 +875,8 @@
                     return computed_obj[val.name] = val.value;
                   });
                 }
-                arr[save_at_index] = computed_obj;
-                return fv.model.attributes.field_values = arr;
+                fl_val_hash[save_at_index] = computed_obj;
+                return fv.model.attributes.field_values = fl_val_hash;
               })({}, fv.model.attributes.field_values || {}, {});
             })(this.fieldViews[section_st_index]);
             _results.push(section_st_index++);
@@ -1175,8 +1177,8 @@
                   next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
                   add_break_to_next = true;
                   recurring_section = field_view.model.get('field_options').recurring_section;
-                  if (field_view.model.get('field_values') && field_view.model.get('field_values')['count_1']) {
-                    total_responses_for_this_section = field_view.model.get('field_values')['count_1'];
+                  if (field_view.model.get('field_values') && field_view.model.get('field_values')['response_count']) {
+                    total_responses_for_this_section = field_view.model.get('field_values')['response_count'];
                   }
                   field_view.model.set('response_cnt', total_responses_for_this_section);
                   section_break_field_model = field_view.model;
@@ -2063,33 +2065,6 @@
       ];
       return attrs;
     },
-    fieldToValue: function($el, model) {
-      return (function(values, other_field, checkbox_fields) {
-        _.each(checkbox_fields, function(val) {
-          return values[val.name] = val.checked;
-        });
-        if (other_field) {
-          values[other_field.attr('name')] = other_field.val();
-        }
-        console.log(values);
-        return values;
-      })({}, $el.find("input:text"), $el.find("input:checkbox:checked"));
-    },
-    setup: function(field_view, model) {
-      if (model.get('field_values')) {
-        return (function(field_values) {
-          return _.each(field_values, function(value, key) {
-            return (function(field) {
-              if (field.attr('type') === "text") {
-                return field.val(value);
-              } else {
-                return field.attr("checked", true);
-              }
-            })(field_view.$el.find("[name=" + key + "]"));
-          });
-        })(model.get('field_values'));
-      }
-    },
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
@@ -2108,15 +2083,14 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref;
+      var elem, _i, _len, _ref, _results;
       _ref = $el.find('input:checked');
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elem = _ref[_i];
-        elem.checked = false;
+        _results.push(elem.checked = false);
       }
-      if ($el.find('input:text')) {
-        return $el.find('input:text').val('');
-      }
+      return _results;
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
