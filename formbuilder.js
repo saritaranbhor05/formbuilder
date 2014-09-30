@@ -284,14 +284,14 @@
               submitButton: false,
               before: function(wiz, curobj, nextobj) {
                 return (function(_this) {
-                  return function(cur_step, next_step, temp_index, combined_obj) {
+                  return function(cur_step, next_step, temp_index) {
                     if (next_step === 2) {
                       return true;
                     }
                     that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index);
                     if (next_step > cur_step) {
                       view_index++;
-                      if (view_index <= that.total_responses) {
+                      if (view_index < that.total_responses) {
                         that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index);
                       } else {
                         that.parentView.setup_new_page(that.first_field_index, last_field_index);
@@ -312,7 +312,7 @@
                     console.log("You are at view no ", view_index);
                     return false;
                   };
-                })(this)(curobj.data('step'), nextobj.data('step'), that.first_field_index, []);
+                })(this)(curobj.data('step'), nextobj.data('step'), that.first_field_index);
               }
             });
             inner_wiz.easyWizard('goToStep', 2);
@@ -875,7 +875,7 @@
                 }
                 arr[save_at_index] = computed_obj;
                 return fv.model.attributes.field_values = arr;
-              })({}, fv.model.attributes.field_values || [], {});
+              })({}, fv.model.attributes.field_values || {}, {});
             })(this.fieldViews[section_st_index]);
             _results.push(section_st_index++);
           }
@@ -1175,7 +1175,10 @@
                   next_btn_text = field_view.model.get(Formbuilder.options.mappings.NEXT_BUTTON_TEXT);
                   add_break_to_next = true;
                   recurring_section = field_view.model.get('field_options').recurring_section;
-                  total_responses_for_this_section = field_view.model.get('field_values');
+                  if (field_view.model.get('field_values') && field_view.model.get('field_values')['count_1']) {
+                    total_responses_for_this_section = field_view.model.get('field_values')['count_1'];
+                  }
+                  field_view.model.set('response_cnt', total_responses_for_this_section);
                   section_break_field_model = field_view.model;
                 }
                 if (add_break_to_next && !field_view.is_section_break && _this.options.view_type !== 'print') {

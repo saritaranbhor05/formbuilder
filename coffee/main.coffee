@@ -220,14 +220,13 @@ class Formbuilder
                 do( cur_step = curobj.data('step'),
                     next_step = nextobj.data('step'),
                     temp_index = that.first_field_index,
-                    combined_obj = []
                     ) =>
                     if(next_step == 2)
                       return true
                     that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index)
                     if(next_step > cur_step)
                       view_index++
-                      if view_index <= that.total_responses
+                      if view_index < that.total_responses
                         that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
                       else
                         that.parentView.setup_new_page(that.first_field_index, last_field_index)
@@ -670,7 +669,7 @@ class Formbuilder
         while section_st_index <= section_end_index
           do( fv = this.fieldViews[section_st_index] )->
             do( serialized_values = {},
-                arr = fv.model.attributes.field_values || [],
+                arr = fv.model.attributes.field_values || {},
                 computed_obj = {}
               ) ->
                 if fv.field.fieldToValue
@@ -936,7 +935,9 @@ class Formbuilder
                 Formbuilder.options.mappings.NEXT_BUTTON_TEXT)
               add_break_to_next = true
               recurring_section = field_view.model.get('field_options').recurring_section
-              total_responses_for_this_section	= field_view.model.get('field_values')
+              if field_view.model.get('field_values') && field_view.model.get('field_values')['count_1']
+                total_responses_for_this_section	= field_view.model.get('field_values')['count_1']
+              field_view.model.set('response_cnt', total_responses_for_this_section)
               section_break_field_model = field_view.model
             # nothing should be rendered since it is an actionable section break
             if add_break_to_next && !field_view.is_section_break && @options.view_type != 'print'
