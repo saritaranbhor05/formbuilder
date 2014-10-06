@@ -70,6 +70,7 @@ Formbuilder.registerField 'gmap',
                 <input type="button" value="Location" onclick="codeAddress()" class="'+hide_class+'"/>
               </td></tr>
               </table>
+              </div>
             </div>
             <div class="modal-body">
               <div id="map-canvas"/>

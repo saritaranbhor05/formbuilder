@@ -301,7 +301,7 @@ class Formbuilder
           show: true
         })
 
-        $("#gmapModal").on "shown", (e) ->
+        $("#gmapModal").on "shown.bs.modal", (e) ->
             gmap_button_value = $("[name = " + getCid() + "_2]").val()
             initialize();
             $( "#gmap_address" ).keypress (event) ->

@@ -399,7 +399,7 @@
           $('#gmapModal').modal({
             show: true
           });
-          $("#gmapModal").on("shown", function(e) {
+          $("#gmapModal").on("shown.bs.modal", function(e) {
             var gmap_button_value;
             gmap_button_value = $("[name = " + getCid() + "_2]").val();
             initialize();
@@ -2754,7 +2754,7 @@
       disabled = (read_only ? "disabled" : "");
       hide_class = (read_only ? "hide" : "");
       close_button = (read_only ? "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" : "");
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
       return (function(_this) {

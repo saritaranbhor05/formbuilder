@@ -353,10 +353,14 @@
     top: 15px
 
 #gmapModal
+  .modal-dialog
+    width: auto;
+    margin: 0px;
   .modal-body
-    margin-top: 25px
     overflow-y: hidden
     overflow-x: hidden
+    img
+      max-width: none
 
   .modal-header
     border-bottom: 0px;
@@ -532,7 +536,7 @@
     position: relative
     z-index: 4
 
-.free_text_html_modal
+.free_text_html_modal, #gmapModal
   background: transparent
   border: none
   box-shadow: none
