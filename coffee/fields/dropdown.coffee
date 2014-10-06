@@ -114,6 +114,13 @@ Formbuilder.registerField 'dropdown',
   setup: (field_view, model, edit_fs_model) ->
     if model.attributes.field_values
       field_view.$el.find("select").val(model.attributes.field_values["#{model.getCid()}_1"])
+    else
+      do(
+        available_options = model.get(Formbuilder.options.mappings.OPTIONS)
+      ) ->
+        _.each available_options, (opt) ->
+          if opt.checked
+            field_view.$el.find("select").val(opt.label)
 
     do(field_dom = field_view.$el.find('select')) ->
       if field_dom.length > 0 && field_dom.val() != ''

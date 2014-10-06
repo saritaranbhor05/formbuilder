@@ -815,29 +815,44 @@
           'click .fb-add-field-types a': 'addField',
           'mousedown .fb-add-field-types a': 'enableSortable'
         },
+        get_appripriate_setup_method: function(field_view) {
+          return (function(method) {
+            if (field_view.field && (field_view.field.android_setup || field_view.field.ios_setup || field_view.field.setup)) {
+              if (Formbuilder.isAndroid() && field_view.field.android_setup) {
+                method = field_view.field.android_setup;
+              } else if (Formbuilder.isIos() && field_view.field.ios_setup) {
+                method = field_view.field.ios_setup;
+              } else {
+                method = field_view.field.setup;
+              }
+            }
+            return method;
+          })(null);
+        },
         setup_new_page: function(section_st_index, section_end_index) {
           var _results;
           _results = [];
           while (section_st_index <= section_end_index) {
-            (function(that, fv, all_field_vals) {
+            (function(that, method, fv, all_field_vals) {
               _.extend(all_field_vals, fv.model.get('field_values'));
               if (fv.field.clearFields) {
                 fv.field.clearFields(fv.$el, fv.model);
               } else {
                 that.default_clear_fields(fv);
               }
-              if (fv.field.setup) {
+              method = that.get_appripriate_setup_method(fv);
+              if (method) {
                 fv.model.unset('field_values', {
                   silent: true
                 });
-                fv.field.setup(fv, fv.model);
+                method(fv, fv.model);
                 return fv.model.set({
                   'field_values': all_field_vals
                 }, {
                   silent: true
                 });
               }
-            })(this, this.fieldViews[section_st_index], {});
+            })(this, null, this.fieldViews[section_st_index], {});
             _results.push(section_st_index++);
           }
           return _results;
@@ -847,15 +862,15 @@
           _results = [];
           while (section_st_index <= section_end_index) {
             (function(that, fv) {
-              return (function(all_field_vals, req_field_vals) {
-                if (fv.field.setup) {
+              return (function(all_field_vals, req_field_vals, method) {
+                if (method) {
                   fv.model.attributes.field_values = req_field_vals;
-                  fv.field.setup(fv, fv.model);
+                  method(fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
                   return that.default_setup(fv, fv.model.attributes.field_values[load_index]);
                 }
-              })(fv.model.attributes.field_values, fv.model.attributes.field_values[load_index]);
+              })(fv.model.attributes.field_values, fv.model.attributes.field_values[load_index], that.get_appripriate_setup_method(fv));
             })(this, this.fieldViews[section_st_index]);
             _results.push(section_st_index++);
           }
@@ -1259,8 +1274,8 @@
           return (function(_this) {
             return function(field_view, fieldViews, model) {
               var _fn, _i, _len;
-              _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
-                var method, _j, _k, _len1, _len2, _ref, _ref1;
+              _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, method, cid) {
+                var _j, _k, _len1, _len2, _ref, _ref1;
                 field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                 field_method_call = Formbuilder.fields[field_type_method_call];
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
@@ -1323,7 +1338,15 @@
                   });
                 } else {
                   cid = model.getCid();
-                  method = (field_method_call.android_setup && Formbuilder.isAndroid()) || (field_method_call.ios_setup && Formbuilder.isIos()) || field_method_call.setup;
+                  if (field_method_call.android_setup || field_method_call.ios_setup || field_method_call.setup) {
+                    if (Formbuilder.isAndroid() && field_method_call.android_setup) {
+                      method = field_method_call.android_setup;
+                    } else if (Formbuilder.isIos() && field_method_call.ios_setup) {
+                      method = field_method_call.ios_setup;
+                    } else {
+                      method = field_method_call.setup;
+                    }
+                  }
                   (function(all_field_values) {
                     if (all_field_values && all_field_values[0]) {
                       model.unset('field_values', {
@@ -1438,7 +1461,7 @@
                 field_view = fieldViews[_i];
                 _fn(null, 0, function(attr) {
                   return attr !== 'radio';
-                }, false, field_view.model, '', '', '');
+                }, false, field_view.model, '', '', null, '');
               }
               return _this.formBuilder.trigger('render_complete');
             };
@@ -2726,6 +2749,14 @@
     setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
         field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+      } else {
+        (function(available_options) {
+          return _.each(available_options, function(opt) {
+            if (opt.checked) {
+              return field_view.$el.find("select").val(opt.label);
+            }
+          });
+        })(model.get(Formbuilder.options.mappings.OPTIONS));
       }
       return (function(field_dom) {
         if (field_dom.length > 0 && field_dom.val() !== '') {
