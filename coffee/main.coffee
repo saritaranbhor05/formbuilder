@@ -641,17 +641,30 @@ class Formbuilder
         'click .fb-add-field-types a': 'addField'
         'mousedown .fb-add-field-types a': 'enableSortable'
 
+      get_appripriate_setup_method: (field_view) ->
+        do( method = null ) ->
+          if field_view.field && (field_view.field.android_setup || field_view.field.ios_setup || field_view.field.setup)
+            if Formbuilder.isAndroid() && field_view.field.android_setup
+              method = field_view.field.android_setup
+            else if Formbuilder.isIos() && field_view.field.ios_setup
+              method = field_view.field.ios_setup
+            else
+              method = field_view.field.setup
+          method
+
       setup_new_page: (section_st_index, section_end_index) ->
         while section_st_index <= section_end_index
           do( that = this,
+              method = null,
               fv = this.fieldViews[section_st_index], all_field_vals ={}) ->
             _.extend(all_field_vals, fv.model.get('field_values'))
             if fv.field.clearFields
               fv.field.clearFields(fv.$el, fv.model)
             else that.default_clear_fields(fv)
-            if fv.field.setup
+            method = that.get_appripriate_setup_method(fv)
+            if method
               fv.model.unset('field_values', {silent:true})
-              fv.field.setup(fv, fv.model)
+              method(fv, fv.model)
               fv.model.set({'field_values': all_field_vals}, {silent:true})
           section_st_index++
 
@@ -661,11 +674,12 @@ class Formbuilder
             fv = this.fieldViews[section_st_index]
             )->
             do( all_field_vals = fv.model.attributes.field_values,
-                req_field_vals = fv.model.attributes.field_values[load_index]
+                req_field_vals = fv.model.attributes.field_values[load_index],
+                method = that.get_appripriate_setup_method(fv)
               ) ->
-              if fv.field.setup
+              if method
                 fv.model.attributes.field_values = req_field_vals
-                fv.field.setup(fv, fv.model)
+                method(fv, fv.model)
                 fv.model.attributes.field_values = all_field_vals
               else
                 that.default_setup(fv, fv.model.attributes.field_values[load_index])
@@ -1031,6 +1045,7 @@ class Formbuilder
               model = field_view.model,
               field_type_method_call = '',
               field_method_call = '',
+              method = null,
               cid = ''
             ) =>
 
@@ -1091,12 +1106,12 @@ class Formbuilder
                 #field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                 #field_method_call = Formbuilder.fields[field_type_method_call]
                 cid = model.getCid()
-
-                method = field_method_call.setup
+                method = field_method_call.setup if field_method_call.setup
                 if field_method_call.android_setup && Formbuilder.isAndroid()
                   method = field_method_call.android_setup
                 if field_method_call.ios_setup && Formbuilder.isIos()
                   method = field_method_call.ios_setup
+
                 do(all_field_values = model.get('field_values')) ->
                   if all_field_values && all_field_values[0]
                     model.unset('field_values', {silent:true})

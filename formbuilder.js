@@ -819,29 +819,44 @@
           'click .fb-add-field-types a': 'addField',
           'mousedown .fb-add-field-types a': 'enableSortable'
         },
+        get_appripriate_setup_method: function(field_view) {
+          return (function(method) {
+            if (field_view.field && (field_view.field.android_setup || field_view.field.ios_setup || field_view.field.setup)) {
+              if (Formbuilder.isAndroid() && field_view.field.android_setup) {
+                method = field_view.field.android_setup;
+              } else if (Formbuilder.isIos() && field_view.field.ios_setup) {
+                method = field_view.field.ios_setup;
+              } else {
+                method = field_view.field.setup;
+              }
+            }
+            return method;
+          })(null);
+        },
         setup_new_page: function(section_st_index, section_end_index) {
           var _results;
           _results = [];
           while (section_st_index <= section_end_index) {
-            (function(that, fv, all_field_vals) {
+            (function(that, method, fv, all_field_vals) {
               _.extend(all_field_vals, fv.model.get('field_values'));
               if (fv.field.clearFields) {
                 fv.field.clearFields(fv.$el, fv.model);
               } else {
                 that.default_clear_fields(fv);
               }
-              if (fv.field.setup) {
+              method = that.get_appripriate_setup_method(fv);
+              if (method) {
                 fv.model.unset('field_values', {
                   silent: true
                 });
-                fv.field.setup(fv, fv.model);
+                method(fv, fv.model);
                 return fv.model.set({
                   'field_values': all_field_vals
                 }, {
                   silent: true
                 });
               }
-            })(this, this.fieldViews[section_st_index], {});
+            })(this, null, this.fieldViews[section_st_index], {});
             _results.push(section_st_index++);
           }
           return _results;
@@ -851,15 +866,15 @@
           _results = [];
           while (section_st_index <= section_end_index) {
             (function(that, fv) {
-              return (function(all_field_vals, req_field_vals) {
-                if (fv.field.setup) {
+              return (function(all_field_vals, req_field_vals, method) {
+                if (method) {
                   fv.model.attributes.field_values = req_field_vals;
-                  fv.field.setup(fv, fv.model);
+                  method(fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
                   return that.default_setup(fv, fv.model.attributes.field_values[load_index]);
                 }
-              })(fv.model.attributes.field_values, fv.model.attributes.field_values[load_index]);
+              })(fv.model.attributes.field_values, fv.model.attributes.field_values[load_index], that.get_appripriate_setup_method(fv));
             })(this, this.fieldViews[section_st_index]);
             _results.push(section_st_index++);
           }
@@ -1263,8 +1278,8 @@
           return (function(_this) {
             return function(field_view, fieldViews, model) {
               var _fn, _i, _len;
-              _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, cid) {
-                var method, _j, _k, _len1, _len2, _ref, _ref1;
+              _fn = function(x, count, should_incr, val_set, model, field_type_method_call, field_method_call, method, cid) {
+                var _j, _k, _len1, _len2, _ref, _ref1;
                 field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE);
                 field_method_call = Formbuilder.fields[field_type_method_call];
                 if (field_view.model.get('field_type') === 'heading' || field_view.model.get('field_type') === 'free_text_html') {
@@ -1327,7 +1342,9 @@
                   });
                 } else {
                   cid = model.getCid();
-                  method = field_method_call.setup;
+                  if (field_method_call.setup) {
+                    method = field_method_call.setup;
+                  }
                   if (field_method_call.android_setup && Formbuilder.isAndroid()) {
                     method = field_method_call.android_setup;
                   }
@@ -1448,7 +1465,7 @@
                 field_view = fieldViews[_i];
                 _fn(null, 0, function(attr) {
                   return attr !== 'radio';
-                }, false, field_view.model, '', '', '');
+                }, false, field_view.model, '', '', null, '');
               }
               return _this.formBuilder.trigger('render_complete');
             };
@@ -2093,14 +2110,50 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref, _results;
+      var elem, _i, _len, _ref;
       _ref = $el.find('input:checked');
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elem = _ref[_i];
-        _results.push(elem.checked = false);
+        elem.checked = false;
       }
-      return _results;
+      return $el.find('input:text').val('');
+    },
+    fieldToValue: function($el, model) {
+      return (function(all_elem, res) {
+        _.each(all_elem, function(elem) {
+          return (function($elem) {
+            if ($elem.is(":checkbox")) {
+              return res[$elem.attr('name')] = $elem.is(":checked");
+            } else {
+              return res[$elem.attr('name')] = $elem.val();
+            }
+          })($(elem));
+        });
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
+    },
+    setup: function(field_view, model) {
+      if (model.get('field_values')) {
+        return (function(val_hash) {
+          return _.each(val_hash, function(val, key) {
+            return (function(target_elemnt) {
+              if (target_elemnt.is(":checkbox")) {
+                return target_elemnt.prop('checked', val);
+              } else {
+                return target_elemnt.val(val);
+              }
+            })(field_view.$el.find("[name=" + key + "]"));
+          });
+        })(model.get('field_values'));
+      } else if (model.get('field_options')) {
+        return (function(options, cid) {
+          return _.each(options, function(val, index) {
+            if (val.checked) {
+              return field_view.$el.find("[name=" + cid + "_" + (index + 1) + "]").prop("checked", true);
+            }
+          });
+        })(model.get('field_options').options, model.getCid());
+      }
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
@@ -2736,6 +2789,14 @@
     setup: function(field_view, model, edit_fs_model) {
       if (model.attributes.field_values) {
         field_view.$el.find("select").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+      } else {
+        (function(available_options) {
+          return _.each(available_options, function(opt) {
+            if (opt.checked) {
+              return field_view.$el.find("select").val(opt.label);
+            }
+          });
+        })(model.get(Formbuilder.options.mappings.OPTIONS));
       }
       return (function(field_dom) {
         if (field_dom.length > 0 && field_dom.val() !== '') {
@@ -3439,6 +3500,43 @@
       }
       return cid;
     },
+    fieldToValue: function($el, model) {
+      return (function(all_elem, res) {
+        _.each(all_elem, function(elem) {
+          return (function($elem) {
+            if ($elem.is(":radio")) {
+              return res[$elem.val()] = $elem.is(":checked");
+            } else {
+              return res[$elem.attr('name')] = $elem.val();
+            }
+          })($(elem));
+        });
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
+    },
+    setup: function(field_view, model) {
+      if (model.get('field_values')) {
+        return (function(val_hash) {
+          return _.each(val_hash, function(val, key) {
+            return (function(target_elemnt) {
+              if (target_elemnt.is(":radio")) {
+                return target_elemnt.prop('checked', val);
+              } else {
+                return field_view.$el.find("input[name=" + key + "]").val(val);
+              }
+            })(field_view.$el.find(":radio[value=" + key + "]"));
+          });
+        })(model.get('field_values'));
+      } else if (model.get('field_options')) {
+        return (function(options, cid) {
+          return _.each(options, function(val, index) {
+            if (val.checked) {
+              return field_view.$el.find(":radio[value=" + val.label + "]").prop("checked", true);
+            }
+          });
+        })(model.get('field_options').options, model.getCid());
+      }
+    },
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
@@ -3457,14 +3555,13 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref, _results;
+      var elem, _i, _len, _ref;
       _ref = $el.find('input:checked');
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elem = _ref[_i];
-        _results.push(elem.checked = false);
+        elem.checked = false;
       }
-      return _results;
+      return $el.find('input:text').val('');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
