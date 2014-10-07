@@ -78,6 +78,33 @@ Formbuilder.registerField 'radio',
       return false if($el.find('input:text').val() == '')
     return cid
 
+  fieldToValue: ($el, model) ->
+    do(all_elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      _.each all_elem, (elem) ->
+        do($elem = $(elem)) ->
+          if $elem.is(":radio")
+            res[$elem.val()] = $elem.is(":checked")
+          else
+            res[$elem.attr('name')] = $elem.val()
+      res
+
+  setup: (field_view, model) ->
+    if model.get('field_values')
+      do( val_hash = model.get('field_values')) ->
+        _.each val_hash, (val, key) ->
+          do(target_elemnt = field_view.$el.find(":radio[value="+key+"]")) ->
+            if target_elemnt.is(":radio")
+              target_elemnt.prop('checked',val)
+            else
+              field_view.$el.find("input[name="+key+"]").val(val)
+    else if model.get('field_options')
+      do( options = model.get('field_options').options,
+          cid = model.getCid() ) ->
+        _.each options, (val, index) ->
+          if val.checked
+            field_view.$el.find(":radio[value="+val.label+"]").prop("checked", true)
+
   isValid: ($el, model) ->
     do(valid = false) =>
       valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
@@ -91,6 +118,7 @@ Formbuilder.registerField 'radio',
   clearFields: ($el, model) ->
     for elem in $el.find('input:checked')
       elem.checked = false
+    $el.find('input:text').val('')
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
     do(

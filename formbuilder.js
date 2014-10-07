@@ -3451,6 +3451,43 @@
       }
       return cid;
     },
+    fieldToValue: function($el, model) {
+      return (function(all_elem, res) {
+        _.each(all_elem, function(elem) {
+          return (function($elem) {
+            if ($elem.is(":radio")) {
+              return res[$elem.val()] = $elem.is(":checked");
+            } else {
+              return res[$elem.attr('name')] = $elem.val();
+            }
+          })($(elem));
+        });
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
+    },
+    setup: function(field_view, model) {
+      if (model.get('field_values')) {
+        return (function(val_hash) {
+          return _.each(val_hash, function(val, key) {
+            return (function(target_elemnt) {
+              if (target_elemnt.is(":radio")) {
+                return target_elemnt.prop('checked', val);
+              } else {
+                return field_view.$el.find("input[name=" + key + "]").val(val);
+              }
+            })(field_view.$el.find(":radio[value=" + key + "]"));
+          });
+        })(model.get('field_values'));
+      } else if (model.get('field_options')) {
+        return (function(options, cid) {
+          return _.each(options, function(val, index) {
+            if (val.checked) {
+              return field_view.$el.find(":radio[value=" + val.label + "]").prop("checked", true);
+            }
+          });
+        })(model.get('field_options').options, model.getCid());
+      }
+    },
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
@@ -3469,14 +3506,13 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      var elem, _i, _len, _ref, _results;
+      var elem, _i, _len, _ref;
       _ref = $el.find('input:checked');
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         elem = _ref[_i];
-        _results.push(elem.checked = false);
+        elem.checked = false;
       }
-      return _results;
+      return $el.find('input:text').val('');
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
