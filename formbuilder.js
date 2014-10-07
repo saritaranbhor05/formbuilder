@@ -269,7 +269,11 @@
           return elem;
         },
         wrap_section: function(last_field_index) {
+          var next_btn_text;
           return (function(that, view_index, inner_wiz, wrap_inner_0, wrap_inner_1, wrap_inner_2, inner1, inner2) {
+            if (!Formbuilder.isMobile()) {
+              next_btn_text = 'Next Entry';
+            }
             inner1.append_child(that.frag);
             wrap_inner_1.append(inner1.frag);
             inner_wiz.append(wrap_inner_0);
@@ -279,7 +283,7 @@
             Formbuilder.make_wizard(inner_wiz, {
               stepClassName: "mystep",
               prevButton: "Prev entry",
-              nextButton: "Save and New entry",
+              nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,
               before: function(wiz, curobj, nextobj) {
@@ -331,7 +335,7 @@
             view_type: this.options.view_type,
             index: 2,
             back_visibility: false
-          }));
+          }, next_btn_text = "Save and New entry"));
         },
         setSectionProps: function(cnt, back_visibility, elem) {
           elem = elem || this.$el;
@@ -1323,7 +1327,13 @@
                   });
                 } else {
                   cid = model.getCid();
-                  method = (field_method_call.android_setup && Formbuilder.isAndroid()) || (field_method_call.ios_setup && Formbuilder.isIos()) || field_method_call.setup;
+                  method = field_method_call.setup;
+                  if (field_method_call.android_setup && Formbuilder.isAndroid()) {
+                    method = field_method_call.android_setup;
+                  }
+                  if (field_method_call.ios_setup && Formbuilder.isIos()) {
+                    method = field_method_call.ios_setup;
+                  }
                   (function(all_field_values) {
                     if (all_field_values && all_field_values[0]) {
                       model.unset('field_values', {
@@ -2819,23 +2829,68 @@
         };
       })(this)(false, null);
     },
-    setup: function(field_view, model) {
+    clearFields: function($el, model) {
+      $el.find('.canvas_img').attr('src', '');
+      return $el.find('.canvas_img').attr('upload_url', '');
+    },
+    fieldToValue: function($el, model) {
       return (function(_this) {
-        return function(model_cid, upload_url, $img) {
-          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
-            upload_url = model.get('field_values')["" + model_cid + "_1"];
-            $img.attr("upload_url", upload_url);
-            $img.show();
-          } else if ($img.attr('src') && $img.attr('src') !== '') {
-            $img.show();
-          } else {
-            $img.hide();
+        return function(esig_can, comp_obj) {
+          (function(key) {
+            return comp_obj[key] = esig_can.attr('src');
+          })(esig_can.attr('name'));
+          return comp_obj;
+        };
+      })(this)($el.find('.canvas_img'), {});
+    },
+    assignSrcAndShowImg: function(base64_data_or_url, $img) {
+      var regex4esign;
+      regex4esign = /^data:image\/png;base64/;
+      if (regex4esign.test(base64_data_or_url)) {
+        $img.attr("src", base64_data_or_url);
+      } else {
+        $img.attr("upload_url", base64_data_or_url);
+        makeRequest(base64_data_or_url, $img.attr("name"));
+      }
+      return $img.show();
+    },
+    android_setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, upload_url, $img, esig_fl_vals, _that) {
+          if (!model.get('field_values') || _.isEmpty(model.get('field_values')) || model.get('field_values')["" + model_cid + "_1"] === '') {
+            esig_fl_vals = JSON.parse(Android.getEsigImageData(model_cid + '_' + 1));
+            model.set({
+              'field_values': esig_fl_vals
+            }, {
+              silent: true
+            });
           }
-          if (upload_url) {
-            return makeRequest(upload_url, $img.attr("name"));
+          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
+            return _that.assignSrcAndShowImg(model.get('field_values')["" + model_cid + "_1"], $img);
+          } else if (model.get('field_values') && model.get('field_values')["0"]) {
+            return _that.assignSrcAndShowImg(model.get('field_values')["0"]["" + model_cid + "_1"], $img);
+          } else if ($img.attr('src') && $img.attr('src') !== '') {
+            return $img.show();
+          } else {
+            return $img.hide();
           }
         };
-      })(this)(model.getCid(), '', field_view.$el.find('img'));
+      })(this)(model.getCid(), '', field_view.$el.find('img'), {}, this);
+    },
+    setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, upload_url, $img, _that) {
+          var regex4esign;
+          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_1"]) {
+            _that.assignSrcAndShowImg(model.get('field_values')["" + model_cid + "_1"], $img);
+            return regex4esign = /^data:image\/png;base64/;
+          } else if ($img.attr('src') && $img.attr('src') !== '') {
+            return $img.show();
+          } else {
+            return $img.hide();
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('img'), this);
     }
   });
 

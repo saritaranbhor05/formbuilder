@@ -86,17 +86,55 @@ Formbuilder.registerField 'esignature',
         return is_empty
       valid
 
-  setup: (field_view, model) ->
+  clearFields: ($el, model) ->
+    $el.find('.canvas_img').attr('src', '')
+    $el.find('.canvas_img').attr('upload_url', '')
+
+  fieldToValue: ($el, model) ->
+    do(esig_can = $el.find('.canvas_img'), comp_obj = {}) =>
+      do(key = esig_can.attr('name')) =>
+        comp_obj[key] = esig_can.attr('src')
+      comp_obj
+
+  assignSrcAndShowImg: (base64_data_or_url, $img) ->
+    regex4esign = /^data:image\/png;base64/
+    if(regex4esign.test base64_data_or_url)
+      $img.attr("src", base64_data_or_url)
+    else
+      $img.attr("upload_url", base64_data_or_url)
+      makeRequest(base64_data_or_url, $img.attr("name"))
+    $img.show()
+  
+  android_setup: (field_view, model) ->
     do(model_cid = model.getCid(),
        upload_url = '',
-       $img = field_view.$el.find('img')) =>
+       $img = field_view.$el.find('img'), esig_fl_vals = {}, _that = @) =>
+      if (!model.get('field_values') || _.isEmpty(model.get('field_values')) || model.get('field_values')["#{model_cid}_1"] == '')
+        # Android.getEsigImageData is a method which takes esignature cid and
+        # returns field values as follows:
+        # {"0":{"c36_1": base64_data}, "1": {"c36_1": base64_data}}
+        esig_fl_vals = JSON.parse(Android.getEsigImageData(model_cid + '_' + 1))
+        model.set({'field_values': esig_fl_vals }, {silent: true});
       if model.get('field_values') && model.get('field_values')["#{model_cid}_1"]
-        upload_url = model.get('field_values')["#{model_cid}_1"]
-        $img.attr("upload_url", upload_url)
-        $img.show()
+        _that.assignSrcAndShowImg(
+          model.get('field_values')["#{model_cid}_1"], $img)
+      else if model.get('field_values') && model.get('field_values')["0"]
+        _that.assignSrcAndShowImg(
+          model.get('field_values')["0"]["#{model_cid}_1"], $img)
       else if $img.attr('src') && $img.attr('src') != ''
         $img.show()
       else
         $img.hide()
-      if upload_url
-        makeRequest(upload_url, $img.attr("name"))
+
+  setup: (field_view, model) ->
+    do(model_cid = model.getCid(),
+       upload_url = '',
+       $img = field_view.$el.find('img'), _that = @) =>
+      if model.get('field_values') && model.get('field_values')["#{model_cid}_1"]
+        _that.assignSrcAndShowImg(
+          model.get('field_values')["#{model_cid}_1"], $img)
+        regex4esign = /^data:image\/png;base64/
+      else if $img.attr('src') && $img.attr('src') != ''
+        $img.show()
+      else
+        $img.hide()

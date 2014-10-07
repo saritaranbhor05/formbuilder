@@ -202,7 +202,9 @@ class Formbuilder
               parentView: @
               view_type: @options.view_type
               index: 2
-              back_visibility: false) ->
+              back_visibility: false,
+              next_btn_text = "Save and New entry") ->
+          next_btn_text = 'Next Entry' unless Formbuilder.isMobile()
           inner1.append_child(that.frag)
           wrap_inner_1.append(inner1.frag)
           inner_wiz.append(wrap_inner_0)
@@ -213,7 +215,7 @@ class Formbuilder
             {
               stepClassName: "mystep",
               prevButton: "Prev entry",
-              nextButton: "Save and New entry",
+              nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,
               before: (wiz, curobj, nextobj) ->
@@ -644,7 +646,9 @@ class Formbuilder
           do( that = this,
               fv = this.fieldViews[section_st_index], all_field_vals ={}) ->
             _.extend(all_field_vals, fv.model.get('field_values'))
-            if fv.field.clearFields then fv.field.clearFields(fv.$el, fv.model) else that.default_clear_fields(fv)
+            if fv.field.clearFields
+              fv.field.clearFields(fv.$el, fv.model)
+            else that.default_clear_fields(fv)
             if fv.field.setup
               fv.model.unset('field_values', {silent:true})
               fv.field.setup(fv, fv.model)
@@ -1088,7 +1092,11 @@ class Formbuilder
                 #field_method_call = Formbuilder.fields[field_type_method_call]
                 cid = model.getCid()
 
-                method = (field_method_call.android_setup && Formbuilder.isAndroid() )  || (field_method_call.ios_setup && Formbuilder.isIos() )  || field_method_call.setup
+                method = field_method_call.setup
+                if field_method_call.android_setup && Formbuilder.isAndroid()
+                  method = field_method_call.android_setup
+                if field_method_call.ios_setup && Formbuilder.isIos()
+                  method = field_method_call.ios_setup
                 do(all_field_values = model.get('field_values')) ->
                   if all_field_values && all_field_values[0]
                     model.unset('field_values', {silent:true})
