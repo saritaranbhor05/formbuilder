@@ -664,7 +664,9 @@ class Formbuilder
             method = that.get_appripriate_setup_method(fv)
             if method
               fv.model.unset('field_values', {silent:true})
-              method(fv, fv.model)
+              fv.model.set({'new_page': true}, {silent:true})
+              method.call(fv.field, fv, fv.model)
+              fv.model.unset('new_page', {silent:true})
               fv.model.set({'field_values': all_field_vals}, {silent:true})
           section_st_index++
 
@@ -679,7 +681,7 @@ class Formbuilder
               ) ->
               if method
                 fv.model.attributes.field_values = req_field_vals
-                method(fv, fv.model)
+                method.call(fv.field, fv, fv.model)
                 fv.model.attributes.field_values = all_field_vals
               else
                 that.default_setup(fv, fv.model.attributes.field_values[load_index])

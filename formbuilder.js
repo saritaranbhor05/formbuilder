@@ -849,7 +849,15 @@
                 fv.model.unset('field_values', {
                   silent: true
                 });
-                method(fv, fv.model);
+                fv.model.set({
+                  'new_page': true
+                }, {
+                  silent: true
+                });
+                method.call(fv.field, fv, fv.model);
+                fv.model.unset('new_page', {
+                  silent: true
+                });
                 return fv.model.set({
                   'field_values': all_field_vals
                 }, {
@@ -869,7 +877,7 @@
               return (function(all_field_vals, req_field_vals, method) {
                 if (method) {
                   fv.model.attributes.field_values = req_field_vals;
-                  method(fv, fv.model);
+                  method.call(fv.field, fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
                   return that.default_setup(fv, fv.model.attributes.field_values[load_index]);
@@ -2918,6 +2926,9 @@
     android_setup: function(field_view, model) {
       return (function(_this) {
         return function(model_cid, upload_url, $img, esig_fl_vals, _that) {
+          if (model.get('new_page')) {
+            return $img.hide();
+          }
           if (!model.get('field_values') || _.isEmpty(model.get('field_values')) || model.get('field_values')["" + model_cid + "_1"] === '') {
             esig_fl_vals = JSON.parse(Android.getEsigImageData(model_cid + '_' + 1));
             model.set({

@@ -109,6 +109,7 @@ Formbuilder.registerField 'esignature',
     do(model_cid = model.getCid(),
        upload_url = '',
        $img = field_view.$el.find('img'), esig_fl_vals = {}, _that = @) =>
+      return $img.hide() if model.get('new_page')
       if (!model.get('field_values') || _.isEmpty(model.get('field_values')) || model.get('field_values')["#{model_cid}_1"] == '')
         # Android.getEsigImageData is a method which takes esignature cid and
         # returns field values as follows:
