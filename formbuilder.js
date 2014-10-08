@@ -241,7 +241,6 @@
           'click .js-clear': 'clear',
           'keyup': 'changeStateSource',
           'change': 'changeStateSource',
-          'click #gmap_button': 'openGMap',
           'mouseover #can': 'onCanvas'
         },
         onCanvas: function() {
@@ -388,44 +387,6 @@
         },
         changeStateSource: function(ev) {
           return this.trigger('change_state');
-        },
-        openGMap: function() {
-          if ($('#gmapModal').length === 0) {
-            if (this.field.addRequiredConditions) {
-              this.field.addRequiredConditions(this.model);
-            }
-          }
-          $('#gmap_ok').val(this.model.getCid());
-          $('#gmapModal').modal({
-            show: true
-          });
-          $("#gmapModal").on("shown.bs.modal", function(e) {
-            var gmap_button_value;
-            gmap_button_value = $("[name = " + getCid() + "_2]").val();
-            initialize();
-            $("#gmap_address").keypress(function(event) {
-              set_prev_lat_lng($('#gmap_latlng').val());
-              if (event.keyCode === 13) {
-                return codeAddress();
-              }
-            });
-            $("#gmap_latlng").keypress(function(event) {
-              set_prev_address($("#gmap_address").val());
-              if (event.keyCode === 13) {
-                return codeLatLng();
-              }
-            });
-            if (gmap_button_value !== '') {
-              set_prev_lat_lng(gmap_button_value);
-              return codeLatLng(gmap_button_value);
-            }
-          });
-          return $('#gmapModal').on('hidden.bs.modal', function(e) {
-            $('#gmapModal').off('shown').on('shown');
-            $(this).removeData("modal");
-            $("#gmap_address").unbind('keypress');
-            return $("#gmap_latlng").unbind('keypress');
-          });
         },
         isValid: function() {
           if (!this.field.isValid) {
@@ -2770,8 +2731,8 @@
       })(this)(false);
     },
     setup: function(field_view, model) {
-      return (function(_this) {
-        return function($input) {
+      (function(_this) {
+        return (function($input) {
           var get_user_location;
           if (model.attributes.field_values) {
             field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["" + (model.getCid()) + "_1"]);
@@ -2789,8 +2750,48 @@
           if ($input.val() !== '') {
             return field_view.trigger('change_state');
           }
-        };
+        });
       })(this)(field_view.$el.find($("[name = " + model.getCid() + "_2]")));
+      return $('#gmap_button').bind('click', (function(_this) {
+        return function(ev) {
+          if ($('#gmapModal').length === 0) {
+            if (_this.addRequiredConditions) {
+              _this.addRequiredConditions(model);
+            }
+          }
+          $('#gmap_ok').val(model.getCid());
+          $('#gmapModal').modal({
+            show: true
+          });
+          $("#gmapModal").on("shown.bs.modal", function(e) {
+            var gmap_button_value;
+            gmap_button_value = $("[name = " + getCid() + "_2]").val();
+            initialize();
+            $("#gmap_address").keypress(function(event) {
+              set_prev_lat_lng($('#gmap_latlng').val());
+              if (event.keyCode === 13) {
+                return codeAddress();
+              }
+            });
+            $("#gmap_latlng").keypress(function(event) {
+              set_prev_address($("#gmap_address").val());
+              if (event.keyCode === 13) {
+                return codeLatLng();
+              }
+            });
+            if (gmap_button_value !== '') {
+              set_prev_lat_lng(gmap_button_value);
+              return codeLatLng(gmap_button_value);
+            }
+          });
+          return $('#gmapModal').on('hidden.bs.modal', function(e) {
+            $('#gmapModal').off('shown').on('shown');
+            $(this).removeData("modal");
+            $("#gmap_address").unbind('keypress');
+            return $("#gmap_latlng").unbind('keypress');
+          });
+        };
+      })(this));
     }
   });
 
