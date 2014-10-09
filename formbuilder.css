@@ -356,6 +356,7 @@
   margin: 0px;
 }
 #gmapModal .modal-body {
+  height: calc(100% - 100px);
   overflow-y: hidden;
   overflow-x: hidden;
 }
