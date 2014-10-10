@@ -2730,29 +2730,8 @@
         };
       })(this)(false);
     },
-    setup: function(field_view, model) {
-      (function(_this) {
-        return (function($input) {
-          var get_user_location;
-          if (model.attributes.field_values) {
-            field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["" + (model.getCid()) + "_1"]);
-            $input.val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
-          } else {
-            if (!(model.get('field_values') && model.get('field_values')[name])) {
-              get_user_location = getCurrentLocation(model.getCid());
-              if (get_user_location !== 'false') {
-                $("[name = " + model.getCid() + "_1]").text(get_user_location);
-              } else {
-                $("[name = " + model.getCid() + "_1]").text('Select Your Address');
-              }
-            }
-          }
-          if ($input.val() !== '') {
-            return field_view.trigger('change_state');
-          }
-        });
-      })(this)(field_view.$el.find($("[name = " + model.getCid() + "_2]")));
-      return $('#gmap_button').bind('click', (function(_this) {
+    clickGmapButton: function(model) {
+      return $("[name = " + model.getCid() + "_1]").bind('click', (function(_this) {
         return function(ev) {
           if ($('#gmapModal').length === 0) {
             if (_this.addRequiredConditions) {
@@ -2792,6 +2771,30 @@
           });
         };
       })(this));
+    },
+    setup: function(field_view, model) {
+      (function(_this) {
+        return (function($input) {
+          var get_user_location;
+          if (model.attributes.field_values) {
+            field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            $input.val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+          } else {
+            if (!(model.get('field_values') && model.get('field_values')[name])) {
+              get_user_location = getCurrentLocation(model.getCid());
+              if (get_user_location !== 'false') {
+                $("[name = " + model.getCid() + "_1]").text(get_user_location);
+              } else {
+                $("[name = " + model.getCid() + "_1]").text('Select Your Address');
+              }
+            }
+          }
+          if ($input.val() !== '') {
+            return field_view.trigger('change_state');
+          }
+        });
+      })(this)(field_view.$el.find($("[name = " + model.getCid() + "_2]")));
+      return this.clickGmapButton(model);
     }
   });
 
