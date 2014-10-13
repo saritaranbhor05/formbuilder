@@ -90,6 +90,21 @@ Formbuilder.registerField 'gmap',
         return $el.find("[name = " + model.getCid() + "_1]").text() != ''
       valid
 
+  clearFields: ($el, model) ->
+    $el.find('a').text('Select Your Address')
+    $el.find('input').val('')
+
+  fieldToValue: ($el, model) ->
+    do(all_elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      _.each all_elem, (elem) ->
+        do($elem = $(elem)) ->
+          if $elem.is("a")
+            res[$elem.attr('name')] = $elem.text()
+          else if $elem.is("input")
+            res[$elem.attr('name')] = $elem.val()
+      res
+
   setup: (field_view, model) ->
     do($input = field_view.$el.find($("[name = " + model.getCid() + "_2]"))) =>
       if model.attributes.field_values

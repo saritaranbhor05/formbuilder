@@ -67,6 +67,29 @@ Formbuilder.registerField 'scale_rating',
         return checked_chk_cnt > 0
       valid
 
+  fieldToValue: ($el, model) ->
+    do(all_elem = $el.find('[name='+model.getCid()+'_0]'),
+      res = {}) ->
+      _.each all_elem, (elem) ->
+        do($elem = $(elem)) ->
+          if $elem.is(":radio")
+            res[$elem.val()] = $elem.is(":checked")
+      res
+
+  setup: (field_view, model) ->
+    if model.get('field_values')
+      do( val_hash = model.get('field_values')) ->
+        _.each val_hash, (val, key) ->
+          do(target_elemnt = field_view.$el.find(":radio[value="+key+"]")) ->
+            if target_elemnt.is(":radio")
+              target_elemnt.prop('checked',val)
+    else if model.get('field_options')
+      do( options = model.get('field_options').options,
+          cid = model.getCid() ) ->
+        _.each options, (val, index) ->
+          if val.checked
+            field_view.$el.find(":radio[value="+(index+1)+"]").prop("checked", true)
+
   clearFields: ($el, model) ->
     do(elem = '') =>
       for elem in $el.find('input:checked')

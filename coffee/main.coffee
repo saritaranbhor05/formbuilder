@@ -114,6 +114,7 @@ class Formbuilder
   @fields: {}
   @inputFields: {}
   @nonInputFields: {}
+  @latest_section_id: 100
 
   @isIos: ->
     typeof(BRIJavaScriptInterface) != 'undefined'
@@ -235,6 +236,8 @@ class Formbuilder
                       if view_index > that.total_responses
                         that.total_responses++
                     else
+                      if view_index == that.total_responses
+                        that.total_responses++
                       view_index--
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
                     that.section_break_field_model.set('response_cnt', that.total_responses)
@@ -560,8 +563,44 @@ class Formbuilder
         'click .js-default-updated': 'defaultUpdated'
         'input .option-label-input': 'forceRender'
 
+      top_subset_collection: (cid, collection) ->
+          do( json_collection = collection.toJSON(),
+              arr_till_this_model = [] ) ->
+            for field,index in json_collection
+              if field.cid == cid
+                return arr_till_this_model.reverse()
+              else
+                arr_till_this_model.push(field)
+
       initialize: ->
+        if @model.get('field_type') == 'section_break'
+          @model.off "change:field_options.recurring_section"
+          @model.on "change:field_options.recurring_section", @recurring_status_modified, @
+          if !@model.get('unique_id')
+            do( latest_id = Formbuilder.latest_section_id++,
+                current_model = @model,
+                that = @) ->
+              current_model.set("unique_id", latest_id)
+        else
+          do( current_model = @model,
+              target_arr = @top_subset_collection(@model.getCid(), @options.parentView.collection.sort())) ->
+              for field in target_arr
+                if field.field_type == 'section_break'
+                  current_model.set("section_id", field.unique_id)
+                  do ( options = field.field_options ) ->
+                    if options.recurring_section
+                      current_model.set("i_am_in_recurring_section", true)
+                  break
         @listenTo @model, "destroy", @remove
+
+      recurring_status_modified: (model, value)->
+        console.log("ok here", value)
+        do ( target_arr = @options.parentView.collection.sort(), unique_section_id = model.get('unique_id') ) ->
+          do(target_arr = target_arr.models) ->
+            for field in target_arr
+              if field.get('section_id') == unique_section_id
+                field.set('i_am_in_recurring_section',value)
+                field.set('conditions', [])
 
       render: ->
         @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model, opts: @options}))
@@ -657,6 +696,7 @@ class Formbuilder
           do( that = this,
               method = null,
               fv = this.fieldViews[section_st_index], all_field_vals ={}) ->
+            return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
             _.extend(all_field_vals, fv.model.get('field_values'))
             if fv.field.clearFields
               fv.field.clearFields(fv.$el, fv.model)
@@ -675,6 +715,7 @@ class Formbuilder
           do( that = this,
             fv = this.fieldViews[section_st_index]
             )->
+            return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
             do( all_field_vals = fv.model.attributes.field_values,
                 req_field_vals = fv.model.attributes.field_values[load_index],
                 method = that.get_appripriate_setup_method(fv)
@@ -690,6 +731,7 @@ class Formbuilder
       save_field_values_at_index: (section_st_index, section_end_index, save_at_index) ->
         while section_st_index <= section_end_index
           do( fv = this.fieldViews[section_st_index] )->
+            return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
             do( serialized_values = {},
                 fl_val_hash = fv.model.attributes.field_values || {},
                 computed_obj = {}
