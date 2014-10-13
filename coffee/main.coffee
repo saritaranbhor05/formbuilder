@@ -247,7 +247,6 @@ class Formbuilder
                     else
                       wiz.find(".easyWizardButtons.mystep .prev").show()
                       wiz.find(".easyWizardButtons.mystep .prev").removeClass('hide')
-                    console.log("You are at view no ", view_index )
                     return false
             })
           inner_wiz.easyWizard('goToStep', 2)
@@ -594,7 +593,6 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
 
       recurring_status_modified: (model, value)->
-        console.log("ok here", value)
         do ( target_arr = @options.parentView.collection.sort(), unique_section_id = model.get('unique_id') ) ->
           do(target_arr = target_arr.models) ->
             for field in target_arr
@@ -740,8 +738,6 @@ class Formbuilder
                 fv.model.set({'view_index': save_at_index}, {silent:true})
                 if fv.field.fieldToValue
                   computed_obj = fv.field.fieldToValue(fv.$el, fv.model)
-                  console.log('computed_obj');
-                  console.log(computed_obj);
                 else
                   serialized_values = fv.$el.find('input, textarea, select, .canvas_img, a').serializeArray()
                   _.each serialized_values, (val) ->
