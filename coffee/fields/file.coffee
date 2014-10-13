@@ -85,6 +85,18 @@ Formbuilder.registerField 'file',
     <span class="symbol"><span class="icon-cloud-upload"></span></span> File
   """
 
+  clearFields: ($el, model) ->
+    $el.find('a[type=pic_video_audio]').text('')
+
+  fieldToValue: ($el, model) ->
+    do(link_ele = $el.find('a[type=pic_video_audio]'), comp_obj = {}) =>
+      do(key = link_ele.attr('name'), link_href = link_ele.attr('href')) =>
+        if _.isEmpty(link_href)
+          comp_obj[key] = { 'name': link_ele.text(), 'url': link_ele.text() }
+        else
+          comp_obj[key] = { 'name': link_ele.text(), 'url': link_href }
+      comp_obj
+
   checkAttributeHasValue: (cid, $el)->
     do(incomplete = false) =>
       call_back = (k,v)->
@@ -104,3 +116,32 @@ Formbuilder.registerField 'file',
     $("." + cid)
             .find("[name = "+cid+"_2]")
             .attr("required", required)
+
+  android_bindevents: (field_view) ->
+    do(btn_input_file = field_view.$el.find('input[type=button]'), _that = @,
+      view_index = 0) =>
+      $(btn_input_file).on "click", ->
+        view_index = field_view.model.get('view_index')
+        if !view_index
+          view_index = 0
+        Android.f2dSelectFile(
+          field_view.model.getCid(),
+          "file_upload",
+          $(btn_input_file).attr("for-ios-file-size").toString(), view_index)
+        return
+
+  android_setup: (field_view, model) ->
+    do(model_cid = model.getCid(),
+       file_url = '',
+       $link_ele = field_view.$el.find('a[type=pic_video_audio]'), _that = @) =>
+      if model.get('field_values') && model.get('field_values')["#{model_cid}_2"]
+        $link_ele.text(model.get('field_values')["#{model_cid}_2"]['name'])
+        $link_ele.attr('href', model.get('field_values')["#{model_cid}_2"]['url'])
+
+  setup: (field_view, model) ->
+    do(model_cid = model.getCid(),
+       file_url = '',
+       $link_ele = field_view.$el.find('a[type=pic_video_audio]'), _that = @) =>
+      if model.get('field_values') && model.get('field_values')["#{model_cid}_2"]
+        $link_ele.text(model.get('field_values')["#{model_cid}_2"]['name'])
+        $link_ele.attr('href', model.get('field_values')["#{model_cid}_2"]['url'])

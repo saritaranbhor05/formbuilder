@@ -298,7 +298,7 @@
                       if (view_index < that.total_responses) {
                         that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index);
                       } else {
-                        that.parentView.setup_new_page(that.first_field_index, last_field_index);
+                        that.parentView.setup_new_page(that.first_field_index, last_field_index, view_index);
                       }
                       if (view_index > that.total_responses) {
                         that.total_responses++;
@@ -833,7 +833,7 @@
             return method;
           })(null);
         },
-        setup_new_page: function(section_st_index, section_end_index) {
+        setup_new_page: function(section_st_index, section_end_index, view_index) {
           var _results;
           _results = [];
           while (section_st_index <= section_end_index) {
@@ -850,7 +850,8 @@
                   silent: true
                 });
                 fv.model.set({
-                  'new_page': true
+                  'new_page': true,
+                  'view_index': view_index
                 }, {
                   silent: true
                 });
@@ -877,6 +878,11 @@
               return (function(all_field_vals, req_field_vals, method) {
                 if (method) {
                   fv.model.attributes.field_values = req_field_vals;
+                  fv.model.set({
+                    'view_index': load_index
+                  }, {
+                    silent: true
+                  });
                   method.call(fv.field, fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
@@ -894,8 +900,15 @@
           while (section_st_index <= section_end_index) {
             (function(fv) {
               return (function(serialized_values, fl_val_hash, computed_obj) {
+                fv.model.set({
+                  'view_index': save_at_index
+                }, {
+                  silent: true
+                });
                 if (fv.field.fieldToValue) {
                   computed_obj = fv.field.fieldToValue(fv.$el, fv.model);
+                  console.log('computed_obj');
+                  console.log(computed_obj);
                 } else {
                   serialized_values = fv.$el.find('input, textarea, select, .canvas_img, a').serializeArray();
                   _.each(serialized_values, function(val) {
@@ -1329,25 +1342,30 @@
                     })(this)(0);
                   });
                 } else if (field_view.model.get('field_type') === 'file') {
-                  _.each(model.get('field_values'), function(value, key) {
-                    if (value !== "") {
-                      return (function(_this) {
-                        return function(a_href_val, a_text) {
-                          if ($('#file_upload_link_' + field_view.model.getCid())) {
-                            if (_.isString(value)) {
-                              a_href_val = value;
-                              a_text = value.split("/").pop().split("?")[0];
-                            } else if (_.isObject(value)) {
-                              a_href_val = value.url;
-                              a_text = value.name;
+                  if (model.get('field_values')) {
+                    _.each(model.get('field_values')["0"], function(value, key) {
+                      if (value !== "") {
+                        return (function(_this) {
+                          return function(a_href_val, a_text, mod_cid) {
+                            if ($('#file_upload_link_' + mod_cid)) {
+                              if (_.isString(value)) {
+                                a_href_val = value;
+                                a_text = value.split("/").pop().split("?")[0];
+                              } else if (_.isObject(value) && !_.isUndefined(value.url)) {
+                                a_href_val = value.url;
+                                a_text = value.name;
+                              } else if (_.isObject(value) && _.isObject(value[mod_cid + "_2"])) {
+                                a_href_val = value[mod_cid + "_2"].url;
+                                a_text = value[mod_cid + "_2"].name;
+                              }
+                              _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
                             }
-                            _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
-                          }
-                          return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
-                        };
-                      })(this)('', '');
-                    }
-                  });
+                            return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
+                          };
+                        })(this)('', '', field_view.model.getCid());
+                      }
+                    });
+                  }
                 } else {
                   cid = model.getCid();
                   if (field_method_call.setup) {
@@ -2974,6 +2992,29 @@
     edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
     print: "<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",
+    clearFields: function($el, model) {
+      return $el.find('a[type=pic_video_audio]').text('');
+    },
+    fieldToValue: function($el, model) {
+      return (function(_this) {
+        return function(link_ele, comp_obj) {
+          (function(key, link_href) {
+            if (_.isEmpty(link_href)) {
+              return comp_obj[key] = {
+                'name': link_ele.text(),
+                'url': link_ele.text()
+              };
+            } else {
+              return comp_obj[key] = {
+                'name': link_ele.text(),
+                'url': link_href
+              };
+            }
+          })(link_ele.attr('name'), link_ele.attr('href'));
+          return comp_obj;
+        };
+      })(this)($el.find('a[type=pic_video_audio]'), {});
+    },
     checkAttributeHasValue: function(cid, $el) {
       return (function(_this) {
         return function(incomplete) {
@@ -3003,6 +3044,39 @@
     add_remove_require: function(cid, required) {
       $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
       return $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
+    },
+    android_bindevents: function(field_view) {
+      return (function(_this) {
+        return function(btn_input_file, _that, view_index) {
+          return $(btn_input_file).on("click", function() {
+            view_index = field_view.model.get('view_index');
+            if (!view_index) {
+              view_index = 0;
+            }
+            Android.f2dSelectFile(field_view.model.getCid(), "file_upload", $(btn_input_file).attr("for-ios-file-size").toString(), view_index);
+          });
+        };
+      })(this)(field_view.$el.find('input[type=button]'), this, 0);
+    },
+    android_setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, file_url, $link_ele, _that) {
+          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_2"]) {
+            $link_ele.text(model.get('field_values')["" + model_cid + "_2"]['name']);
+            return $link_ele.attr('href', model.get('field_values')["" + model_cid + "_2"]['url']);
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
+    },
+    setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, file_url, $link_ele, _that) {
+          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_2"]) {
+            $link_ele.text(model.get('field_values')["" + model_cid + "_2"]['name']);
+            return $link_ele.attr('href', model.get('field_values')["" + model_cid + "_2"]['url']);
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
     }
   });
 
@@ -3675,10 +3749,31 @@
     print: "<div id=\"capture_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
     clearFields: function($el, model) {
-      return $el.find(".capture").text("");
+      return (function(_this) {
+        return function(attr_name) {
+          $el.find(".capture").text("");
+          return $el.find(".capture_link_" + attr_name).html('');
+        };
+      })(this)(model.getCid());
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(_this) {
+        return function(photo_ele, link_eles, comp_obj) {
+          (function(key) {
+            comp_obj[key] = [];
+            return _.each(link_eles, function(link_ele) {
+              comp_obj[key].push({
+                'name': link_ele.text(),
+                'url': link_ele.text()
+              });
+            });
+          })(photo_ele.attr('name'));
+          return comp_obj;
+        };
+      })(this)($el.find('a[type=pic_video_audio]'), $el.find('a[type=pic_video_audio]'), {});
     }
   });
 
