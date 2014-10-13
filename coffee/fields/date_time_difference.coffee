@@ -59,8 +59,8 @@ Formbuilder.registerField 'date_time_difference',
         el.blur()
 
       if model.get('field_values')
-        _.each dateTimeFields, (el) =>
-          el.val(model.attributes.field_values["#{model.getCid()}_1"])
+        _.each dateTimeFields, (el, index) =>
+          el.val(model.attributes.field_values["#{model.getCid()}_#{index+1}"])
         field_view.$el.find('#'+model.getCid()+'_differenceDateTimeDifference').val(model.attributes.field_values["#{model.getCid()}_3"])
 
       _.each dateTimeFields, (el) =>
@@ -136,8 +136,8 @@ Formbuilder.registerField 'date_time_difference',
         $el.find("[name = " + model.getCid() + "_2]"),
         $el.find("[name = " + model.getCid() + "_3]")
       ] ) =>
-    _.each targetFields, (el) =>
-      el.val("")
+      _.each targetFields, (el) =>
+        el.val("")
 
   convertToMili: (dhmStr) ->
     do(

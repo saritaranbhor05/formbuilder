@@ -2665,8 +2665,8 @@
             return el.blur();
           });
           if (model.get('field_values')) {
-            _.each(dateTimeFields, function(el) {
-              return el.val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            _.each(dateTimeFields, function(el, index) {
+              return el.val(model.attributes.field_values["" + (model.getCid()) + "_" + (index + 1)]);
             });
             field_view.$el.find('#' + model.getCid() + '_differenceDateTimeDifference').val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
           }
@@ -2747,14 +2747,13 @@
       })(this)(false);
     },
     clearFields: function($el, model) {
-      (function(_this) {
-        return (function(targetFields) {});
-      })(this)([$el.find("[name = " + model.getCid() + "_1]"), $el.find("[name = " + model.getCid() + "_2]"), $el.find("[name = " + model.getCid() + "_3]")]);
-      return _.each(targetFields, (function(_this) {
-        return function(el) {
-          return el.val("");
+      return (function(_this) {
+        return function(targetFields) {
+          return _.each(targetFields, function(el) {
+            return el.val("");
+          });
         };
-      })(this));
+      })(this)([$el.find("[name = " + model.getCid() + "_1]"), $el.find("[name = " + model.getCid() + "_2]"), $el.find("[name = " + model.getCid() + "_3]")]);
     },
     convertToMili: function(dhmStr) {
       return (function(_this) {
