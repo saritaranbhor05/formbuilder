@@ -232,7 +232,7 @@ class Formbuilder
                       if view_index < that.total_responses
                         that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
                       else
-                        that.parentView.setup_new_page(that.first_field_index, last_field_index)
+                        that.parentView.setup_new_page(that.first_field_index, last_field_index, view_index)
                       if view_index > that.total_responses
                         that.total_responses++
                     else
@@ -691,7 +691,7 @@ class Formbuilder
               method = field_view.field.setup
           method
 
-      setup_new_page: (section_st_index, section_end_index) ->
+      setup_new_page: (section_st_index, section_end_index, view_index) ->
         while section_st_index <= section_end_index
           do( that = this,
               method = null,
@@ -704,7 +704,7 @@ class Formbuilder
             method = that.get_appripriate_setup_method(fv)
             if method
               fv.model.unset('field_values', {silent:true})
-              fv.model.set({'new_page': true}, {silent:true})
+              fv.model.set({'new_page': true, 'view_index': view_index}, {silent:true})
               method.call(fv.field, fv, fv.model)
               fv.model.unset('new_page', {silent:true})
               fv.model.set({'field_values': all_field_vals}, {silent:true})
@@ -722,6 +722,7 @@ class Formbuilder
               ) ->
               if method
                 fv.model.attributes.field_values = req_field_vals
+                fv.model.set({'view_index': load_index}, {silent:true})
                 method.call(fv.field, fv, fv.model)
                 fv.model.attributes.field_values = all_field_vals
               else
@@ -736,8 +737,11 @@ class Formbuilder
                 fl_val_hash = fv.model.attributes.field_values || {},
                 computed_obj = {}
               ) ->
+                fv.model.set({'view_index': save_at_index}, {silent:true})
                 if fv.field.fieldToValue
                   computed_obj = fv.field.fieldToValue(fv.$el, fv.model)
+                  console.log('computed_obj');
+                  console.log(computed_obj);
                 else
                   serialized_values = fv.$el.find('input, textarea, select, .canvas_img, a').serializeArray()
                   _.each serialized_values, (val) ->
@@ -1131,21 +1135,25 @@ class Formbuilder
                       ) if @$('#capture_link_close_'+key)
                 )
               else if (field_view.model.get('field_type') is 'file')
-                _.each(model.get('field_values'), (value, key) ->
-                  unless value is ""
-                    do (a_href_val = '', a_text = '') =>
-                      if $('#file_upload_link_'+field_view.model.getCid())
-                        if _.isString value
-                          a_href_val = value
-                          a_text = value.split("/").pop().split("?")[0]
-                        else if _.isObject value
-                          a_href_val = value.url
-                          a_text = value.name
-                        @$('#file_upload_link_'+field_view.model.getCid()).html(
-                          "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
-                        )
-                      @$('#file_'+field_view.model.getCid()).attr("required", false);
-                )
+                if model.get('field_values')
+                  _.each(model.get('field_values')["0"], (value, key) ->
+                    unless value is ""
+                      do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
+                        if $('#file_upload_link_'+mod_cid)
+                          if _.isString value
+                            a_href_val = value
+                            a_text = value.split("/").pop().split("?")[0]
+                          else if _.isObject(value) && !_.isUndefined(value.url)
+                            a_href_val = value.url
+                            a_text = value.name
+                          else if _.isObject(value) && _.isObject value[mod_cid+"_2"]
+                            a_href_val = value[mod_cid+"_2"].url
+                            a_text = value[mod_cid+"_2"].name
+                          @$('#file_upload_link_'+field_view.model.getCid()).html(
+                            "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
+                          )
+                        @$('#file_'+field_view.model.getCid()).attr("required", false);
+                  )
               else
                 #field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                 #field_method_call = Formbuilder.fields[field_type_method_call]
