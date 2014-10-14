@@ -865,13 +865,6 @@ class Formbuilder
               field_method_call = '',
               cid = ''
             ) =>
-            #   if field_view.field && (field_view.field.android_setup || field_view.field.ios_setup || field_view.field.setup)
-            # if Formbuilder.isAndroid() && field_view.field.android_setup
-            #   method = field_view.field.android_setup
-            # else if Formbuilder.isIos() && field_view.field.ios_setup
-            #   method = field_view.field.ios_setup
-            # else
-            #   method = field_view.field.setup
               field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
               field_method_call = Formbuilder.fields[field_type_method_call]
 
