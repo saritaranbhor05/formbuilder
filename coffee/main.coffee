@@ -556,6 +556,9 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        unless _.isUndefined @options.field_configs.fieldtype_custom_validation
+          Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(
+            @options.field_configs.fieldtype_custom_validation)
         Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
@@ -862,7 +865,13 @@ class Formbuilder
               field_method_call = '',
               cid = ''
             ) =>
-
+            #   if field_view.field && (field_view.field.android_setup || field_view.field.ios_setup || field_view.field.setup)
+            # if Formbuilder.isAndroid() && field_view.field.android_setup
+            #   method = field_view.field.android_setup
+            # else if Formbuilder.isIos() && field_view.field.ios_setup
+            #   method = field_view.field.ios_setup
+            # else
+            #   method = field_view.field.setup
               field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
               field_method_call = Formbuilder.fields[field_type_method_call]
 

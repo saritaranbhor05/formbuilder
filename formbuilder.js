@@ -720,6 +720,9 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          if (!_.isUndefined(this.options.field_configs.fieldtype_custom_validation)) {
+            Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(this.options.field_configs.fieldtype_custom_validation);
+          }
           Formbuilder.options.FIELD_CONFIGS = this.options.field_configs;
           Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, this.options.external_fields);
           Formbuilder.options.EXTERNAL_FIELDS_TYPES = [];
