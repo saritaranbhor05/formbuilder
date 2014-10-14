@@ -70,6 +70,7 @@ Formbuilder.registerField 'gmap',
                 <input type="button" value="Location" onclick="codeAddress()" class="'+hide_class+'"/>
               </td></tr>
               </table>
+              </div>
             </div>
             <div class="modal-body">
               <div id="map-canvas"/>
@@ -90,6 +91,38 @@ Formbuilder.registerField 'gmap',
         return $el.find("[name = " + model.getCid() + "_1]").text() != ''
       valid
 
+  clickGmapButton: (model) ->
+    $("[name = "+model.getCid()+"_1]").bind 'click', (ev) =>
+      if $('#gmapModal').length is 0
+        this.addRequiredConditions(model) if this.addRequiredConditions
+      $('#gmap_ok').val(model.getCid())
+      $('#gmapModal').modal({
+        show: true
+      })
+
+      $("#gmapModal").on "shown.bs.modal", (e) ->
+        gmap_button_value = $("[name = " + getCid() + "_2]").val()
+        initialize();
+        $( "#gmap_address" ).keypress (event) ->
+          set_prev_lat_lng($('#gmap_latlng').val())
+          if(event.keyCode == 13)
+            codeAddress();
+
+        $( "#gmap_latlng" ).keypress (event) ->
+          set_prev_address($("#gmap_address").val())
+          if(event.keyCode == 13)
+            codeLatLng()
+
+        if( gmap_button_value != '')
+          set_prev_lat_lng(gmap_button_value)
+          codeLatLng(gmap_button_value)
+
+      $('#gmapModal').on 'hidden.bs.modal', (e) ->
+        $('#gmapModal').off('shown').on('shown')
+        $(this).removeData "modal"
+        $( "#gmap_address" ).unbind('keypress')
+        $( "#gmap_latlng" ).unbind('keypress')
+
   setup: (field_view, model) ->
     do($input = field_view.$el.find($("[name = " + model.getCid() + "_2]"))) =>
       if model.attributes.field_values
@@ -104,3 +137,4 @@ Formbuilder.registerField 'gmap',
             $("[name = " + model.getCid() + "_1]").text('Select Your Address')
       if $input.val() != ''
         field_view.trigger('change_state')
+    @clickGmapButton(model)
