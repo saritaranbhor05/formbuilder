@@ -1,5 +1,5 @@
 <%= Formbuilder.templates['edit/base_header']() %>
 <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf}) %>
-<% if(rf.get('field_type') == 'heading' || rf.get('field_type') == 'free_text_html') { %>
+<% if((!(rf.get('i_am_in_recurring_section'))) && (rf.get('field_type') == 'heading' || rf.get('field_type') == 'free_text_html')) { %>
 <%= Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts })%>
 <% } %>
