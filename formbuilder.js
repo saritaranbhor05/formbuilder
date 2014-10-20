@@ -873,16 +873,16 @@
                 that.default_clear_fields(fv);
               }
               method = that.get_appripriate_setup_method(fv);
-              fv.model.unset('field_values', {
-                silent: true
-              });
-              fv.model.set({
-                'new_page': true,
-                'view_index': view_index
-              }, {
-                silent: true
-              });
               if (method) {
+                fv.model.unset('field_values', {
+                  silent: true
+                });
+                fv.model.set({
+                  'new_page': true,
+                  'view_index': view_index
+                }, {
+                  silent: true
+                });
                 method.call(fv.field, fv, fv.model);
                 fv.model.unset('new_page', {
                   silent: true
@@ -907,16 +907,20 @@
                 return;
               }
               return (function(all_field_vals, req_field_vals, method) {
-                fv.model.attributes.field_values = req_field_vals;
-                fv.model.set({
-                  'view_index': load_index
-                }, {
-                  silent: true
-                });
                 if (method) {
+                  console.log("All are here", all_field_vals);
+                  console.log("We need this", req_field_vals);
+                  fv.model.attributes.field_values = req_field_vals;
+                  fv.model.set({
+                    'view_index': load_index
+                  }, {
+                    silent: true
+                  });
                   method.call(fv.field, fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
+                  console.log("All are here", all_field_vals);
+                  console.log("We need this", fv.model.attributes.field_values[load_index]);
                   return that.default_setup(fv, fv.model.attributes.field_values[load_index]);
                 }
               })(fv.model.attributes.field_values, fv.model.attributes.field_values[load_index], that.get_appripriate_setup_method(fv));
