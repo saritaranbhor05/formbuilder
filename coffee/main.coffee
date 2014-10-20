@@ -272,7 +272,6 @@ class Formbuilder
         'click .js-clear': 'clear'
         'keyup': 'changeStateSource',
         'change': 'changeStateSource'
-        'click #gmap_button': 'openGMap'
         'mouseover #can': 'onCanvas'
 
       onCanvas: ->
@@ -399,35 +398,6 @@ class Formbuilder
 
       changeStateSource: (ev) ->
         @trigger('change_state')
-
-      openGMap: ->
-        if $('#gmapModal').length is 0
-          @field.addRequiredConditions(@model) if @field.addRequiredConditions
-        $('#gmap_ok').val(this.model.getCid())
-        $('#gmapModal').modal({
-          show: true
-        })
-
-        $("#gmapModal").on "shown", (e) ->
-          gmap_button_value = $("[name = " + getCid() + "_2]").val()
-          initialize();
-          $( "#gmap_address" ).keypress (event) ->
-            set_prev_lat_lng($('#gmap_latlng').val())
-            if(event.keyCode == 13)
-              codeAddress();
-          $( "#gmap_latlng" ).keypress (event) ->
-            set_prev_address($("#gmap_address").val())
-            if(event.keyCode == 13)
-              codeLatLng()
-          if( gmap_button_value != '')
-            set_prev_lat_lng(gmap_button_value)
-            codeLatLng(gmap_button_value)
-
-        $('#gmapModal').on 'hidden.bs.modal', (e) ->
-          $('#gmapModal').off('shown').on('shown')
-          $(this).removeData "modal"
-          $( "#gmap_address" ).unbind('keypress')
-          $( "#gmap_latlng" ).unbind('keypress')
 
       isValid: ->
         return true if !@field.isValid
@@ -771,6 +741,9 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        unless _.isUndefined @options.field_configs.fieldtype_custom_validation
+          Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(
+            @options.field_configs.fieldtype_custom_validation)
         Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
@@ -1092,7 +1065,6 @@ class Formbuilder
               method = null,
               cid = ''
             ) =>
-
               field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
               field_method_call = Formbuilder.fields[field_type_method_call]
 
