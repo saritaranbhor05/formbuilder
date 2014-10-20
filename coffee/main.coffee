@@ -670,9 +670,9 @@ class Formbuilder
               fv.field.clearFields(fv.$el, fv.model)
             else that.default_clear_fields(fv)
             method = that.get_appripriate_setup_method(fv)
+            fv.model.set({'new_page': true, 'view_index': view_index}, {silent:true})
             if method
               fv.model.unset('field_values', {silent:true})
-              fv.model.set({'new_page': true, 'view_index': view_index}, {silent:true})
               method.call(fv.field, fv, fv.model)
               fv.model.unset('new_page', {silent:true})
               fv.model.set({'field_values': all_field_vals}, {silent:true})
@@ -688,9 +688,9 @@ class Formbuilder
                 req_field_vals = fv.model.attributes.field_values[load_index],
                 method = that.get_appripriate_setup_method(fv)
               ) ->
+              fv.model.set({'view_index': load_index}, {silent:true})
               if method
                 fv.model.attributes.field_values = req_field_vals
-                fv.model.set({'view_index': load_index}, {silent:true})
                 method.call(fv.field, fv, fv.model)
                 fv.model.attributes.field_values = all_field_vals
               else
