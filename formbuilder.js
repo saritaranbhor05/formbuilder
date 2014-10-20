@@ -2651,7 +2651,7 @@
       return (function(_this) {
         return function(dateTimeFields) {
           _.each(dateTimeFields, function(el) {
-            if (Formbuilder.isMobile()) {
+            if (Formbuilder.isMobile() && !model.get('field_values')) {
               setTimeout((function() {
                 el.datetimepicker('setDate', new Date());
               }), 500);
@@ -2754,6 +2754,16 @@
           });
         };
       })(this)([$el.find("[name = " + model.getCid() + "_1]"), $el.find("[name = " + model.getCid() + "_2]"), $el.find("[name = " + model.getCid() + "_3]")]);
+    },
+    fieldToValue: function($el, model) {
+      return (function(all_elem, res) {
+        _.each(all_elem, function(elem) {
+          return (function($elem) {
+            return res[$elem.attr('name')] = $elem.val();
+          })($(elem));
+        });
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
     },
     convertToMili: function(dhmStr) {
       return (function(_this) {

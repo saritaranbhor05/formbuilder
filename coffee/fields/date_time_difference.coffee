@@ -46,7 +46,7 @@ Formbuilder.registerField 'date_time_difference',
     do( dateTimeFields = [ field_view.$el.find('#'+model.getCid()+'_startDateTimeDifference'),
         field_view.$el.find('#'+model.getCid()+'_endDateTimeDifference') ]) =>
       _.each dateTimeFields, (el) =>
-        if Formbuilder.isMobile()
+        if Formbuilder.isMobile() && !model.get('field_values')
           setTimeout (->
             el.datetimepicker 'setDate', new Date()
             return
@@ -138,6 +138,14 @@ Formbuilder.registerField 'date_time_difference',
       ] ) =>
       _.each targetFields, (el) =>
         el.val("")
+
+  fieldToValue: ($el, model) ->
+    do(all_elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      _.each all_elem, (elem) ->
+        do($elem = $(elem)) ->
+          res[$elem.attr('name')] = $elem.val()
+      res
 
   convertToMili: (dhmStr) ->
     do(
