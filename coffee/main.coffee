@@ -272,7 +272,6 @@ class Formbuilder
         'click .js-clear': 'clear'
         'keyup': 'changeStateSource',
         'change': 'changeStateSource'
-        'click #gmap_button': 'openGMap'
         'mouseover #can': 'onCanvas'
 
       onCanvas: ->
@@ -399,35 +398,6 @@ class Formbuilder
 
       changeStateSource: (ev) ->
         @trigger('change_state')
-
-      openGMap: ->
-        if $('#gmapModal').length is 0
-          @field.addRequiredConditions(@model) if @field.addRequiredConditions
-        $('#gmap_ok').val(this.model.getCid())
-        $('#gmapModal').modal({
-          show: true
-        })
-
-        $("#gmapModal").on "shown", (e) ->
-          gmap_button_value = $("[name = " + getCid() + "_2]").val()
-          initialize();
-          $( "#gmap_address" ).keypress (event) ->
-            set_prev_lat_lng($('#gmap_latlng').val())
-            if(event.keyCode == 13)
-              codeAddress();
-          $( "#gmap_latlng" ).keypress (event) ->
-            set_prev_address($("#gmap_address").val())
-            if(event.keyCode == 13)
-              codeLatLng()
-          if( gmap_button_value != '')
-            set_prev_lat_lng(gmap_button_value)
-            codeLatLng(gmap_button_value)
-
-        $('#gmapModal').on 'hidden.bs.modal', (e) ->
-          $('#gmapModal').off('shown').on('shown')
-          $(this).removeData "modal"
-          $( "#gmap_address" ).unbind('keypress')
-          $( "#gmap_latlng" ).unbind('keypress')
 
       isValid: ->
         return true if !@field.isValid
@@ -700,9 +670,9 @@ class Formbuilder
               fv.field.clearFields(fv.$el, fv.model)
             else that.default_clear_fields(fv)
             method = that.get_appripriate_setup_method(fv)
+            fv.model.unset('field_values', {silent:true})
+            fv.model.set({'new_page': true, 'view_index': view_index}, {silent:true})
             if method
-              fv.model.unset('field_values', {silent:true})
-              fv.model.set({'new_page': true, 'view_index': view_index}, {silent:true})
               method.call(fv.field, fv, fv.model)
               fv.model.unset('new_page', {silent:true})
               fv.model.set({'field_values': all_field_vals}, {silent:true})
@@ -718,9 +688,9 @@ class Formbuilder
                 req_field_vals = fv.model.attributes.field_values[load_index],
                 method = that.get_appripriate_setup_method(fv)
               ) ->
+              fv.model.attributes.field_values = req_field_vals
+              fv.model.set({'view_index': load_index}, {silent:true})
               if method
-                fv.model.attributes.field_values = req_field_vals
-                fv.model.set({'view_index': load_index}, {silent:true})
                 method.call(fv.field, fv, fv.model)
                 fv.model.attributes.field_values = all_field_vals
               else
@@ -771,6 +741,9 @@ class Formbuilder
         @options.showSubmit ||= false
         Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
+        unless _.isUndefined @options.field_configs.fieldtype_custom_validation
+          Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(
+            @options.field_configs.fieldtype_custom_validation)
         Formbuilder.options.FIELD_CONFIGS = @options.field_configs
         Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, @options.external_fields)
         Formbuilder.options.EXTERNAL_FIELDS_TYPES = []
@@ -1092,7 +1065,6 @@ class Formbuilder
               method = null,
               cid = ''
             ) =>
-
               field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
               field_method_call = Formbuilder.fields[field_type_method_call]
 
@@ -1108,28 +1080,6 @@ class Formbuilder
                   ) =>
                     val_set = true if $(x).text() && !val_set
                     index
-              else if (field_view.model.get('field_type') is 'take_pic_video_audio')
-                $('#capture_link_'+field_view.model.getCid()).html('')
-                _.each(model.get('field_values'), (value, key) ->
-                  do(index=0) =>
-                    if value
-                      if $('#capture_link_'+field_view.model.getCid())
-                        if _.isString value
-                          if value.indexOf("data:image") == -1
-                            $('#capture_link_'+field_view.model.getCid()).append(
-                              "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value+">"+value.split("/").pop().split("?")[0]+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
-                            )
-                          else if value.indexOf("data:image") == 0
-                            $('#record_link_'+field_view.model.getCid()).attr('href',value)
-                            $('#record_link_'+field_view.model.getCid()).text("View File")
-                        else if _.isObject value
-                          $('#capture_link_'+field_view.model.getCid()).append(
-                            "<div class='capture_link_div' id=capture_link_div_"+key+"><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name="+key+" href="+value.url+">"+value.name+"</a><span class='pull-right' id=capture_link_close_"+key+">X</span></br></div>"
-                          )
-                      @$('#capture_link_close_'+key).click( () ->
-                        $('#capture_link_div_'+key).remove()
-                      ) if @$('#capture_link_close_'+key)
-                )
               else if (field_view.model.get('field_type') is 'file')
                 if model.get('field_values')
                   _.each(model.get('field_values')["0"], (value, key) ->

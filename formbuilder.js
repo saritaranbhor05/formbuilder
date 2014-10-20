@@ -361,7 +361,6 @@
           'click .js-clear': 'clear',
           'keyup': 'changeStateSource',
           'change': 'changeStateSource',
-          'click #gmap_button': 'openGMap',
           'mouseover #can': 'onCanvas'
         },
         onCanvas: function() {
@@ -508,44 +507,6 @@
         },
         changeStateSource: function(ev) {
           return this.trigger('change_state');
-        },
-        openGMap: function() {
-          if ($('#gmapModal').length === 0) {
-            if (this.field.addRequiredConditions) {
-              this.field.addRequiredConditions(this.model);
-            }
-          }
-          $('#gmap_ok').val(this.model.getCid());
-          $('#gmapModal').modal({
-            show: true
-          });
-          $("#gmapModal").on("shown", function(e) {
-            var gmap_button_value;
-            gmap_button_value = $("[name = " + getCid() + "_2]").val();
-            initialize();
-            $("#gmap_address").keypress(function(event) {
-              set_prev_lat_lng($('#gmap_latlng').val());
-              if (event.keyCode === 13) {
-                return codeAddress();
-              }
-            });
-            $("#gmap_latlng").keypress(function(event) {
-              set_prev_address($("#gmap_address").val());
-              if (event.keyCode === 13) {
-                return codeLatLng();
-              }
-            });
-            if (gmap_button_value !== '') {
-              set_prev_lat_lng(gmap_button_value);
-              return codeLatLng(gmap_button_value);
-            }
-          });
-          return $('#gmapModal').on('hidden.bs.modal', function(e) {
-            $('#gmapModal').off('shown').on('shown');
-            $(this).removeData("modal");
-            $("#gmap_address").unbind('keypress');
-            return $("#gmap_latlng").unbind('keypress');
-          });
         },
         isValid: function() {
           if (!this.field.isValid) {
@@ -912,16 +873,16 @@
                 that.default_clear_fields(fv);
               }
               method = that.get_appripriate_setup_method(fv);
+              fv.model.unset('field_values', {
+                silent: true
+              });
+              fv.model.set({
+                'new_page': true,
+                'view_index': view_index
+              }, {
+                silent: true
+              });
               if (method) {
-                fv.model.unset('field_values', {
-                  silent: true
-                });
-                fv.model.set({
-                  'new_page': true,
-                  'view_index': view_index
-                }, {
-                  silent: true
-                });
                 method.call(fv.field, fv, fv.model);
                 fv.model.unset('new_page', {
                   silent: true
@@ -946,13 +907,13 @@
                 return;
               }
               return (function(all_field_vals, req_field_vals, method) {
+                fv.model.attributes.field_values = req_field_vals;
+                fv.model.set({
+                  'view_index': load_index
+                }, {
+                  silent: true
+                });
                 if (method) {
-                  fv.model.attributes.field_values = req_field_vals;
-                  fv.model.set({
-                    'view_index': load_index
-                  }, {
-                    silent: true
-                  });
                   method.call(fv.field, fv, fv.model);
                   return fv.model.attributes.field_values = all_field_vals;
                 } else {
@@ -1019,6 +980,9 @@
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
           Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
+          if (!_.isUndefined(this.options.field_configs.fieldtype_custom_validation)) {
+            Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(this.options.field_configs.fieldtype_custom_validation);
+          }
           Formbuilder.options.FIELD_CONFIGS = this.options.field_configs;
           Formbuilder.options.EXTERNAL_FIELDS = $.extend({}, this.options.external_fields);
           Formbuilder.options.EXTERNAL_FIELDS_TYPES = [];
@@ -1385,33 +1349,6 @@
                       return index;
                     })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0);
                   }
-                } else if (field_view.model.get('field_type') === 'take_pic_video_audio') {
-                  $('#capture_link_' + field_view.model.getCid()).html('');
-                  _.each(model.get('field_values'), function(value, key) {
-                    return (function(_this) {
-                      return function(index) {
-                        if (value) {
-                          if ($('#capture_link_' + field_view.model.getCid())) {
-                            if (_.isString(value)) {
-                              if (value.indexOf("data:image") === -1) {
-                                $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
-                              } else if (value.indexOf("data:image") === 0) {
-                                $('#record_link_' + field_view.model.getCid()).attr('href', value);
-                                $('#record_link_' + field_view.model.getCid()).text("View File");
-                              }
-                            } else if (_.isObject(value)) {
-                              $('#capture_link_' + field_view.model.getCid()).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
-                            }
-                          }
-                          if (_this.$('#capture_link_close_' + key)) {
-                            return _this.$('#capture_link_close_' + key).click(function() {
-                              return $('#capture_link_div_' + key).remove();
-                            });
-                          }
-                        }
-                      };
-                    })(this)(0);
-                  });
                 } else if (field_view.model.get('field_type') === 'file') {
                   if (model.get('field_values')) {
                     _.each(model.get('field_values')["0"], function(value, key) {
@@ -3249,7 +3186,7 @@
       disabled = (read_only ? "disabled" : "");
       hide_class = (read_only ? "hide" : "");
       close_button = (read_only ? "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" : "");
-      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
+      return $('<div class="modal fade" id="gmapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <div class="geo-location-panel top-panel1"> <table> <tr><td> <input id="gmap_latlng" class="geo-location-panel1" type="textbox" ' + disabled + '/> <input type="button" value="Lat,Long" onclick="codeLatLngPopulateAddress()" class="' + hide_class + '"/> </td></tr><tr><td> <input id="gmap_address" class="geo-location-panel1" type="textbox" ' + disabled + ' /> <input type="button" value="Location" onclick="codeAddress()" class="' + hide_class + '"/> </td></tr> </table> </div> </div> <div class="modal-body"> <div id="map-canvas"/> </div> <div class="modal-footer"> <button type="button" class="btn btn-default btn-success ' + hide_class + '" id="gmap_ok" data-dismiss="modal">Ok</button>' + close_button + '</div> </div> </div> </div>').appendTo('body');
     },
     isValid: function($el, model) {
       return (function(_this) {
@@ -3282,9 +3219,51 @@
         return res;
       })($el.find('[name^=' + model.getCid() + ']'), {});
     },
+    clickGmapButton: function(model) {
+      return $("[name = " + model.getCid() + "_1]").bind('click', (function(_this) {
+        return function(ev) {
+          if ($('#gmapModal').length === 0) {
+            if (_this.addRequiredConditions) {
+              _this.addRequiredConditions(model);
+            }
+          }
+          $('#gmap_ok').val(model.getCid());
+          $('#gmapModal').modal({
+            show: true
+          });
+          $("#gmapModal").on("shown.bs.modal", function(e) {
+            var gmap_button_value;
+            gmap_button_value = $("[name = " + getCid() + "_2]").val();
+            initialize();
+            $("#gmap_address").keypress(function(event) {
+              set_prev_lat_lng($('#gmap_latlng').val());
+              if (event.keyCode === 13) {
+                return codeAddress();
+              }
+            });
+            $("#gmap_latlng").keypress(function(event) {
+              set_prev_address($("#gmap_address").val());
+              if (event.keyCode === 13) {
+                return codeLatLng();
+              }
+            });
+            if (gmap_button_value !== '') {
+              set_prev_lat_lng(gmap_button_value);
+              return codeLatLng(gmap_button_value);
+            }
+          });
+          return $('#gmapModal').on('hidden.bs.modal', function(e) {
+            $('#gmapModal').off('shown').on('shown');
+            $(this).removeData("modal");
+            $("#gmap_address").unbind('keypress');
+            return $("#gmap_latlng").unbind('keypress');
+          });
+        };
+      })(this));
+    },
     setup: function(field_view, model) {
-      return (function(_this) {
-        return function($input) {
+      (function(_this) {
+        return (function($input) {
           var get_user_location;
           if (model.attributes.field_values) {
             field_view.$el.find($("[name = " + model.getCid() + "_1]")).text(model.attributes.field_values["" + (model.getCid()) + "_1"]);
@@ -3302,8 +3281,9 @@
           if ($input.val() !== '') {
             return field_view.trigger('change_state');
           }
-        };
+        });
       })(this)(field_view.$el.find($("[name = " + model.getCid() + "_2]")));
+      return this.clickGmapButton(model);
     }
   });
 
@@ -3880,10 +3860,94 @@
     print: "<div id=\"capture_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
     clearFields: function($el, model) {
-      return $el.find(".capture").text("");
+      return (function(_this) {
+        return function(attr_name) {
+          $el.find(".capture").text("");
+          return $el.find("#capture_link_" + attr_name).html('');
+        };
+      })(this)(model.getCid());
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(_this) {
+        return function(link_eles, comp_obj) {
+          (function(key, link_href) {
+            return _.each(link_eles, function(link_ele) {
+              key = $(link_ele).attr('name');
+              link_href = $(link_ele).attr('href');
+              if (_.isEmpty(link_href)) {
+                return comp_obj[key] = {
+                  'name': $(link_ele).text(),
+                  'url': $(link_ele).text()
+                };
+              } else {
+                return comp_obj[key] = {
+                  'name': $(link_ele).text(),
+                  'url': link_href
+                };
+              }
+            });
+          })('', '');
+          return comp_obj;
+        };
+      })(this)($el.find('a[type=pic_video_audio]'), {});
+    },
+    android_bindevents: function(field_view) {
+      return (function(_this) {
+        return function(btn_photo_inputs, btn_video_inputs, btn_audio_inputs, _that) {
+          _that.bind_event_for_type(btn_photo_inputs, "image", field_view);
+          _that.bind_event_for_type(btn_video_inputs, "video", field_view);
+          return _that.bind_event_for_type(btn_audio_inputs, "audio", field_view);
+        };
+      })(this)(field_view.$el.find(".image"), field_view.$el.find(".video"), field_view.$el.find(".audio"), this);
+    },
+    bind_event_for_type: function(btn_inputs, input_type, field_view) {
+      return (function(_this) {
+        return function(view_index) {
+          return _.each(btn_inputs, function(btn_input) {
+            $(btn_input).unbind();
+            return $(btn_input).on("click", function() {
+              view_index = field_view.model.get('view_index');
+              if (!view_index) {
+                view_index = 0;
+              }
+              Android.f2dBeginCapture(field_view.model.getCid(), input_type, view_index);
+            });
+          });
+        };
+      })(this)(0);
+    },
+    setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, file_url, $cap_link_ele, _that) {
+          if (model.get('field_values')) {
+            $cap_link_ele.html('');
+            return _.each(model.get('field_values'), function(value, key) {
+              if (value) {
+                if ($cap_link_ele) {
+                  if (_.isString(value)) {
+                    if (value.indexOf("data:image") === -1) {
+                      $cap_link_ele.append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                    } else if (value.indexOf("data:image") === 0) {
+                      $('#record_link_' + model_cid).attr('href', value);
+                      $('#record_link_' + model_cid).text("View File");
+                    }
+                  } else if (_.isObject(value)) {
+                    $('#capture_link_' + model_cid).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                  }
+                }
+                if (this.$('#capture_link_close_' + key)) {
+                  return this.$('#capture_link_close_' + key).click(function() {
+                    return $('#capture_link_div_' + key).remove();
+                  });
+                }
+              }
+            });
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('#capture_link_' + model.getCid()), this);
     }
   });
 
