@@ -3687,7 +3687,7 @@
               } else {
                 return field_view.$el.find("input[name=" + key + "]").val(val);
               }
-            })(field_view.$el.find(":radio[value=" + key + "]"));
+            })(field_view.$el.find(":radio[value='" + key + "']"));
           });
         })(model.get('field_values'));
       } else if (model.get('field_options')) {

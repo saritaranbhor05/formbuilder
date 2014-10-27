@@ -93,7 +93,7 @@ Formbuilder.registerField 'radio',
     if model.get('field_values')
       do( val_hash = model.get('field_values')) ->
         _.each val_hash, (val, key) ->
-          do(target_elemnt = field_view.$el.find(":radio[value="+key+"]")) ->
+          do(target_elemnt = field_view.$el.find(":radio[value='"+key+"']")) ->
             if target_elemnt.is(":radio")
               target_elemnt.prop('checked',val)
             else
