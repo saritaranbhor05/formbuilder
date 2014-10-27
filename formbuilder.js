@@ -638,12 +638,54 @@
             index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
               cid: that.cid
             })[0]);
+            if (that.model.get('field_type') === 'section_break') {
+              that.updateFieldsInSectionBreak(index, that.parentView.fieldViews);
+            }
             if (index > -1) {
               that.parentView.fieldViews.splice(index, 1);
             }
             that.clearConditions(that.model.getCid(), that.parentView.fieldViews);
             return that.model.destroy();
           })(0, this);
+        },
+        updateFieldsInSectionBreak: function(index, fieldViews) {
+          return (function(section_id, is_recur) {
+            var i, _i, _j, _ref, _ref1, _ref2, _results;
+            for (i = _i = _ref = index - 1; _ref <= -1 ? _i < -1 : _i > -1; i = _ref <= -1 ? ++_i : --_i) {
+              if (fieldViews[i]) {
+                if (fieldViews[i].model.get('field_type') === 'section_break') {
+                  is_recur = fieldViews[i].model.get('field_options').recurring_section;
+                  section_id = fieldViews[i].model.get('unique_id');
+                  break;
+                }
+              }
+            }
+            _results = [];
+            for (i = _j = _ref1 = index + 1, _ref2 = fieldViews.length; _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; i = _ref1 <= _ref2 ? ++_j : --_j) {
+              if (fieldViews[i]) {
+                if (fieldViews[i].model.get('field_type') === 'section_break') {
+                  break;
+                }
+                _results.push((function(unique_section_id) {
+                  if (fieldViews[i].model.get('section_id') === unique_section_id) {
+                    if (is_recur) {
+                      fieldViews[i].model.set('i_am_in_recurring_section', is_recur);
+                    } else {
+                      fieldViews[i].model.unset('i_am_in_recurring_section');
+                    }
+                    if (section_id) {
+                      return fieldViews[i].model.set('section_id', section_id);
+                    } else {
+                      return fieldViews[i].model.unset('section_id');
+                    }
+                  }
+                })(fieldViews[index].model.get('unique_id')));
+              } else {
+                _results.push(void 0);
+              }
+            }
+            return _results;
+          })(void 0, void 0);
         },
         clearConditions: function(cid, fieldViews) {
           return _.each(fieldViews, function(fieldView) {

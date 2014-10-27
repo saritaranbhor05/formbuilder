@@ -496,9 +496,26 @@ class Formbuilder
           that.parentView.handleFormUpdate()
           index = that.parentView.fieldViews
             .indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0])
+          that.updateFieldsInSectionBreak(index, that.parentView.fieldViews) if that.model.get('field_type') == 'section_break'
           that.parentView.fieldViews.splice(index, 1) if (index > -1)
           that.clearConditions that.model.getCid(), that.parentView.fieldViews
           that.model.destroy()
+
+      updateFieldsInSectionBreak: (index, fieldViews) ->
+        do(section_id=undefined, is_recur=undefined) ->
+          for i in [index-1...-1]
+            if fieldViews[i]
+              if fieldViews[i].model.get('field_type') == 'section_break'
+                is_recur = fieldViews[i].model.get('field_options').recurring_section
+                section_id = fieldViews[i].model.get('unique_id')
+                break
+          for i in [index+1...fieldViews.length]
+            if fieldViews[i]
+              break if fieldViews[i].model.get('field_type') == 'section_break'
+              do( unique_section_id = fieldViews[index].model.get('unique_id') ) ->
+                if fieldViews[i].model.get('section_id') == unique_section_id
+                  if is_recur then fieldViews[i].model.set('i_am_in_recurring_section', is_recur) else fieldViews[i].model.unset('i_am_in_recurring_section')
+                  if section_id then fieldViews[i].model.set('section_id', section_id) else fieldViews[i].model.unset('section_id')
 
       clearConditions: (cid, fieldViews) ->
         _.each(fieldViews, (fieldView) ->
