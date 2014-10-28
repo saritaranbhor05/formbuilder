@@ -639,7 +639,7 @@
               cid: that.cid
             })[0]);
             if (that.model.get('field_type') === 'section_break') {
-              that.updateFieldsInSectionBreak(index, that.parentView.fieldViews);
+              that.updateFieldsInSectionBreak(index, that.parentView.collection.models);
             }
             if (index > -1) {
               that.parentView.fieldViews.splice(index, 1);
@@ -648,38 +648,38 @@
             return that.model.destroy();
           })(0, this);
         },
-        updateFieldsInSectionBreak: function(index, fieldViews) {
+        updateFieldsInSectionBreak: function(index, models) {
           return (function(section_id, is_recur) {
             var i, _i, _j, _ref, _ref1, _ref2, _results;
             for (i = _i = _ref = index - 1; _ref <= -1 ? _i < -1 : _i > -1; i = _ref <= -1 ? ++_i : --_i) {
-              if (fieldViews[i]) {
-                if (fieldViews[i].model.get('field_type') === 'section_break') {
-                  is_recur = fieldViews[i].model.get('field_options').recurring_section;
-                  section_id = fieldViews[i].model.get('unique_id');
+              if (models[i]) {
+                if (models[i].get('field_type') === 'section_break') {
+                  is_recur = models[i].get('field_options').recurring_section;
+                  section_id = models[i].get('unique_id');
                   break;
                 }
               }
             }
             _results = [];
-            for (i = _j = _ref1 = index + 1, _ref2 = fieldViews.length; _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; i = _ref1 <= _ref2 ? ++_j : --_j) {
-              if (fieldViews[i]) {
-                if (fieldViews[i].model.get('field_type') === 'section_break') {
+            for (i = _j = _ref1 = index + 1, _ref2 = models.length; _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; i = _ref1 <= _ref2 ? ++_j : --_j) {
+              if (models[i]) {
+                if (models[i].get('field_type') === 'section_break') {
                   break;
                 }
                 _results.push((function(unique_section_id) {
-                  if (fieldViews[i].model.get('section_id') === unique_section_id) {
+                  if (models[i].get('section_id') === unique_section_id) {
                     if (is_recur) {
-                      fieldViews[i].model.set('i_am_in_recurring_section', is_recur);
+                      models[i].set('i_am_in_recurring_section', is_recur);
                     } else {
-                      fieldViews[i].model.unset('i_am_in_recurring_section');
+                      models[i].unset('i_am_in_recurring_section');
                     }
                     if (section_id) {
-                      return fieldViews[i].model.set('section_id', section_id);
+                      return models[i].set('section_id', section_id);
                     } else {
-                      return fieldViews[i].model.unset('section_id');
+                      return models[i].unset('section_id');
                     }
                   }
-                })(fieldViews[index].model.get('unique_id')));
+                })(models[index].get('unique_id')));
               } else {
                 _results.push(void 0);
               }
@@ -1217,6 +1217,111 @@
                   _this.createAndShowEditView(rf);
                 }
                 $('.form-builder-left-container ').css('overflow', 'auto');
+                _this.collection.sort();
+                (function(current_model, index, models, is_recur, section_id) {
+                  var i, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _ref4, _results;
+                  if (current_model.get('field_type') === 'section_break') {
+                    is_recur = current_model.get('field_options').recurring_section;
+                    section_id = current_model.get('unique_id');
+                    for (i = _i = _ref = index + 1, _ref1 = models.length; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+                      if (models[i]) {
+                        if (models[i].get('field_type') === 'section_break') {
+                          break;
+                        }
+                        if (is_recur) {
+                          models[i].set({
+                            'i_am_in_recurring_section': 'i_am_in_recurring_section',
+                            is_recur: is_recur
+                          }, {
+                            silent: true
+                          });
+                        }
+                        if (section_id) {
+                          models[i].set({
+                            'section_id': 'section_id',
+                            section_id: section_id
+                          }, {
+                            silent: true
+                          });
+                        }
+                      }
+                    }
+                    is_recur = void 0;
+                    section_id = void 0;
+                    for (i = _j = _ref2 = index - 1; _ref2 <= -1 ? _j < -1 : _j > -1; i = _ref2 <= -1 ? ++_j : --_j) {
+                      if (models[i]) {
+                        if (models[i].get('field_type') === 'section_break') {
+                          is_recur = models[i].get('field_options').recurring_section;
+                          section_id = models[i].get('unique_id');
+                          break;
+                        }
+                      }
+                    }
+                    _results = [];
+                    for (i = _k = _ref3 = index - 1; _ref3 <= -1 ? _k < -1 : _k > -1; i = _ref3 <= -1 ? ++_k : --_k) {
+                      if (models[i]) {
+                        if (models[i].get('field_type') === 'section_break') {
+                          break;
+                        }
+                        if (is_recur) {
+                          models[i].set({
+                            'i_am_in_recurring_section': 'i_am_in_recurring_section',
+                            is_recur: is_recur
+                          }, {
+                            silent: true
+                          });
+                        }
+                        if (section_id) {
+                          _results.push(models[i].set({
+                            'section_id': 'section_id',
+                            section_id: section_id
+                          }, {
+                            silent: true
+                          }));
+                        } else {
+                          _results.push(void 0);
+                        }
+                      } else {
+                        _results.push(void 0);
+                      }
+                    }
+                    return _results;
+                  } else {
+                    for (i = _l = _ref4 = index - 1; _ref4 <= -1 ? _l < -1 : _l > -1; i = _ref4 <= -1 ? ++_l : --_l) {
+                      if (models[i]) {
+                        if (models[i].get('field_type') === 'section_break') {
+                          is_recur = models[i].get('field_options').recurring_section;
+                          section_id = models[i].get('unique_id');
+                          break;
+                        }
+                      }
+                    }
+                    if (is_recur) {
+                      current_model.set({
+                        'i_am_in_recurring_section': 'i_am_in_recurring_section',
+                        is_recur: is_recur
+                      }, {
+                        silent: true
+                      });
+                    } else {
+                      current_model.unset('i_am_in_recurring_section', {
+                        silent: true
+                      });
+                    }
+                    if (section_id) {
+                      return current_model.set({
+                        'section_id': 'section_id',
+                        section_id: section_id
+                      }, {
+                        silent: true
+                      });
+                    } else {
+                      return current_model.unset('section_id', {
+                        silent: true
+                      });
+                    }
+                  }
+                })(_this.collection.models[ui.item.index()], ui.item.index(), _this.collection.models, void 0, void 0);
                 _this.handleFormUpdate();
                 _this.removeSortable();
                 return true;
