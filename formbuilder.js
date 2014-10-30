@@ -290,11 +290,14 @@
               submitButton: false,
               before: function(wiz, curobj, nextobj) {
                 return (function(_this) {
-                  return function(cur_step, next_step, temp_index) {
+                  return function(cur_step, next_step, temp_index, status) {
                     if (next_step === 2) {
                       return true;
                     }
-                    that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index);
+                    status = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index, '');
+                    if (!_.isEmpty(status[0])) {
+                      return false;
+                    }
                     if (next_step > cur_step) {
                       view_index++;
                       if (view_index < that.total_responses) {
@@ -322,7 +325,7 @@
                     }
                     return false;
                   };
-                })(this)(curobj.data('step'), nextobj.data('step'), that.first_field_index);
+                })(this)(curobj.data('step'), nextobj.data('step'), that.first_field_index, []);
               }
             });
             inner_wiz.easyWizard('goToStep', 2);
@@ -967,13 +970,16 @@
           }
           return _results;
         },
-        save_field_values_at_index: function(section_st_index, section_end_index, save_at_index) {
+        save_field_values_at_index: function(section_st_index, section_end_index, save_at_index, invalid_field) {
           var _results;
           _results = [];
           while (section_st_index <= section_end_index) {
             (function(fv) {
               if (_.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))) {
                 return;
+              }
+              if (!fv.$el.find('input, textarea, select')[0].validity.valid) {
+                invalid_field = fv;
               }
               return (function(serialized_values, fl_val_hash, computed_obj) {
                 fv.model.set({
@@ -993,9 +999,13 @@
                 return fv.model.attributes.field_values = fl_val_hash;
               })({}, fv.model.attributes.field_values || {}, {});
             })(this.fieldViews[section_st_index]);
-            _results.push(section_st_index++);
+            section_st_index++;
+            _results.push(invalid_field);
           }
           return _results;
+        },
+        checkValidityOfDiv: function(div) {
+          return fv.$el.find('input, textarea, select').validity.valid;
         },
         default_clear_fields: function(fieldView) {
           return fieldView.$el.find('input, textarea, select, .canvas_img, a').val("");
@@ -2054,7 +2064,7 @@
                 _this.$('#formbuilder_form')[0].classList.add('submitted');
                 return false;
               }
-              return (function(field, i, invalid_field, err_field_types) {
+              return (function(field, i, is_invalid_field, err_field_types) {
                 err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio'];
                 while (i < _this.fieldViews.length) {
                   field = _this.fieldViews[i];
@@ -2065,8 +2075,8 @@
                       if (err_field_types.indexOf(field.field_type) !== -1) {
                         field.$el.find('label > span').css('color', 'red');
                       }
-                      if (!invalid_field) {
-                        invalid_field = true;
+                      if (!is_invalid_field) {
+                        is_invalid_field = true;
                       }
                     } else {
                       field.$el.find('input').css('border-color', '#CCCCCC');
@@ -2078,7 +2088,7 @@
                   }
                   i++;
                 }
-                if (invalid_field) {
+                if (is_invalid_field) {
                   return false;
                 }
                 return true;

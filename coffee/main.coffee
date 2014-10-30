@@ -223,10 +223,13 @@ class Formbuilder
                 do( cur_step = curobj.data('step'),
                     next_step = nextobj.data('step'),
                     temp_index = that.first_field_index,
+                    status = []
                     ) =>
                     if(next_step == 2)
                       return true
-                    that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index)
+
+                    status = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index, '')
+                    return false unless _.isEmpty(status[0])
                     if(next_step > cur_step)
                       view_index++
                       if view_index < that.total_responses
@@ -716,10 +719,11 @@ class Formbuilder
 
           section_st_index++
 
-      save_field_values_at_index: (section_st_index, section_end_index, save_at_index) ->
+      save_field_values_at_index: (section_st_index, section_end_index, save_at_index, invalid_field) ->
         while section_st_index <= section_end_index
           do( fv = this.fieldViews[section_st_index] )->
             return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
+            invalid_field = fv unless fv.$el.find('input, textarea, select')[0].validity.valid
             do( serialized_values = {},
                 fl_val_hash = fv.model.attributes.field_values || {},
                 computed_obj = {}
@@ -734,6 +738,10 @@ class Formbuilder
                 fl_val_hash[save_at_index] = computed_obj
                 fv.model.attributes.field_values = fl_val_hash
           section_st_index++
+          invalid_field
+
+      checkValidityOfDiv: (div) ->
+        fv.$el.find('input, textarea, select').validity.valid
 
       default_clear_fields: (fieldView) ->
         fieldView.$el.find('input, textarea, select, .canvas_img, a').val("")
@@ -1531,7 +1539,7 @@ class Formbuilder
           if !valid
             @$('#formbuilder_form')[0].classList.add('submitted')
             return false
-          do(field=null,i=0, invalid_field = false, err_field_types=[]) =>
+          do(field=null,i=0, is_invalid_field = false, err_field_types=[]) =>
             err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']
             while i< @fieldViews.length
               field = @fieldViews[i]
@@ -1541,7 +1549,7 @@ class Formbuilder
                   field.$el.find('.hasDatepicker').css('border-color','red')
                   if err_field_types.indexOf(field.field_type) != -1
                     field.$el.find('label > span').css('color','red')
-                  invalid_field = true if !invalid_field
+                  is_invalid_field = true if !is_invalid_field
                 else
                   field.$el.find('input').css('border-color','#CCCCCC')
                   field.$el.find('.hasDatepicker').css('border-color','#CCCCCC')
@@ -1550,7 +1558,7 @@ class Formbuilder
                   field.$el.find('label > span').css('color','#333')
 
               i++
-            return false if invalid_field
+            return false if is_invalid_field
             return true
 
       doAjaxSave: (payload) ->
