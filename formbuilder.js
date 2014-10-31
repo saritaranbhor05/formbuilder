@@ -3043,7 +3043,7 @@
 (function() {
   Formbuilder.registerField('phone_number', {
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
-    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: [\"au\", \"gb\", \"us\"]\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        var pref_countries = [\"au\", \"gb\", \"us\"];\n        var ph_no_conf = Formbuilder.options.FIELD_CONFIGS['phone_number'];\n        if(!_.isUndefined(ph_no_conf) && ph_no_conf['preferredCountries']) {\n          pref_countries = ph_no_conf['preferredCountries'];\n        }\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: pref_countries\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
     print: "<label id=\"phone_print\"></label>",
     setValForPrint: function(field_view, model) {

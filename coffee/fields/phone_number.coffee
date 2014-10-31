@@ -8,9 +8,14 @@ Formbuilder.registerField 'phone_number',
   	<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>
     <script>
       $(function() {
+        var pref_countries = ["au", "gb", "us"];
+        var ph_no_conf = Formbuilder.options.FIELD_CONFIGS['phone_number'];
+        if(!_.isUndefined(ph_no_conf) && ph_no_conf['preferredCountries']) {
+          pref_countries = ph_no_conf['preferredCountries'];
+        }
         $('#<%= rf.getCid() %>_country_code').intlTelInput({
             autoHideDialCode: false,
-            preferredCountries: ["au", "gb", "us"]
+            preferredCountries: pref_countries
         });
         $("#<%= rf.getCid() %>_country_code").val();
       });
