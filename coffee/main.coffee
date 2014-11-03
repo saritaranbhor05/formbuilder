@@ -215,7 +215,7 @@ class Formbuilder
           Formbuilder.make_wizard(inner_wiz,
             {
               stepClassName: "mystep",
-              prevButton: "Prev entry",
+              prevButton: "Save and Prev entry",
               nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,
@@ -223,13 +223,19 @@ class Formbuilder
                 do( cur_step = curobj.data('step'),
                     next_step = nextobj.data('step'),
                     temp_index = that.first_field_index,
-                    status = []
+                    arr_invalid_fields=[]
                     ) =>
                     if(next_step == 2)
                       return true
 
-                    status = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index, '')
-                    return false unless _.isEmpty(status[0])
+                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index)
+                    unless _.isEmpty(arr_invalid_fields)
+                      if typeof that.parentView.options.validation_fail_cb == 'function'
+                        that.parentView.options.validation_fail_cb()
+                      return false
+                    else
+                      if typeof that.parentView.options.validation_success_cb == 'function'
+                        that.parentView.options.validation_success_cb()
                     if(next_step > cur_step)
                       view_index++
                       if view_index < that.total_responses
@@ -719,11 +725,31 @@ class Formbuilder
 
           section_st_index++
 
-      save_field_values_at_index: (section_st_index, section_end_index, save_at_index, invalid_field) ->
+      save_field_values_at_index: (section_st_index, section_end_index, save_at_index, invalid_fields=[]) ->
         while section_st_index <= section_end_index
-          do( fv = this.fieldViews[section_st_index] )->
+          do( fv = this.fieldViews[section_st_index], is_field_valid = true )->
             return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
-            invalid_field = fv unless fv.$el.find('input, textarea, select')[0].validity.valid
+            if fv.field.isValid
+              is_field_valid = false unless fv.field.isValid(fv.$el, fv.model)
+            else
+              if fv.$el.find('input, textarea, select').length > 0
+                is_field_valid = false unless fv.$el.find('input, textarea, select')[0].validity.valid
+
+            unless is_field_valid
+              invalid_fields.push(fv)
+              do(el = fv.$el, err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']) ->
+                el.find('input').css('border-color','red')
+                el.find('.hasDatepicker').css('border-color','red')
+                if err_field_types.indexOf(fv.field_type) != -1
+                  el.find('label > span').css('color','red')
+            else
+              do(el = fv.$el, err_field_types = ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']) ->
+                el.find('input').css('border-color','#CCCCCC')
+                el.find('.hasDatepicker').css('border-color','#CCCCCC')
+                el.find('.bootstrap-filestyle label').css('border-color','rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)')
+                el.find('.bootstrap-filestyle label').css('border-bottom-color','#b3b3b3')
+                el.find('label > span').css('color','#333')
+
             do( serialized_values = {},
                 fl_val_hash = fv.model.attributes.field_values || {},
                 computed_obj = {}
@@ -738,7 +764,7 @@ class Formbuilder
                 fl_val_hash[save_at_index] = computed_obj
                 fv.model.attributes.field_values = fl_val_hash
           section_st_index++
-          invalid_field
+        return invalid_fields
 
       checkValidityOfDiv: (div) ->
         fv.$el.find('input, textarea, select').validity.valid

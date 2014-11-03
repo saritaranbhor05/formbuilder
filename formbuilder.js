@@ -284,19 +284,26 @@
             that.parentView.$el.append(inner_wiz);
             Formbuilder.make_wizard(inner_wiz, {
               stepClassName: "mystep",
-              prevButton: "Prev entry",
+              prevButton: "Save and Prev entry",
               nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,
               before: function(wiz, curobj, nextobj) {
                 return (function(_this) {
-                  return function(cur_step, next_step, temp_index, status) {
+                  return function(cur_step, next_step, temp_index, arr_invalid_fields) {
                     if (next_step === 2) {
                       return true;
                     }
-                    status = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index, '');
-                    if (!_.isEmpty(status[0])) {
+                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index);
+                    if (!_.isEmpty(arr_invalid_fields)) {
+                      if (typeof that.parentView.options.validation_fail_cb === 'function') {
+                        that.parentView.options.validation_fail_cb();
+                      }
                       return false;
+                    } else {
+                      if (typeof that.parentView.options.validation_success_cb === 'function') {
+                        that.parentView.options.validation_success_cb();
+                      }
                     }
                     if (next_step > cur_step) {
                       view_index++;
@@ -970,16 +977,43 @@
           }
           return _results;
         },
-        save_field_values_at_index: function(section_st_index, section_end_index, save_at_index, invalid_field) {
-          var _results;
-          _results = [];
+        save_field_values_at_index: function(section_st_index, section_end_index, save_at_index, invalid_fields) {
+          if (invalid_fields == null) {
+            invalid_fields = [];
+          }
           while (section_st_index <= section_end_index) {
-            (function(fv) {
+            (function(fv, is_field_valid) {
               if (_.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))) {
                 return;
               }
-              if (!fv.$el.find('input, textarea, select')[0].validity.valid) {
-                invalid_field = fv;
+              if (fv.field.isValid) {
+                if (!fv.field.isValid(fv.$el, fv.model)) {
+                  is_field_valid = false;
+                }
+              } else {
+                if (fv.$el.find('input, textarea, select').length > 0) {
+                  if (!fv.$el.find('input, textarea, select')[0].validity.valid) {
+                    is_field_valid = false;
+                  }
+                }
+              }
+              if (!is_field_valid) {
+                invalid_fields.push(fv);
+                (function(el, err_field_types) {
+                  el.find('input').css('border-color', 'red');
+                  el.find('.hasDatepicker').css('border-color', 'red');
+                  if (err_field_types.indexOf(fv.field_type) !== -1) {
+                    return el.find('label > span').css('color', 'red');
+                  }
+                })(fv.$el, ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']);
+              } else {
+                (function(el, err_field_types) {
+                  el.find('input').css('border-color', '#CCCCCC');
+                  el.find('.hasDatepicker').css('border-color', '#CCCCCC');
+                  el.find('.bootstrap-filestyle label').css('border-color', 'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)');
+                  el.find('.bootstrap-filestyle label').css('border-bottom-color', '#b3b3b3');
+                  return el.find('label > span').css('color', '#333');
+                })(fv.$el, ['checkboxes', 'esignature', 'gmap', 'radio', 'scale_rating', 'take_pic_video_audio']);
               }
               return (function(serialized_values, fl_val_hash, computed_obj) {
                 fv.model.set({
@@ -998,11 +1032,10 @@
                 fl_val_hash[save_at_index] = computed_obj;
                 return fv.model.attributes.field_values = fl_val_hash;
               })({}, fv.model.attributes.field_values || {}, {});
-            })(this.fieldViews[section_st_index]);
+            })(this.fieldViews[section_st_index], true);
             section_st_index++;
-            _results.push(invalid_field);
           }
-          return _results;
+          return invalid_fields;
         },
         checkValidityOfDiv: function(div) {
           return fv.$el.find('input, textarea, select').validity.valid;
