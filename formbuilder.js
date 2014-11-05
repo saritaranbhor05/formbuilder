@@ -1864,6 +1864,29 @@
           return _results;
         };
       })(this)(0);
+    },
+    setup: function(field_view, model) {
+      if (model.get('field_values')) {
+        return (function(val_hash) {
+          return _.each(val_hash, function(val, key) {
+            return (function(target_elemnt) {
+              if (target_elemnt.is(":checkbox")) {
+                return target_elemnt.prop('checked', val);
+              } else {
+                return target_elemnt.val(val);
+              }
+            })(field_view.$el.find("[name=" + key + "]"));
+          });
+        })(model.get('field_values'));
+      } else if (model.get('field_options')) {
+        return (function(options, cid) {
+          return _.each(options, function(val, index) {
+            if (val.checked) {
+              return field_view.$el.find("[name=" + cid + "_" + (index + 1) + "]").prop("checked", true);
+            }
+          });
+        })(model.get('field_options').options, model.getCid());
+      }
     }
   });
 
