@@ -292,6 +292,10 @@
                 return (function(_this) {
                   return function(cur_step, next_step, temp_index, arr_invalid_fields) {
                     if (next_step === 2) {
+                      if ((that.total_responses <= 1) && !that.parentView.options.showSubmit) {
+                        wiz.find(".easyWizardButtons.mystep .next").hide();
+                        wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
+                      }
                       return true;
                     }
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index);
@@ -321,6 +325,13 @@
                       }
                       view_index--;
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index);
+                    }
+                    if (view_index === (that.total_responses - 1) && !that.parentView.options.showSubmit) {
+                      wiz.find(".easyWizardButtons.mystep .next").hide();
+                      wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
+                    } else {
+                      wiz.find(".easyWizardButtons.mystep .next").show();
+                      wiz.find(".easyWizardButtons.mystep .next").removeClass('hide');
                     }
                     that.section_break_field_model.set('response_cnt', that.total_responses);
                     if (next_step === 1 && view_index === 0) {
