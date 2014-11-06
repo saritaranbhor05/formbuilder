@@ -247,6 +247,8 @@
           this.frag = document.createDocumentFragment();
           this.recurring = this.options.recurring_section;
           this.first_field_index = this.options.first_field_index;
+          this.last_field_index = this.options.first_field_index;
+          this.view_index = 0;
           this.total_responses = this.options.total_responses_for_this_section;
           this.field_views = this.options.field_views;
           this.section_break_field_model = this.options.section_break_field_model;
@@ -258,6 +260,7 @@
           }
         },
         make_live: function(last_field_index) {
+          this.last_field_index = last_field_index;
           this.$el.append(this.recurring ? this.wrap_section(last_field_index) : this.frag);
           return this.$el;
         },
@@ -270,9 +273,30 @@
           this.setSectionProps(cnt, true, elem);
           return elem;
         },
+        show_hide_previous_buttons: function(that, btn_class) {
+          return (function(_this) {
+            return function(wiz) {
+              if (that.view_index === 0) {
+                wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).hide();
+                return wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).addClass('hide');
+              } else {
+                wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).show();
+                return wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).removeClass('hide');
+              }
+            };
+          })(this)(that.$el.find('.easyWizardElement.mystep'));
+        },
+        save_current_section: function() {
+          return this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index);
+        },
+        previous_section: function(btn_class) {
+          this.view_index--;
+          this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index);
+          return this.show_hide_previous_buttons(this, btn_class);
+        },
         wrap_section: function(last_field_index) {
           var next_btn_text;
-          return (function(that, view_index, inner_wiz, wrap_inner_0, wrap_inner_1, wrap_inner_2, inner1, inner2) {
+          return (function(that, inner_wiz, wrap_inner_0, wrap_inner_1, wrap_inner_2, inner1, inner2) {
             if (!Formbuilder.isMobile()) {
               next_btn_text = 'Next Entry';
             }
@@ -283,6 +307,18 @@
             inner_wiz.append(wrap_inner_2);
             that.parentView.$el.append(inner_wiz);
             Formbuilder.make_wizard(inner_wiz, {
+              extrabuttons: {
+                'Previous': {
+                  'buttonClass': 'previous_btn',
+                  'show': false,
+                  'callback': that.previous_section.bind(that, 'previous_btn')
+                },
+                'Save': {
+                  'buttonClass': 'save_btn',
+                  'show': true,
+                  'callback': that.save_current_section.bind(that)
+                }
+              },
               stepClassName: "mystep",
               prevButton: "Save and Prev entry",
               nextButton: next_btn_text,
@@ -294,7 +330,7 @@
                     if (next_step === 2) {
                       return true;
                     }
-                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index);
+                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index);
                     if (!_.isEmpty(arr_invalid_fields)) {
                       if (typeof that.parentView.options.validation_fail_cb === 'function') {
                         that.parentView.options.validation_fail_cb();
@@ -306,30 +342,24 @@
                       }
                     }
                     if (next_step > cur_step) {
-                      view_index++;
-                      if (view_index < that.total_responses) {
-                        that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index);
+                      that.view_index++;
+                      if (that.view_index < that.total_responses) {
+                        that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index);
                       } else {
-                        that.parentView.setup_new_page(that.first_field_index, last_field_index, view_index);
+                        that.parentView.setup_new_page(that.first_field_index, last_field_index, that.view_index);
                       }
-                      if (view_index > that.total_responses) {
+                      if (that.view_index > that.total_responses) {
                         that.total_responses++;
                       }
                     } else {
-                      if (view_index === that.total_responses) {
+                      if (that.view_index === that.total_responses) {
                         that.total_responses++;
                       }
-                      view_index--;
-                      that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index);
+                      that.view_index--;
+                      that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index);
                     }
                     that.section_break_field_model.set('response_cnt', that.total_responses);
-                    if (next_step === 1 && view_index === 0) {
-                      wiz.find(".easyWizardButtons.mystep .prev").hide();
-                      wiz.find(".easyWizardButtons.mystep .prev").addClass('hide');
-                    } else {
-                      wiz.find(".easyWizardButtons.mystep .prev").show();
-                      wiz.find(".easyWizardButtons.mystep .prev").removeClass('hide');
-                    }
+                    that.show_hide_previous_buttons(that, 'previous_btn');
                     return false;
                   };
                 })(this)(curobj.data('step'), nextobj.data('step'), that.first_field_index, []);
@@ -339,7 +369,7 @@
             inner_wiz.find(".easyWizardButtons.mystep .prev").addClass('hide btn-danger');
             inner_wiz.find(".easyWizardButtons.mystep .next").addClass('btn-success');
             return inner_wiz;
-          })(this, 0, $('<div></div>'), $('<div class="mystep">Ohh Am I Fake PREV</div>'), $('<div class="mystep"></div>'), $('<div class="mystep">Ohh Am I Fake NEXT</div>'), new Formbuilder.views.wizard_tab({
+          })(this, $('<div></div>'), $('<div class="mystep">Ohh Am I Fake PREV</div>'), $('<div class="mystep"></div>'), $('<div class="mystep">Ohh Am I Fake NEXT</div>'), new Formbuilder.views.wizard_tab({
             parentView: this,
             view_type: this.options.view_type,
             index: 1,
@@ -2930,6 +2960,72 @@
       check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
       return check_result;
     }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('deviation', {
+    view: "<div class='input-line'>\n  <span class=\"span5\">\n <label>Description*</label>\n    <textarea id='description' class='span12'/>\n </span>\n  <span class=\"span5\">\n    <label>Recommended Action*</label>\n <textarea id='recommended_action' class='span12'/>\n  </span>\n</div>\n\n <div class='input-line'>\n  <span class=\"span5\">\n    <label>Current Photo</label>\n <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\">\n    </button>\n <a\n      type='take_pic_video_audio'\n      target=\"_blank\" capture='capture' class=\"capture active_link\"\n      id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n      style=\"margin-bottom:12px;\"\n    ></a>\n    <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span5\">\n    <label>Responsible Person*</label>\n    <input class=\"span12 responsible_person\" type='textarea' responsible_person = 'responsible_person' id=\"responsible_person_<%= rf.getCid() %>\"/>\n  </span>\n  <span class=\"span5\">\n    <label>Notify People</label>\n    <input class=\"span12 notify_users\" type='textarea' users = 'users' id=\"notify_people_<%= rf.getCid() %>\"/>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span><label>\n      Risk Rating\n  </label></span>\n  </br>\n  <span class=\"span8 risk_rating_range\">\n    <div class='row-fluid mobile-device'>\n      <span class='risk_rating_span'><label class='risk_rating_label'>\n        Likelihood\n      </label></span>\n      <div class='risk_rating_slider_div'>\n        <input id=\"likelihood_<%= rf.getCid() %>\" class=\"likelihood\" type=\"range\" name=\"points\" value=\"3\" min=\"1\" max=\"5\">\n        <div class=\"rare scale_rating\">\n            Rare\n        </div>\n        <div class=\"unlikely scale_rating\">\n            Unlikely\n        </div>\n        <div class=\"possible scale_rating\">\n            Possible\n        </div>\n        <div class=\"likely scale_rating\">\n            Likely\n        </div>\n        <div class=\"almost_certain scale_rating\">\n            Almost Certain\n        </div>\n      </div>\n    </div>\n  </span>\n\n  <span class=\"span8 risk_rating_range\">\n    <div class='row-fluid mobile-device'>\n      <span class='risk_rating_span'><label class='risk_rating_label'>\n        Consequence\n      </label></span>\n      <div class='risk_rating_slider_div'>\n        <input id=\"consequence_<%= rf.getCid() %>\" class=\"consequence\" type=\"range\" name=\"points\" value=\"3\" min=\"1\" max=\"5\">\n        <div class=\"insignificant scale_rating\">\n            Insignificant\n        </div>\n        <div class=\"minor scale_rating\">\n            Minor\n        </div>\n        <div class=\"moderate scale_rating\">\n            Moderate\n        </div>\n        <div class=\"major scale_rating\">\n            Major\n        </div>\n        <div class=\"exterme scale_rating\">\n            Exterme\n        </div>\n      </div>\n    </div>\n  </span>\n  <span class='span8 risk_rating_span'>\n    <span id=\"risk_label_<%= rf.getCid() %>\" class=\"risk_label label\"></span>\n  </span>\n</div>\n\n<script>\n $(function() {\n    var risk_rating_matrix = Formbuilder.options.FIELD_CONFIGS['deviation_risk_rating'];\n    $(\"#likelihood_<%= rf.getCid() %>\").on('touchstart', function () {\n      old_class = $('.risk_label').text();\n    }).change(function() {\n      $(\"#risk_label_<%= rf.getCid() %>\").removeClass(old_class);\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").addClass(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });\n\n    $(\"#consequence_<%= rf.getCid() %>\").on('touchstart', function () {\n      old_class = $('.risk_label').text();\n    }).change(function() {\n      $(\"#risk_label_<%= rf.getCid() %>\").removeClass(old_class);\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").addClass(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });\n  });\n</script>\n"
+  }, {
+    view: "<div class='input-line'>\n  <span class=\"span5\">\n    <label>Description*</label>\n    <textarea id='description' class='span12'/>\n  </span>\n  <span class=\"span5\">\n    <label>Recommended Action*</label>\n    <textarea id='recommended_action' class='span12'/>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span5\">\n    <label>Current Photo</label>\n    <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\">\n    </button>\n    <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n  </span>\n</div>\n\n<div class='input-line'>\n  <span class=\"span5\">\n    <label>Responsible Person*</label>\n    <input class=\"span12 responsible_person\" type='textarea' responsible_person = 'responsible_person' id=\"responsible_person_<%= rf.getCid() %>\"/>\n  </span>\n  <span class=\"span5\">\n    <label>Notify People</label>\n    <input class=\"span12 notify_users\" type='textarea' users = 'users' id=\"notify_people_<%= rf.getCid() %>\"/>\n  </span>\n</div>\n\n<div class='input-line' >\n  <span><label>\n      Risk Rating\n  </label></span>\n  </br>\n  <span class=\"span8 risk_rating_range\">\n    <div class='row-fluid mobile-device'>\n      <span class='risk_rating_span'><label class='risk_rating_label'>\n        Likelihood\n      </label></span>\n      <div class='risk_rating_slider_div'>\n        <input id=\"likelihood_<%= rf.getCid() %>\" class=\"likelihood\" type=\"range\" name=\"points\" value=\"3\" min=\"1\" max=\"5\">\n        <div class=\"rare scale_rating\">\n            Rare\n        </div>\n        <div class=\"unlikely scale_rating\">\n            Unlikely\n        </div>\n        <div class=\"possible scale_rating\">\n            Possible\n        </div>\n        <div class=\"likely scale_rating\">\n            Likely\n        </div>\n        <div class=\"almost_certain scale_rating\">\n            Almost Certain\n        </div>\n      </div>\n    </div>\n  </span>\n\n  <span class=\"span8 risk_rating_range\">\n    <div class='row-fluid mobile-device'>\n      <span class='risk_rating_span'><label class='risk_rating_label'>\n        Consequence\n      </label></span>\n      <div class='risk_rating_slider_div'>\n        <input id=\"consequence_<%= rf.getCid() %>\" class=\"consequence\" type=\"range\" name=\"points\" value=\"3\" min=\"1\" max=\"5\">\n        <div class=\"insignificant scale_rating\">\n            Insignificant\n        </div>\n        <div class=\"minor scale_rating\">\n            Minor\n        </div>\n        <div class=\"moderate scale_rating\">\n            Moderate\n        </div>\n        <div class=\"major scale_rating\">\n            Major\n        </div>\n        <div class=\"exterme scale_rating\">\n            Exterme\n        </div>\n      </div>\n    </div>\n  </span>\n  <span class='span8 risk_rating_span'>\n    <span id=\"risk_label_<%= rf.getCid() %>\" class=\"risk_label label\"></span>\n  </span>\n</div>\n\n<script>\n  $(function() {\n    var risk_rating_matrix = Formbuilder.options.FIELD_CONFIGS['deviation_risk_rating'];\n    /*$(\"#likelihood_<%= rf.getCid() %>\").on('change', function () {\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").attr( \"class\", risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });\n\n    $(\"#consequence_<%= rf.getCid() %>\").on('change', function () {\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").attr( \"class\", risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });*/\n    $(\"#likelihood_<%= rf.getCid() %>\").on('touchmove', function () {\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").attr( \"class\", risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });\n\n    $(\"#consequence_<%= rf.getCid() %>\").on('touchmove', function () {\n      console.log('dsdsds');\n      $(\"#risk_label_<%= rf.getCid() %>\").text(risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n      $(\"#risk_label_<%= rf.getCid() %>\").attr( \"class\", risk_rating_matrix[$(\"#likelihood_<%= rf.getCid() %>\").val()][$(\"#consequence_<%= rf.getCid() %>\").val()]);\n    });\n  });\n</script>\n",
+    edit: "",
+    addButton: "<span class=\"symbol\"><span class=\"icon-home\"></span></span> Address",
+    checkAttributeHasValue: function(cid, $el) {
+      return (function(_this) {
+        return function(incomplete) {
+          var call_back;
+          call_back = function() {
+            if ($(this).val() === "") {
+              return incomplete = true;
+            }
+          };
+          $el.find("input[type=text]").each(call_back);
+          if ($el.find('select').val() === "") {
+            incomplete = true;
+          }
+          if (incomplete === true) {
+            return false;
+          }
+          return cid;
+        };
+      })(this)(false);
+    },
+    clearFields: function($el, model) {
+      return (function(_this) {
+        return function(_that) {
+          $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS));
+          $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
+          $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
+          return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+        };
+      })(this)(this);
+    },
+    check_and_return_val: function(model, val) {
+      return model.get(val) || '';
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value) {
+      return (function(_this) {
+        return function(check_result, check_match_condtions, elem_val) {
+          if (condition === '!=') {
+            check_result = clicked_element.find("#address").val() !== '' && clicked_element.find("#suburb").val() !== '' && clicked_element.find("#state").val() !== '' && clicked_element.find("[name=" + cid + "_4]") !== '';
+          } else {
+            elem_val = clicked_element.find("#address").val();
+            check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
+          }
+          return check_result;
+        };
+      })(this)(false, [], '');
+    },
+    add_remove_require: function(cid, required) {
+      $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+      $("." + cid).find("[name = " + cid + "_2]").attr("required", required);
+      $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
+      $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
+      return $("." + cid).find("[name = " + cid + "_5]").attr("required", required);
+    },
+    android_setup: function(field_view, model, edit_fs_model) {},
+    setup: function(field_view, model) {}
   });
 
 }).call(this);

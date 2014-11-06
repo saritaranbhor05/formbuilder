@@ -171,6 +171,8 @@ class Formbuilder
         @frag = document.createDocumentFragment()
         @recurring = @options.recurring_section
         @first_field_index = @options.first_field_index
+        @last_field_index = @options.first_field_index
+        @view_index = 0
         @total_responses = @options.total_responses_for_this_section
         @field_views = @options.field_views
         @section_break_field_model = @options.section_break_field_model
@@ -179,6 +181,7 @@ class Formbuilder
         if @options.view_type == 'print'
           $el.append('<colgroup><col style="width: 30%;"><col style="width: 70%;"></colgroup>')
       make_live: (last_field_index)->
+        @last_field_index = last_field_index
         @$el.append(if @recurring then @wrap_section(last_field_index) else @frag)
         @$el
       append_child: (child) ->
@@ -187,9 +190,22 @@ class Formbuilder
         elem = $('<div></div>')
         @setSectionProps(cnt, true, elem)
         elem
+      show_hide_previous_buttons: (that, btn_class) ->
+        do( wiz = that.$el.find('.easyWizardElement.mystep')) =>
+          if(that.view_index == 0)
+            wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).hide()
+            wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).addClass('hide')
+          else
+            wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).show()
+            wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).removeClass('hide')
+      save_current_section: () ->
+        this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index)
+      previous_section: (btn_class) ->
+        this.view_index--;
+        this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index)
+        this.show_hide_previous_buttons(this, btn_class)
       wrap_section: (last_field_index) ->
         do( that = @,
-            view_index = 0,
             inner_wiz = $('<div></div>'),
             wrap_inner_0 = $('<div class="mystep">Ohh Am I Fake PREV</div>'),
             wrap_inner_1 = $('<div class="mystep"></div>'),
@@ -214,6 +230,18 @@ class Formbuilder
           that.parentView.$el.append(inner_wiz)
           Formbuilder.make_wizard(inner_wiz,
             {
+              extrabuttons: {
+                'Previous': {
+                  'buttonClass': 'previous_btn',
+                  'show': false,
+                  'callback': that.previous_section.bind(that, 'previous_btn')
+                },
+                'Save': {
+                  'buttonClass': 'save_btn',
+                  'show': true,
+                  'callback': that.save_current_section.bind(that)
+                }
+              },
               stepClassName: "mystep",
               prevButton: "Save and Prev entry",
               nextButton: next_btn_text,
@@ -228,7 +256,7 @@ class Formbuilder
                     if(next_step == 2)
                       return true
 
-                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, last_field_index, view_index)
+                    arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index)
                     unless _.isEmpty(arr_invalid_fields)
                       if typeof that.parentView.options.validation_fail_cb == 'function'
                         that.parentView.options.validation_fail_cb()
@@ -237,25 +265,21 @@ class Formbuilder
                       if typeof that.parentView.options.validation_success_cb == 'function'
                         that.parentView.options.validation_success_cb()
                     if(next_step > cur_step)
-                      view_index++
-                      if view_index < that.total_responses
-                        that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
+                      that.view_index++
+                      if that.view_index < that.total_responses
+                        that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
                       else
-                        that.parentView.setup_new_page(that.first_field_index, last_field_index, view_index)
-                      if view_index > that.total_responses
+                        that.parentView.setup_new_page(that.first_field_index, last_field_index, that.view_index)
+                      if that.view_index > that.total_responses
                         that.total_responses++
                     else
-                      if view_index == that.total_responses
+                      if that.view_index == that.total_responses
                         that.total_responses++
-                      view_index--
-                      that.parentView.load_values_for_index(that.first_field_index, last_field_index, view_index)
+                      that.view_index--
+                      that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
+
                     that.section_break_field_model.set('response_cnt', that.total_responses)
-                    if(next_step == 1 && view_index == 0)
-                      wiz.find(".easyWizardButtons.mystep .prev").hide()
-                      wiz.find(".easyWizardButtons.mystep .prev").addClass('hide')
-                    else
-                      wiz.find(".easyWizardButtons.mystep .prev").show()
-                      wiz.find(".easyWizardButtons.mystep .prev").removeClass('hide')
+                    that.show_hide_previous_buttons(that, 'previous_btn')
                     return false
             })
           inner_wiz.easyWizard('goToStep', 2)
