@@ -209,10 +209,14 @@ class Formbuilder
             wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).removeClass('hide')
       save_current_section: () ->
         this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index)
+        if (this.view_index == this.total_responses)
+          this.total_responses++
+        this.section_break_field_model.set('response_cnt', this.total_responses)
       previous_section: (btn_class) ->
         this.view_index--;
         this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index)
         this.show_hide_previous_buttons(this, btn_class)
+        this.show_hide_next_button()
       wrap_section: (last_field_index) ->
         do( that = @,
             inner_wiz = $('<div></div>'),
@@ -229,8 +233,22 @@ class Formbuilder
               view_type: @options.view_type
               index: 2
               back_visibility: false,
-              next_btn_text = "Save and New entry") ->
+              next_btn_text = "Save & Next",
+              prev_btn_text = "Save & Prev", extrabuttons = {}) ->
           next_btn_text = 'Next Entry' unless Formbuilder.isMobile()
+          prev_btn_text = 'Previous Entry' unless Formbuilder.isMobile()
+          extrabuttons = {
+            'Previous': {
+              'buttonClass': 'previous_btn',
+              'show': false,
+              'callback': that.previous_section.bind(that, 'previous_btn')
+            },
+            'Save': {
+              'buttonClass': 'save_btn',
+              'show': true,
+              'callback': that.save_current_section.bind(that)
+            }
+          } if Formbuilder.isMobile()
           inner1.append_child(that.frag)
           wrap_inner_1.append(inner1.frag)
           inner_wiz.append(wrap_inner_0)
@@ -239,20 +257,9 @@ class Formbuilder
           that.parentView.$el.append(inner_wiz)
           Formbuilder.make_wizard(inner_wiz,
             {
-              extrabuttons: {
-                'Previous': {
-                  'buttonClass': 'previous_btn',
-                  'show': false,
-                  'callback': that.previous_section.bind(that, 'previous_btn')
-                },
-                'Save': {
-                  'buttonClass': 'save_btn',
-                  'show': true,
-                  'callback': that.save_current_section.bind(that)
-                }
-              },
+              extrabuttons: extrabuttons,
               stepClassName: "mystep",
-              prevButton: "Save and Prev entry",
+              prevButton: prev_btn_text,
               nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,

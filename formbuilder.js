@@ -300,27 +300,29 @@
           })(this)(that.$el.find('.easyWizardElement.mystep'));
         },
         save_current_section: function() {
-          return this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index);
+          this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index);
+          if (this.view_index === this.total_responses) {
+            this.total_responses++;
+          }
+          return this.section_break_field_model.set('response_cnt', this.total_responses);
         },
         previous_section: function(btn_class) {
           this.view_index--;
           this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index);
-          return this.show_hide_previous_buttons(this, btn_class);
+          this.show_hide_previous_buttons(this, btn_class);
+          return this.show_hide_next_button();
         },
         wrap_section: function(last_field_index) {
-          var next_btn_text;
+          var extrabuttons, next_btn_text, prev_btn_text;
           return (function(that, inner_wiz, wrap_inner_0, wrap_inner_1, wrap_inner_2, inner1, inner2) {
             if (!Formbuilder.isMobile()) {
               next_btn_text = 'Next Entry';
             }
-            inner1.append_child(that.frag);
-            wrap_inner_1.append(inner1.frag);
-            inner_wiz.append(wrap_inner_0);
-            inner_wiz.append(wrap_inner_1);
-            inner_wiz.append(wrap_inner_2);
-            that.parentView.$el.append(inner_wiz);
-            Formbuilder.make_wizard(inner_wiz, {
-              extrabuttons: {
+            if (!Formbuilder.isMobile()) {
+              prev_btn_text = 'Previous Entry';
+            }
+            if (Formbuilder.isMobile()) {
+              extrabuttons = {
                 'Previous': {
                   'buttonClass': 'previous_btn',
                   'show': false,
@@ -331,9 +333,18 @@
                   'show': true,
                   'callback': that.save_current_section.bind(that)
                 }
-              },
+              };
+            }
+            inner1.append_child(that.frag);
+            wrap_inner_1.append(inner1.frag);
+            inner_wiz.append(wrap_inner_0);
+            inner_wiz.append(wrap_inner_1);
+            inner_wiz.append(wrap_inner_2);
+            that.parentView.$el.append(inner_wiz);
+            Formbuilder.make_wizard(inner_wiz, {
+              extrabuttons: extrabuttons,
               stepClassName: "mystep",
-              prevButton: "Save and Prev entry",
+              prevButton: prev_btn_text,
               nextButton: next_btn_text,
               showSteps: false,
               submitButton: false,
@@ -394,7 +405,7 @@
             view_type: this.options.view_type,
             index: 2,
             back_visibility: false
-          }, next_btn_text = "Save and New entry"));
+          }, next_btn_text = "Save & Next", prev_btn_text = "Save & Prev", extrabuttons = {}));
         },
         setSectionProps: function(cnt, back_visibility, elem) {
           elem = elem || this.$el;
