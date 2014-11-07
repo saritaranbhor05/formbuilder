@@ -273,6 +273,19 @@
           this.setSectionProps(cnt, true, elem);
           return elem;
         },
+        show_hide_next_button: function() {
+          return (function(_this) {
+            return function(wiz) {
+              if ((_this.total_responses <= 1 || _this.view_index === (_this.total_responses - 1)) && !_this.parentView.options.showSubmit) {
+                wiz.find(".easyWizardButtons.mystep .next").hide();
+                return wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
+              } else {
+                wiz.find(".easyWizardButtons.mystep .next").show();
+                return wiz.find(".easyWizardButtons.mystep .next").removeClass('hide');
+              }
+            };
+          })(this)(this.$el.find('.easyWizardElement.mystep'));
+        },
         show_hide_previous_buttons: function(that, btn_class) {
           return (function(_this) {
             return function(wiz) {
@@ -328,10 +341,7 @@
                 return (function(_this) {
                   return function(cur_step, next_step, temp_index, arr_invalid_fields) {
                     if (next_step === 2) {
-                      if ((that.total_responses <= 1) && !that.parentView.options.showSubmit) {
-                        wiz.find(".easyWizardButtons.mystep .next").hide();
-                        wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
-                      }
+                      that.show_hide_next_button();
                       return true;
                     }
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index);
@@ -362,13 +372,7 @@
                       that.view_index--;
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index);
                     }
-                    if (that.view_index === (that.total_responses - 1) && !that.parentView.options.showSubmit) {
-                      wiz.find(".easyWizardButtons.mystep .next").hide();
-                      wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
-                    } else {
-                      wiz.find(".easyWizardButtons.mystep .next").show();
-                      wiz.find(".easyWizardButtons.mystep .next").removeClass('hide');
-                    }
+                    that.show_hide_next_button();
                     that.section_break_field_model.set('response_cnt', that.total_responses);
                     that.show_hide_previous_buttons(that, 'previous_btn');
                     return false;

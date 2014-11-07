@@ -190,6 +190,15 @@ class Formbuilder
         elem = $('<div></div>')
         @setSectionProps(cnt, true, elem)
         elem
+      show_hide_next_button: () ->
+        do( wiz = this.$el.find('.easyWizardElement.mystep')) =>
+          if ((this.total_responses <= 1 || this.view_index == (this.total_responses-1)) &&
+              !this.parentView.options.showSubmit)
+            wiz.find(".easyWizardButtons.mystep .next").hide()
+            wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
+          else
+            wiz.find(".easyWizardButtons.mystep .next").show()
+            wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
       show_hide_previous_buttons: (that, btn_class) ->
         do( wiz = that.$el.find('.easyWizardElement.mystep')) =>
           if(that.view_index == 0)
@@ -254,9 +263,7 @@ class Formbuilder
                     arr_invalid_fields=[]
                     ) =>
                     if(next_step == 2)
-                      if (that.total_responses <= 1) && !that.parentView.options.showSubmit
-                        wiz.find(".easyWizardButtons.mystep .next").hide()
-                        wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
+                      that.show_hide_next_button()
                       return true
 
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index)
@@ -281,12 +288,7 @@ class Formbuilder
                       that.view_index--
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
                     
-                    if that.view_index == (that.total_responses-1) && !that.parentView.options.showSubmit
-                        wiz.find(".easyWizardButtons.mystep .next").hide()
-                        wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
-                    else
-                      wiz.find(".easyWizardButtons.mystep .next").show()
-                      wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
+                    that.show_hide_next_button()
                     
                     that.section_break_field_model.set('response_cnt', that.total_responses)
                     that.show_hide_previous_buttons(that, 'previous_btn')
