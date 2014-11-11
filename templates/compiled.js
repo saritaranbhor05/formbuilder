@@ -50,7 +50,7 @@ __p +=
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
 '\n';
 
-  if(!(rf.get('i_am_in_recurring_section'))){
+  if(!(rf.get('i_am_in_recurring_section') && custom_conditions)){
 ;
 __p += '\n' +
 ((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +

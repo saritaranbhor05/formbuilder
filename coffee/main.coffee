@@ -294,9 +294,9 @@ class Formbuilder
                         that.total_responses++
                       that.view_index--
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
-                    
+
                     that.show_hide_next_button()
-                    
+
                     that.section_break_field_model.set('response_cnt', that.total_responses)
                     that.show_hide_previous_buttons(that, 'previous_btn')
                     return false
@@ -465,7 +465,14 @@ class Formbuilder
         do (cid = @model.getCid(), that = @) ->
           that.$el.addClass('response-field-'+that.model.get(Formbuilder.options.mappings.FIELD_TYPE))
             .data('cid', cid)
-            .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
+            .html(
+              Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"](
+                {
+                  rf: that.model,
+                  opts: that.options
+                }
+              )
+            )
           do (x = null, count = 0) ->
             for x in that.$("input, textarea, select, .canvas_img")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
@@ -612,6 +619,10 @@ class Formbuilder
                 arr_till_this_model.push(field)
 
       initialize: ->
+        @field = {}
+        _.each @options.parentView.fieldViews, (field_view) =>
+          if _.isEqual(field_view.model, @model)
+            @field = field_view.field
         if @model.get('field_type') == 'section_break'
           @model.off "change:field_options.recurring_section"
           @model.on "change:field_options.recurring_section", @recurring_status_modified, @
@@ -641,7 +652,13 @@ class Formbuilder
                 field.set('conditions', [])
 
       render: ->
-        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model, opts: @options}))
+        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"](
+            {
+              rf: @model,
+              opts: @options,
+              custom_conditions: if _.isUndefined @field.custom_conditions then false else @field.custom_conditions
+            }
+          ))
         rivets.bind @$el, { model: @model }
         return @
 
