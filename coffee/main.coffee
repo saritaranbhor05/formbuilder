@@ -147,6 +147,19 @@ class Formbuilder
     copyCidToModel: (model) ->
       model.attributes.cid = model.cid
 
+    recurFieldsBySectionId: (section_id) ->
+      filtered = @filter((model) ->
+        model.get('i_am_in_recurring_section') && model.get('section_id') == section_id
+      )
+      new Formbuilder.collection(filtered)
+
+    exceptRecurAndNonInputFields: () ->
+      filtered = @filter((model) ->
+        !model.get('i_am_in_recurring_section') &&
+          Formbuilder.fields[model.get('field_type')].type != 'non_input'
+      )
+      new Formbuilder.collection(filtered)
+
   @registerField: (name, opts) ->
     for x in ['view', 'edit', 'print']
       opts[x] = _.template(opts[x]) if _.isString(opts[x])
@@ -190,15 +203,14 @@ class Formbuilder
         elem = $('<div></div>')
         @setSectionProps(cnt, true, elem)
         elem
-      show_hide_next_button: () ->
-        do( wiz = this.$el.find('.easyWizardElement.mystep')) =>
-          if ((this.total_responses <= 1 || this.view_index == (this.total_responses-1)) &&
-              !this.parentView.options.showSubmit)
-            wiz.find(".easyWizardButtons.mystep .next").hide()
-            wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
-          else
-            wiz.find(".easyWizardButtons.mystep .next").show()
-            wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
+      show_hide_next_button: (_wiz) ->
+        if ((this.total_responses <= 1 || this.view_index == (this.total_responses-1)) &&
+            !this.parentView.options.showSubmit)
+          _wiz.find(".easyWizardButtons.mystep .next").hide()
+          _wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
+        else
+          _wiz.find(".easyWizardButtons.mystep .next").show()
+          _wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
       show_hide_previous_buttons: (that, btn_class) ->
         do( wiz = that.$el.find('.easyWizardElement.mystep')) =>
           if(that.view_index == 0)
@@ -216,7 +228,6 @@ class Formbuilder
         this.view_index--;
         this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index)
         this.show_hide_previous_buttons(this, btn_class)
-        this.show_hide_next_button()
       wrap_section: (last_field_index) ->
         do( that = @,
             inner_wiz = $('<div></div>'),
@@ -270,7 +281,7 @@ class Formbuilder
                     arr_invalid_fields=[]
                     ) =>
                     if(next_step == 2)
-                      that.show_hide_next_button()
+                      that.show_hide_next_button(wiz)
                       return true
 
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index)
@@ -295,7 +306,7 @@ class Formbuilder
                       that.view_index--
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
 
-                    that.show_hide_next_button()
+                    that.show_hide_next_button(wiz)
 
                     that.section_break_field_model.set('response_cnt', that.total_responses)
                     that.show_hide_previous_buttons(that, 'previous_btn')
@@ -619,11 +630,9 @@ class Formbuilder
                 arr_till_this_model.push(field)
 
       initialize: ->
-        @field = {}
-        _.each @options.parentView.fieldViews, (field_view) =>
-          if _.isEqual(field_view.model, @model)
-            @field = field_view.field
-        if @model.get('field_type') == 'section_break'
+        @field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        @field = Formbuilder.fields[@field_type]
+        if @field_type == 'section_break'
           @model.off "change:field_options.recurring_section"
           @model.on "change:field_options.recurring_section", @recurring_status_modified, @
           if !@model.get('unique_id')

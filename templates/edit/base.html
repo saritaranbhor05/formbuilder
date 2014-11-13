@@ -2,7 +2,7 @@
 <%= Formbuilder.templates['edit/common']() %>
 <%= Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) %>
 <%
-  if(!(rf.get('i_am_in_recurring_section') && custom_conditions)){
+  if(!(rf.get('i_am_in_recurring_section') || custom_conditions)){
 %>
 <%= Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts })%>
 <%

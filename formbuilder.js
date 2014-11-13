@@ -209,6 +209,20 @@
       },
       copyCidToModel: function(model) {
         return model.attributes.cid = model.cid;
+      },
+      recurFieldsBySectionId: function(section_id) {
+        var filtered;
+        filtered = this.filter(function(model) {
+          return model.get('i_am_in_recurring_section') && model.get('section_id') === section_id;
+        });
+        return new Formbuilder.collection(filtered);
+      },
+      exceptRecurAndNonInputFields: function() {
+        var filtered;
+        filtered = this.filter(function(model) {
+          return !model.get('i_am_in_recurring_section') && Formbuilder.fields[model.get('field_type')].type !== 'non_input';
+        });
+        return new Formbuilder.collection(filtered);
       }
     });
 
@@ -273,18 +287,14 @@
           this.setSectionProps(cnt, true, elem);
           return elem;
         },
-        show_hide_next_button: function() {
-          return (function(_this) {
-            return function(wiz) {
-              if ((_this.total_responses <= 1 || _this.view_index === (_this.total_responses - 1)) && !_this.parentView.options.showSubmit) {
-                wiz.find(".easyWizardButtons.mystep .next").hide();
-                return wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
-              } else {
-                wiz.find(".easyWizardButtons.mystep .next").show();
-                return wiz.find(".easyWizardButtons.mystep .next").removeClass('hide');
-              }
-            };
-          })(this)(this.$el.find('.easyWizardElement.mystep'));
+        show_hide_next_button: function(_wiz) {
+          if ((this.total_responses <= 1 || this.view_index === (this.total_responses - 1)) && !this.parentView.options.showSubmit) {
+            _wiz.find(".easyWizardButtons.mystep .next").hide();
+            return _wiz.find(".easyWizardButtons.mystep .next").addClass('hide');
+          } else {
+            _wiz.find(".easyWizardButtons.mystep .next").show();
+            return _wiz.find(".easyWizardButtons.mystep .next").removeClass('hide');
+          }
         },
         show_hide_previous_buttons: function(that, btn_class) {
           return (function(_this) {
@@ -309,8 +319,7 @@
         previous_section: function(btn_class) {
           this.view_index--;
           this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index);
-          this.show_hide_previous_buttons(this, btn_class);
-          return this.show_hide_next_button();
+          return this.show_hide_previous_buttons(this, btn_class);
         },
         wrap_section: function(last_field_index) {
           var extrabuttons, next_btn_text, prev_btn_text;
@@ -352,7 +361,7 @@
                 return (function(_this) {
                   return function(cur_step, next_step, temp_index, arr_invalid_fields) {
                     if (next_step === 2) {
-                      that.show_hide_next_button();
+                      that.show_hide_next_button(wiz);
                       return true;
                     }
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index);
@@ -383,7 +392,7 @@
                       that.view_index--;
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index);
                     }
-                    that.show_hide_next_button();
+                    that.show_hide_next_button(wiz);
                     that.section_break_field_model.set('response_cnt', that.total_responses);
                     that.show_hide_previous_buttons(that, 'previous_btn');
                     return false;
@@ -809,15 +818,9 @@
           })(collection.toJSON(), []);
         },
         initialize: function() {
-          this.field = {};
-          _.each(this.options.parentView.fieldViews, (function(_this) {
-            return function(field_view) {
-              if (_.isEqual(field_view.model, _this.model)) {
-                return _this.field = field_view.field;
-              }
-            };
-          })(this));
-          if (this.model.get('field_type') === 'section_break') {
+          this.field_type = this.model.get(Formbuilder.options.mappings.FIELD_TYPE);
+          this.field = Formbuilder.fields[this.field_type];
+          if (this.field_type === 'section_break') {
             this.model.off("change:field_options.recurring_section");
             this.model.on("change:field_options.recurring_section", this.recurring_status_modified, this);
             if (!this.model.get('unique_id')) {
@@ -4379,7 +4382,7 @@ __p +=
 ((__t = ( Formbuilder.fields[rf.get(Formbuilder.options.mappings.FIELD_TYPE)].edit({rf: rf, opts:opts}) )) == null ? '' : __t) +
 '\n';
 
-  if(!(rf.get('i_am_in_recurring_section') && custom_conditions)){
+  if(!(rf.get('i_am_in_recurring_section') || custom_conditions)){
 ;
 __p += '\n' +
 ((__t = ( Formbuilder.templates['edit/conditions']({ rf:rf, opts:opts }))) == null ? '' : __t) +
@@ -4510,19 +4513,19 @@ with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Conditions</div>\n\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.MATCH_CONDITIONS )) == null ? '' : __t) +
 '">\n  <option value="or">Select Matching</option>\n  <option value="and">Match All Conditions</option>\n  <option value="or">Match Any Conditions</option>\n</select>\n\n<div class=\'subtemplate-wrapper\' >\n  <div class=\'condition\' data-rv-each-condition=\'model.conditions\'>\n    <div class=\'row-fluid\' data-rv-show="condition:isSource">\n      <span class=\'fb-field-label fb-field-condition-label span1 fb-min-width-10\'> If </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:source\'>\n          <option value="">Select Field</option>\n          ';
- opts.parentView.collection.sort();;
+ var con_source_fields = opts.parentView.collection.exceptRecurAndNonInputFields().sort();;
 __p += '\n          ';
- for( var i=0 ; i < opts.parentView.collection.length ; i++){;
+ for( var i=0 ; i < con_source_fields.length ; i++){;
 __p += '\n            ';
- if(opts.parentView.collection.toJSON()[i].cid == rf.getCid()){ ;
+ if(con_source_fields.toJSON()[i].cid == rf.getCid()){ ;
 __p += '\n              ';
  break ;
 __p += '\n            ';
  } ;
 __p += '\n            <option value="' +
-((__t = ( opts.parentView.collection.toJSON()[i].cid )) == null ? '' : __t) +
+((__t = ( con_source_fields.toJSON()[i].cid )) == null ? '' : __t) +
 '">' +
-((__t = ( opts.parentView.collection.toJSON()[i].label )) == null ? '' : __t) +
+((__t = ( con_source_fields.toJSON()[i].label )) == null ? '' : __t) +
 '</option>\n          ';
 };
 __p += '\n        </select>\n      </div>\n      <span class=\'fb-field-label fb-field-condition-label span2\'> field </span>\n      <div class="span6">\n        <select data-rv-value=\'condition:condition\'>\n            <option value="">Select Comparator</option>\n            <option>equals</option>\n            <option>greater than</option>\n            <option>less than</option>\n            <option>is not empty</option>\n        </select>\n      </div>\n      <input class=\'span5 pull-right\' data-rv-input=\'condition:value\' type=\'text\'/>\n      <span class=\'fb-field-label fb-field-condition-label span2 fb-min-width-40\'> then </span>\n      <div class="span8">\n        <select data-rv-value=\'condition:action\'>\n            <option value="">Select Action</option>\n            <option>show</option>\n            <option>hide</option>\n        </select>\n      </div>\n      <div class="span8 fb-this-field-div">\n        <input type=\'text\' class=\'fb-this-field-input\' disabled value=\'This Field\'>\n      </div>\n      <a class="pull-right js-remove-condition ' +
