@@ -448,7 +448,8 @@
           this.field = Formbuilder.fields[this.field_type];
           this.is_section_break = this.field_type === 'section_break';
           this.listenTo(this.model, "change", this.render);
-          return this.listenTo(this.model, "destroy", this.remove);
+          this.listenTo(this.model, "destroy", this.remove);
+          return this.listenTo(this.model, "clearAllConditions", this.clearAllConditions);
         },
         add_remove_require: function(required) {
           if (!required) {
@@ -710,12 +711,13 @@
         clear: function() {
           return (function(index, that) {
             that.parentView.handleFormUpdate();
-            index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
-              cid: that.cid
-            })[0]);
+            index = that.parentView.collection.models.indexOf(that.model);
             if (that.model.get('field_type') === 'section_break') {
               that.updateFieldsInSectionBreak(index, that.parentView.collection.models);
             }
+            index = that.parentView.fieldViews.indexOf(_.where(that.parentView.fieldViews, {
+              cid: that.cid
+            })[0]);
             if (index > -1) {
               that.parentView.fieldViews.splice(index, 1);
             }
@@ -761,6 +763,11 @@
             }
             return _results;
           })(void 0, void 0);
+        },
+        clearAllConditions: function() {
+          return (function(index, that) {
+            return that.clearConditions(that.model.getCid(), that.parentView.fieldViews);
+          })(0, this);
         },
         clearConditions: function(cid, fieldViews) {
           return _.each(fieldViews, function(fieldView) {
@@ -1329,8 +1336,8 @@
                 }
                 $('.form-builder-left-container ').css('overflow', 'auto');
                 _this.collection.sort();
-                (function(current_model, index, models, is_recur, section_id) {
-                  var i, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _ref4, _results;
+                (function(that, current_model, index, models, is_recur, section_id, clear_conditions_for_models) {
+                  var i, _i, _j, _k, _l, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
                   if (current_model.get('field_type') === 'section_break') {
                     is_recur = current_model.get('field_options').recurring_section;
                     section_id = current_model.get('unique_id');
@@ -1355,6 +1362,9 @@
                             silent: true
                           });
                         }
+                        if (is_recur || section_id) {
+                          clear_conditions_for_models.push(models[i]);
+                        }
                       }
                     }
                     is_recur = void 0;
@@ -1368,7 +1378,6 @@
                         }
                       }
                     }
-                    _results = [];
                     for (i = _k = _ref3 = index - 1; _ref3 <= -1 ? _k < -1 : _k > -1; i = _ref3 <= -1 ? ++_k : --_k) {
                       if (models[i]) {
                         if (models[i].get('field_type') === 'section_break') {
@@ -1381,22 +1390,28 @@
                           }, {
                             silent: true
                           });
+                        } else {
+                          models[i].unset('i_am_in_recurring_section', {
+                            silent: true
+                          });
                         }
                         if (section_id) {
-                          _results.push(models[i].set({
+                          models[i].set({
                             'section_id': 'section_id',
                             section_id: section_id
                           }, {
                             silent: true
-                          }));
+                          });
                         } else {
-                          _results.push(void 0);
+                          models[i].unset('section_id', {
+                            silent: true
+                          });
                         }
-                      } else {
-                        _results.push(void 0);
+                        if (is_recur || section_id) {
+                          clear_conditions_for_models.push(models[i]);
+                        }
                       }
                     }
-                    return _results;
                   } else {
                     for (i = _l = _ref4 = index - 1; _ref4 <= -1 ? _l < -1 : _l > -1; i = _ref4 <= -1 ? ++_l : --_l) {
                       if (models[i]) {
@@ -1420,19 +1435,27 @@
                       });
                     }
                     if (section_id) {
-                      return current_model.set({
+                      current_model.set({
                         'section_id': 'section_id',
                         section_id: section_id
                       }, {
                         silent: true
                       });
                     } else {
-                      return current_model.unset('section_id', {
+                      current_model.unset('section_id', {
                         silent: true
                       });
                     }
                   }
-                })(_this.collection.models[ui.item.index()], ui.item.index(), _this.collection.models, void 0, void 0);
+                  for (i = _m = 0, _ref5 = clear_conditions_for_models.length; 0 <= _ref5 ? _m < _ref5 : _m > _ref5; i = 0 <= _ref5 ? ++_m : --_m) {
+                    clear_conditions_for_models[i].trigger("clearAllConditions");
+                    clear_conditions_for_models[i].attributes.conditions = [];
+                  }
+                  current_model.trigger("clearAllConditions");
+                  current_model.attributes.conditions = [];
+                  that.editView.remove();
+                  return that.createAndShowEditView(current_model);
+                })(_this, _this.collection.models[ui.item.index()], ui.item.index(), _this.collection.models, void 0, void 0, []);
                 _this.handleFormUpdate();
                 _this.removeSortable();
                 return true;
