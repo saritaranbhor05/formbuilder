@@ -129,6 +129,13 @@ unless typeof(CKEDITOR) is 'undefined'
             editor_<%= rf.getCid() %> = CKEDITOR.replace(document.getElementById("ck_<%= rf.getCid() %>"),
               Formbuilder.options.CKEDITOR_CONFIG
             );
+            // This will take care of CKEditor instance and automatically copy its contents
+            // into the container with an id like the editor instance with an ending "_preview"
+            CKEDITOR.on('instanceCreated', function (e) {
+              e.editor.on('change', function (ev) {
+                document.getElementById( ev.editor.name + '_preview').innerHTML = ev.editor.getData();
+              });
+            });
           });
         });
       </script>

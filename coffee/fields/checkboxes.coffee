@@ -131,3 +131,19 @@ Formbuilder.registerField 'checkboxes',
         $("." + cid)
                 .find("[name = "+cid+"_1]")
                 .attr("required", required)
+
+  setup: (field_view, model) ->
+    if model.get('field_values')
+      do( val_hash = model.get('field_values')) ->
+        _.each val_hash, (val, key) ->
+          do(target_elemnt = field_view.$el.find("[name="+key+"]")) ->
+            if target_elemnt.is(":checkbox")
+              target_elemnt.prop('checked',val)
+            else
+              target_elemnt.val(val)
+    else if model.get('field_options')
+      do( options = model.get('field_options').options,
+          cid = model.getCid() ) ->
+        _.each options, (val, index) ->
+          if val.checked
+            field_view.$el.find("[name="+cid+"_"+(index+1)+"]").prop("checked", true)
