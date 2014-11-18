@@ -147,6 +147,19 @@ class Formbuilder
     copyCidToModel: (model) ->
       model.attributes.cid = model.cid
 
+    recurFieldsBySectionId: (section_id) ->
+      filtered = @filter((model) ->
+        model.get('i_am_in_recurring_section') && model.get('section_id') == section_id
+      )
+      new Formbuilder.collection(filtered)
+
+    exceptRecurAndNonInputFields: () ->
+      filtered = @filter((model) ->
+        !model.get('i_am_in_recurring_section') &&
+          Formbuilder.fields[model.get('field_type')].type != 'non_input'
+      )
+      new Formbuilder.collection(filtered)
+
   @registerField: (name, opts) ->
     for x in ['view', 'edit', 'print']
       opts[x] = _.template(opts[x]) if _.isString(opts[x])
@@ -190,15 +203,14 @@ class Formbuilder
         elem = $('<div></div>')
         @setSectionProps(cnt, true, elem)
         elem
-      show_hide_next_button: () ->
-        do( wiz = this.$el.find('.easyWizardElement.mystep')) =>
-          if ((this.total_responses <= 1 || this.view_index == (this.total_responses-1)) &&
-              !this.parentView.options.showSubmit)
-            wiz.find(".easyWizardButtons.mystep .next").hide()
-            wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
-          else
-            wiz.find(".easyWizardButtons.mystep .next").show()
-            wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
+      show_hide_next_button: (_wiz) ->
+        if ((this.total_responses <= 1 || this.view_index == (this.total_responses-1)) &&
+            !this.parentView.options.showSubmit)
+          _wiz.find(".easyWizardButtons.mystep .next").hide()
+          _wiz.find(".easyWizardButtons.mystep .next").addClass('hide')
+        else
+          _wiz.find(".easyWizardButtons.mystep .next").show()
+          _wiz.find(".easyWizardButtons.mystep .next").removeClass('hide')
       show_hide_previous_buttons: (that, btn_class) ->
         do( wiz = that.$el.find('.easyWizardElement.mystep')) =>
           if(that.view_index == 0)
@@ -216,7 +228,6 @@ class Formbuilder
         this.view_index--;
         this.parentView.load_values_for_index(this.first_field_index, this.last_field_index, this.view_index)
         this.show_hide_previous_buttons(this, btn_class)
-        this.show_hide_next_button()
       wrap_section: (last_field_index) ->
         do( that = @,
             inner_wiz = $('<div></div>'),
@@ -270,7 +281,7 @@ class Formbuilder
                     arr_invalid_fields=[]
                     ) =>
                     if(next_step == 2)
-                      that.show_hide_next_button()
+                      that.show_hide_next_button(wiz)
                       return true
 
                     arr_invalid_fields = that.parentView.save_field_values_at_index(that.first_field_index, that.last_field_index, that.view_index)
@@ -294,9 +305,9 @@ class Formbuilder
                         that.total_responses++
                       that.view_index--
                       that.parentView.load_values_for_index(that.first_field_index, last_field_index, that.view_index)
-                    
-                    that.show_hide_next_button()
-                    
+
+                    that.show_hide_next_button(wiz)
+
                     that.section_break_field_model.set('response_cnt', that.total_responses)
                     that.show_hide_previous_buttons(that, 'previous_btn')
                     return false
@@ -337,6 +348,9 @@ class Formbuilder
         @is_section_break = @field_type == 'section_break'
         @listenTo @model, "change", @render
         @listenTo @model, "destroy", @remove
+        @listenTo @model, "clearAllConditions", @clearAllConditions
+
+      
 
       add_remove_require:(required) ->
         @clearFields() and @changeStateSource() unless required
@@ -465,7 +479,14 @@ class Formbuilder
         do (cid = @model.getCid(), that = @) ->
           that.$el.addClass('response-field-'+that.model.get(Formbuilder.options.mappings.FIELD_TYPE))
             .data('cid', cid)
-            .html(Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"]({rf: that.model, opts: that.options}))
+            .html(
+              Formbuilder.templates["view/base#{if !that.model.is_input() then '_non_input' else ''}"](
+                {
+                  rf: that.model,
+                  opts: that.options
+                }
+              )
+            )
           do (x = null, count = 0) ->
             for x in that.$("input, textarea, select, .canvas_img")
               count = count + 1 if do(attr = $(x).attr('type')) -> attr != 'radio' && attr != 'checkbox'
@@ -546,10 +567,13 @@ class Formbuilder
       clear: ->
         do (index = 0, that = @) ->
           that.parentView.handleFormUpdate()
-          index = that.parentView.fieldViews
-            .indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0])
+          # Index should be taken from collection as fieldViews are not updated after sorting.
+          index = that.parentView.collection.models.indexOf(that.model);
           # should pass collection.models and not fieldviews
           that.updateFieldsInSectionBreak(index, that.parentView.collection.models) if that.model.get('field_type') == 'section_break'
+          # To remove field view, need to fetch index from parentView.fieldViews and then remove that fieldview.
+          index = that.parentView.fieldViews
+            .indexOf(_.where(that.parentView.fieldViews, {cid: that.cid})[0])
           that.parentView.fieldViews.splice(index, 1) if (index > -1)
           that.clearConditions that.model.getCid(), that.parentView.fieldViews
           that.model.destroy()
@@ -569,6 +593,10 @@ class Formbuilder
                 if models[i].get('section_id') == unique_section_id
                   if is_recur then models[i].set('i_am_in_recurring_section', is_recur) else models[i].unset('i_am_in_recurring_section')
                   if section_id then models[i].set('section_id', section_id) else models[i].unset('section_id')
+
+      clearAllConditions: () ->
+        do (index = 0, that = @) ->
+          that.clearConditions that.model.getCid(), that.parentView.fieldViews
 
       clearConditions: (cid, fieldViews) ->
         _.each(fieldViews, (fieldView) ->
@@ -612,7 +640,9 @@ class Formbuilder
                 arr_till_this_model.push(field)
 
       initialize: ->
-        if @model.get('field_type') == 'section_break'
+        @field_type = @model.get(Formbuilder.options.mappings.FIELD_TYPE)
+        @field = Formbuilder.fields[@field_type]
+        if @field_type == 'section_break'
           @model.off "change:field_options.recurring_section"
           @model.on "change:field_options.recurring_section", @recurring_status_modified, @
           if !@model.get('unique_id')
@@ -641,7 +671,13 @@ class Formbuilder
                 field.set('conditions', [])
 
       render: ->
-        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"]({rf: @model, opts: @options}))
+        @$el.html(Formbuilder.templates["edit/base#{if !@model.is_input() then '_non_input' else ''}"](
+            {
+              rf: @model,
+              opts: @options,
+              custom_conditions: if _.isUndefined @field.custom_conditions then false else @field.custom_conditions
+            }
+          ))
         rivets.bind @$el, { model: @model }
         return @
 
@@ -1010,11 +1046,11 @@ class Formbuilder
             $('.form-builder-left-container ').css('overflow', 'auto')
 
             @collection.sort()
-            do ( current_model = @collection.models[ui.item.index()],
+            do ( that = @, current_model = @collection.models[ui.item.index()],
                 index = ui.item.index(),
                 models = @collection.models,
                 is_recur = undefined,
-                section_id = undefined) ->
+                section_id = undefined, clear_conditions_for_models = []) ->
               if(current_model.get('field_type') == 'section_break')
                 # get attr of moved section break
                 is_recur = current_model.get('field_options').recurring_section
@@ -1025,6 +1061,7 @@ class Formbuilder
                     break if models[i].get('field_type') == 'section_break'
                     if is_recur then models[i].set({'i_am_in_recurring_section', is_recur}, {silent:true})
                     if section_id then models[i].set({'section_id', section_id}, {silent:true})
+                    clear_conditions_for_models.push(models[i]) if is_recur || section_id
                 # select section break above the current index
                 is_recur = undefined
                 section_id = undefined
@@ -1038,8 +1075,15 @@ class Formbuilder
                 for i in [index-1...-1]
                   if models[i]
                     break if models[i].get('field_type') == 'section_break'
-                    if is_recur then models[i].set({'i_am_in_recurring_section', is_recur}, {silent:true})
-                    if section_id then models[i].set({'section_id', section_id}, {silent:true})
+                    if is_recur
+                      models[i].set({'i_am_in_recurring_section', is_recur}, {silent:true})
+                    else
+                      models[i].unset('i_am_in_recurring_section', {silent:true})
+                    if section_id
+                      models[i].set({'section_id', section_id}, {silent:true})
+                    else
+                      models[i].unset('section_id', {silent:true})
+                    clear_conditions_for_models.push(models[i]) if is_recur || section_id
               else
                 for i in [index-1...-1]
                   if models[i]
@@ -1047,8 +1091,23 @@ class Formbuilder
                       is_recur = models[i].get('field_options').recurring_section
                       section_id = models[i].get('unique_id')
                       break
-                if is_recur then current_model.set({'i_am_in_recurring_section', is_recur}, {silent:true}) else current_model.unset('i_am_in_recurring_section', {silent:true})
-                if section_id then current_model.set({'section_id', section_id}, {silent:true}) else current_model.unset('section_id', {silent:true})
+                if is_recur
+                  current_model.set({'i_am_in_recurring_section', is_recur}, {silent:true})
+                else
+                  current_model.unset('i_am_in_recurring_section', {silent:true})
+                if section_id
+                  current_model.set({'section_id', section_id}, {silent:true})
+                else
+                  current_model.unset('section_id', {silent:true})
+
+              for i in [0...clear_conditions_for_models.length]
+                clear_conditions_for_models[i].trigger("clearAllConditions")
+                clear_conditions_for_models[i].attributes.conditions = []
+
+              current_model.trigger("clearAllConditions")
+              current_model.attributes.conditions = []
+              that.editView.remove()
+              that.createAndShowEditView(current_model)
 
             @handleFormUpdate()
             @removeSortable()
