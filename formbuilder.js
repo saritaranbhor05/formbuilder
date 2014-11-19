@@ -2674,6 +2674,12 @@
     },
     add_remove_require: function(cid, required) {
       return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(elem, res) {
+        res[$(elem).attr('name')] = $(elem).val();
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
     }
   });
 
@@ -2880,6 +2886,12 @@
           }
         };
       })(this)(field_view.$el.find('input'));
+    },
+    fieldToValue: function($el, model) {
+      return (function(elem, res) {
+        res[$(elem).attr('name')] = $(elem).val();
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
     }
   });
 

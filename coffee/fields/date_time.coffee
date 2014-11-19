@@ -245,3 +245,9 @@ Formbuilder.registerField 'date_time',
           field_view.$el.removeClass('show').addClass('hide')
         else
           field_view.$el.removeClass('hide').addClass('show')
+
+  fieldToValue: ($el, model) ->
+    do(elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      res[$(elem).attr('name')] = $(elem).val()
+      res
