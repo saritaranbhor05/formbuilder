@@ -781,7 +781,10 @@ class Formbuilder
               fv.model.unset('field_values', {silent:true})
               method.call(fv.field, fv, fv.model)
               fv.model.unset('new_page', {silent:true})
+              fv.trigger('change_state')
               fv.model.set({'field_values': all_field_vals}, {silent:true})
+            else
+              fv.trigger('change_state')
           section_st_index++
 
       load_values_for_index: (section_st_index, section_end_index, load_index) ->

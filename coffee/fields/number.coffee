@@ -73,7 +73,10 @@ Formbuilder.registerField 'number',
     ) =>
       elem_val = clicked_element
                           .find("[name = "+cid+"_1]").val()
-      check_result = condition("'#{elem_val}'", "'#{set_value}'")
+      if isNaN(parseInt(elem_val)) || isNaN(parseInt(set_value))
+        check_result = false
+      else
+        check_result = condition("'#{elem_val}'", "'#{set_value}'")
       check_result
 
   add_remove_require:(cid,required) ->
