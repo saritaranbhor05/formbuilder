@@ -1014,11 +1014,14 @@
                 fv.model.unset('new_page', {
                   silent: true
                 });
+                fv.trigger('change_state');
                 return fv.model.set({
                   'field_values': all_field_vals
                 }, {
                   silent: true
                 });
+              } else {
+                return fv.trigger('change_state');
               }
             })(this, null, this.fieldViews[section_st_index], {});
             _results.push(section_st_index++);
@@ -3719,7 +3722,11 @@
         return function(check_result) {
           var elem_val;
           elem_val = clicked_element.find("[name = " + cid + "_1]").val();
-          check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
+          if (isNaN(parseInt(elem_val)) || isNaN(parseInt(set_value))) {
+            check_result = false;
+          } else {
+            check_result = condition("'" + elem_val + "'", "'" + set_value + "'");
+          }
           return check_result;
         };
       })(this)(false);
