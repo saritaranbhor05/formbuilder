@@ -120,3 +120,8 @@ Formbuilder.registerField 'date_of_birth',
             .find("[name = "+cid+"_1]")
             .attr("required", required)
 
+  fieldToValue: ($el, model) ->
+    do(elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      res[$(elem).attr('name')] = $(elem).val()
+      res
