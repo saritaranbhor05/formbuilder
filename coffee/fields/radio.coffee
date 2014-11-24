@@ -104,6 +104,8 @@ Formbuilder.registerField 'radio',
         _.each options, (val, index) ->
           if val.checked
             field_view.$el.find(":radio[value="+val.label+"]").prop("checked", true)
+    if field_view.$el.find('input[type=radio]:checked')
+      field_view.trigger('change_state')
 
   isValid: ($el, model) ->
     do(valid = false) =>
@@ -126,5 +128,9 @@ Formbuilder.registerField 'radio',
        check_result = false
     ) =>
       elem_val = clicked_element.find("[value = '" + set_value+"']").is(':checked')
-      check_result =  condition(elem_val, true)
+      if elem_val
+        check_result =  condition(elem_val, true)
+      else if clicked_element.find("[value = '__other__']").is(':checked')
+        elem_val = clicked_element.find('input[type=text]').val()
+        check_result =  condition(elem_val, set_value)
       check_result

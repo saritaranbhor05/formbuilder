@@ -2452,7 +2452,7 @@
     },
     setup: function(field_view, model) {
       if (model.get('field_values')) {
-        return (function(val_hash) {
+        (function(val_hash) {
           return _.each(val_hash, function(val, key) {
             return (function(target_elemnt) {
               if (target_elemnt.is(":checkbox")) {
@@ -2464,7 +2464,7 @@
           });
         })(model.get('field_values'));
       } else if (model.get('field_options')) {
-        return (function(options, cid) {
+        (function(options, cid) {
           return _.each(options, function(val, index) {
             if (val.checked) {
               return field_view.$el.find("[name=" + cid + "_" + (index + 1) + "]").prop("checked", true);
@@ -2472,12 +2472,20 @@
           });
         })(model.get('field_options').options, model.getCid());
       }
+      if (field_view.$el.find('input[type=checkbox]:checked')) {
+        return field_view.trigger('change_state');
+      }
     },
     evalCondition: function(clicked_element, cid, condition, set_value) {
       return (function(_this) {
         return function(elem_val, check_result) {
           elem_val = clicked_element.find("input[value = '" + set_value + "']").is(':checked');
-          check_result = condition(elem_val, true);
+          if (elem_val) {
+            check_result = condition(elem_val, true);
+          } else if (clicked_element.find("[value = '__other__']").is(':checked')) {
+            elem_val = clicked_element.find('input[type=text]').val();
+            check_result = condition(elem_val, set_value);
+          }
           return check_result;
         };
       })(this)('', false);
@@ -2495,29 +2503,6 @@
           return _results;
         };
       })(this)(0);
-    },
-    setup: function(field_view, model) {
-      if (model.get('field_values')) {
-        return (function(val_hash) {
-          return _.each(val_hash, function(val, key) {
-            return (function(target_elemnt) {
-              if (target_elemnt.is(":checkbox")) {
-                return target_elemnt.prop('checked', val);
-              } else {
-                return target_elemnt.val(val);
-              }
-            })(field_view.$el.find("[name=" + key + "]"));
-          });
-        })(model.get('field_values'));
-      } else if (model.get('field_options')) {
-        return (function(options, cid) {
-          return _.each(options, function(val, index) {
-            if (val.checked) {
-              return field_view.$el.find("[name=" + cid + "_" + (index + 1) + "]").prop("checked", true);
-            }
-          });
-        })(model.get('field_options').options, model.getCid());
-      }
     }
   });
 
@@ -3852,7 +3837,7 @@
 (function() {
   Formbuilder.registerField('phone_number', {
     view: "<input id='<%= rf.getCid() %>phone' type='tel'/>",
-    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        var pref_countries = [\"au\", \"gb\", \"us\"];\n        var ph_no_conf = Formbuilder.options.FIELD_CONFIGS['phone_number'];\n        if(!_.isUndefined(ph_no_conf) && ph_no_conf['preferredCountries']) {\n          pref_countries = ph_no_conf['preferredCountries'];\n        }\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: pref_countries\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
+    edit: "<%= Formbuilder.templates['edit/country_code']({rf:rf}) %>\n    <script>\n      $(function() {\n        var pref_countries = [\"au\", \"gb\", \"us\"];\n        var ph_no_conf = Formbuilder.options.FIELD_CONFIGS['phone_number'];\n        if(!_.isUndefined(ph_no_conf) && ph_no_conf['preferredCountries']) {\n          pref_countries = ph_no_conf['preferredCountries'];\n        }\n        $('#<%= rf.getCid() %>_country_code').intlTelInput({\n            autoHideDialCode: false,\n            preferredCountries: pref_countries\n        });\n        $(\"#<%= rf.getCid() %>_country_code\").val();\n        $(\"#<%= rf.getCid() %>_country_code\").trigger('change');\n      });\n    </script>\n    <%= Formbuilder.templates['edit/area_code']() %>\n<%= Formbuilder.templates['edit/mask_value']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-phone\"></span></span> Phone Number",
     print: "<label id=\"phone_print\"></label>",
     setValForPrint: function(field_view, model) {
@@ -3886,7 +3871,10 @@
             $('#' + model.getCid() + 'phone').mask(mask_value);
           }
           if (model.get('field_values')) {
-            return field_view.$el.find('input').val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+            field_view.$el.find('input').val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+          }
+          if (field_view.$el.find('input').val() !== '') {
+            return field_view.trigger('change_state');
           }
         };
       })(this)(false, false, '');
@@ -4002,7 +3990,7 @@
     },
     setup: function(field_view, model) {
       if (model.get('field_values')) {
-        return (function(val_hash) {
+        (function(val_hash) {
           return _.each(val_hash, function(val, key) {
             return (function(target_elemnt) {
               if (target_elemnt.is(":radio")) {
@@ -4014,13 +4002,16 @@
           });
         })(model.get('field_values'));
       } else if (model.get('field_options')) {
-        return (function(options, cid) {
+        (function(options, cid) {
           return _.each(options, function(val, index) {
             if (val.checked) {
               return field_view.$el.find(":radio[value=" + val.label + "]").prop("checked", true);
             }
           });
         })(model.get('field_options').options, model.getCid());
+      }
+      if (field_view.$el.find('input[type=radio]:checked')) {
+        return field_view.trigger('change_state');
       }
     },
     isValid: function($el, model) {
@@ -4053,7 +4044,12 @@
       return (function(_this) {
         return function(elem_val, check_result) {
           elem_val = clicked_element.find("[value = '" + set_value + "']").is(':checked');
-          check_result = condition(elem_val, true);
+          if (elem_val) {
+            check_result = condition(elem_val, true);
+          } else if (clicked_element.find("[value = '__other__']").is(':checked')) {
+            elem_val = clicked_element.find('input[type=text]').val();
+            check_result = condition(elem_val, set_value);
+          }
           return check_result;
         };
       })(this)('', false);
@@ -4116,7 +4112,7 @@
     },
     setup: function(field_view, model) {
       if (model.get('field_values')) {
-        return (function(val_hash) {
+        (function(val_hash) {
           return _.each(val_hash, function(val, key) {
             return (function(target_elemnt) {
               if (target_elemnt.is(":radio")) {
@@ -4126,13 +4122,16 @@
           });
         })(model.get('field_values'));
       } else if (model.get('field_options')) {
-        return (function(options, cid) {
+        (function(options, cid) {
           return _.each(options, function(val, index) {
             if (val.checked) {
               return field_view.$el.find(":radio[value=" + (index + 1) + "]").prop("checked", true);
             }
           });
         })(model.get('field_options').options, model.getCid());
+      }
+      if (field_view.$el.find('input[type=radio]:checked')) {
+        return field_view.trigger('change_state');
       }
     },
     clearFields: function($el, model) {
