@@ -89,6 +89,8 @@ Formbuilder.registerField 'scale_rating',
         _.each options, (val, index) ->
           if val.checked
             field_view.$el.find(":radio[value="+(index+1)+"]").prop("checked", true)
+    if field_view.$el.find('input[type=radio]:checked')
+      field_view.trigger('change_state')
 
   clearFields: ($el, model) ->
     do(elem = '') =>

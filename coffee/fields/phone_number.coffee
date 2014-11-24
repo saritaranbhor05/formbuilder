@@ -18,6 +18,7 @@ Formbuilder.registerField 'phone_number',
             preferredCountries: pref_countries
         });
         $("#<%= rf.getCid() %>_country_code").val();
+        $("#<%= rf.getCid() %>_country_code").trigger('change');
       });
     </script>
     <%= Formbuilder.templates['edit/area_code']() %>
@@ -57,6 +58,8 @@ Formbuilder.registerField 'phone_number',
 		  	$('#'+model.getCid()+'phone').mask(mask_value)
     if model.get('field_values')
       field_view.$el.find('input').val(model.get('field_values')["#{model.getCid()}_1"])
+    if field_view.$el.find('input').val() != ''
+      field_view.trigger('change_state')
 
   clearFields: ($el, model) ->
   	$el.find("[name = " + model.getCid() + "_1]").val("")

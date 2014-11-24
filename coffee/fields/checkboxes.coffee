@@ -114,6 +114,8 @@ Formbuilder.registerField 'checkboxes',
         _.each options, (val, index) ->
           if val.checked
             field_view.$el.find("[name="+cid+"_"+(index+1)+"]").prop("checked", true)
+    if field_view.$el.find('input[type=checkbox]:checked')
+      field_view.trigger('change_state')
 
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
@@ -122,7 +124,11 @@ Formbuilder.registerField 'checkboxes',
        check_result = false
     ) =>
       elem_val = clicked_element.find("input[value = '" + set_value+"']").is(':checked')
-      check_result = condition(elem_val, true)
+      if elem_val
+        check_result = condition(elem_val, true)
+      else if clicked_element.find("[value = '__other__']").is(':checked')
+        elem_val = clicked_element.find('input[type=text]').val()
+        check_result =  condition(elem_val, set_value)
       check_result
 
   add_remove_require:(cid,required) ->
@@ -131,19 +137,3 @@ Formbuilder.registerField 'checkboxes',
         $("." + cid)
                 .find("[name = "+cid+"_1]")
                 .attr("required", required)
-
-  setup: (field_view, model) ->
-    if model.get('field_values')
-      do( val_hash = model.get('field_values')) ->
-        _.each val_hash, (val, key) ->
-          do(target_elemnt = field_view.$el.find("[name="+key+"]")) ->
-            if target_elemnt.is(":checkbox")
-              target_elemnt.prop('checked',val)
-            else
-              target_elemnt.val(val)
-    else if model.get('field_options')
-      do( options = model.get('field_options').options,
-          cid = model.getCid() ) ->
-        _.each options, (val, index) ->
-          if val.checked
-            field_view.$el.find("[name="+cid+"_"+(index+1)+"]").prop("checked", true)
