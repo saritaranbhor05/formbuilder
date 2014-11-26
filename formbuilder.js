@@ -1070,7 +1070,7 @@
               if (_.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))) {
                 return;
               }
-              if (fv.field.isValid) {
+              if (fv.field.isValid && (fv.current_state === 'show' && !fv.$el.hasClass('hide')) || fv.$el.hasClass('show')) {
                 if (!fv.field.isValid(fv.$el, fv.model)) {
                   is_field_valid = false;
                 }
