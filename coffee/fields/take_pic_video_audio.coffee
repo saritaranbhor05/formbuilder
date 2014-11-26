@@ -205,3 +205,13 @@ Formbuilder.registerField 'take_pic_video_audio',
               $('#capture_link_div_'+key).remove()
             ) if @$('#capture_link_close_'+key)
           )
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required'), is_file_selected = false) =>
+        return true if !required_attr
+        _.each $el.find("a"), (elment) ->
+          if !_.isEmpty elment.text
+            is_file_selected = true
+        return is_file_selected
+      valid
