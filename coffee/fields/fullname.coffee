@@ -30,7 +30,7 @@ Formbuilder.registerField 'fullname',
 
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>
         <span id='middle_name_span_<%= rf.getCid() %>'>
-          <input type='text' pattern="[a-zA-Z]+"/>
+          <input id='middle_name' type='text' pattern="[a-zA-Z]+"/>
           <label><%= rf.get(Formbuilder.options.mappings.FULLNAME_MIDDLE_TEXT) || 'Middle' %></label>
         </span>
       <% } %>
@@ -147,6 +147,7 @@ Formbuilder.registerField 'fullname',
 
   clearFields: ($el, model) ->
     $el.find("#first_name").val("")
+    $el.find("#middle_name").val("") if $el.find("#middle_name")
     $el.find("#last_name").val("")
     $el.find("#suffix").val("")
 
