@@ -75,11 +75,19 @@ Formbuilder.registerField 'paragraph',
 
   isValid: ($el, model) ->
     do(valid = false) =>
-      valid = do (required_attr = model.get('required'), textarea_char_cnt = 0) =>
+      valid = do (required_attr = model.get('required'), textarea_char_cnt = 0,
+        min_length = model.get(Formbuilder.options.mappings.MINLENGTH),
+        max_length = model.get(Formbuilder.options.mappings.MAXLENGTH)) =>
         return true if !required_attr
         textarea_char_cnt = $el.find('textarea').val().length
-        if model.get(Formbuilder.options.mappings.MINLENGTH)
-          return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH))
-        else
+        if !min_length && !max_length
+          return false if textarea_char_cnt == 0
           return true
+        else if min_length && max_length
+          return textarea_char_cnt >= parseInt(min_length) && textarea_char_cnt <= parseInt(max_length)
+        else if min_length
+          return textarea_char_cnt >= parseInt(min_length)
+        else if max_length
+          return textarea_char_cnt <= parseInt(max_length)
+        return true
       valid
