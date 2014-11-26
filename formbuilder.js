@@ -585,10 +585,16 @@
           return this.trigger('change_state');
         },
         isValid: function() {
-          if (!this.field.isValid) {
-            return true;
-          }
-          return this.field.isValid(this.$el, this.model);
+          return (function(_this) {
+            return function(input_els) {
+              if (!_this.field.isValid && input_els.length > 0) {
+                return input_els[0].validity.valid;
+              } else if (!_this.field.isValid) {
+                return true;
+              }
+              return _this.field.isValid(_this.$el, _this.model);
+            };
+          })(this)(this.$el.find('input, textarea, select'));
         },
         render: function() {
           if (this.options.live) {
@@ -1079,6 +1085,7 @@
                 invalid_fields.push(fv);
                 (function(el, err_field_types) {
                   el.find('input').css('border-color', 'red');
+                  el.find('textarea').css('border-color', 'red');
                   el.find('.hasDatepicker').css('border-color', 'red');
                   if (err_field_types.indexOf(fv.field_type) !== -1) {
                     return el.find('label > span').css('color', 'red');
@@ -1087,6 +1094,7 @@
               } else {
                 (function(el, err_field_types) {
                   el.find('input').css('border-color', '#CCCCCC');
+                  el.find('textarea').css('border-color', '#CCCCCC');
                   el.find('.hasDatepicker').css('border-color', '#CCCCCC');
                   el.find('.bootstrap-filestyle label').css('border-color', 'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)');
                   el.find('.bootstrap-filestyle label').css('border-bottom-color', '#b3b3b3');
@@ -2198,6 +2206,7 @@
                   if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
                     if (field.isValid && !field.isValid()) {
                       field.$el.find('input').css('border-color', 'red');
+                      field.$el.find('textarea').css('border-color', 'red');
                       field.$el.find('.hasDatepicker').css('border-color', 'red');
                       if (err_field_types.indexOf(field.field_type) !== -1) {
                         field.$el.find('label > span').css('color', 'red');
@@ -2207,6 +2216,7 @@
                       }
                     } else {
                       field.$el.find('input').css('border-color', '#CCCCCC');
+                      field.$el.find('textarea').css('border-color', '#CCCCCC');
                       field.$el.find('.hasDatepicker').css('border-color', '#CCCCCC');
                       field.$el.find('.bootstrap-filestyle label').css('border-color', 'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)');
                       field.$el.find('.bootstrap-filestyle label').css('border-bottom-color', '#b3b3b3');
@@ -3815,17 +3825,25 @@
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
-          valid = (function(required_attr, textarea_char_cnt) {
+          valid = (function(required_attr, textarea_char_cnt, min_length, max_length) {
             if (!required_attr) {
               return true;
             }
             textarea_char_cnt = $el.find('textarea').val().length;
-            if (model.get(Formbuilder.options.mappings.MINLENGTH)) {
-              return textarea_char_cnt >= parseInt(model.get(Formbuilder.options.mappings.MINLENGTH));
-            } else {
+            if (!min_length && !max_length) {
+              if (textarea_char_cnt === 0) {
+                return false;
+              }
               return true;
+            } else if (min_length && max_length) {
+              return textarea_char_cnt >= parseInt(min_length) && textarea_char_cnt <= parseInt(max_length);
+            } else if (min_length) {
+              return textarea_char_cnt >= parseInt(min_length);
+            } else if (max_length) {
+              return textarea_char_cnt <= parseInt(max_length);
             }
-          })(model.get('required'), 0);
+            return true;
+          })(model.get('required'), 0, model.get(Formbuilder.options.mappings.MINLENGTH), model.get(Formbuilder.options.mappings.MAXLENGTH));
           return valid;
         };
       })(this)(false);
@@ -4084,16 +4102,12 @@
     isValid: function($el, model) {
       return (function(_this) {
         return function(valid) {
-          valid = (function(required_attr, checked_chk_cnt) {
+          valid = (function(required_attr) {
             if (!required_attr) {
               return true;
             }
-            checked_chk_cnt = $el.find('input:checked').length;
-            if ($el.find('input:checked').val() === '__other__') {
-              return $el.find('input:text').val() !== '';
-            }
-            return checked_chk_cnt > 0;
-          })(model.get('required'), 0);
+            return $el.find('input:checked').length > 0;
+          })(model.get('required'));
           return valid;
         };
       })(this)(false);
