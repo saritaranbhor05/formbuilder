@@ -815,7 +815,7 @@ class Formbuilder
         while section_st_index <= section_end_index
           do( fv = this.fieldViews[section_st_index], is_field_valid = true )->
             return if _.contains(_.keys(Formbuilder.nonInputFields), fv.model.get('field_type'))
-            if fv.field.isValid && (fv.current_state is 'show' && !fv.$el.hasClass('hide')) || fv.$el.hasClass('show')
+            if fv.field.isValid && fv.current_state is 'show'
               is_field_valid = false unless fv.field.isValid(fv.$el, fv.model)
             else
               if fv.$el.find('input, textarea, select').length > 0
