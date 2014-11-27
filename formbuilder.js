@@ -3421,6 +3421,24 @@
           }
         };
       })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, is_file_selected) {
+            if (!required_attr) {
+              return true;
+            }
+            _.each($el.find("a"), function(elment) {
+              if (!_.isEmpty(elment.text)) {
+                return is_file_selected = true;
+              }
+            });
+            return is_file_selected;
+          })(model.get('required'), false);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
@@ -4300,6 +4318,24 @@
           }
         };
       })(this)(model.getCid(), '', field_view.$el.find('#capture_link_' + model.getCid()), this);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, is_file_selected) {
+            if (!required_attr) {
+              return true;
+            }
+            _.each($el.find("a"), function(elment) {
+              if (!_.isEmpty(elment.text)) {
+                return is_file_selected = true;
+              }
+            });
+            return is_file_selected;
+          })(model.get('required'), false);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
