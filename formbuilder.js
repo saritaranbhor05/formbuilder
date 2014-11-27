@@ -3173,6 +3173,23 @@
           return field_view.trigger('change_state');
         }
       })(field_view.$el.find('select'));
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, checked_chk_cnt) {
+            if (!required_attr) {
+              return true;
+            }
+            if (Formbuilder.isAndroid()) {
+              return $el.find("input").val() !== '';
+            } else {
+              return $el.find("select").val() !== '';
+            }
+          })(model.get('required'), 0);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 

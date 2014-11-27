@@ -125,3 +125,13 @@ Formbuilder.registerField 'dropdown',
     do(field_dom = field_view.$el.find('select')) ->
       if field_dom.length > 0 && field_dom.val() != ''
         field_view.trigger('change_state')
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required'), checked_chk_cnt = 0) =>
+        return true if !required_attr
+        if Formbuilder.isAndroid()
+          return $el.find("input").val() != ''
+        else
+          return $el.find("select").val() != ''
+      valid
