@@ -310,7 +310,20 @@
           })(this)(that.$el.find('.easyWizardElement.mystep'));
         },
         save_current_section: function() {
-          this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index);
+          (function(_this) {
+            return (function(arr_invalid_fields) {
+              arr_invalid_fields = _this.parentView.save_field_values_at_index(_this.first_field_index, _this.last_field_index, _this.view_index);
+              if (!_.isEmpty(arr_invalid_fields)) {
+                if (typeof _this.parentView.options.validation_fail_cb === 'function') {
+                  return _this.parentView.options.validation_fail_cb();
+                }
+              } else {
+                if (typeof _this.parentView.options.validation_success_cb === 'function') {
+                  return _this.parentView.options.validation_success_cb();
+                }
+              }
+            });
+          })(this)([]);
           if (this.view_index === this.total_responses) {
             this.total_responses++;
           }
@@ -3408,6 +3421,24 @@
           }
         };
       })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, is_file_selected) {
+            if (!required_attr) {
+              return true;
+            }
+            _.each($el.find("a"), function(elment) {
+              if (!_.isEmpty(elment.text)) {
+                return is_file_selected = true;
+              }
+            });
+            return is_file_selected;
+          })(model.get('required'), false);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
@@ -4287,6 +4318,24 @@
           }
         };
       })(this)(model.getCid(), '', field_view.$el.find('#capture_link_' + model.getCid()), this);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, is_file_selected) {
+            if (!required_attr) {
+              return true;
+            }
+            _.each($el.find("a"), function(elment) {
+              if (!_.isEmpty(elment.text)) {
+                return is_file_selected = true;
+              }
+            });
+            return is_file_selected;
+          })(model.get('required'), false);
+          return valid;
+        };
+      })(this)(false);
     }
   });
 
