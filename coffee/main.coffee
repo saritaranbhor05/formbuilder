@@ -220,7 +220,14 @@ class Formbuilder
             wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).show()
             wiz.find(".easyWizardButtons.mystep .prev, .easyWizardButtons.mystep ." + btn_class).removeClass('hide')
       save_current_section: () ->
-        this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index)
+        do(arr_invalid_fields=[]) =>
+          arr_invalid_fields = @parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index)
+          unless _.isEmpty(arr_invalid_fields)
+            if typeof @parentView.options.validation_fail_cb == 'function'
+              @parentView.options.validation_fail_cb()
+          else
+            if typeof @parentView.options.validation_success_cb == 'function'
+              @parentView.options.validation_success_cb()
         if (this.view_index == this.total_responses)
           this.total_responses++
         this.section_break_field_model.set('response_cnt', this.total_responses)
