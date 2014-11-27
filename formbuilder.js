@@ -310,7 +310,20 @@
           })(this)(that.$el.find('.easyWizardElement.mystep'));
         },
         save_current_section: function() {
-          this.parentView.save_field_values_at_index(this.first_field_index, this.last_field_index, this.view_index);
+          (function(_this) {
+            return (function(arr_invalid_fields) {
+              arr_invalid_fields = _this.parentView.save_field_values_at_index(_this.first_field_index, _this.last_field_index, _this.view_index);
+              if (!_.isEmpty(arr_invalid_fields)) {
+                if (typeof _this.parentView.options.validation_fail_cb === 'function') {
+                  return _this.parentView.options.validation_fail_cb();
+                }
+              } else {
+                if (typeof _this.parentView.options.validation_success_cb === 'function') {
+                  return _this.parentView.options.validation_success_cb();
+                }
+              }
+            });
+          })(this)([]);
           if (this.view_index === this.total_responses) {
             this.total_responses++;
           }
