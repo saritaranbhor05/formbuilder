@@ -53,11 +53,11 @@ Formbuilder.registerField 'image',
         }
 
         $('#<%= rf.getCid() %>').change(function(){
-            if(this.files[0].size <= 204800){
+            if(this.files[0].size <= 1048576){
               readURL(this);
             }
             else{
-              alert("Please select file size less that 200 KB")
+              alert("Please select file size less that 1 MB")
             }
         });
       });
