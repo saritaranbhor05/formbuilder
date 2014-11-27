@@ -145,3 +145,13 @@ Formbuilder.registerField 'file',
       if model.get('field_values') && model.get('field_values')["#{model_cid}_2"]
         $link_ele.text(model.get('field_values')["#{model_cid}_2"]['name'])
         $link_ele.attr('href', model.get('field_values')["#{model_cid}_2"]['url'])
+
+  isValid: ($el, model) ->
+    do(valid = false) =>
+      valid = do (required_attr = model.get('required'), is_file_selected = false) =>
+        return true if !required_attr
+        _.each $el.find("a"), (elment) ->
+          if !_.isEmpty elment.text
+            is_file_selected = true
+        return is_file_selected
+      valid
