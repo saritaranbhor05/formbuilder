@@ -4420,7 +4420,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Minimum Age Restriction</div>\n\n  <input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINAGE )) == null ? '' : __t) +
-'" min=\'0\' style="width: 30px" />\n';
+'" min=\'0\' class="age_opt_minage" />\n';
 
 }
 return __p
@@ -4432,7 +4432,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Area Code</div>\n\n<input type="text" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.AREA_CODE )) == null ? '' : __t) +
-'" style="width: 30px" />';
+'" class="phone_no_opt_area_code" />';
 
 }
 return __p
@@ -4518,9 +4518,9 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Set Attributes</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.CANVAS_WIDTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+'" class="canvas_opt_width_height" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.CANVAS_HEIGHT )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;';
+'" class="canvas_opt_width_height" />\n\n&nbsp;&nbsp;';
 
 }
 return __p
@@ -4721,7 +4721,7 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Default Value</div>\n\n<input type="text" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.DEFAULT_NUM_VALUE )) == null ? '' : __t) +
-'" style="width: 30px" />';
+'" class="number_opt_default_num_val" />';
 
 }
 return __p
@@ -4791,9 +4791,9 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Options</div>\n\nWidth\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEWIDTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
+'" class="img_opt_width_height" />\n\n&nbsp;&nbsp;\n\nHeight\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEHEIGHT )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
+'" class="img_opt_width_height" />\n\n&nbsp;&nbsp;\n\n<div class=\'fb-edit-section-header\'>Align</div>\n<select data-rv-value="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGEALIGN )) == null ? '' : __t) +
 '">\n  <option value="left">left</option>\n  <option value="center">center</option>\n  <option value="right">right</option>\n</select>\n\n\n<div class=\'fb-edit-section-header\'>Image Link</div>\n<input type=\'url\' pattern="https?://.+" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.IMAGELINK )) == null ? '' : __t) +
@@ -4896,11 +4896,11 @@ __p += '<form>\n  <div class=\'fb-edit-section-header\'>Characters Limit</div>\n
 ((__t = (rf.getCid())) == null ? '' : __t) +
 '" type="number" min="0" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MINLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
+'" class="para_text_opt_min_max_len" />\n\n  &nbsp;&nbsp;\n\n  Max\n  <input id="max_' +
 ((__t = (rf.getCid())) == null ? '' : __t) +
 '" type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAXLENGTH )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
+'" class="para_text_opt_min_max_len" />\n\n  &nbsp;&nbsp;\n\n  <input class="fb-clear-min-max" type="reset" value="clear">\n</form>\n\n<script>\n  $(function() {\n    $("#min_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
 '").change(function(){\n      $("#max_' +
 ((__t = ( rf.getCid() )) == null ? '' : __t) +
@@ -4920,11 +4920,11 @@ var __t, __p = '', __e = _.escape;
 with (obj) {
 __p += '<div class=\'fb-edit-section-header\'>Minimum / Maximum</div>\n\nAbove\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MIN )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
+'" class="number_opt_min_max_step" />\n\n&nbsp;&nbsp;\n\nBelow\n<input type="number" data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.MAX )) == null ? '' : __t) +
-'" style="width: 30px" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
+'" class="number_opt_min_max_step" />\n\n&nbsp;&nbsp;\nStep\n<input type="number" step=\'any\' data-rv-input="model.' +
 ((__t = ( Formbuilder.options.mappings.STEP )) == null ? '' : __t) +
-'" style="width: 30px" />\n';
+'" class="number_opt_min_max_step" />\n';
 
 }
 return __p

@@ -350,8 +350,6 @@ class Formbuilder
         @listenTo @model, "destroy", @remove
         @listenTo @model, "clearAllConditions", @clearAllConditions
 
-
-
       add_remove_require:(required) ->
         @clearFields() and @changeStateSource() unless required
         if required and

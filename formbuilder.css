@@ -239,6 +239,18 @@
   margin-bottom: 5px;
   clear: both;
 }
+.fb-edit-field-wrapper .number_opt_min_max,
+.fb-edit-field-wrapper .age_opt_minage,
+.fb-edit-field-wrapper .phone_no_opt_area_code,
+.fb-edit-field-wrapper .canvas_opt_width_height {
+  width: 30px;
+}
+.fb-edit-field-wrapper .number_opt_default_num_val,
+.fb-edit-field-wrapper .img_opt_width_height,
+.fb-edit-field-wrapper .para_text_opt_min_max_len,
+.fb-edit-field-wrapper .number_opt_min_max_step {
+  width: 30px;
+}
 .fb-edit-field-wrapper .js-add-option,
 .fb-edit-field-wrapper .js-remove-option,
 .fb-edit-field-wrapper .js-add-condition,
