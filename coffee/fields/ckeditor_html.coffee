@@ -38,14 +38,13 @@ unless typeof(CKEDITOR) is 'undefined'
       <%= Formbuilder.templates['edit/optional_title']() %>
       </br>
 
-      <input id="title_<%= rf.getCid() %>" type='text'
-        <%
-        if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){
-          disabled="true"
-        }
-        %>
-      data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
-
+      <% if(!rf.get(Formbuilder.options.mappings.OPTIONAL_FIELD)){ %>
+        <input id="title_<%= rf.getCid() %>" type='text' disabled="true"
+          data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
+      <% } else { %>
+        <input id="title_<%= rf.getCid() %>" type='text'
+          data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>'/>
+      <% } %>
 
       <div class='inline'>
         <span>Edit Here:</span>
@@ -129,13 +128,6 @@ unless typeof(CKEDITOR) is 'undefined'
             editor_<%= rf.getCid() %> = CKEDITOR.replace(document.getElementById("ck_<%= rf.getCid() %>"),
               Formbuilder.options.CKEDITOR_CONFIG
             );
-            // This will take care of CKEditor instance and automatically copy its contents
-            // into the container with an id like the editor instance with an ending "_preview"
-            CKEDITOR.on('instanceCreated', function (e) {
-              e.editor.on('change', function (ev) {
-                document.getElementById( ev.editor.name + '_preview').innerHTML = ev.editor.getData();
-              });
-            });
           });
         });
       </script>
