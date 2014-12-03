@@ -1559,6 +1559,8 @@
                   recurring_section = field_view.model.get('field_options').recurring_section;
                   if (field_view.model.get('field_values') && field_view.model.get('field_values')['response_count']) {
                     total_responses_for_this_section = field_view.model.get('field_values')['response_count'];
+                  } else {
+                    total_responses_for_this_section = 1;
                   }
                   field_view.model.set('response_cnt', total_responses_for_this_section);
                   section_break_field_model = field_view.model;
@@ -1573,7 +1575,7 @@
                     index: wiz_cnt,
                     back_visibility: back_visibility,
                     recurring_section: recurring_section,
-                    total_responses_for_this_section: total_responses_for_this_section || 0,
+                    total_responses_for_this_section: total_responses_for_this_section,
                     first_field_index: field_index,
                     section_break_field_model: section_break_field_model
                   });
