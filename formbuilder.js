@@ -1654,31 +1654,6 @@
                       return index;
                     })(x, count + (should_incr($(x).attr('type')) ? 1 : 0), null, null, 0);
                   }
-                } else if (field_view.model.get('field_type') === 'file') {
-                  if (model.get('field_values')) {
-                    _.each(model.get('field_values')["0"], function(value, key) {
-                      if (value !== "") {
-                        return (function(_this) {
-                          return function(a_href_val, a_text, mod_cid) {
-                            if ($('#file_upload_link_' + mod_cid)) {
-                              if (_.isString(value)) {
-                                a_href_val = value;
-                                a_text = value.split("/").pop().split("?")[0];
-                              } else if (_.isObject(value) && !_.isUndefined(value.url)) {
-                                a_href_val = value.url;
-                                a_text = value.name;
-                              } else if (_.isObject(value) && _.isObject(value[mod_cid + "_2"])) {
-                                a_href_val = value[mod_cid + "_2"].url;
-                                a_text = value[mod_cid + "_2"].name;
-                              }
-                              _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
-                            }
-                            return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
-                          };
-                        })(this)('', '', field_view.model.getCid());
-                      }
-                    });
-                  }
                 } else {
                   cid = model.getCid();
                   if (field_method_call.setup) {
@@ -1865,7 +1840,7 @@
         applyFileStyle: function() {
           return _.each(this.fieldViews, function(field_view) {
             if (field_view.model.get('field_type') === 'file') {
-              if (Formbuilder.isMobile()) {
+              if (Formbuilder.isIos()) {
                 $('#file_' + field_view.model.getCid()).attr("type", "button");
                 $('#file_' + field_view.model.getCid()).attr("value", field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
                 $('#file_' + field_view.model.getCid()).addClass("file_upload btn_icon_file");
@@ -3349,7 +3324,7 @@
 
 (function() {
   Formbuilder.registerField('file', {
-    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  class='icon-folder-open file_field'\n  cid=\"<%= rf.getCid() %>\"\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>\n<script>\n  $(function() {\n    $(\"#file_<%= rf.getCid() %>\").filestyle({\n      input: false,\n      buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n    });\n\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n        $(\"#file_name_<%= rf.getCid() %>\").text('');\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
+    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  class='icon-folder-open file_field'\n  cid=\"<%= rf.getCid() %>\"\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>\n<script>\n  $(function() {\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n        $(\"#file_name_<%= rf.getCid() %>\").text('');\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
     edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
     print: "<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",
@@ -3417,27 +3392,59 @@
             Android.f2dSelectFile(field_view.model.getCid(), "file_upload", $(btn_input_file).attr("for-ios-file-size").toString(), view_index);
           });
         };
-      })(this)(field_view.$el.find('input[type=button]'), this, 0);
+      })(this)(field_view.$el.find('input[type=file]'), this, 0);
     },
     android_setup: function(field_view, model) {
-      return (function(_this) {
-        return function(model_cid, file_url, $link_ele, _that) {
-          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_2"]) {
-            $link_ele.text(model.get('field_values')["" + model_cid + "_2"]['name']);
-            return $link_ele.attr('href', model.get('field_values')["" + model_cid + "_2"]['url']);
+      if (model.get('field_values')) {
+        return _.each(model.get('field_values')["0"], function(value, key) {
+          if (value !== "") {
+            return (function(_this) {
+              return function(a_href_val, a_text, mod_cid) {
+                if ($('#file_upload_link_' + mod_cid)) {
+                  if (_.isString(value)) {
+                    a_href_val = value;
+                    a_text = value.split("/").pop().split("?")[0];
+                  } else if (_.isObject(value) && !_.isUndefined(value.url)) {
+                    a_href_val = value.url;
+                    a_text = value.name;
+                  } else if (_.isObject(value) && _.isObject(value[mod_cid + "_2"])) {
+                    a_href_val = value[mod_cid + "_2"].url;
+                    a_text = value[mod_cid + "_2"].name;
+                  }
+                  _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
+                }
+                return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
+              };
+            })(this)('', '', field_view.model.getCid());
           }
-        };
-      })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
+        });
+      }
     },
     setup: function(field_view, model) {
-      return (function(_this) {
-        return function(model_cid, file_url, $link_ele, _that) {
-          if (model.get('field_values') && model.get('field_values')["" + model_cid + "_2"]) {
-            $link_ele.text(model.get('field_values')["" + model_cid + "_2"]['name']);
-            return $link_ele.attr('href', model.get('field_values')["" + model_cid + "_2"]['url']);
+      if (model.get('field_values')) {
+        return _.each(model.get('field_values')["0"], function(value, key) {
+          if (value !== "") {
+            return (function(_this) {
+              return function(a_href_val, a_text, mod_cid) {
+                if ($('#file_upload_link_' + mod_cid)) {
+                  if (_.isString(value)) {
+                    a_href_val = value;
+                    a_text = value.split("/").pop().split("?")[0];
+                  } else if (_.isObject(value) && !_.isUndefined(value.url)) {
+                    a_href_val = value.url;
+                    a_text = value.name;
+                  } else if (_.isObject(value) && _.isObject(value[mod_cid + "_2"])) {
+                    a_href_val = value[mod_cid + "_2"].url;
+                    a_text = value[mod_cid + "_2"].name;
+                  }
+                  _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
+                }
+                return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
+              };
+            })(this)('', '', field_view.model.getCid());
           }
-        };
-      })(this)(model.getCid(), '', field_view.$el.find('a[type=pic_video_audio]'), this);
+        });
+      }
     },
     isValid: function($el, model) {
       return (function(_this) {

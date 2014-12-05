@@ -14,11 +14,6 @@ Formbuilder.registerField 'file',
     <div id="file_upload_link_<%= rf.getCid() %>"></div>
     <script>
       $(function() {
-        $("#file_<%= rf.getCid() %>").filestyle({
-          input: false,
-          buttonText: "<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>"
-        });
-
         setTimeout(function(){
           if ($('a[name="<%= rf.getCid() %>_1"]').text() != ""){
             $("#file_<%= rf.getCid() %>").attr('required',false);
@@ -118,7 +113,7 @@ Formbuilder.registerField 'file',
             .attr("required", required)
 
   android_bindevents: (field_view) ->
-    do(btn_input_file = field_view.$el.find('input[type=button]'), _that = @,
+    do(btn_input_file = field_view.$el.find('input[type=file]'), _that = @,
       view_index = 0) =>
       $(btn_input_file).on "click", ->
         view_index = field_view.model.get('view_index')
@@ -131,20 +126,44 @@ Formbuilder.registerField 'file',
         return
 
   android_setup: (field_view, model) ->
-    do(model_cid = model.getCid(),
-       file_url = '',
-       $link_ele = field_view.$el.find('a[type=pic_video_audio]'), _that = @) =>
-      if model.get('field_values') && model.get('field_values')["#{model_cid}_2"]
-        $link_ele.text(model.get('field_values')["#{model_cid}_2"]['name'])
-        $link_ele.attr('href', model.get('field_values')["#{model_cid}_2"]['url'])
+    if model.get('field_values')
+      _.each model.get('field_values')["0"], (value, key) ->
+        unless value is ""
+          do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
+            if $('#file_upload_link_'+mod_cid)
+              if _.isString value
+                a_href_val = value
+                a_text = value.split("/").pop().split("?")[0]
+              else if _.isObject(value) && !_.isUndefined(value.url)
+                a_href_val = value.url
+                a_text = value.name
+              else if _.isObject(value) && _.isObject value[mod_cid+"_2"]
+                a_href_val = value[mod_cid+"_2"].url
+                a_text = value[mod_cid+"_2"].name
+              @$('#file_upload_link_'+field_view.model.getCid()).html(
+                "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
+              )
+            @$('#file_'+field_view.model.getCid()).attr("required", false)
 
   setup: (field_view, model) ->
-    do(model_cid = model.getCid(),
-       file_url = '',
-       $link_ele = field_view.$el.find('a[type=pic_video_audio]'), _that = @) =>
-      if model.get('field_values') && model.get('field_values')["#{model_cid}_2"]
-        $link_ele.text(model.get('field_values')["#{model_cid}_2"]['name'])
-        $link_ele.attr('href', model.get('field_values')["#{model_cid}_2"]['url'])
+    if model.get('field_values')
+      _.each model.get('field_values')["0"], (value, key) ->
+        unless value is ""
+          do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
+            if $('#file_upload_link_'+mod_cid)
+              if _.isString value
+                a_href_val = value
+                a_text = value.split("/").pop().split("?")[0]
+              else if _.isObject(value) && !_.isUndefined(value.url)
+                a_href_val = value.url
+                a_text = value.name
+              else if _.isObject(value) && _.isObject value[mod_cid+"_2"]
+                a_href_val = value[mod_cid+"_2"].url
+                a_text = value[mod_cid+"_2"].name
+              @$('#file_upload_link_'+field_view.model.getCid()).html(
+                "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
+              )
+            @$('#file_'+field_view.model.getCid()).attr("required", false)
 
   isValid: ($el, model) ->
     do(valid = false) =>

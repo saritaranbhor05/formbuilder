@@ -1292,26 +1292,6 @@ class Formbuilder
                   ) =>
                     val_set = true if $(x).text() && !val_set
                     index
-              else if (field_view.model.get('field_type') is 'file')
-                if model.get('field_values')
-                  _.each(model.get('field_values')["0"], (value, key) ->
-                    unless value is ""
-                      do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
-                        if $('#file_upload_link_'+mod_cid)
-                          if _.isString value
-                            a_href_val = value
-                            a_text = value.split("/").pop().split("?")[0]
-                          else if _.isObject(value) && !_.isUndefined(value.url)
-                            a_href_val = value.url
-                            a_text = value.name
-                          else if _.isObject(value) && _.isObject value[mod_cid+"_2"]
-                            a_href_val = value[mod_cid+"_2"].url
-                            a_text = value[mod_cid+"_2"].name
-                          @$('#file_upload_link_'+field_view.model.getCid()).html(
-                            "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
-                          )
-                        @$('#file_'+field_view.model.getCid()).attr("required", false);
-                  )
               else
                 #field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                 #field_method_call = Formbuilder.fields[field_type_method_call]
@@ -1423,7 +1403,7 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            if Formbuilder.isMobile()
+            if Formbuilder.isIos()
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
               $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
