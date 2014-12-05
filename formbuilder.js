@@ -3396,32 +3396,6 @@
         };
       })(this)(field_view.$el.find('input[type=file]'), this, 0);
     },
-    android_setup: function(field_view, model) {
-      if (model.get('field_values')) {
-        return _.each(model.get('field_values'), function(value, key) {
-          if (value !== "") {
-            return (function(_this) {
-              return function(a_href_val, a_text, mod_cid) {
-                if ($('#file_upload_link_' + mod_cid)) {
-                  if (_.isString(value)) {
-                    a_href_val = value;
-                    a_text = value.split("/").pop().split("?")[0];
-                  } else if (_.isObject(value) && !_.isUndefined(value.url)) {
-                    a_href_val = value.url;
-                    a_text = value.name;
-                  } else if (_.isObject(value) && _.isObject(value[mod_cid + "_2"])) {
-                    a_href_val = value[mod_cid + "_2"].url;
-                    a_text = value[mod_cid + "_2"].name;
-                  }
-                  _this.$('#file_upload_link_' + field_view.model.getCid()).html("<div class='file_upload_link_div' id=file_upload_link_div_" + key + "><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name=" + key + " href=" + a_href_val + ">" + a_text + "</a></div>");
-                }
-                return _this.$('#file_' + field_view.model.getCid()).attr("required", false);
-              };
-            })(this)('', '', field_view.model.getCid());
-          }
-        });
-      }
-    },
     setup: function(field_view, model) {
       if (model.get('field_values')) {
         return _.each(model.get('field_values'), function(value, key) {
