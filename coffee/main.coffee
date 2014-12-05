@@ -1157,9 +1157,9 @@ class Formbuilder
             $obj_view_el.addClass('step')
             $obj_view_el.addClass('active') if cnt == 1
         do (field_view = null, fieldViews = @fieldViews,
-            add_break_to_next = false, recurring_section=false, total_responses_for_this_section = 0, wizard_step = null, sb_field = null,
-            wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
-            showSubmit = @options.showSubmit,
+            add_break_to_next = false, recurring_section=false, total_responses_for_this_section = 0,
+            wizard_step = null, sb_field = null, wiz_cnt = 1, prev_btn_text = 'Back',
+            next_btn_text = 'Next', showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment(), _that = @) =>
           wizard_step = new Formbuilder.views.wizard_tab
             parentView: @
@@ -1186,6 +1186,8 @@ class Formbuilder
               recurring_section = field_view.model.get('field_options').recurring_section
               if field_view.model.get('field_values') && field_view.model.get('field_values')['response_count']
                 total_responses_for_this_section = field_view.model.get('field_values')['response_count']
+              else
+                total_responses_for_this_section = 1
               field_view.model.set('response_cnt', total_responses_for_this_section)
               section_break_field_model = field_view.model
             # nothing should be rendered since it is an actionable section break
@@ -1199,7 +1201,7 @@ class Formbuilder
                 index: wiz_cnt
                 back_visibility: back_visibility
                 recurring_section: recurring_section
-                total_responses_for_this_section: total_responses_for_this_section || 0
+                total_responses_for_this_section: total_responses_for_this_section
                 first_field_index: field_index
                 section_break_field_model: section_break_field_model
               add_break_to_next = false
@@ -1292,26 +1294,6 @@ class Formbuilder
                   ) =>
                     val_set = true if $(x).text() && !val_set
                     index
-              else if (field_view.model.get('field_type') is 'file')
-                if model.get('field_values')
-                  _.each(model.get('field_values')["0"], (value, key) ->
-                    unless value is ""
-                      do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
-                        if $('#file_upload_link_'+mod_cid)
-                          if _.isString value
-                            a_href_val = value
-                            a_text = value.split("/").pop().split("?")[0]
-                          else if _.isObject(value) && !_.isUndefined(value.url)
-                            a_href_val = value.url
-                            a_text = value.name
-                          else if _.isObject(value) && _.isObject value[mod_cid+"_2"]
-                            a_href_val = value[mod_cid+"_2"].url
-                            a_text = value[mod_cid+"_2"].name
-                          @$('#file_upload_link_'+field_view.model.getCid()).html(
-                            "<div class='file_upload_link_div' id=file_upload_link_div_"+key+"><a type = 'pic_video_audio' class='active_link_doc' target='_blank' name="+key+" href="+a_href_val+">"+a_text+"</a></div>"
-                          )
-                        @$('#file_'+field_view.model.getCid()).attr("required", false);
-                  )
               else
                 #field_type_method_call = model.get(Formbuilder.options.mappings.FIELD_TYPE)
                 #field_method_call = Formbuilder.fields[field_type_method_call]
@@ -1423,7 +1405,7 @@ class Formbuilder
       applyFileStyle: ->
         _.each @fieldViews, (field_view) ->
           if field_view.model.get('field_type') is 'file'
-            if Formbuilder.isMobile()
+            if Formbuilder.isIos()
               $('#file_'+field_view.model.getCid()).attr("type","button");
               $('#file_'+field_view.model.getCid()).attr("value",field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || '');
               $('#file_'+field_view.model.getCid()).addClass("file_upload btn_icon_file");
