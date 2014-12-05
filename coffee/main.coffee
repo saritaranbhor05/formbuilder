@@ -1157,9 +1157,9 @@ class Formbuilder
             $obj_view_el.addClass('step')
             $obj_view_el.addClass('active') if cnt == 1
         do (field_view = null, fieldViews = @fieldViews,
-            add_break_to_next = false, recurring_section=false, total_responses_for_this_section = 0, wizard_step = null, sb_field = null,
-            wiz_cnt = 1, prev_btn_text = 'Back', next_btn_text = 'Next',
-            showSubmit = @options.showSubmit,
+            add_break_to_next = false, recurring_section=false, total_responses_for_this_section = 0,
+            wizard_step = null, sb_field = null, wiz_cnt = 1, prev_btn_text = 'Back',
+            next_btn_text = 'Next', showSubmit = @options.showSubmit,
             sub_frag = document.createDocumentFragment(), _that = @) =>
           wizard_step = new Formbuilder.views.wizard_tab
             parentView: @
@@ -1186,6 +1186,8 @@ class Formbuilder
               recurring_section = field_view.model.get('field_options').recurring_section
               if field_view.model.get('field_values') && field_view.model.get('field_values')['response_count']
                 total_responses_for_this_section = field_view.model.get('field_values')['response_count']
+              else
+                total_responses_for_this_section = 1
               field_view.model.set('response_cnt', total_responses_for_this_section)
               section_break_field_model = field_view.model
             # nothing should be rendered since it is an actionable section break
@@ -1199,7 +1201,7 @@ class Formbuilder
                 index: wiz_cnt
                 back_visibility: back_visibility
                 recurring_section: recurring_section
-                total_responses_for_this_section: total_responses_for_this_section || 0
+                total_responses_for_this_section: total_responses_for_this_section
                 first_field_index: field_index
                 section_break_field_model: section_break_field_model
               add_break_to_next = false
