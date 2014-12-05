@@ -3398,7 +3398,7 @@
     },
     android_setup: function(field_view, model) {
       if (model.get('field_values')) {
-        return _.each(model.get('field_values')["0"], function(value, key) {
+        return _.each(model.get('field_values'), function(value, key) {
           if (value !== "") {
             return (function(_this) {
               return function(a_href_val, a_text, mod_cid) {
@@ -3424,7 +3424,7 @@
     },
     setup: function(field_view, model) {
       if (model.get('field_values')) {
-        return _.each(model.get('field_values')["0"], function(value, key) {
+        return _.each(model.get('field_values'), function(value, key) {
           if (value !== "") {
             return (function(_this) {
               return function(a_href_val, a_text, mod_cid) {

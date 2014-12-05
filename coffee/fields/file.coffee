@@ -127,7 +127,7 @@ Formbuilder.registerField 'file',
 
   android_setup: (field_view, model) ->
     if model.get('field_values')
-      _.each model.get('field_values')["0"], (value, key) ->
+      _.each model.get('field_values'), (value, key) ->
         unless value is ""
           do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
             if $('#file_upload_link_'+mod_cid)
@@ -147,7 +147,7 @@ Formbuilder.registerField 'file',
 
   setup: (field_view, model) ->
     if model.get('field_values')
-      _.each model.get('field_values')["0"], (value, key) ->
+      _.each model.get('field_values'), (value, key) ->
         unless value is ""
           do (a_href_val = '', a_text = '', mod_cid = field_view.model.getCid()) =>
             if $('#file_upload_link_'+mod_cid)
