@@ -14,6 +14,12 @@ Formbuilder.registerField 'file',
     <div id="file_upload_link_<%= rf.getCid() %>"></div>
     <script>
       $(function() {
+        if("!<%=Formbuilder.isMobile()%>"){
+          $("#file_<%= rf.getCid() %>").filestyle({
+            input: false,
+            buttonText: "<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>"
+          });
+        }
         setTimeout(function(){
           if ($('a[name="<%= rf.getCid() %>_1"]').text() != ""){
             $("#file_<%= rf.getCid() %>").attr('required',false);
