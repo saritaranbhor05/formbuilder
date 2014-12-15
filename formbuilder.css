@@ -111,6 +111,9 @@
   min-height: 80px;
   height: 80px;
   width: 100%;
+  font-size: 30px;
+  text-align: center;
+  padding-top: 20px;
 }
 .fb-field-wrapper {
   cursor: pointer;

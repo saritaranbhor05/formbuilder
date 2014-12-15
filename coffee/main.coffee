@@ -1052,6 +1052,8 @@ class Formbuilder
         @$responseFields.sortable
           forcePlaceholderSize: true
           placeholder: 'sortable-placeholder'
+          start: (e, ui) =>
+            $('.sortable-placeholder').text(ui.item.text());
           stop: (e, ui) =>
             # If field is dragged from left panel then create a fresh model
             if ui.item.data('field-type')
