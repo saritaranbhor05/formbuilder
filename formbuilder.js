@@ -2325,7 +2325,8 @@
           $el.find("#address").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ADDRESS));
           $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
           $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
-          return $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+          $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
+          return $el.find('input[data-country]').val('');
         };
       })(this)(this);
     },
@@ -2351,6 +2352,43 @@
       $("." + cid).find("[name = " + cid + "_3]").attr("required", required);
       $("." + cid).find("[name = " + cid + "_4]").attr("required", required);
       return $("." + cid).find("[name = " + cid + "_5]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(all_elem, res) {
+        _.each(all_elem, function(elem) {
+          return (function($elem) {
+            if ($elem.attr('addr_section')) {
+              return res[$elem.attr('name')] = $elem.data('id');
+            } else {
+              return res[$elem.attr('name')] = $elem.val();
+            }
+          })($(elem));
+        });
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
+    },
+    android_setup: function(field_view, model) {
+      return (function(_this) {
+        return function(that, $str_add) {
+          if (model.attributes.field_values) {
+            field_view.$el.find("#address").val(model.attributes.field_values["" + (model.getCid()) + "_1"]);
+            field_view.$el.find("#suburb").val(model.attributes.field_values["" + (model.getCid()) + "_2"]);
+            field_view.$el.find("#state").val(model.attributes.field_values["" + (model.getCid()) + "_3"]);
+            field_view.$el.find("#zipcode").val(model.attributes.field_values["" + (model.getCid()) + "_4"]);
+            if (!_.isUndefined(Android.f2dgetCountryFullName)) {
+              (function(sel_contry_abbr, $con_el) {
+                $con_el.val(Android.f2dgetCountryFullName(sel_contry_abbr));
+                return $con_el.data('id', sel_contry_abbr);
+              })(model.attributes.field_values["" + (model.getCid()) + "_5"], field_view.$el.find('input[data-country]'));
+            }
+          } else {
+            that.clearFields(field_view.$el, model);
+          }
+          if ($str_add.val() !== '') {
+            return field_view.trigger('change_state');
+          }
+        };
+      })(this)(this, field_view.$el.find("#address"));
     },
     setup: function(field_view, model) {
       return (function(_this) {
