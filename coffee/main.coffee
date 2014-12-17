@@ -832,6 +832,7 @@ class Formbuilder
                 el.find('input').css('border-color','red')
                 el.find('textarea').css('border-color','red')
                 el.find('.hasDatepicker').css('border-color','red')
+                el.find('.tokenfield').css('border-color','red')
                 if err_field_types.indexOf(fv.field_type) != -1
                   el.find('label > span').css('color','red')
             else
@@ -1670,10 +1671,11 @@ class Formbuilder
             while i< @fieldViews.length
               field = @fieldViews[i]
               if @getCurrentView().indexOf(field.model.get('cid')) != -1
-                if (field.isValid && !field.isValid())
+                if field.isValid && !field.isValid() && field.$el && ((field.current_state is 'show' && !field.$el.hasClass('hide')) || field.$el.hasClass('show'))
                   field.$el.find('input').css('border-color','red')
                   field.$el.find('textarea').css('border-color','red')
                   field.$el.find('.hasDatepicker').css('border-color','red')
+                  field.$el.find('.tokenfield').css('border-color','red')
                   if err_field_types.indexOf(field.field_type) != -1
                     field.$el.find('label > span').css('color','red')
                   is_invalid_field = true if !is_invalid_field
