@@ -1349,6 +1349,11 @@
           return this.$responseFields.sortable({
             forcePlaceholderSize: true,
             placeholder: 'sortable-placeholder',
+            start: (function(_this) {
+              return function(e, ui) {
+                return $('.sortable-placeholder').text(ui.item.text());
+              };
+            })(this),
             stop: (function(_this) {
               return function(e, ui) {
                 var rf;
