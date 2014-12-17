@@ -118,6 +118,7 @@ Formbuilder.registerField 'address',
       $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY))
       $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE))
       $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
+      $el.find('input[data-country]').val('') # Clear selection of country input
 
   check_and_return_val: (model, val) ->
     model.get(val) || ''
@@ -154,6 +155,34 @@ Formbuilder.registerField 'address',
     $("." + cid)
             .find("[name = "+cid+"_5]")
             .attr("required", required)
+
+  fieldToValue: ($el, model) ->
+    do(all_elem = $el.find('[name^='+model.getCid()+']'),
+      res = {}) ->
+      _.each all_elem, (elem) ->
+        do($elem = $(elem)) ->
+          if $elem.attr('addr_section')
+            res[$elem.attr('name')] = $elem.data('id')
+          else
+            res[$elem.attr('name')] = $elem.val()
+      res
+
+  android_setup: (field_view, model) ->
+    do(that = @, $str_add = field_view.$el.find("#address")) =>
+      if model.attributes.field_values
+        field_view.$el.find("#address").val(model.attributes.field_values["#{model.getCid()}_1"])
+        field_view.$el.find("#suburb").val(model.attributes.field_values["#{model.getCid()}_2"])
+        field_view.$el.find("#state").val(model.attributes.field_values["#{model.getCid()}_3"])
+        field_view.$el.find("#zipcode").val(model.attributes.field_values["#{model.getCid()}_4"])
+        if(!_.isUndefined(Android.f2dgetCountryFullName))
+          do(sel_contry_abbr = model.attributes.field_values["#{model.getCid()}_5"],
+            $con_el = field_view.$el.find('input[data-country]')) =>
+            $con_el.val(Android.f2dgetCountryFullName(sel_contry_abbr))
+            $con_el.data('id', sel_contry_abbr)
+      else
+        that.clearFields(field_view.$el, model)
+      if $str_add.val() != ''
+        field_view.trigger('change_state')
 
   setup: (field_view, model) ->
     do(that = @, $str_add = field_view.$el.find("#address")) =>
