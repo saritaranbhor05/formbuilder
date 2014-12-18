@@ -1100,6 +1100,7 @@
                   el.find('input').css('border-color', 'red');
                   el.find('textarea').css('border-color', 'red');
                   el.find('.hasDatepicker').css('border-color', 'red');
+                  el.find('.tokenfield').css('border-color', 'red');
                   if (err_field_types.indexOf(fv.field_type) !== -1) {
                     return el.find('label > span').css('color', 'red');
                   }
@@ -2194,10 +2195,11 @@
                 while (i < _this.fieldViews.length) {
                   field = _this.fieldViews[i];
                   if (_this.getCurrentView().indexOf(field.model.get('cid')) !== -1) {
-                    if (field.isValid && !field.isValid()) {
+                    if (field.isValid && !field.isValid() && field.$el && ((field.current_state === 'show' && !field.$el.hasClass('hide')) || field.$el.hasClass('show'))) {
                       field.$el.find('input').css('border-color', 'red');
                       field.$el.find('textarea').css('border-color', 'red');
                       field.$el.find('.hasDatepicker').css('border-color', 'red');
+                      field.$el.find('.tokenfield').css('border-color', 'red');
                       if (err_field_types.indexOf(field.field_type) !== -1) {
                         field.$el.find('label > span').css('color', 'red');
                       }
@@ -3088,7 +3090,7 @@
 
 (function() {
   Formbuilder.registerField('dropdown', {
-    view: "<% if(Formbuilder.isAndroid()) { %>\n  <input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option value=\"<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\" <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
+    view: "<% if(Formbuilder.isAndroid()) { %>\n  <input type=\"text\" id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>\n<% } else { %>\n<select id=\"dropdown\">\n  <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>\n    <% var empty_opt_text = (rf.get(Formbuilder.options.mappings.EMPTY_OPTION_TEXT) || '') %>\n    <option value=''><%= empty_opt_text %></option>\n  <% } %>\n\n  <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n  <% for ( var i = 0 ; i < field_options.length ; i++) { %>\n    <option value=\"<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\" <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'selected' %>>\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </option>\n  <% } %>\n</select>\n<% } %>",
     android_view: "<input id=\"<%= rf.getCid() %>\" dropdown=\"dropdown\" name=\"<%= rf.getCid() %>\" readonly=\"true\"></input>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeBlank: true, rf:rf }) %>\n<script >\n  $(function() {\n    $('#include_empty_option_<%= rf.getCid() %>').click(function(e) {\n      var $target = $(e.currentTarget),\n      $empty_option_div = $('#empty_option_div_<%= rf.getCid() %>');\n      if ($target.is(':checked')) {\n        $empty_option_div.show();\n      } else {\n        $empty_option_div.hide();\n      }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-caret-down\"></span></span> Dropdown",

@@ -2,7 +2,7 @@ Formbuilder.registerField 'dropdown',
 
   view: """
     <% if(Formbuilder.isAndroid()) { %>
-      <input id="<%= rf.getCid() %>" dropdown="dropdown" name="<%= rf.getCid() %>" readonly="true"></input>
+      <input type="text" id="<%= rf.getCid() %>" dropdown="dropdown" name="<%= rf.getCid() %>" readonly="true"></input>
     <% } else { %>
     <select id="dropdown">
       <% if (rf.get(Formbuilder.options.mappings.INCLUDE_BLANK)) { %>
