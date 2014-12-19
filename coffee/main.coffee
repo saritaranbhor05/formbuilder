@@ -1066,7 +1066,7 @@ class Formbuilder
                 models = @collection.models,
                 is_recur = undefined,
                 section_id = undefined, clear_conditions_for_models = []) ->
-              if(current_model.get('field_type') == 'section_break')
+              if(current_model && current_model.get('field_type') == 'section_break')
                 # get attr of moved section break
                 is_recur = current_model.get('field_options').recurring_section
                 section_id = current_model.get('unique_id')
@@ -1106,23 +1106,23 @@ class Formbuilder
                       is_recur = models[i].get('field_options').recurring_section
                       section_id = models[i].get('unique_id')
                       break
-                if is_recur
+                if current_model && is_recur
                   current_model.set({'i_am_in_recurring_section', is_recur}, {silent:true})
-                else
+                else if current_model
                   current_model.unset('i_am_in_recurring_section', {silent:true})
-                if section_id
+                if current_model && section_id
                   current_model.set({'section_id', section_id}, {silent:true})
-                else
+                else if current_model
                   current_model.unset('section_id', {silent:true})
 
               for i in [0...clear_conditions_for_models.length]
                 clear_conditions_for_models[i].trigger("clearAllConditions")
                 clear_conditions_for_models[i].attributes.conditions = []
 
-              current_model.trigger("clearAllConditions")
-              current_model.attributes.conditions = []
+              current_model.trigger("clearAllConditions") if current_model
+              current_model.attributes.conditions = [] if current_model
               that.editView.remove()
-              that.createAndShowEditView(current_model)
+              that.createAndShowEditView(current_model) if current_model
 
             @handleFormUpdate()
             @removeSortable()
