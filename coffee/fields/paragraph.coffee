@@ -29,11 +29,16 @@ Formbuilder.registerField 'paragraph',
   android_bindevents: (field_view) ->
     do(el = field_view.$el.find('textarea')) =>
       el.focus (event) =>
-        console.log("in paragraphs android_bindevents");
         el.css('width', '100%')
         $('#grid_div').animate( {
           scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
         }, 1000)
+
+      $(el).bind "input propertychange", ->
+        do(maxLength = $(this).attr("maxlength")) =>
+          if maxLength && $(this).val().length > maxLength
+            $(this).val $(this).val().substring(0, maxLength)
+        return
 
   setup: (field_view, model) ->
     el = field_view.$el.find('textarea')
@@ -78,8 +83,8 @@ Formbuilder.registerField 'paragraph',
       valid = do (required_attr = model.get('required'), textarea_char_cnt = 0,
         min_length = model.get(Formbuilder.options.mappings.MINLENGTH),
         max_length = model.get(Formbuilder.options.mappings.MAXLENGTH)) =>
-        return true if !required_attr
         textarea_char_cnt = $el.find('textarea').val().length
+        return true if !required_attr && textarea_char_cnt == 0
         if !min_length && !max_length
           return false if textarea_char_cnt == 0
           return true
