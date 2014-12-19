@@ -3844,12 +3844,20 @@
     android_bindevents: function(field_view) {
       return (function(_this) {
         return function(el) {
-          return el.focus(function(event) {
-            console.log("in paragraphs android_bindevents");
+          el.focus(function(event) {
             el.css('width', '100%');
             return $('#grid_div').animate({
               scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
             }, 1000);
+          });
+          return $(el).bind("input propertychange", function() {
+            (function(_this) {
+              return (function(maxLength) {
+                if (maxLength && $(_this).val().length > maxLength) {
+                  return $(_this).val($(_this).val().substring(0, maxLength));
+                }
+              });
+            })(this)($(this).attr("maxlength"));
           });
         };
       })(this)(field_view.$el.find('textarea'));
@@ -3906,10 +3914,10 @@
       return (function(_this) {
         return function(valid) {
           valid = (function(required_attr, textarea_char_cnt, min_length, max_length) {
-            if (!required_attr) {
+            textarea_char_cnt = $el.find('textarea').val().length;
+            if (!required_attr && textarea_char_cnt === 0) {
               return true;
             }
-            textarea_char_cnt = $el.find('textarea').val().length;
             if (!min_length && !max_length) {
               if (textarea_char_cnt === 0) {
                 return false;
