@@ -566,7 +566,7 @@
                 }
               }
             });
-          })(this)({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'birth_date', 'date_time'], false);
+          })(this)({}, 0, false, new Array(), this.model.getCid(), ['date', 'time', 'date_of_birth', 'date_time'], false);
           outerHeight = 0;
           $(".fb-tab.step.active .fb-field-wrapper:visible").each(function() {
             return outerHeight += $(this).height();

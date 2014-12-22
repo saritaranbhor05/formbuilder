@@ -400,7 +400,7 @@ class Formbuilder
           , i =0,and_flag = false
           , check_match_condtions = new Array(),
           _this_model_cid = @model.getCid(),
-          date_field_types = ['date', 'time', 'birth_date', 'date_time'],
+          date_field_types = ['date', 'time', 'date_of_birth', 'date_time'],
           str_condition = false
         ) =>
           if @options.view_type != 'print'
