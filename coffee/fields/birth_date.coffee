@@ -1,4 +1,4 @@
-Formbuilder.registerField 'date_of_birth',
+Formbuilder.registerField 'birth_date',
 
   view: """
     <div class='input-line'>

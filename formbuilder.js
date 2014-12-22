@@ -908,7 +908,7 @@
         },
         remove: function() {
           this.options.parentView.editView = void 0;
-          this.options.parentView.$el.find("[href=\"#addField\"]").click();
+          this.options.parentView.$el.find("[data-target=\"#addField\"]").click();
           return Backbone.View.prototype.remove.call(this);
         },
         addOption: function(e) {
@@ -2422,6 +2422,244 @@
 }).call(this);
 
 (function() {
+  Formbuilder.registerField('birth_date', {
+    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
+    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
+    print: "<label id=\"dob_print\"></label>",
+    setValForPrint: function(field_view, model) {
+      return field_view.$el.find('#dob_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
+    },
+    setup: function(field_view, model) {
+      var el;
+      el = field_view.$el.find('input');
+      return (function(_this) {
+        return function(today, restricted_date) {
+          if (model.get(Formbuilder.options.mappings.MINAGE)) {
+            restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
+            el.datepicker({
+              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '-100y:c+nn',
+              maxDate: restricted_date
+            });
+          } else {
+            el.datepicker({
+              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '-100y:c+nn',
+              maxDate: today
+            });
+          }
+          if (model.get('field_values')) {
+            el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
+          }
+          return $(el).click(function() {
+            return $("#ui-datepicker-div").css("z-index", 3);
+          });
+        };
+      })(this)(new Date, new Date);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr) {
+            if (!required_attr) {
+              return true;
+            }
+            return $el.find(".hasDatepicker").val() !== '';
+          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
+          return valid;
+        };
+      })(this)(false);
+    },
+    clearFields: function($el, model) {
+      return $el.find("[name = " + model.getCid() + "_1]").val("");
+    },
+    check_date_result: function(condition, firstValue, secondValue) {
+      firstValue[0] = parseInt(firstValue[0]);
+      firstValue[1] = parseInt(firstValue[1]);
+      firstValue[2] = parseInt(firstValue[2]);
+      secondValue[0] = parseInt(secondValue[0]);
+      secondValue[1] = parseInt(secondValue[1]);
+      secondValue[2] = parseInt(secondValue[2]);
+      if (condition === "<") {
+        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (condition === ">") {
+        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
+    checkAttributeHasValue: function(cid, $el) {
+      if ($el.find("input[type=text]").val() === "") {
+        return false;
+      }
+      return cid;
+    },
+    evalCondition: function(clicked_element, cid, condition, set_value, field) {
+      return (function(_this) {
+        return function(firstValue, check_result, secondValue, is_true, check_field_date_format) {
+          var hold_date;
+          check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
+          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
+          firstValue = firstValue.split('/');
+          if (check_field_date_format === 'mm/dd/yy') {
+            hold_date = firstValue[0];
+            firstValue[0] = firstValue[1];
+            firstValue[1] = hold_date;
+          }
+          secondValue = set_value.split('/');
+          return is_true = field.check_date_result(condition, firstValue, secondValue);
+        };
+      })(this)('', false, '', false, '');
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(elem, res) {
+        res[$(elem).attr('name')] = $(elem).val();
+        return res;
+      })($el.find('[name^=' + model.getCid() + ']'), {});
+    }
+  });
+
+}).call(this);
+
+(function() {
+  Formbuilder.registerField('capture', {
+    view: "<div class='input-line'>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>\n      <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>\n      <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>\n      <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n    <% } %>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'photo')){ %>\n    <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'video')){ %>\n    <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'audio')){ %>\n    <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n  <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").text(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n      $('#record_link_<%= rf.getCid() %>').text('View File');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
+    edit: "<%= Formbuilder.templates['edit/capture']({ rf:rf }) %>",
+    print: "<div id=\"capture_link_<%= rf.getCid() %>\"></div>",
+    addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
+    clearFields: function($el, model) {
+      return (function(_this) {
+        return function(attr_name) {
+          $el.find(".capture").text("");
+          return $el.find("#capture_link_" + attr_name).html('');
+        };
+      })(this)(model.getCid());
+    },
+    add_remove_require: function(cid, required) {
+      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
+    },
+    fieldToValue: function($el, model) {
+      return (function(_this) {
+        return function(link_eles, comp_obj) {
+          (function(key, link_href) {
+            return _.each(link_eles, function(link_ele) {
+              key = $(link_ele).attr('name');
+              link_href = $(link_ele).attr('href');
+              if (_.isEmpty(link_href)) {
+                return comp_obj[key] = {
+                  'name': $(link_ele).text(),
+                  'url': $(link_ele).text()
+                };
+              } else {
+                return comp_obj[key] = {
+                  'name': $(link_ele).text(),
+                  'url': link_href
+                };
+              }
+            });
+          })('', '');
+          return comp_obj;
+        };
+      })(this)($el.find('a[type=pic_video_audio]'), {});
+    },
+    android_bindevents: function(field_view) {
+      return (function(_this) {
+        return function(btn_photo_inputs, btn_video_inputs, btn_audio_inputs, _that) {
+          _that.bind_event_for_type(btn_photo_inputs, "image", field_view);
+          _that.bind_event_for_type(btn_video_inputs, "video", field_view);
+          return _that.bind_event_for_type(btn_audio_inputs, "audio", field_view);
+        };
+      })(this)(field_view.$el.find(".image"), field_view.$el.find(".video"), field_view.$el.find(".audio"), this);
+    },
+    bind_event_for_type: function(btn_inputs, input_type, field_view) {
+      return (function(_this) {
+        return function(view_index) {
+          return _.each(btn_inputs, function(btn_input) {
+            $(btn_input).unbind();
+            return $(btn_input).on("click", function() {
+              view_index = field_view.model.get('view_index');
+              if (!view_index) {
+                view_index = 0;
+              }
+              Android.f2dBeginCapture(field_view.model.getCid(), input_type, view_index);
+            });
+          });
+        };
+      })(this)(0);
+    },
+    setup: function(field_view, model) {
+      return (function(_this) {
+        return function(model_cid, file_url, $cap_link_ele, _that) {
+          if (model.get('field_values')) {
+            $cap_link_ele.html('');
+            return _.each(model.get('field_values'), function(value, key) {
+              if (value) {
+                if ($cap_link_ele) {
+                  if (_.isString(value)) {
+                    if (value.indexOf("data:image") === -1) {
+                      $cap_link_ele.append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                    } else if (value.indexOf("data:image") === 0) {
+                      $('#record_link_' + model_cid).attr('href', value);
+                      $('#record_link_' + model_cid).text("View File");
+                    }
+                  } else if (_.isObject(value)) {
+                    $('#capture_link_' + model_cid).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
+                  }
+                }
+                if (this.$('#capture_link_close_' + key)) {
+                  return this.$('#capture_link_close_' + key).click(function() {
+                    return $('#capture_link_div_' + key).remove();
+                  });
+                }
+              }
+            });
+          }
+        };
+      })(this)(model.getCid(), '', field_view.$el.find('#capture_link_' + model.getCid()), this);
+    },
+    isValid: function($el, model) {
+      return (function(_this) {
+        return function(valid) {
+          valid = (function(required_attr, is_file_selected) {
+            if (!required_attr) {
+              return true;
+            }
+            _.each($el.find("a"), function(elment) {
+              if (!_.isEmpty(elment.text)) {
+                return is_file_selected = true;
+              }
+            });
+            return is_file_selected;
+          })(model.get('required'), false);
+          return valid;
+        };
+      })(this)(false);
+    }
+  });
+
+}).call(this);
+
+(function() {
   Formbuilder.registerField('checkboxes', {
     view: "<% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>\n<% for ( var i = 0 ; i < field_options.length ; i++) { %>\n  <div>\n    <label class='fb-option'>\n      <input type='checkbox' value='<%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label%>' <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].checked && 'checked' %> />\n      <%= rf.get(Formbuilder.options.mappings.OPTIONS)[i].label %>\n    </label>\n  </div>\n<% } %>\n\n<% if (rf.get(Formbuilder.options.mappings.INCLUDE_OTHER)) { %>\n  <div class='other-option'>\n    <label class='fb-option'>\n      <input class='other-option' type='checkbox' value=\"__other__\"/>\n      Other\n    </label>\n\n    <input type='text' />\n  </div>\n<% } %>",
     edit: "<%= Formbuilder.templates['edit/options']({ includeOther: true }) %>",
@@ -2588,126 +2826,6 @@
     edit: "",
     getFieldType: function() {
       return 'date';
-    }
-  });
-
-}).call(this);
-
-(function() {
-  Formbuilder.registerField('date_of_birth', {
-    view: "<div class='input-line'>\n  <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>\n</div>",
-    edit: "<%= Formbuilder.templates['edit/age_restriction']({ includeOther: true }) %>\n<%= Formbuilder.templates['edit/date_format']() %>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-gift\"></span></span> Birth Date",
-    print: "<label id=\"dob_print\"></label>",
-    setValForPrint: function(field_view, model) {
-      return field_view.$el.find('#dob_print').html(model.get('field_values')["" + (model.getCid()) + "_1"]);
-    },
-    setup: function(field_view, model) {
-      var el;
-      el = field_view.$el.find('input');
-      return (function(_this) {
-        return function(today, restricted_date) {
-          if (model.get(Formbuilder.options.mappings.MINAGE)) {
-            restricted_date.setFullYear(today.getFullYear() - model.get(Formbuilder.options.mappings.MINAGE));
-            el.datepicker({
-              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
-              changeMonth: true,
-              changeYear: true,
-              yearRange: '-100y:c+nn',
-              maxDate: restricted_date
-            });
-          } else {
-            el.datepicker({
-              dateFormat: model.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy',
-              changeMonth: true,
-              changeYear: true,
-              yearRange: '-100y:c+nn',
-              maxDate: today
-            });
-          }
-          if (model.get('field_values')) {
-            el.val(model.get('field_values')["" + (model.getCid()) + "_1"]);
-          }
-          return $(el).click(function() {
-            return $("#ui-datepicker-div").css("z-index", 3);
-          });
-        };
-      })(this)(new Date, new Date);
-    },
-    isValid: function($el, model) {
-      return (function(_this) {
-        return function(valid) {
-          valid = (function(required_attr) {
-            if (!required_attr) {
-              return true;
-            }
-            return $el.find(".hasDatepicker").val() !== '';
-          })($el.find("[name = " + model.getCid() + "_1]").attr("required"));
-          return valid;
-        };
-      })(this)(false);
-    },
-    clearFields: function($el, model) {
-      return $el.find("[name = " + model.getCid() + "_1]").val("");
-    },
-    check_date_result: function(condition, firstValue, secondValue) {
-      firstValue[0] = parseInt(firstValue[0]);
-      firstValue[1] = parseInt(firstValue[1]);
-      firstValue[2] = parseInt(firstValue[2]);
-      secondValue[0] = parseInt(secondValue[0]);
-      secondValue[1] = parseInt(secondValue[1]);
-      secondValue[2] = parseInt(secondValue[2]);
-      if (condition === "<") {
-        if (firstValue[2] <= secondValue[2] && firstValue[1] <= secondValue[1] && firstValue[0] < secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (condition === ">") {
-        if (firstValue[2] >= secondValue[2] && firstValue[1] >= secondValue[1] && firstValue[0] > secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        if (firstValue[2] === secondValue[2] && firstValue[1] === secondValue[1] && firstValue[0] === secondValue[0]) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    },
-    checkAttributeHasValue: function(cid, $el) {
-      if ($el.find("input[type=text]").val() === "") {
-        return false;
-      }
-      return cid;
-    },
-    evalCondition: function(clicked_element, cid, condition, set_value, field) {
-      return (function(_this) {
-        return function(firstValue, check_result, secondValue, is_true, check_field_date_format) {
-          var hold_date;
-          check_field_date_format = clicked_element.find("[name = " + cid + "_1]").attr('date_format');
-          firstValue = clicked_element.find("[name = " + cid + "_1]").val();
-          firstValue = firstValue.split('/');
-          if (check_field_date_format === 'mm/dd/yy') {
-            hold_date = firstValue[0];
-            firstValue[0] = firstValue[1];
-            firstValue[1] = hold_date;
-          }
-          secondValue = set_value.split('/');
-          return is_true = field.check_date_result(condition, firstValue, secondValue);
-        };
-      })(this)('', false, '', false, '');
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-    },
-    fieldToValue: function($el, model) {
-      return (function(elem, res) {
-        res[$(elem).attr('name')] = $(elem).val();
-        return res;
-      })($el.find('[name^=' + model.getCid() + ']'), {});
     }
   });
 
@@ -3712,8 +3830,9 @@
 
 (function() {
   Formbuilder.registerField('image', {
-    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link;%>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form'\n    target='_blank'\n    <%= image_link ? 'href='+image_link : '' %>\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 512000){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 500 KB\")\n        }\n    });\n  });\n</script>",
+    type: 'non_input',
+    view: "<span><%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.LABEL)) %>\n  <div\n    style=\"\n      text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n    \"\n  >\n  <% var image_link;%>\n  <% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n    <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n      <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n    <% } %>\n  <% } %>\n    <a\n      class='image_link_form'\n      target='_blank'\n      <%= image_link ? 'href='+image_link : '' %>\n    >\n      <img\n        id='img_<%= rf.getCid() %>'\n        src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n        style=\"\n          width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n          height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n        \"\n      />\n    </a>\n  </div>\n<span class='help-block'>\n  <%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.DESCRIPTION)) %>\n</span>",
+    edit: "<div class='fb-edit-section-header'>Label</div>\n\n<div class='fb-common-wrapper'>\n  <div class='fb-label-description span11'>\n    <input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n    <textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n      placeholder='Add a longer description to this field'></textarea>\n  </div>\n</div>\n<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 512000){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 500 KB\")\n        }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-picture\"></span></span> Image",
     checkAttributeHasValue: function(cid, $el) {
       return (function(_this) {
@@ -4258,124 +4377,6 @@
     addButton: "<span class='symbol'><span class='icon-minus'></span></span> Section Break",
     checkAttributeHasValue: function(cid, $el) {
       return true;
-    }
-  });
-
-}).call(this);
-
-(function() {
-  Formbuilder.registerField('take_pic_video_audio', {
-    view: "<div class='input-line'>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_PHOTO)) { %>\n      <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_VIDEO)) { %>\n      <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n    <% } %>\n\n    <% if (rf.get(Formbuilder.options.mappings.INCLUDE_AUDIO)) { %>\n      <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n    <% } %>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'photo')){ %>\n    <button type='button' class='file_field btn_capture_icon image btn_icon_photo' cid=\"<%= rf.getCid() %>\" id=\"btn_image_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'video')){ %>\n    <button type='button' class='file_field btn_capture_icon video btn_icon_video' cid=\"<%= rf.getCid() %>\" id=\"btn_video_<%= rf.getCid() %>\"></button>\n  <% } %>\n  <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'audio')){ %>\n    <button type='button' class='file_field btn_capture_icon audio btn_icon_audio' cid=\"<%= rf.getCid() %>\" id=\"btn_audio_<%= rf.getCid() %>\"></button>\n  <% } %>\n\n  <a\n    type='take_pic_video_audio'\n    target=\"_blank\" capture='capture' class=\"capture active_link\"\n    id=\"record_link_<%= rf.getCid() %>\" href=\"\"\n    style=\"margin-bottom:12px;\"\n  ></a>\n  <div id=\"capture_link_<%= rf.getCid() %>\"></div>\n</div>\n<div id=\"open_model_<%= rf.getCid() %>\"\n  class=\"modal hide fade modal_style\" tabindex=\"-1\"\n  role=\"dialog\" aria-labelledby=\"ModalLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\"\n      aria-hidden=\"true\">&times;</button>\n    <h3>Picture</h3>\n  </div>\n  <div class=\"modal-body\" id=\"modal_body_<%= rf.getCid() %>\">\n    <video id=\"video_<%= rf.getCid() %>\" autoplay></video>\n    <canvas id=\"canvas_<%= rf.getCid() %>\" style=\"display:none;\"></canvas>\n  </div>\n  <div class=\"modal-footer\">\n    <button id=\"take_picture_<%= rf.getCid() %>\" class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Take Picture\n    </button>\n    <button class=\"btn btn-default btn-success\" data-dismiss=\"modal\" aria-hidden=\"true\">\n      Ok\n    </button>\n  </div>\n</div>\n\n<textarea\n id='snapshot_<%= rf.getCid() %>'\n data-rv-value='model.<%= Formbuilder.options.mappings.HTML_DATA %>'\n style=\"display:none;\"\n>\n</textarea>\n\n<script>\n\n  $('#snapshot_<%= rf.getCid() %>').attr(\"required\", false);\n  $('#canvas_<%= rf.getCid() %>').attr(\"required\", false);\n\n  $(\"#btn_image_<%= rf.getCid() %>\").click( function() {\n    $(\"#open_model_<%= rf.getCid() %>\").modal('show');\n    $(\"#open_model_<%= rf.getCid() %>\").on('shown', function() {\n      startCamera();\n    });\n    $(\"#open_model_<%= rf.getCid() %>\").on('hidden', function() {\n      localMediaStream.stop();\n      localMediaStream = null;\n      $(\"#snapshot_<%= rf.getCid() %>\").text(\n        $('#record_link_<%= rf.getCid() %>').attr('href')\n      );\n      $(\"#snapshot_<%= rf.getCid() %>\").trigger(\"change\");\n      $(this).unbind('shown');\n      $(this).unbind('hidden');\n    });\n  });\n  var video = document.querySelector(\"#video_<%= rf.getCid() %>\"),\n      take_picture = document.querySelector(\"#take_picture_<%= rf.getCid() %>\")\n      canvas = document.querySelector(\"#canvas_<%= rf.getCid() %>\"),\n      ctx = canvas.getContext('2d'), localMediaStream = null;\n  navigator.getUserMedia = navigator.getUserMedia ||\n    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;\n\n  function snapshot() {\n    if (localMediaStream) {\n      ctx.drawImage(video, 0, 0);\n      // \"image/webp\" works in Chrome.\n      // Other browsers will fall back to image/png.\n      document.querySelector('#record_link_<%= rf.getCid() %>').href = canvas.toDataURL('image/webp');\n      $('#record_link_<%= rf.getCid() %>').text('View File');\n    }\n  }\n  function sizeCanvas() {\n    // video.onloadedmetadata not firing in Chrome so we have to hack.\n    // See crbug.com/110938.\n    setTimeout(function() {\n      canvas.width = 640;\n      canvas.height = 420;\n    }, 100);\n  }\n  function startCamera(){\n    navigator.getUserMedia(\n      {video: true},\n      function(stream){\n        video.src = window.URL.createObjectURL(stream);\n        localMediaStream = stream;\n        sizeCanvas();\n      },\n      function errorCallback(error){\n        console.log(\"navigator.getUserMedia error: \", error);\n      }\n    );\n  }\n\n  take_picture.addEventListener('click', snapshot, false);\n</script>",
-    edit: "<%= Formbuilder.templates['edit/capture']({ rf:rf }) %>",
-    print: "<div id=\"capture_link_<%= rf.getCid() %>\"></div>",
-    addButton: "<span class=\"symbol\"><span class=\"icon-camera\"></span></span> Capture",
-    clearFields: function($el, model) {
-      return (function(_this) {
-        return function(attr_name) {
-          $el.find(".capture").text("");
-          return $el.find("#capture_link_" + attr_name).html('');
-        };
-      })(this)(model.getCid());
-    },
-    add_remove_require: function(cid, required) {
-      return $("." + cid).find("[name = " + cid + "_1]").attr("required", required);
-    },
-    fieldToValue: function($el, model) {
-      return (function(_this) {
-        return function(link_eles, comp_obj) {
-          (function(key, link_href) {
-            return _.each(link_eles, function(link_ele) {
-              key = $(link_ele).attr('name');
-              link_href = $(link_ele).attr('href');
-              if (_.isEmpty(link_href)) {
-                return comp_obj[key] = {
-                  'name': $(link_ele).text(),
-                  'url': $(link_ele).text()
-                };
-              } else {
-                return comp_obj[key] = {
-                  'name': $(link_ele).text(),
-                  'url': link_href
-                };
-              }
-            });
-          })('', '');
-          return comp_obj;
-        };
-      })(this)($el.find('a[type=pic_video_audio]'), {});
-    },
-    android_bindevents: function(field_view) {
-      return (function(_this) {
-        return function(btn_photo_inputs, btn_video_inputs, btn_audio_inputs, _that) {
-          _that.bind_event_for_type(btn_photo_inputs, "image", field_view);
-          _that.bind_event_for_type(btn_video_inputs, "video", field_view);
-          return _that.bind_event_for_type(btn_audio_inputs, "audio", field_view);
-        };
-      })(this)(field_view.$el.find(".image"), field_view.$el.find(".video"), field_view.$el.find(".audio"), this);
-    },
-    bind_event_for_type: function(btn_inputs, input_type, field_view) {
-      return (function(_this) {
-        return function(view_index) {
-          return _.each(btn_inputs, function(btn_input) {
-            $(btn_input).unbind();
-            return $(btn_input).on("click", function() {
-              view_index = field_view.model.get('view_index');
-              if (!view_index) {
-                view_index = 0;
-              }
-              Android.f2dBeginCapture(field_view.model.getCid(), input_type, view_index);
-            });
-          });
-        };
-      })(this)(0);
-    },
-    setup: function(field_view, model) {
-      return (function(_this) {
-        return function(model_cid, file_url, $cap_link_ele, _that) {
-          if (model.get('field_values')) {
-            $cap_link_ele.html('');
-            return _.each(model.get('field_values'), function(value, key) {
-              if (value) {
-                if ($cap_link_ele) {
-                  if (_.isString(value)) {
-                    if (value.indexOf("data:image") === -1) {
-                      $cap_link_ele.append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value + ">" + value.split("/").pop().split("?")[0] + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
-                    } else if (value.indexOf("data:image") === 0) {
-                      $('#record_link_' + model_cid).attr('href', value);
-                      $('#record_link_' + model_cid).text("View File");
-                    }
-                  } else if (_.isObject(value)) {
-                    $('#capture_link_' + model_cid).append("<div class='capture_link_div' id=capture_link_div_" + key + "><a class='active_link_doc' target='_blank' type = 'pic_video_audio' name=" + key + " href=" + value.url + ">" + value.name + "</a><span class='pull-right' id=capture_link_close_" + key + ">X</span></br></div>");
-                  }
-                }
-                if (this.$('#capture_link_close_' + key)) {
-                  return this.$('#capture_link_close_' + key).click(function() {
-                    return $('#capture_link_div_' + key).remove();
-                  });
-                }
-              }
-            });
-          }
-        };
-      })(this)(model.getCid(), '', field_view.$el.find('#capture_link_' + model.getCid()), this);
-    },
-    isValid: function($el, model) {
-      return (function(_this) {
-        return function(valid) {
-          valid = (function(required_attr, is_file_selected) {
-            if (!required_attr) {
-              return true;
-            }
-            _.each($el.find("a"), function(elment) {
-              if (!_.isEmpty(elment.text)) {
-                return is_file_selected = true;
-              }
-            });
-            return is_file_selected;
-          })(model.get('required'), false);
-          return valid;
-        };
-      })(this)(false);
     }
   });
 
@@ -5233,8 +5234,8 @@ obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.inputFields) { 
+__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class="fb-button-section-header">Input Fields</div>\n    <div class=\'section\'>\n      ';
+ for (i in Formbuilder.inputFields) {
          if(Formbuilder.inputFields[i].getFieldType) { } else { ;
 __p += '\n              <a data-field-type="' +
 ((__t = ( i )) == null ? '' : __t) +
@@ -5242,9 +5243,9 @@ __p += '\n              <a data-field-type="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">\n                ' +
 ((__t = ( Formbuilder.inputFields[i].addButton )) == null ? '' : __t) +
-'\n              </a>\n            \n      ';
+'\n              </a>\n\n      ';
  } };
-__p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
+__p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.nonInputFields) { ;
 __p += '\n        <a data-field-type="' +
 ((__t = ( i )) == null ? '' : __t) +

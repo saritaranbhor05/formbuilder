@@ -692,7 +692,7 @@ class Formbuilder
 
       remove: ->
         @options.parentView.editView = undefined
-        @options.parentView.$el.find("[href=\"#addField\"]").click()
+        @options.parentView.$el.find("[data-target=\"#addField\"]").click()
         Backbone.View.prototype.remove.call(@)
 
       # @todo this should really be on the model, not the view

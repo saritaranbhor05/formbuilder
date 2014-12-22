@@ -1,15 +1,16 @@
 <div class='fb-tab-pane active' id='addField'>
   <div class='fb-add-field-types'>
+    <div class="fb-button-section-header">Input Fields</div>
     <div class='section'>
-      <% for (i in Formbuilder.inputFields) { 
+      <% for (i in Formbuilder.inputFields) {
          if(Formbuilder.inputFields[i].getFieldType) { } else { %>
               <a data-field-type="<%= i %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
                 <%= Formbuilder.inputFields[i].addButton %>
               </a>
-            
+
       <% } }%>
     </div>
-
+    <div class="fb-button-section-header">Non-Input Fields</div>
     <div class='section'>
       <% for (i in Formbuilder.nonInputFields) { %>
         <a data-field-type="<%= i %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">

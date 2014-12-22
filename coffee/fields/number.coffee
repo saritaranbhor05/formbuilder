@@ -51,7 +51,7 @@ Formbuilder.registerField 'number',
       if model.get(Formbuilder.options.mappings.STEP)
         rounded_value = Math.round(model.get(Formbuilder.options.mappings.STEP))
         el.attr("step", rounded_value)
-          
+
     if model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE)
       el.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
@@ -68,7 +68,7 @@ Formbuilder.registerField 'number',
         $input.val(model.get(Formbuilder.options.mappings.DEFAULT_NUM_VALUE))
 
   evalCondition: (clicked_element, cid, condition, set_value) ->
-    do( 
+    do(
       check_result=false
     ) =>
       elem_val = clicked_element

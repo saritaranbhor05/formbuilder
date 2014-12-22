@@ -1,4 +1,4 @@
-Formbuilder.registerField 'take_pic_video_audio',
+Formbuilder.registerField 'capture',
 
   view: """
     <div class='input-line'>
