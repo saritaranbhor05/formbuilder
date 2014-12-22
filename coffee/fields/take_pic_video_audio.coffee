@@ -1,4 +1,4 @@
-Formbuilder.registerField 'capture',
+Formbuilder.registerField 'take_pic_video_audio',
 
   view: """
     <div class='input-line'>
@@ -134,7 +134,7 @@ Formbuilder.registerField 'capture',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-camera"></span></span> Capture
+    <span class="symbol"><span class="icon-camera"></span></span> Take Photo
   """
   clearFields: ($el, model) ->
     do(attr_name = model.getCid()) =>

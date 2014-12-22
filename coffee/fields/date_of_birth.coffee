@@ -1,4 +1,4 @@
-Formbuilder.registerField 'birth_date',
+Formbuilder.registerField 'date_of_birth',
 
   view: """
     <div class='input-line'>
@@ -12,7 +12,7 @@ Formbuilder.registerField 'birth_date',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-gift"></span></span> Birth Date
+    <span class="symbol"><span class="icon-gift"></span></span> Date Of Birth
   """
 
   print: """
