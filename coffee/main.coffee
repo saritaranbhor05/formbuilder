@@ -832,7 +832,7 @@ class Formbuilder
                 el.find('input').css('border-color','red')
                 el.find('textarea').css('border-color','red')
                 el.find('.hasDatepicker').css('border-color','red')
-                el.find('.tokenfield').css('border-color','red')
+                $(el.find('.tokenfield')[0]).css('border-color','red')
                 if err_field_types.indexOf(fv.field_type) != -1
                   el.find('label > span').css('color','red')
             else
@@ -1673,7 +1673,7 @@ class Formbuilder
                   field.$el.find('input').css('border-color','red')
                   field.$el.find('textarea').css('border-color','red')
                   field.$el.find('.hasDatepicker').css('border-color','red')
-                  field.$el.find('.tokenfield').css('border-color','red')
+                  $(field.$el.find('.tokenfield')[0]).css('border-color','red')
                   if err_field_types.indexOf(field.field_type) != -1
                     field.$el.find('label > span').css('color','red')
                   is_invalid_field = true if !is_invalid_field
