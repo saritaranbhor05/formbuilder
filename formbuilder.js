@@ -1363,7 +1363,7 @@
                 _this.collection.sort();
                 (function(that, current_model, index, models, is_recur, section_id, clear_conditions_for_models) {
                   var i, _i, _j, _k, _l, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
-                  if (current_model.get('field_type') === 'section_break') {
+                  if (current_model && current_model.get('field_type') === 'section_break') {
                     is_recur = current_model.get('field_options').recurring_section;
                     section_id = current_model.get('unique_id');
                     for (i = _i = _ref = index + 1, _ref1 = models.length; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
@@ -1447,26 +1447,26 @@
                         }
                       }
                     }
-                    if (is_recur) {
+                    if (current_model && is_recur) {
                       current_model.set({
                         'i_am_in_recurring_section': 'i_am_in_recurring_section',
                         is_recur: is_recur
                       }, {
                         silent: true
                       });
-                    } else {
+                    } else if (current_model) {
                       current_model.unset('i_am_in_recurring_section', {
                         silent: true
                       });
                     }
-                    if (section_id) {
+                    if (current_model && section_id) {
                       current_model.set({
                         'section_id': 'section_id',
                         section_id: section_id
                       }, {
                         silent: true
                       });
-                    } else {
+                    } else if (current_model) {
                       current_model.unset('section_id', {
                         silent: true
                       });
@@ -1476,10 +1476,16 @@
                     clear_conditions_for_models[i].trigger("clearAllConditions");
                     clear_conditions_for_models[i].attributes.conditions = [];
                   }
-                  current_model.trigger("clearAllConditions");
-                  current_model.attributes.conditions = [];
+                  if (current_model) {
+                    current_model.trigger("clearAllConditions");
+                  }
+                  if (current_model) {
+                    current_model.attributes.conditions = [];
+                  }
                   that.editView.remove();
-                  return that.createAndShowEditView(current_model);
+                  if (current_model) {
+                    return that.createAndShowEditView(current_model);
+                  }
                 })(_this, _this.collection.models[ui.item.index()], ui.item.index(), _this.collection.models, void 0, void 0, []);
                 _this.handleFormUpdate();
                 _this.removeSortable();
@@ -3957,12 +3963,20 @@
     android_bindevents: function(field_view) {
       return (function(_this) {
         return function(el) {
-          return el.focus(function(event) {
-            console.log("in paragraphs android_bindevents");
+          el.focus(function(event) {
             el.css('width', '100%');
             return $('#grid_div').animate({
               scrollTop: el.offset().top + $('#grid_div').scrollTop() - 20
             }, 1000);
+          });
+          return $(el).bind("input propertychange", function() {
+            (function(_this) {
+              return (function(maxLength) {
+                if (maxLength && $(_this).val().length > maxLength) {
+                  return $(_this).val($(_this).val().substring(0, maxLength));
+                }
+              });
+            })(this)($(this).attr("maxlength"));
           });
         };
       })(this)(field_view.$el.find('textarea'));
@@ -4019,10 +4033,10 @@
       return (function(_this) {
         return function(valid) {
           valid = (function(required_attr, textarea_char_cnt, min_length, max_length) {
-            if (!required_attr) {
+            textarea_char_cnt = $el.find('textarea').val().length;
+            if (!required_attr && textarea_char_cnt === 0) {
               return true;
             }
-            textarea_char_cnt = $el.find('textarea').val().length;
             if (!min_length && !max_length) {
               if (textarea_char_cnt === 0) {
                 return false;
