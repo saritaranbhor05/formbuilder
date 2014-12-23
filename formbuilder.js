@@ -2329,7 +2329,8 @@
           $el.find("#suburb").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_CITY));
           $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE));
           $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE));
-          return $el.find('input[data-country]').val('');
+          $el.find('input[data-country]').val('');
+          return $el.find('input[data-country]').data('id', '');
         };
       })(this)(this);
     },
