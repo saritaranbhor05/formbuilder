@@ -1,5 +1,5 @@
 Formbuilder.registerField 'address',
-
+  caption: 'Address'
   view: """
     <div class='input-line'>
       <span class="span6">
@@ -119,6 +119,7 @@ Formbuilder.registerField 'address',
       $el.find("#state").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_STATE))
       $el.find("#zipcode").val(_that.check_and_return_val(model, Formbuilder.options.mappings.DEFAULT_ZIPCODE))
       $el.find('input[data-country]').val('') # Clear selection of country input
+      $el.find('input[data-country]').data('id', '')
 
   check_and_return_val: (model, val) ->
     model.get(val) || ''

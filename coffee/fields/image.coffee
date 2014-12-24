@@ -2,6 +2,8 @@ Formbuilder.registerField 'image',
 
   type: 'non_input'
 
+  caption: 'Image'
+
   view: """
   <span><%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.LABEL)) %>
     <div

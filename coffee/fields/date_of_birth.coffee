@@ -1,5 +1,5 @@
 Formbuilder.registerField 'date_of_birth',
-
+  caption: 'Birth Date'
   view: """
     <div class='input-line'>
       <input id='<%= rf.getCid() %>' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
@@ -12,7 +12,7 @@ Formbuilder.registerField 'date_of_birth',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-gift"></span></span> Date Of Birth
+    <span class="symbol"><span class="icon-gift"></span></span> Birth Date
   """
 
   print: """

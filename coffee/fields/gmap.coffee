@@ -1,5 +1,5 @@
 Formbuilder.registerField 'gmap',
-
+  caption: 'Geo-Location'
   view: """
     <a style="min-width: 100px ;height: 35px;padding-top: 5px;padding-bottom: 5px;text-decoration: underline;" id="gmap_button" type='gmap'>Select Your Address</a>
     <input id='current_user_latlng_points' type='text' class='hidden' value=''>

@@ -1,5 +1,5 @@
 Formbuilder.registerField 'paragraph',
-
+  caption: 'Paragraph'
   view: """
     <textarea class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>'></textarea>
   """

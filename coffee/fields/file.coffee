@@ -1,5 +1,5 @@
 Formbuilder.registerField 'file',
-
+  caption: 'File'
   view: """
     <span id='file_name_<%= rf.getCid() %>'></span>
     <a target="_blank" class="active_link"></a>

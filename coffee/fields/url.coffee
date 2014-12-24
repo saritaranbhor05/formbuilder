@@ -1,5 +1,5 @@
 Formbuilder.registerField 'url',
-
+  caption: 'URL'
   view: """
     <input type='url' pattern="https?://.+" class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' placeholder='http://' />
   """

@@ -732,24 +732,37 @@ var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class="fb-button-section-header">Input Fields</div>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.inputFields) {
-         if(Formbuilder.inputFields[i].getFieldType) { } else { ;
-__p += '\n              <a data-field-type="' +
-((__t = ( i )) == null ? '' : __t) +
-'" class="' +
-((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
-'">\n                ' +
-((__t = ( Formbuilder.inputFields[i].addButton )) == null ? '' : __t) +
-'\n              </a>\n\n      ';
- } };
-__p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
- for (i in Formbuilder.nonInputFields) { ;
+ Formbuilder.sorted_inputs.sort(function (a, b) {
+          a = a.caption,
+          b = b.caption;
+          return a.localeCompare(b);
+        });
+      ;
+__p += '\n      ';
+ Formbuilder.sorted_noninputs.sort(function (a, b) {
+          a = a.caption,
+          b = b.caption;
+          return a.localeCompare(b);
+        });
+      ;
+__p += '\n      ';
+ for (i in Formbuilder.sorted_inputs) { ;
 __p += '\n        <a data-field-type="' +
-((__t = ( i )) == null ? '' : __t) +
+((__t = ( Formbuilder.sorted_inputs[i].field_type )) == null ? '' : __t) +
 '" class="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">\n          ' +
-((__t = ( Formbuilder.nonInputFields[i].addButton )) == null ? '' : __t) +
+((__t = ( Formbuilder.sorted_inputs[i].button_template )) == null ? '' : __t) +
+'\n        </a>\n      ';
+ } ;
+__p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
+ for (i in Formbuilder.sorted_noninputs) { ;
+__p += '\n        <a data-field-type="' +
+((__t = ( Formbuilder.sorted_inputs[i].field_type )) == null ? '' : __t) +
+'" class="' +
+((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
+'">\n          ' +
+((__t = ( Formbuilder.sorted_noninputs[i].button_template )) == null ? '' : __t) +
 '\n        </a>\n      ';
  } ;
 __p += '\n    </div>\n  </div>\n</div>';

@@ -1,5 +1,5 @@
 Formbuilder.registerField 'date_time_difference',
-
+  caption: 'Date Time Difference'
   view: """
     <div class='input-line'>
       <span>

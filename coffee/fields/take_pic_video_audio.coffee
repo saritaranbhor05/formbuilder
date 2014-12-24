@@ -1,5 +1,5 @@
 Formbuilder.registerField 'take_pic_video_audio',
-
+  caption: 'Capture'
   view: """
     <div class='input-line'>
       <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>
@@ -134,7 +134,7 @@ Formbuilder.registerField 'take_pic_video_audio',
   """
 
   addButton: """
-    <span class="symbol"><span class="icon-camera"></span></span> Take Photo
+    <span class="symbol"><span class="icon-camera"></span></span> Capture
   """
   clearFields: ($el, model) ->
     do(attr_name = model.getCid()) =>
