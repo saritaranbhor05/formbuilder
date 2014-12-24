@@ -5340,7 +5340,7 @@ __p += '\n        <a data-field-type="' +
 __p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.sorted_noninputs) { ;
 __p += '\n        <a data-field-type="' +
-((__t = ( Formbuilder.sorted_inputs[i].field_type )) == null ? '' : __t) +
+((__t = ( Formbuilder.sorted_noninputs[i].field_type )) == null ? '' : __t) +
 '" class="' +
 ((__t = ( Formbuilder.options.BUTTON_CLASS )) == null ? '' : __t) +
 '">\n          ' +

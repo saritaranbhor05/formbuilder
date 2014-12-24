@@ -23,7 +23,7 @@
     <div class="fb-button-section-header">Non-Input Fields</div>
     <div class='section'>
       <% for (i in Formbuilder.sorted_noninputs) { %>
-        <a data-field-type="<%= Formbuilder.sorted_inputs[i].field_type %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
+        <a data-field-type="<%= Formbuilder.sorted_noninputs[i].field_type %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
           <%= Formbuilder.sorted_noninputs[i].button_template %>
         </a>
       <% } %>
