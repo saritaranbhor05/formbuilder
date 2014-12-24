@@ -731,7 +731,7 @@ obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
+__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class="fb-button-section-header">Input Fields</div>\n    <div class=\'section\'>\n      ';
  Formbuilder.sorted_inputs.sort(function (a, b) {
           a = a.caption,
           b = b.caption;
@@ -755,7 +755,7 @@ __p += '\n        <a data-field-type="' +
 ((__t = ( Formbuilder.sorted_inputs[i].button_template )) == null ? '' : __t) +
 '\n        </a>\n      ';
  } ;
-__p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
+__p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.sorted_noninputs) { ;
 __p += '\n        <a data-field-type="' +
 ((__t = ( Formbuilder.sorted_inputs[i].field_type )) == null ? '' : __t) +

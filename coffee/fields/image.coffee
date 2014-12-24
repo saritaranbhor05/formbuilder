@@ -1,6 +1,11 @@
 Formbuilder.registerField 'image',
+
+  type: 'non_input'
+
   caption: 'Image'
+
   view: """
+  <span><%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.LABEL)) %>
     <div
       style="
         text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;
@@ -27,9 +32,21 @@ Formbuilder.registerField 'image',
         />
       </a>
     </div>
+  <span class='help-block'>
+    <%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.DESCRIPTION)) %>
+  </span>
   """
 
   edit: """
+    <div class='fb-edit-section-header'>Label</div>
+
+    <div class='fb-common-wrapper'>
+      <div class='fb-label-description span11'>
+        <input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />
+        <textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'
+          placeholder='Add a longer description to this field'></textarea>
+      </div>
+    </div>
     <div class='fb-edit-section-header'>Upload File</div>
     <input id='<%= rf.getCid() %>' type='file' accept="image/jpeg, image/png"/>
     <input

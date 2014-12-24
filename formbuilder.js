@@ -926,7 +926,7 @@
         },
         remove: function() {
           this.options.parentView.editView = void 0;
-          this.options.parentView.$el.find("[href=\"#addField\"]").click();
+          this.options.parentView.$el.find("[data-target=\"#addField\"]").click();
           return Backbone.View.prototype.remove.call(this);
         },
         addOption: function(e) {
@@ -1118,7 +1118,7 @@
                   el.find('input').css('border-color', 'red');
                   el.find('textarea').css('border-color', 'red');
                   el.find('.hasDatepicker').css('border-color', 'red');
-                  el.find('.tokenfield').css('border-color', 'red');
+                  $(el.find('.tokenfield')[0]).css('border-color', 'red');
                   if (err_field_types.indexOf(fv.field_type) !== -1) {
                     return el.find('label > span').css('color', 'red');
                   }
@@ -2243,7 +2243,7 @@
                       field.$el.find('input').css('border-color', 'red');
                       field.$el.find('textarea').css('border-color', 'red');
                       field.$el.find('.hasDatepicker').css('border-color', 'red');
-                      field.$el.find('.tokenfield').css('border-color', 'red');
+                      $(field.$el.find('.tokenfield')[0]).css('border-color', 'red');
                       if (err_field_types.indexOf(field.field_type) !== -1) {
                         field.$el.find('label > span').css('color', 'red');
                       }
@@ -3771,9 +3771,10 @@
 
 (function() {
   Formbuilder.registerField('image', {
+    type: 'non_input',
     caption: 'Image',
-    view: "<div\n  style=\"\n    text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n  \"\n>\n<% var image_link;%>\n<% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n  <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n    <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n  <% } %>\n<% } %>\n  <a\n    class='image_link_form'\n    target='_blank'\n    <%= image_link ? 'href='+image_link : '' %>\n  >\n    <img\n      id='img_<%= rf.getCid() %>'\n      src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n      style=\"\n        width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n        height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n      \"\n    />\n  </a>\n</div>",
-    edit: "<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 512000){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 500 KB\")\n        }\n    });\n  });\n</script>",
+    view: "<span><%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.LABEL)) %>\n  <div\n    style=\"\n      text-align: <%= rf.get(Formbuilder.options.mappings.IMAGEALIGN) %>;\n    \"\n  >\n  <% var image_link;%>\n  <% if(typeof rf.get(Formbuilder.options.mappings.IMAGELINK) != \"undefined\"){ %>\n    <% if(rf.get(Formbuilder.options.mappings.IMAGELINK) != \"\"){ %>\n      <% image_link = rf.get(Formbuilder.options.mappings.IMAGELINK)%>\n    <% } %>\n  <% } %>\n    <a\n      class='image_link_form'\n      target='_blank'\n      <%= image_link ? 'href='+image_link : '' %>\n    >\n      <img\n        id='img_<%= rf.getCid() %>'\n        src='<%= rf.get(Formbuilder.options.mappings.IMAGE_DATA) %>'\n        style=\"\n          width:<%= rf.get(Formbuilder.options.mappings.IMAGEWIDTH) %>px;\n          height:<%= rf.get(Formbuilder.options.mappings.IMAGEHEIGHT) %>px\n        \"\n      />\n    </a>\n  </div>\n<span class='help-block'>\n  <%= Formbuilder.helpers.simple_format(rf.get(Formbuilder.options.mappings.DESCRIPTION)) %>\n</span>",
+    edit: "<div class='fb-edit-section-header'>Label</div>\n\n<div class='fb-common-wrapper'>\n  <div class='fb-label-description span11'>\n    <input type='text' data-rv-input='model.<%= Formbuilder.options.mappings.LABEL %>' />\n    <textarea data-rv-input='model.<%= Formbuilder.options.mappings.DESCRIPTION %>'\n      placeholder='Add a longer description to this field'></textarea>\n  </div>\n</div>\n<div class='fb-edit-section-header'>Upload File</div>\n<input id='<%= rf.getCid() %>' type='file' accept=\"image/jpeg, image/png\"/>\n<input\n  class='hide'\n  id='text_<%= rf.getCid() %>'\n  data-rv-value='model.<%= Formbuilder.options.mappings.IMAGE_DATA %>'\n/>\n<%= Formbuilder.templates['edit/image_options']() %>\n<script>\n  $(function() {\n    function readURL(input) {\n      if (input.files && input.files[0]) {\n        var reader = new FileReader();\n\n        reader.onloadend = function (e) {\n          $('#text_<%= rf.getCid() %>').val(e.target.result);\n          $('#text_<%= rf.getCid() %>').trigger(\"change\");\n        }\n        reader.readAsDataURL(input.files[0]);\n      }\n    }\n\n    $('#<%= rf.getCid() %>').change(function(){\n        if(this.files[0].size <= 512000){\n          readURL(this);\n        }\n        else{\n          alert(\"Please select file size less that 500 KB\")\n        }\n    });\n  });\n</script>",
     addButton: "<span class=\"symbol\"><span class=\"icon-picture\"></span></span> Image",
     checkAttributeHasValue: function(cid, $el) {
       return (function(_this) {
@@ -5312,7 +5313,7 @@ obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
 with (obj) {
-__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class=\'section\'>\n      ';
+__p += '<div class=\'fb-tab-pane active\' id=\'addField\'>\n  <div class=\'fb-add-field-types\'>\n    <div class="fb-button-section-header">Input Fields</div>\n    <div class=\'section\'>\n      ';
  Formbuilder.sorted_inputs.sort(function (a, b) {
           a = a.caption,
           b = b.caption;
@@ -5336,7 +5337,7 @@ __p += '\n        <a data-field-type="' +
 ((__t = ( Formbuilder.sorted_inputs[i].button_template )) == null ? '' : __t) +
 '\n        </a>\n      ';
  } ;
-__p += '\n    </div>\n\n    <div class=\'section\'>\n      ';
+__p += '\n    </div>\n    <div class="fb-button-section-header">Non-Input Fields</div>\n    <div class=\'section\'>\n      ';
  for (i in Formbuilder.sorted_noninputs) { ;
 __p += '\n        <a data-field-type="' +
 ((__t = ( Formbuilder.sorted_inputs[i].field_type )) == null ? '' : __t) +
