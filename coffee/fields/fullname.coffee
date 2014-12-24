@@ -1,4 +1,5 @@
 Formbuilder.registerField 'fullname',
+  caption: 'Full Name'
   prefix: ['Mr.', 'Mrs.', 'Miss.', 'Ms.', 'Mst.', 'Dr.']
   view: """
     <div class='input-line'>

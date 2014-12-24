@@ -1,5 +1,5 @@
 Formbuilder.registerField 'esignature',
-
+  caption: 'E-Signature'
   view: """
     <div class='esign-panel' style="display: inline-block;" >
     <% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>

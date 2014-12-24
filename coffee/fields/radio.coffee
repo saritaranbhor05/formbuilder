@@ -1,5 +1,5 @@
 Formbuilder.registerField 'radio',
-
+  caption: 'Radio Button'
   view: """
     <% var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || []) %>
     <% for ( var i = 0 ; i < field_options.length ; i++) { %>

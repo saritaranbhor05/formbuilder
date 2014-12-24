@@ -112,6 +112,8 @@ class Formbuilder
       UNSAVED_CHANGES: 'You have unsaved changes. If you leave this page, you will lose those changes!'
 
   @fields: {}
+  @sorted_inputs: []
+  @sorted_noninputs: []
   @inputFields: {}
   @nonInputFields: {}
   @latest_section_id: 100
@@ -168,8 +170,18 @@ class Formbuilder
 
     if opts.type == 'non_input'
       Formbuilder.nonInputFields[name] = opts
+      if opts['caption'] && opts['addButton']
+        Formbuilder.sorted_noninputs.push
+          caption: opts['caption']
+          button_template: opts['addButton']
+          field_type: name
     else
       Formbuilder.inputFields[name] = opts
+      if opts['caption'] && opts['addButton']
+        Formbuilder.sorted_inputs.push
+          caption: opts['caption']
+          button_template: opts['addButton']
+          field_type: name
 
   @make_wizard: (elem, opts) ->
     do(defaults = { showSteps: false, submitButton: false}) ->
@@ -1119,10 +1131,11 @@ class Formbuilder
                 clear_conditions_for_models[i].trigger("clearAllConditions")
                 clear_conditions_for_models[i].attributes.conditions = []
 
-              current_model.trigger("clearAllConditions") if current_model
-              current_model.attributes.conditions = [] if current_model
-              that.editView.remove()
-              that.createAndShowEditView(current_model) if current_model
+              if current_model
+                current_model.trigger("clearAllConditions")
+                current_model.attributes.conditions = []
+                that.editView.remove()
+                that.createAndShowEditView(current_model)
 
             @handleFormUpdate()
             @removeSortable()
@@ -1136,11 +1149,27 @@ class Formbuilder
 
         $addFieldButtons.draggable
           connectToSortable: @$responseFields
-          helper: =>
+          helper: (that = @)=>
             $helper = $("<div class='response-field-draggable-helper' />")
             $helper.css
               width: @$responseFields.width() # hacky, won't get set without inline style
               height: '80px'
+            if $(that.currentTarget).data('field-type')
+              do(coll = new Formbuilder.collection(), rf = null, drag_el_view = null) =>
+                rf = coll.create Formbuilder.helpers.defaultFieldAttrs($(that.currentTarget).data('field-type')), {$replaceEl: $helper}
+                drag_el_view = new Formbuilder.views.view_field
+                  model: rf
+                  parentView: @
+                  live: @options.live
+                  readonly: @options.readonly
+                  view_type: @options.view_type
+                  tagName: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldTagName else 'div'
+                  className: if Formbuilder.baseConfig[@options.view_type] then Formbuilder.baseConfig[@options.view_type].fieldClassName else 'fb-field-wrapper'
+                  seedData: rf.seedData
+
+                $helper.append drag_el_view.render().el
+                $helper.css
+                  height: 'auto'
             $('.form-builder-left-container ').css('overflow', 'inherit')
             $helper
 

@@ -1,5 +1,5 @@
 Formbuilder.registerField 'text',
-
+  caption: 'Text Box'
   view: """
     <input
       type='text'

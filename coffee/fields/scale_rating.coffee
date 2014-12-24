@@ -1,5 +1,5 @@
 Formbuilder.registerField 'scale_rating',
-
+  caption: 'Scale Rating'
   view: """
     <%var field_options = (rf.get(Formbuilder.options.mappings.OPTIONS) || [])%>
     <div class='row-fluid mobile-device'>

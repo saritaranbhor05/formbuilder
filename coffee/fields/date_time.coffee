@@ -1,5 +1,5 @@
 Formbuilder.registerField 'date_time',
-
+  caption: 'Date and Time'
   view: """
     <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
       <div class='input-line'>
