@@ -1520,6 +1520,10 @@
           $addFieldButtons = this.$el.find("[data-field-type]");
           return $addFieldButtons.draggable({
             connectToSortable: this.$responseFields,
+            cursorAt: {
+              top: 5,
+              left: 5
+            },
             helper: (function(_this) {
               return function(that) {
                 var $helper;

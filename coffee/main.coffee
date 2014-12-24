@@ -1149,6 +1149,9 @@ class Formbuilder
 
         $addFieldButtons.draggable
           connectToSortable: @$responseFields
+          cursorAt:
+            top: 5
+            left: 5
           helper: (that = @)=>
             $helper = $("<div class='response-field-draggable-helper' />")
             $helper.css
