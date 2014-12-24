@@ -1,5 +1,5 @@
 Formbuilder.registerField 'heading',
-
+  caption: 'Heading'
   type: 'non_input'
 
   view: """

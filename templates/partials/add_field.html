@@ -1,19 +1,29 @@
 <div class='fb-tab-pane active' id='addField'>
   <div class='fb-add-field-types'>
     <div class='section'>
-      <% for (i in Formbuilder.inputFields) { 
-         if(Formbuilder.inputFields[i].getFieldType) { } else { %>
-              <a data-field-type="<%= i %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
-                <%= Formbuilder.inputFields[i].addButton %>
-              </a>
-            
-      <% } }%>
+      <% Formbuilder.sorted_inputs.sort(function (a, b) {
+          a = a.caption,
+          b = b.caption;
+          return a.localeCompare(b);
+        });
+      %>
+      <% Formbuilder.sorted_noninputs.sort(function (a, b) {
+          a = a.caption,
+          b = b.caption;
+          return a.localeCompare(b);
+        });
+      %>
+      <% for (i in Formbuilder.sorted_inputs) { %>
+        <a data-field-type="<%= Formbuilder.sorted_inputs[i].field_type %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
+          <%= Formbuilder.sorted_inputs[i].button_template %>
+        </a>
+      <% } %>
     </div>
 
     <div class='section'>
-      <% for (i in Formbuilder.nonInputFields) { %>
-        <a data-field-type="<%= i %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
-          <%= Formbuilder.nonInputFields[i].addButton %>
+      <% for (i in Formbuilder.sorted_noninputs) { %>
+        <a data-field-type="<%= Formbuilder.sorted_inputs[i].field_type %>" class="<%= Formbuilder.options.BUTTON_CLASS %>">
+          <%= Formbuilder.sorted_noninputs[i].button_template %>
         </a>
       <% } %>
     </div>

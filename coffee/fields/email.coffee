@@ -1,5 +1,5 @@
 Formbuilder.registerField 'email',
-
+  caption: 'Email'
   view: """
     <input type='email' class='rf-size-<%= rf.get(Formbuilder.options.mappings.SIZE) %>' />
   """

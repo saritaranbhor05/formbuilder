@@ -1,5 +1,5 @@
 Formbuilder.registerField 'dropdown',
-
+  caption: 'Dropdown'
   view: """
     <% if(Formbuilder.isAndroid()) { %>
       <input type="text" id="<%= rf.getCid() %>" dropdown="dropdown" name="<%= rf.getCid() %>" readonly="true"></input>

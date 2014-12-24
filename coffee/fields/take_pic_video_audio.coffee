@@ -1,5 +1,5 @@
 Formbuilder.registerField 'take_pic_video_audio',
-
+  caption: 'Capture'
   view: """
     <div class='input-line'>
       <% if(_.contains(Formbuilder.options.FIELD_CONFIGS['take_pic_video_audio'], 'all')){ %>

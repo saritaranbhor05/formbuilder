@@ -1,5 +1,5 @@
 Formbuilder.registerField 'phone_number',
-
+  caption: 'Phone Number'
   view: """
     <input id='<%= rf.getCid() %>phone' type='tel'/>
   """

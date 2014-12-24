@@ -1,6 +1,6 @@
 unless typeof(CKEDITOR) is 'undefined'
   Formbuilder.registerField 'free_text_html',
-
+    caption: 'Free Text HTML'
     type: 'non_input'
 
     view: """

@@ -1,5 +1,5 @@
 Formbuilder.registerField 'image',
-
+  caption: 'Image'
   view: """
     <div
       style="

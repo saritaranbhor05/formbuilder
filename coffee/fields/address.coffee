@@ -1,5 +1,5 @@
 Formbuilder.registerField 'address',
-
+  caption: 'Address'
   view: """
     <div class='input-line'>
       <span class="span6">
