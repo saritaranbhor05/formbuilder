@@ -173,7 +173,7 @@
     Formbuilder.latest_section_id = 100;
 
     Formbuilder.isIos = function() {
-      return typeof BRIJavaScriptInterface !== 'undefined';
+      return typeof IOSJavaScriptInterface !== 'undefined';
     };
 
     Formbuilder.isAndroid = function() {
@@ -1904,7 +1904,7 @@
               }
             }
             if (field_view.model.get('field_type') === 'address') {
-              if (typeof BRIJavaScriptInterface !== 'undefined') {
+              if (Formbuilder.isIos()) {
                 return $('#file_' + field_view.model.getCid()).bfhcountries();
               } else {
                 return $('#file_' + field_view.model.getCid()).bfhcount();
@@ -3312,7 +3312,7 @@
 (function() {
   Formbuilder.registerField('esignature', {
     caption: 'E-Signature',
-    view: "<div class='esign-panel' style=\"display: inline-block;\" >\n<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <img title=\"click here to change\" type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;\n                  height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>\n  <canvas\n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"display:none;\" class=\"esign_canvas\"\n  />\n<% } else\n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <img title=\"click here to change\" type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>\n    <canvas\n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"display:none;\" class=\"esign_canvas\"\n    />\n<% } %>\n<% if (typeof(Android) == 'undefined' && typeof(BRIJavaScriptInterface) == 'undefined') { %>\n<div class=\"esign_actions\" style=\"display:none;\">\n  <i class=\"esign_icons icon-refresh\" id=\"clr\" type=\"\" value=\"Clear\" title=\"clear\" style=\"max-width:70px;\"></i>\n  <i class=\"esign_icons icon-ok\" id=\"done\" type=\"\" value=\"Done\" title=\"done\" style=\"max-width:70px;\"></i>\n  <i class=\"esign_icons icon-remove\" id=\"cancel\" type=\"\" value=\"Cancel\" title=\"cancel\"  style=\"max-width:70px;\"></i>\n</div>\n<% } %>\n</div>",
+    view: "<div class='esign-panel' style=\"display: inline-block;\" >\n<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <img title=\"click here to change\" type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;\n                  height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>\n  <canvas\n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"display:none;\" class=\"esign_canvas\"\n  />\n<% } else\n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <img title=\"click here to change\" type='esignature' id='esign' class='canvas_img' style='width:250px;height:150px;float:left;display:none;'></img>\n    <canvas\n        id=\"can\"\n        width='250px'\n        height='150px'\n        style=\"display:none;\" class=\"esign_canvas\"\n    />\n<% } %>\n<% if (!Formbuilder.isAndroid() && !Formbuilder.isIos()) { %>\n<div class=\"esign_actions\" style=\"display:none;\">\n  <i class=\"esign_icons icon-refresh\" id=\"clr\" type=\"\" value=\"Clear\" title=\"clear\" style=\"max-width:70px;\"></i>\n  <i class=\"esign_icons icon-ok\" id=\"done\" type=\"\" value=\"Done\" title=\"done\" style=\"max-width:70px;\"></i>\n  <i class=\"esign_icons icon-remove\" id=\"cancel\" type=\"\" value=\"Cancel\" title=\"cancel\"  style=\"max-width:70px;\"></i>\n</div>\n<% } %>\n</div>",
     print: "<div class='esign-panel' style=\"display: inline-block;\" >\n<% if(rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) || rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n  <img type='esignature' id='esign' class='canvas_img' style='width:<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px;\n                  height:<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px;display:none;'></img>\n  <canvas\n      id=\"can\"\n      width='<%= rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) %>px'\n      height='<%= rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT) %>px'\n      style=\"display:none;\" class=\"esign_canvas\"\n  />\n<% } else\n  if(!rf.get(Formbuilder.options.mappings.CANVAS_WIDTH) && !rf.get(Formbuilder.options.mappings.CANVAS_HEIGHT)) { %>\n    <img type='esignature' id='esign' class='canvas_img' style='width:150px;height:100px;float:left;display:none;'></img>\n    <canvas\n        id=\"can\"\n        width='150px'\n        height='100px'\n        style=\"display:none;\" class=\"esign_canvas\"\n    />\n<% } %>\n</div>",
     edit: "<%= Formbuilder.templates['edit/canvas_options']() %>",
     addButton: "<span class=\"symbol\"><span class=\"icon-pen\"></span></span> E-Signature",
@@ -5607,7 +5607,7 @@ __p += '<label>\n  <span>' +
 __p += '\n    <abbr title=\'required\'>*</abbr>\n  ';
  } ;
 __p += '\n  ';
- if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined')) ) {
+ if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (Formbuilder.isAndroid() || Formbuilder.isIos()) )) {
       if(opts.view_type != 'print'){
    ;
 __p += '\n    ';

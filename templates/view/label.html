@@ -3,7 +3,7 @@
   <% if (rf.get(Formbuilder.options.mappings.REQUIRED)) { %>
     <abbr title='required'>*</abbr>
   <% } %>
-  <% if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined')) ) {
+  <% if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (Formbuilder.isAndroid() || Formbuilder.isIos()) )) {
       if(opts.view_type != 'print'){
    %>
     <% var lbl_info_to_show = 'click here to sign',

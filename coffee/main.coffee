@@ -119,7 +119,7 @@ class Formbuilder
   @latest_section_id: 100
 
   @isIos: ->
-    typeof(BRIJavaScriptInterface) != 'undefined'
+    typeof(IOSJavaScriptInterface) != 'undefined'
 
   @isAndroid: ->
     typeof(Android) != 'undefined'
@@ -1449,7 +1449,7 @@ class Formbuilder
                 buttonText: field_view.model.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT) || ''
               });
           if field_view.model.get('field_type') is 'address'
-            if typeof(BRIJavaScriptInterface) != 'undefined'
+            if Formbuilder.isIos()
               $('#file_'+field_view.model.getCid()).bfhcountries();
             else
               $('#file_'+field_view.model.getCid()).bfhcount();

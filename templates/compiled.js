@@ -1021,7 +1021,7 @@ __p += '<label>\n  <span>' +
 __p += '\n    <abbr title=\'required\'>*</abbr>\n  ';
  } ;
 __p += '\n  ';
- if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (typeof(Android) != 'undefined' || typeof(BRIJavaScriptInterface) != 'undefined')) ) {
+ if(rf.get('field_type') == 'esignature' || (rf.get('field_type') == 'esignature' && (Formbuilder.isAndroid() || Formbuilder.isIos()) )) {
       if(opts.view_type != 'print'){
    ;
 __p += '\n    ';

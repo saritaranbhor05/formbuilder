@@ -21,7 +21,7 @@ Formbuilder.registerField 'esignature',
             style="display:none;" class="esign_canvas"
         />
     <% } %>
-    <% if (typeof(Android) == 'undefined' && typeof(BRIJavaScriptInterface) == 'undefined') { %>
+    <% if (!Formbuilder.isAndroid() && !Formbuilder.isIos()) { %>
     <div class="esign_actions" style="display:none;">
       <i class="esign_icons icon-refresh" id="clr" type="" value="Clear" title="clear" style="max-width:70px;"></i>
       <i class="esign_icons icon-ok" id="done" type="" value="Done" title="done" style="max-width:70px;"></i>
