@@ -1497,7 +1497,9 @@
                   if (current_model) {
                     current_model.trigger("clearAllConditions");
                     current_model.attributes.conditions = [];
-                    that.editView.remove();
+                    if (that.editView) {
+                      that.editView.remove();
+                    }
                     return that.createAndShowEditView(current_model);
                   }
                 })(_this, _this.collection.models[ui.item.index()], ui.item.index(), _this.collection.models, void 0, void 0, []);

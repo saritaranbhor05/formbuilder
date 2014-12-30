@@ -1134,7 +1134,7 @@ class Formbuilder
               if current_model
                 current_model.trigger("clearAllConditions")
                 current_model.attributes.conditions = []
-                that.editView.remove()
+                that.editView.remove() if that.editView
                 that.createAndShowEditView(current_model)
 
             @handleFormUpdate()
