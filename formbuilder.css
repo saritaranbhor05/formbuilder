@@ -165,6 +165,7 @@
   cursor: text;
 }
 .fb-field-wrapper .subtemplate-wrapper .active_link_doc {
+  position: absolute;
   margin-right: 10px;
   z-index: 3;
   text-decoration: underline;
