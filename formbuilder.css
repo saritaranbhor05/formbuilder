@@ -170,6 +170,9 @@
   z-index: 3;
   text-decoration: underline;
 }
+.fb-field-wrapper .subtemplate-wrapper .close_link {
+  margin-left: 200px;
+}
 .fb-field-wrapper .subtemplate-wrapper .cover {
   position: absolute;
   top: 0;
