@@ -3,7 +3,7 @@ Formbuilder.registerField 'date_time',
   view: """
     <% if(!rf.get(Formbuilder.options.mappings.TIME_ONLY) && !rf.get(Formbuilder.options.mappings.DATE_ONLY)) { %>
       <div class='input-line'>
-        <input id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
+        <input step_minute='<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>' id='<%= rf.getCid()%>_datetime' type='text' readonly date_format='<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT)%>'/>
       </div>
       <script>
         $(function() {
@@ -21,7 +21,7 @@ Formbuilder.registerField 'date_time',
       </script>
     <% } else if(rf.get(Formbuilder.options.mappings.TIME_ONLY)) { %>
       <div class='input-line'>
-        <input id='<%= rf.getCid() %>_time' type='text' readonly />
+        <input step_minute='<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>' id='<%= rf.getCid() %>_time' type='text' readonly />
       </div>
       <script>
         $(function() {
