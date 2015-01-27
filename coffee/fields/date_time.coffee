@@ -7,10 +7,17 @@ Formbuilder.registerField 'date_time',
       </div>
       <script>
         $(function() {
+          var step;
+          if (parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>') < 1)
+          {
+            step = 1;
+          }else{
+            step = parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>');
+          }
           $("#<%= rf.getCid() %>_datetime")
               .datetimepicker({
                   dateFormat: '<%= rf.get(Formbuilder.options.mappings.DATE_FORMAT) || 'dd/mm/yy' %>',
-                  stepMinute: parseInt('<%= rf.get(Formbuilder.options.mappings.STEP) || '1' %>'),
+                  stepMinute: step,
                   addSliderAccess: true,
                   sliderAccessArgs: { touchonly: false },
                   changeMonth : true,
