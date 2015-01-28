@@ -111,6 +111,7 @@ Formbuilder.registerField 'gmap',
       if $('#gmapModal').length is 0
         this.addRequiredConditions(model) if this.addRequiredConditions
       $('#gmap_ok').val(model.getCid())
+      @generateLocation(model) unless model.attributes.field_values
       $('#gmapModal').modal({
         show: true
       })
@@ -138,6 +139,14 @@ Formbuilder.registerField 'gmap',
         $( "#gmap_address" ).unbind('keypress')
         $( "#gmap_latlng" ).unbind('keypress')
 
+  generateLocation: (model) ->
+    if !(model.get('field_values') && model.get('field_values')[name])
+      get_user_location = getCurrentLocation(model.getCid());
+      if get_user_location != 'false'
+        $("[name = " + model.getCid() + "_1]").text(get_user_location)
+      else
+        $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+
   setup: (field_view, model) ->
     do($input = field_view.$el.find($("[name = " + model.getCid() + "_2]"))) =>
       if model.attributes.field_values
@@ -145,11 +154,7 @@ Formbuilder.registerField 'gmap',
         $input.val(model.attributes.field_values["#{model.getCid()}_2"])
       else
         if !(model.get('field_values') && model.get('field_values')[name])
-          get_user_location = getCurrentLocation(model.getCid());
-          if get_user_location != 'false'
-            $("[name = " + model.getCid() + "_1]").text(get_user_location)
-          else
-            $("[name = " + model.getCid() + "_1]").text('Select Your Address')
+          $("[name = " + model.getCid() + "_1]").text('Select Your Address')
       if $input.val() != ''
         field_view.trigger('change_state')
     @clickGmapButton(model)
