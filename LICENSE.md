@@ -1,6 +1,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2013 Department of Better Technology, Inc.
+
 Copyright (c) 2015 Sarita Ranbhor, Vertis Microsystems LLP.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
