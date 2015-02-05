@@ -77,8 +77,6 @@
       FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes', 'fullname', 'radio', 'scale_rating', 'file'],
       PRINT_FIELDS_AS_SINGLE_ROW: ['file', 'take_pic_video_audio'],
       CKEDITOR_CONFIG: ' ',
-      HIERARCHYSELECTORVIEW: ' ',
-      COMPANY_HIERARCHY: [],
       PRINTVIEW: false,
       EDIT_FS_MODEL: false,
       EXTERNAL_FIELDS: [],
@@ -1182,7 +1180,6 @@
             this.options.readonly = true;
           }
           (_base = this.options).showSubmit || (_base.showSubmit = false);
-          Formbuilder.options.COMPANY_HIERARCHY = this.options.company_hierarchy;
           if (!_.isUndefined(this.options.field_configs.fieldtype_custom_validation)) {
             Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION = Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(this.options.field_configs.fieldtype_custom_validation);
           }
@@ -1222,10 +1219,7 @@
           if (this.options.autoSave) {
             this.initAutosave();
           }
-          Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
-          if (!_.isUndefined(this.options.hierarchy_selector_view)) {
-            return Formbuilder.options.HIERARCHYSELECTORVIEW = this.options.hierarchy_selector_view;
-          }
+          return Formbuilder.options.CKEDITOR_CONFIG = this.options.ckeditor_config;
         },
         getCurrentView: function() {
           var current_view_state, fieldView;
@@ -3428,7 +3422,7 @@
 (function() {
   Formbuilder.registerField('file', {
     caption: 'File',
-    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  class='icon-folder-open file_field'\n  cid=\"<%= rf.getCid() %>\"\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>\n<script>\n  $(function() {\n    if(\"!<%=Formbuilder.isMobile()%>\"){\n      $(\"#file_<%= rf.getCid() %>\").filestyle({\n        input: false,\n        buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n      });\n    }\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n        $(\"#file_name_<%= rf.getCid() %>\").text('');\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        bri_alerts(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\", 'error');\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
+    view: "<span id='file_name_<%= rf.getCid() %>'></span>\n<a target=\"_blank\" class=\"active_link\"></a>\n<input\n  id='file_<%= rf.getCid() %>'\n  type='file'\n  class='icon-folder-open file_field'\n  cid=\"<%= rf.getCid() %>\"\n  accept=\"<%= rf.get(Formbuilder.options.mappings.ALLOWED_FILE_TYPES) %>\"\n  for-ios-file-size=\"<%= rf.get(Formbuilder.options.mappings.MAX) %>\"\n/>\n<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>\n<script>\n  $(function() {\n    if(\"!<%=Formbuilder.isMobile()%>\"){\n      $(\"#file_<%= rf.getCid() %>\").filestyle({\n        input: false,\n        buttonText: \"<%= rf.get(Formbuilder.options.mappings.FILE_BUTTON_TEXT)%>\"\n      });\n    }\n    setTimeout(function(){\n      if ($('a[name=\"<%= rf.getCid() %>_1\"]').text() != \"\"){\n        $(\"#file_<%= rf.getCid() %>\").attr('required',false);\n        $(\"#file_name_<%= rf.getCid() %>\").text('');\n      }\n    },1000);\n\n    $('#file_<%= rf.getCid() %>').change(function(){\n      $('#file_name_<%= rf.getCid() %>').text(this.files[0].name);\n      var max_size = 1024*1024*'<%= rf.get(Formbuilder.options.mappings.MAX) || 10000%>'\n      if(this.files[0].size <= max_size){\n        return true;\n      }\n      else{\n        alert(\"Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB\");\n        $(\"#file_<%= rf.getCid() %>\").filestyle(\"clear\");\n        $(\"#file_<%= rf.getCid() %>\").replaceWith($(\"#file_<%= rf.getCid() %>\").clone(true));\n        $('#file_name_<%= rf.getCid() %>').text('');\n      }\n    });\n  });\n</script>",
     edit: "\n<div class='fb-edit-section-header'>Options</div>\n\n<div class=\"span12\">\n  <span>Change Button Text:</span>\n  <input\n    type=\"text\"\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.FILE_BUTTON_TEXT %>\"\n  >\n  </input>\n</div>\n\n<div class=\"span12\">\n  <span>Allowed File Types:</span>\n  <textarea\n    class=\"span12\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.ALLOWED_FILE_TYPES %>\"\n  >\n  </textarea>\n</div>\n\n<div class=\"span12\">\n  <span>Max File Size in MB:</span>\n  <input\n    class=\"span3\"\n    type=\"number\"\n    data-rv-input=\"model.<%= Formbuilder.options.mappings.MAX %>\"\n    style=\"width: 80px\"\n  />\n</div>",
     print: "<div id=\"file_upload_link_<%= rf.getCid() %>\"></div>",
     addButton: "<span class=\"symbol\"><span class=\"icon-cloud-upload\"></span></span> File",

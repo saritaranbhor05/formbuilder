@@ -29,8 +29,6 @@ class Formbuilder
     FIELDSTYPES_CUSTOM_VALIDATION: ['checkboxes','fullname','radio', 'scale_rating', 'file']
     PRINT_FIELDS_AS_SINGLE_ROW: ['file', 'take_pic_video_audio']
     CKEDITOR_CONFIG: ' '
-    HIERARCHYSELECTORVIEW: ' '
-    COMPANY_HIERARCHY: []
     PRINTVIEW: false,
     EDIT_FS_MODEL: false,
     EXTERNAL_FIELDS: [],
@@ -898,7 +896,6 @@ class Formbuilder
 
         @options.readonly = true if !@options.live
         @options.showSubmit ||= false
-        Formbuilder.options.COMPANY_HIERARCHY = @options.company_hierarchy
         # Register external fields which are specific to the requirements.
         unless _.isUndefined @options.field_configs.fieldtype_custom_validation
           Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION = Formbuilder.options.FIELDSTYPES_CUSTOM_VALIDATION.concat(
@@ -947,7 +944,6 @@ class Formbuilder
         @saveFormButton.attr('disabled', true).text(Formbuilder.options.dict.ALL_CHANGES_SAVED)
         @initAutosave() if @options.autoSave
         Formbuilder.options.CKEDITOR_CONFIG = @options.ckeditor_config
-        Formbuilder.options.HIERARCHYSELECTORVIEW = @options.hierarchy_selector_view unless _.isUndefined(@options.hierarchy_selector_view)
 
       getCurrentView: ->
         current_view_state = (fieldView.model.get('cid') for fieldView in @fieldViews when fieldView.current_state is 'show')

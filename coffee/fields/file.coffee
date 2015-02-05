@@ -34,7 +34,7 @@ Formbuilder.registerField 'file',
             return true;
           }
           else{
-            bri_alerts("Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB", 'error');
+            alert("Please select file size less that <%= rf.get(Formbuilder.options.mappings.MAX) %> MB");
             $("#file_<%= rf.getCid() %>").filestyle("clear");
             $("#file_<%= rf.getCid() %>").replaceWith($("#file_<%= rf.getCid() %>").clone(true));
             $('#file_name_<%= rf.getCid() %>').text('');
