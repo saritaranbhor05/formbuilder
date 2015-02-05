@@ -1,6 +1,16 @@
 Formbuilder.js
 ============
 
+#### Update 02/05/15
+
+I'm working on an enhancements of formbuilder (http://dobtco.github.io/formbuilder/).
+This contains following enhancements:
+# Added new fileds like: Ckeditor, Date-time difference, Esignature, Gmap, Image, Phone Number, Scale Rating, Take Photo/Audio/Video.
+# Implemented section_break using easywizrad.
+# Enhanced section_break for recurring sections.
+
+-----
+
 Formbuilder is a graphical interface for letting users build their own webforms. Think Wufoo or Google Forms, but a lightweight component that can be integrated into your application.
 
 *As of right now, Formbuilder only handles the client-side logic of creating a form. It will output a structured JSON representation of your form, but saving the form, rendering it on the server, and storing users' responses is all up to you. I'm planning on releasing a Rails gem to handle this logic, but the ETA on that is pretty up in the air. If you'd like to help, feel free to reach out.*
