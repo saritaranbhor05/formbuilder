@@ -5,6 +5,7 @@ Formbuilder.js
 
 I'm working on an enhancements of formbuilder (http://dobtco.github.io/formbuilder/).
 This contains following enhancements:
+
 1. Added new fileds like: Ckeditor, Date-time difference, Esignature, Gmap, Image, Phone Number, Scale Rating, Take Photo/Audio/Video.
 2. Implemented section_break using easywizrad.
 3. Enhanced section_break for recurring sections.
